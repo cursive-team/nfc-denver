@@ -1,10 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
+import { object, string } from "yup";
 
-export enum ErrorTapResponse {
-  CMAC_INVALID,
-  PERSON_NOT_REGISTERED,
-  LOCATION_NOT_REGISTERED,
+export enum TapResponseCode {
+  CMAC_INVALID = "CMAC_INVALID",
+  PERSON_NOT_REGISTERED = "PERSON_NOT_REGISTERED",
+  LOCATION_NOT_REGISTERED = "LOCATION_NOT_REGISTERED",
+  VALID_PERSON = "VALID_PERSON",
+  VALID_LOCATION = "VALID_LOCATION",
 }
 
 export type PersonTapResponse = {
@@ -13,6 +16,13 @@ export type PersonTapResponse = {
   twitterUsername?: string;
   telegramUsername?: string;
 };
+
+export const personTapResponseSchema = object({
+  displayName: string().required(),
+  encryptionPubKey: string().required(),
+  twitterUsername: string().optional(),
+  telegramUsername: string().optional(),
+});
 
 export type LocationTapResponse = {
   name: string;
@@ -23,20 +33,43 @@ export type LocationTapResponse = {
   signature: string;
 };
 
-export type TapResponse =
-  | ErrorTapResponse
-  | PersonTapResponse
-  | LocationTapResponse;
+export const locationTapResponseSchema = object({
+  name: string().required(),
+  description: string().required(),
+  sponsor: string().required(),
+  imageUrl: string().required(),
+  signaturePubKey: string().required(),
+  signature: string().required(),
+});
 
-export type ErrorResponse = { message: string };
+export type TapResponse = {
+  code: TapResponseCode;
+  person?: PersonTapResponse;
+  location?: LocationTapResponse;
+};
+
+export const tapResponseSchema = object({
+  code: string().oneOf(Object.values(TapResponseCode)),
+  person: personTapResponseSchema.nullable().notRequired(),
+  location: locationTapResponseSchema.nullable().notRequired(),
+});
+
+export type ErrorResponse = { error: string };
 
 /**
  * Returns the chipId for a given cmac, and if the cmac is new or has been used
  */
 export const TODO_getChipIdFromIykCmac = (
   cmac: string
-): { chipId: string; isValid: boolean } | undefined => {
-  return { chipId: cmac, isValid: true };
+): { chipId: string | undefined; isValid: boolean } => {
+  const chipId = parseInt(cmac);
+  if (isNaN(chipId)) {
+    return { chipId: undefined, isValid: false };
+  }
+
+  // TEMPORARY: CHIPS ARE ONLY VALID WITH IDS FROM 0-99
+  const chipIdExists = chipId >= 0 && chipId < 100;
+  return { chipId: chipIdExists ? cmac : undefined, isValid: true };
 };
 
 /**
@@ -67,25 +100,23 @@ export default async function handler(
   res: NextApiResponse<TapResponse | ErrorResponse>
 ) {
   if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   // cmac must be provided
-  const cmac = req.body.cmac;
-  if (!cmac) {
-    return res.status(200).json(ErrorTapResponse.CMAC_INVALID);
+  const cmac = req.query.cmac;
+  if (!cmac || typeof cmac !== "string") {
+    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
   }
 
+  const { chipId, isValid } = TODO_getChipIdFromIykCmac(cmac);
   // cmac must exist in iyk's lookup
-  const cmacRes = TODO_getChipIdFromIykCmac(cmac);
-  if (!cmacRes) {
-    return res.status(200).json(ErrorTapResponse.CMAC_INVALID);
+  if (chipId === undefined) {
+    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
   }
-
   // cmac must not have been used before
-  const { chipId, isValid } = cmacRes;
   if (!isValid) {
-    return res.status(200).json(ErrorTapResponse.CMAC_INVALID);
+    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
   }
 
   // if user is registered, return user data
@@ -101,7 +132,9 @@ export default async function handler(
       twitterUsername: user.twitterUsername ?? undefined,
       telegramUsername: user.telegramUsername ?? undefined,
     };
-    return res.status(200).json(personTapResponse);
+    return res
+      .status(200)
+      .json({ code: TapResponseCode.VALID_PERSON, person: personTapResponse });
   }
 
   // if location is registered, return location data
@@ -120,14 +153,21 @@ export default async function handler(
       signaturePubKey: location.signaturePubKey,
       signature,
     };
-    return res.status(200).json(locationTapResponse);
+    return res.status(200).json({
+      code: TapResponseCode.VALID_LOCATION,
+      location: locationTapResponse,
+    });
   }
 
   // card is not registered, return whether it is a person card or location card
   const isPersonCard = TODO_isChipIdAPersonCard(chipId);
   if (isPersonCard) {
-    return res.status(200).json(ErrorTapResponse.PERSON_NOT_REGISTERED);
+    return res
+      .status(200)
+      .json({ code: TapResponseCode.PERSON_NOT_REGISTERED });
   } else {
-    return res.status(200).json(ErrorTapResponse.LOCATION_NOT_REGISTERED);
+    return res
+      .status(200)
+      .json({ code: TapResponseCode.LOCATION_NOT_REGISTERED });
   }
 }
