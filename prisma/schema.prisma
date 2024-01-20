@@ -39,7 +39,7 @@ model Location {
 model SigninCode {
   id                Int      @id @default(autoincrement())
   value             String
-  email             String   
+  email             String   @unique
   usedGuessAttempts Int
   expiresAt         DateTime
   redeemedAt        DateTime? 

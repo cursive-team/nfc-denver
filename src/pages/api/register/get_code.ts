@@ -1,25 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
+import sgMail from "@sendgrid/mail";
+import { ErrorResponse } from "../tap";
 
-import { object, string } from "yup";
-
-export type RegisterResponse = {
-  signinCode: string;
-};
-
-export const registerResponseSchema = object({
-  signinCode: string().required(),
-});
-
-export type ErrorResponse = { error: string };
-
-export const errorResponseSchema = object({
-  error: string().required(),
-});
+export type EmptyResponse = {};
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<RegisterResponse | ErrorResponse>
+  res: NextApiResponse<EmptyResponse | ErrorResponse>
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -29,6 +17,11 @@ export default async function handler(
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
   }
+
+  // Delete all signin codes associated with the email
+  await prisma.signinCode.deleteMany({
+    where: { email: email },
+  });
 
   // Generate a one-time signin code as a 6 digit integer represented as a string, with leading zeros if necessary
   const newSigninCode = Math.floor(Math.random() * 1000000)
@@ -43,6 +36,23 @@ export default async function handler(
   const signinCodeEntry = await prisma.signinCode.create({
     data: { value: newSigninCode, email, expiresAt, usedGuessAttempts: 0 },
   });
+  const signinCode = signinCodeEntry.value;
 
-  return res.status(200).json({ signinCode: signinCodeEntry.value });
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+    const msg = {
+      to: email,
+      from: "andrewclu98@gmail.com",
+      subject: "Your Signin Code",
+      text: `Your one-time signin code is: ${signinCode}. It will expire in 30 minutes.`,
+      html: `<strong>Your one-time signin code is: ${signinCode}</strong>. It will expire in 30 minutes.`,
+    };
+
+    await sgMail.send(msg);
+
+    return res.status(200).json({});
+  } catch (error) {
+    console.error("Error sending email", error);
+    return res.status(500).json({ error: "Error sending email" });
+  }
 }
