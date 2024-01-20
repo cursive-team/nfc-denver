@@ -50,8 +50,8 @@ export type TapResponse = {
 
 export const tapResponseSchema = object({
   code: string().oneOf(Object.values(TapResponseCode)),
-  person: personTapResponseSchema.nullable().notRequired(),
-  location: locationTapResponseSchema.nullable().notRequired(),
+  person: personTapResponseSchema.optional().default(undefined),
+  location: locationTapResponseSchema.optional().default(undefined),
 });
 
 export type ErrorResponse = { error: string };
