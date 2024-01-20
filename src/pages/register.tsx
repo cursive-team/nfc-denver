@@ -40,25 +40,28 @@ export default function Register() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-800 text-white p-4 rounded-md"
-    >
-      <label className="block mb-2">
-        Email:
+    <div>
+      <h1>Register</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-800 text-white p-4 rounded-md"
+      >
+        <label className="block mb-2">
+          Email:
+          <input
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+          />
+        </label>
         <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={handleInputChange}
-          className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+          type="submit"
+          value="Register"
+          className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         />
-      </label>
-      <input
-        type="submit"
-        value="Register"
-        className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-      />
-    </form>
+      </form>
+    </div>
   );
 }

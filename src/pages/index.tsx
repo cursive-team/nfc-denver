@@ -3,7 +3,6 @@ import {
   LocationTapResponse,
   PersonTapResponse,
   TapResponseCode,
-  personTapResponseSchema,
   tapResponseSchema,
 } from "./api/tap";
 
@@ -40,9 +39,7 @@ export default function Home() {
         return response.json();
       })
       .then(async (data) => {
-        console.log(data);
         const tapResponse = tapResponseSchema.validateSync(data);
-
         switch (tapResponse.code) {
           case TapResponseCode.CMAC_INVALID:
             throw new Error("CMAC invalid!");
