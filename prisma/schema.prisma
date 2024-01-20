@@ -35,3 +35,13 @@ model Location {
   signaturePubKey String
   createdAt       DateTime @default(now())
 }
+
+model SigninCode {
+  id                Int      @id @default(autoincrement())
+  value             String
+  email             String   
+  usedGuessAttempts Int
+  expiresAt         DateTime
+  redeemedAt        DateTime? 
+  createdAt         DateTime @default(now())
+}
