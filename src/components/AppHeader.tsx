@@ -1,6 +1,7 @@
 import { Icons } from "@/components/Icons";
 import { classed } from "@tw-classed/react";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { use, useState } from "react";
 
 const Title = classed.h3("text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -12,6 +13,23 @@ interface AppHeaderContentProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (value: boolean) => void;
 }
+
+export const AppBackHeader = () => {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col justify-center h-[60px]">
+      <button
+        type="button"
+        className="flex items-center gap-1"
+        onClick={() => router.back()}
+      >
+        <Icons.arrowLeft />
+        <span className="text-gray-11 text-sm">Back</span>
+      </button>
+    </div>
+  );
+};
 
 const AppHeaderContent = ({
   isMenuOpen,

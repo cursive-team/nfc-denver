@@ -11,7 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-col grow">
         {showHeader && !fullPage && <AppHeader />}
-        <div className="flex flex-col grow container px-4 ">
+        <div className="flex flex-col grow container px-4">
           <Component {...pageProps} />
         </div>
         {showFooter && !fullPage && <AppFooter />}

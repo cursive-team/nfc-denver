@@ -190,4 +190,37 @@ export const Icons: Record<string, any> = {
       </defs>
     </svg>
   ),
+  arrowRight: (...props: any) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M10.707 8.00009L6.99991 11.7071L6.29282 10.9999L9.29282 8.00006L6.29282 4.99994L6.99994 4.29285L10.707 8.00009Z"
+        fill="#B1B1B1"
+      />
+    </svg>
+  ),
+  arrowLeft: (...props: any) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M5.29297 7.99991L9.00009 4.29294L9.70718 5.00006L6.70718 7.99994L9.70718 11.0001L9.00006 11.7072L5.29297 7.99991Z"
+        fill="#B1B1B1"
+      />
+    </svg>
+  ),
 };

@@ -4,11 +4,11 @@ import type * as Classed from "@tw-classed/react";
 import { classed } from "@tw-classed/react";
 
 const ButtonComponent = classed.button(
-  "flex items-center disabled:opacity-50 font-light w-full flex justify-center focus:ring-0 focus:outline-none active:scale-95",
+  "flex items-center disabled:opacity-50 font-light w-full flex focus:ring-0 focus:outline-none active:scale-95",
   {
     variants: {
       size: {
-        tiny: "text-[12px] py-1 px-2 gap-1",
+        tiny: "text-sm py-2 px-3 gap-1",
         sm: "text-[13px] leading-none gap-1 py-2 px-4",
         md: "text-[14px] py-[14px] leading-none gap-2 px-4",
         lg: "text-[16px] py-3 leading-none gap-2 px-4",
@@ -20,11 +20,17 @@ const ButtonComponent = classed.button(
         true: "rounded-full",
         false: "rounded-[4px]",
       },
+      align: {
+        center: "justify-center",
+        left: "justify-start",
+        right: "justify-end",
+      },
     },
     defaultVariants: {
       size: "md",
       variant: "primary",
       rounded: false,
+      align: "center",
     },
   }
 );
@@ -99,7 +105,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <div className={IconVariants[size ?? "md"]}>
           {loading ? <LoadingSpinner /> : icon}
         </div>
-        <span>{children}</span>
+        <>{children}</>
       </ButtonComponent>
     );
   }
