@@ -7,7 +7,6 @@ export default function App({ Component, pageProps }: AppProps) {
   const showFooter = pageProps?.showFooter ?? true;
   const showHeader = pageProps?.showHeader ?? true;
   const fullPage = pageProps?.fullPage ?? false;
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex flex-col grow">
