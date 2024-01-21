@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyCodeResponseSchema } from "./api/register/verify_code";
+import { generateEncryptionKeyPair } from "@/lib/encryption";
+import { generateSignatureKeyPair } from "@/lib/signature";
+import { generateSalt, hashPassword } from "@/lib/password";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -13,12 +16,18 @@ enum DisplayState {
 
 export default function Register() {
   const router = useRouter();
-  const [cmac, setCmac] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [code, setCode] = useState<string>("");
   const [displayState, setDisplayState] = useState<DisplayState>(
     DisplayState.INPUT_EMAIL
   );
+  const [cmac, setCmac] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [code, setCode] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>("");
+  const [twitterUsername, setTwitterUsername] = useState<string>("");
+  const [telegramUsername, setTelegramUsername] = useState<string>("");
+  const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   useEffect(() => {
     if (router.query.cmac) {
@@ -32,6 +41,34 @@ export default function Register() {
 
   const handleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCode(event.target.value);
+  };
+
+  const handleDisplayNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDisplayName(event.target.value);
+  };
+
+  const handleTwitterUsernameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTwitterUsername(event.target.value);
+  };
+
+  const handleTelegramUsernameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTelegramUsername(event.target.value);
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handleConfirmPasswordChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(event.target.value);
   };
 
   const handleEmailSubmit = (event: React.FormEvent) => {
@@ -89,7 +126,78 @@ export default function Register() {
       });
   };
 
-  // TODO: Implement form and state management for INPUT_SOCIAL, CHOOSE_CUSTODY, INPUT_PASSWORD, and CREATING_ACCOUNT states
+  const handleSocialSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    // Validate display name: alphanumeric and reasonable length
+    if (!/^[a-z0-9]+$/i.test(displayName) || displayName.length > 20) {
+      alert("Display name must be alphanumeric and less than 20 characters.");
+      return;
+    }
+
+    setDisplayState(DisplayState.CHOOSE_CUSTODY);
+  };
+
+  const handleCustodySubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (wantsServerCustody) {
+      await handleCreateAccount();
+    } else {
+      setDisplayState(DisplayState.INPUT_PASSWORD);
+    }
+  };
+
+  const handleCreateAccount = async () => {
+    setDisplayState(DisplayState.CREATING_ACCOUNT);
+
+    // TODO: Store these keys in local storage
+    const { privateKey, publicKey } = await generateEncryptionKeyPair();
+    const { signingKey, verifyingKey } = await generateSignatureKeyPair();
+
+    let passwordSalt, passwordHash;
+    if (!wantsServerCustody) {
+      passwordSalt = generateSalt();
+      passwordHash = await hashPassword(password, passwordSalt);
+    }
+
+    const response = await fetch("/api/register/create_account", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cmac,
+        email,
+        code,
+        displayName,
+        twitterUsername,
+        telegramUsername,
+        wantsServerCustody,
+        encryptionPublicKey: publicKey,
+        signaturePublicKey: verifyingKey,
+        passwordSalt,
+        passwordHash,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}`);
+      alert("Error creating account! Please try again.");
+    }
+
+    console.log("Account created successfully!");
+
+    // TODO: Backup data
+  };
+
+  const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    await handleCreateAccount();
+  };
 
   return (
     <div>
@@ -107,11 +215,12 @@ export default function Register() {
               value={email}
               onChange={handleEmailChange}
               className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+              required
             />
           </label>
           <input
             type="submit"
-            value="Register"
+            value="Next"
             className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           />
         </form>
@@ -122,23 +231,154 @@ export default function Register() {
           className="bg-gray-800 text-white p-4 rounded-md"
         >
           <label className="block mb-2">
-            Enter the code sent to your email:
+            Code:
             <input
               type="text"
               name="code"
               value={code}
               onChange={handleCodeChange}
               className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+              required
             />
           </label>
           <input
             type="submit"
-            value="Verify Code"
+            value="Next"
             className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           />
         </form>
       )}
-      {/* TODO: Add additional form components for other display states */}
+      {displayState === DisplayState.INPUT_SOCIAL && (
+        <form
+          onSubmit={handleSocialSubmit}
+          className="bg-gray-800 text-white p-4 rounded-md"
+        >
+          <label className="block mb-2">
+            Display Name:
+            <input
+              type="text"
+              name="displayName"
+              value={displayName}
+              onChange={handleDisplayNameChange}
+              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+              required
+            />
+          </label>
+          <label className="block mb-2">
+            Twitter Username (optional):
+            <input
+              type="text"
+              name="twitterUsername"
+              value={twitterUsername}
+              onChange={handleTwitterUsernameChange}
+              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+            />
+          </label>
+          <label className="block mb-2">
+            Telegram Username (optional):
+            <input
+              type="text"
+              name="telegramUsername"
+              value={telegramUsername}
+              onChange={handleTelegramUsernameChange}
+              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+            />
+          </label>
+          <input
+            type="submit"
+            value="Next"
+            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          />
+        </form>
+      )}
+      {displayState === DisplayState.CHOOSE_CUSTODY && (
+        <div className="bg-gray-800 text-white p-4 rounded-md">
+          <form onSubmit={handleCustodySubmit}>
+            <fieldset>
+              <legend className="mb-4">Choose your custody option:</legend>
+              <div className="flex items-center mb-4">
+                <input
+                  id="selfCustody"
+                  type="radio"
+                  name="custody"
+                  value="self"
+                  checked={!wantsServerCustody}
+                  onChange={() => setWantsServerCustody(false)}
+                  className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
+                />
+                <label
+                  htmlFor="selfCustody"
+                  className="ml-2 block text-sm font-medium"
+                >
+                  Self Custody
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  id="serverCustody"
+                  type="radio"
+                  name="custody"
+                  value="server"
+                  checked={wantsServerCustody}
+                  onChange={() => setWantsServerCustody(true)}
+                  className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
+                />
+                <label
+                  htmlFor="serverCustody"
+                  className="ml-2 block text-sm font-medium"
+                >
+                  Server Custody
+                </label>
+              </div>
+            </fieldset>
+            <button
+              type="submit"
+              className="mt-4 w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      )}
+      {displayState === DisplayState.INPUT_PASSWORD && (
+        <form
+          onSubmit={handleCreateSelfCustodyAccount}
+          className="bg-gray-800 text-white p-4 rounded-md"
+        >
+          <label className="block mb-2">
+            Password:
+            <input
+              type="password"
+              name="password"
+              value={password}
+              onChange={handlePasswordChange}
+              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+              required
+            />
+          </label>
+          <label className="block mb-2">
+            Confirm Password:
+            <input
+              type="password"
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
+              required
+            />
+          </label>
+          <input
+            type="submit"
+            value="Create Account"
+            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          />
+        </form>
+      )}
+      {displayState === DisplayState.CREATING_ACCOUNT && (
+        <div className="bg-gray-800 text-white p-4 rounded-md">
+          Creating account...
+        </div>
+      )}
     </div>
   );
 }
