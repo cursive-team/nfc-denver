@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Profile, getProfile } from "@/util/localStorage";
+import {
+  Profile,
+  getAuthToken,
+  getKeys,
+  getProfile,
+} from "@/util/localStorage";
 
 export default function Home() {
   const router = useRouter();
@@ -8,7 +13,14 @@ export default function Home() {
 
   useEffect(() => {
     const profileData = getProfile();
-    if (!profileData) {
+    const keyData = getKeys();
+    const authToken = getAuthToken();
+    if (
+      !profileData ||
+      !keyData ||
+      !authToken ||
+      authToken.expiresAt < new Date()
+    ) {
       router.push("/login");
     } else {
       setProfile(profileData);
