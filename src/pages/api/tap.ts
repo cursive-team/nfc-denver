@@ -1,6 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { object, string } from "yup";
+import { ErrorResponse } from "./_types";
+import {
+  ChipType,
+  TODO_getChipIdFromIykCmac,
+  TODO_getChipTypeFromChipId,
+} from "./_iyk";
 
 export enum TapResponseCode {
   CMAC_INVALID = "CMAC_INVALID",
@@ -12,14 +18,14 @@ export enum TapResponseCode {
 
 export type PersonTapResponse = {
   displayName: string;
-  encryptionPubKey: string;
+  encryptionPublicKey: string;
   twitterUsername?: string;
   telegramUsername?: string;
 };
 
 export const personTapResponseSchema = object({
   displayName: string().required(),
-  encryptionPubKey: string().required(),
+  encryptionPublicKey: string().required(),
   twitterUsername: string().optional(),
   telegramUsername: string().optional(),
 });
@@ -29,7 +35,7 @@ export type LocationTapResponse = {
   description: string;
   sponsor: string;
   imageUrl: string;
-  signaturePubKey: string;
+  signaturePublicKey: string;
   signature: string;
 };
 
@@ -38,7 +44,7 @@ export const locationTapResponseSchema = object({
   description: string().required(),
   sponsor: string().required(),
   imageUrl: string().required(),
-  signaturePubKey: string().required(),
+  signaturePublicKey: string().required(),
   signature: string().required(),
 });
 
@@ -54,24 +60,6 @@ export const tapResponseSchema = object({
   location: locationTapResponseSchema.optional().default(undefined),
 });
 
-export type ErrorResponse = { error: string };
-
-/**
- * Returns the chipId for a given cmac, and if the cmac is new or has been used
- */
-export const TODO_getChipIdFromIykCmac = (
-  cmac: string
-): { chipId: string | undefined; isValid: boolean } => {
-  const chipId = parseInt(cmac);
-  if (isNaN(chipId)) {
-    return { chipId: undefined, isValid: false };
-  }
-
-  // TEMPORARY: CHIPS ARE ONLY VALID WITH IDS FROM 0-99
-  const chipIdExists = chipId >= 0 && chipId < 100;
-  return { chipId: chipIdExists ? cmac : undefined, isValid: true };
-};
-
 /**
  * Returns a signature for a given location
  */
@@ -79,15 +67,6 @@ export const TODO_generateLocationSignature = async (
   locationId: number
 ): Promise<string> => {
   return "example_signature";
-};
-
-/**
- * Returns true if the chipId is a person card
- * TEMPORARY: PERSON CARDS HAVE CHIP IDS < 50, LOCATION CARDS HAVE CHIP IDS >= 50
- */
-export const TODO_isChipIdAPersonCard = (chipId: string): boolean => {
-  const parsedChipId = parseInt(chipId);
-  return parsedChipId < 50;
 };
 
 /**
@@ -128,7 +107,7 @@ export default async function handler(
   if (user) {
     const personTapResponse: PersonTapResponse = {
       displayName: user.displayName,
-      encryptionPubKey: user.encryptionPubKey,
+      encryptionPublicKey: user.encryptionPublicKey,
       twitterUsername: user.twitterUsername ?? undefined,
       telegramUsername: user.telegramUsername ?? undefined,
     };
@@ -150,7 +129,7 @@ export default async function handler(
       description: location.description,
       sponsor: location.sponsor,
       imageUrl: location.imageUrl,
-      signaturePubKey: location.signaturePubKey,
+      signaturePublicKey: location.signaturePublicKey,
       signature,
     };
     return res.status(200).json({
@@ -160,14 +139,16 @@ export default async function handler(
   }
 
   // card is not registered, return whether it is a person card or location card
-  const isPersonCard = TODO_isChipIdAPersonCard(chipId);
-  if (isPersonCard) {
+  const chipType = TODO_getChipTypeFromChipId(chipId);
+  if (chipType === ChipType.PERSON) {
     return res
       .status(200)
       .json({ code: TapResponseCode.PERSON_NOT_REGISTERED });
-  } else {
+  } else if (chipType === ChipType.LOCATION) {
     return res
       .status(200)
       .json({ code: TapResponseCode.LOCATION_NOT_REGISTERED });
+  } else {
+    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
   }
 }

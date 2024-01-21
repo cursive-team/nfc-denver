@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { object, string, boolean } from "yup";
-import { ErrorResponse } from "../tap";
+import { ErrorResponse } from "../_types";
 
 export const MAX_SIGNIN_CODE_GUESS_ATTEMPTS = 3;
 
@@ -10,6 +10,7 @@ export enum VerifyCodeErrorReason {
   OUT_OF_ATTEMPTS = "OUT_OF_ATTEMPTS",
   INVALID_CODE = "INVALID_CODE",
   EXPIRED_CODE = "EXPIRED_CODE",
+  USED_CODE = "USED_CODE",
 }
 
 export type VerifyCodeResponse = {
@@ -58,6 +59,13 @@ export default async function handler(
       return res.status(200).json({
         success: false,
         reason: VerifyCodeErrorReason.EXPIRED_CODE,
+      });
+    }
+
+    if (signinCodeEntry.redeemedAt !== null) {
+      return res.status(200).json({
+        success: false,
+        reason: VerifyCodeErrorReason.USED_CODE,
       });
     }
 
