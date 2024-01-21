@@ -65,3 +65,11 @@ model Backup {
   isServerEncrypted   Boolean
   createdAt           DateTime @default(now())
 }
+
+model Message {
+  id                  Int      @id @default(autoincrement())
+  senderId            Int
+  recipientId         Int
+  encryptedData       String
+  createdAt           DateTime @default(now())
+}
