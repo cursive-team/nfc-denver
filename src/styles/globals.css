@@ -16,18 +16,21 @@
   }
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-black-default text-white;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .link {
+    @apply text-gray-11 underline leading-5 text-sm font-light;
   }
 }
