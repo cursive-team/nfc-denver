@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { verifyCodeResponseSchema } from "./api/register/verify_code";
 import { generateEncryptionKeyPair } from "@/lib/encryption";
 import { generateSignatureKeyPair } from "@/lib/signature";
 import { generateSalt, hashPassword } from "@/lib/password";
+import { saveAuthToken, saveKeys, saveProfile } from "@/util/localStorage";
+import { verifySigninCodeResponseSchema } from "./api/_auth";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -110,7 +111,8 @@ export default function Register() {
         return response.json();
       })
       .then((data) => {
-        const verifyCodeResponse = verifyCodeResponseSchema.validateSync(data);
+        const verifyCodeResponse =
+          verifySigninCodeResponseSchema.validateSync(data);
         if (verifyCodeResponse.success) {
           setDisplayState(DisplayState.INPUT_SOCIAL);
         } else {
@@ -149,9 +151,9 @@ export default function Register() {
   const handleCreateAccount = async () => {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
 
-    // TODO: Store these keys in local storage
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = await generateSignatureKeyPair();
+    saveKeys(privateKey, signingKey);
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -185,15 +187,24 @@ export default function Register() {
     }
 
     const data = await response.json();
-    if (!data.authToken) {
+    if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
       alert("Account created, but error logging in! Please try again.");
       return;
     }
 
-    console.log("Auth token: ", data.authToken);
+    saveProfile({
+      displayName,
+      email,
+      encryptionPublicKey: publicKey,
+      signaturePublicKey: verifyingKey,
+      wantsServerCustody,
+      twitterUsername,
+      telegramUsername,
+    });
+    saveAuthToken(data.value, new Date(data.expiresAt));
 
-    // TODO: Backup data
+    router.push("/");
   };
 
   const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {

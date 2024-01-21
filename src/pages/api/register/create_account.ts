@@ -1,14 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import { object, string, boolean } from "yup";
-import { EmptyResponse, ErrorResponse } from "../_types";
+import { ErrorResponse } from "../_types";
 import {
   ChipType,
   TODO_getChipIdFromIykCmac,
   TODO_getChipTypeFromChipId,
 } from "../_iyk";
-import { MAX_SIGNIN_CODE_GUESS_ATTEMPTS } from "./verify_code";
-import { generateAuthToken } from "../_auth";
+import {
+  AuthTokenResponse,
+  generateAuthToken,
+  verifySigninCode,
+} from "../_auth";
 
 const createAccountSchema = object({
   cmac: string().required(),
@@ -23,10 +26,6 @@ const createAccountSchema = object({
   passwordSalt: string().optional(),
   passwordHash: string().optional(),
 });
-
-export type AuthTokenResponse = {
-  authToken: string;
-};
 
 export default async function handler(
   req: NextApiRequest,
@@ -66,6 +65,7 @@ export default async function handler(
   } = validatedData;
 
   // Validate cmac corresponds to an unregistered person chip
+  // TODO: Do we need to check if chip matches email?
   const { chipId } = TODO_getChipIdFromIykCmac(cmac);
   if (chipId === undefined) {
     return res.status(400).json({ error: "Invalid cmac" });
@@ -83,32 +83,11 @@ export default async function handler(
     return res.status(400).json({ error: "Card already registered" });
   }
 
-  // Validate signin code is still valid
-  // This should not happen in a typical user flow
-  const signinCodeEntry = await prisma.signinCode.findFirst({
-    where: { email },
-  });
-  if (
-    !signinCodeEntry ||
-    signinCodeEntry.usedGuessAttempts >= MAX_SIGNIN_CODE_GUESS_ATTEMPTS ||
-    signinCodeEntry.expiresAt < new Date() ||
-    signinCodeEntry.redeemedAt !== null
-  ) {
+  // Verify the signin code is valid
+  const verifySigninCodeResult = await verifySigninCode(email, code, true);
+  if (!verifySigninCodeResult.success) {
     return res.status(400).json({ error: "Invalid email code" });
   }
-  if (signinCodeEntry.value !== code) {
-    await prisma.signinCode.updateMany({
-      where: { email },
-      data: { usedGuessAttempts: { increment: 1 } },
-    });
-    return res.status(400).json({ error: "Invalid email code" });
-  }
-
-  // Redeem signin code
-  await prisma.signinCode.update({
-    where: { id: signinCodeEntry.id },
-    data: { redeemedAt: new Date() },
-  });
 
   // Create user
   const user = await prisma.user.create({
@@ -126,7 +105,7 @@ export default async function handler(
     },
   });
 
-  const authToken = await generateAuthToken(user.id);
+  const authTokenResponse = await generateAuthToken(user.id);
 
-  return res.status(200).json({ authToken });
+  return res.status(200).json(authTokenResponse);
 }
