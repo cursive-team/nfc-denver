@@ -14,22 +14,25 @@ export const messageContentsSchema = object({
 });
 
 export type EncryptedMessage = {
-  to: string;
-  from: string;
+  toPublicKey: string;
+  fromPublicKey: string;
+  fromDisplayName: string;
   encryptedContents: string;
   timestamp: Date;
 };
 
 export const encryptedMessageSchema = object({
-  to: string().required(),
-  from: string().required(),
+  toPublicKey: string().required(),
+  fromPublicKey: string().required(),
+  fromDisplayName: string().required(),
   encryptedContents: string().required(),
   timestamp: date().required(),
 });
 
 export type Message = {
-  to: string;
-  from: string;
+  toPublicKey: string;
+  fromPublicKey: string;
+  fromDisplayName: string;
   type: string;
   data: object;
   timestamp: Date;
@@ -58,7 +61,7 @@ export const decryptMessage = async (
 
   const decryptedContents = await decrypt(
     recipientPrivateKey,
-    encryptedMessage.from,
+    encryptedMessage.fromPublicKey,
     encryptedMessage.encryptedContents
   );
 
@@ -70,8 +73,9 @@ export const decryptMessage = async (
   await messageContentsSchema.validate(messageContents);
 
   return {
-    to: encryptedMessage.to,
-    from: encryptedMessage.from,
+    toPublicKey: encryptedMessage.toPublicKey,
+    fromPublicKey: encryptedMessage.fromPublicKey,
+    fromDisplayName: encryptedMessage.fromDisplayName,
     type: messageContents.type,
     data: messageContents.data,
     timestamp: encryptedMessage.timestamp,

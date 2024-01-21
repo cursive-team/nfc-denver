@@ -12,9 +12,9 @@ datasource db {
 }
 
 model User {
-  id                    Int      @id @default(autoincrement())
-  chipId                String   @unique
-  email                 String   @unique
+  id                    Int       @id @default(autoincrement())
+  chipId                String    @unique
+  email                 String    @unique
   displayName           String
   encryptionPublicKey   String
   signaturePublicKey    String
@@ -23,7 +23,9 @@ model User {
   passwordHash          String? 
   twitterUsername       String? 
   telegramUsername      String? 
-  createdAt             DateTime @default(now())
+  createdAt             DateTime  @default(now())
+  sentMessages          Message[] @relation("MessageSender")
+  receivedMessages      Message[] @relation("MessageRecipient")
 }
 
 model Location {
@@ -67,9 +69,11 @@ model Backup {
 }
 
 model Message {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   senderId            Int
   recipientId         Int
   encryptedData       String
-  createdAt           DateTime @default(now())
+  createdAt           DateTime  @default(now())
+  sender              User      @relation(name: "MessageSender", fields: [senderId], references: [id])
+  recipient           User      @relation(name: "MessageRecipient", fields: [recipientId], references: [id])
 }
