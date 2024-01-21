@@ -1,9 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import sgMail from "@sendgrid/mail";
-import { ErrorResponse } from "../tap";
-
-export type EmptyResponse = {};
+import { EmptyResponse, ErrorResponse } from "../_types";
 
 export default async function handler(
   req: NextApiRequest,

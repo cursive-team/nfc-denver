@@ -11,29 +11,29 @@ datasource db {
 }
 
 model User {
-  id                 Int      @id @default(autoincrement())
-  chipId             String   @unique
-  email              String   @unique
-  displayName        String
-  encryptionPubKey   String
-  signaturePubKey    String
-  wantsServerStorage Boolean
-  passwordSalt       String? 
-  passwordHash       String? 
-  twitterUsername    String? 
-  telegramUsername   String? 
-  createdAt          DateTime @default(now())
+  id                    Int      @id @default(autoincrement())
+  chipId                String   @unique
+  email                 String   @unique
+  displayName           String
+  encryptionPublicKey   String
+  signaturePublicKey    String
+  wantsServerCustody    Boolean
+  passwordSalt          String? 
+  passwordHash          String? 
+  twitterUsername       String? 
+  telegramUsername      String? 
+  createdAt             DateTime @default(now())
 }
 
 model Location {
-  id              Int      @id @default(autoincrement())
-  chipId          String   @unique
-  name            String
-  description     String
-  sponsor         String
-  imageUrl        String
-  signaturePubKey String
-  createdAt       DateTime @default(now())
+  id                  Int      @id @default(autoincrement())
+  chipId              String   @unique
+  name                String
+  description         String
+  sponsor             String
+  imageUrl            String
+  signaturePublicKey  String
+  createdAt           DateTime @default(now())
 }
 
 model SigninCode {
