@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
-import sgMail from "@sendgrid/mail";
 import { EmptyResponse, ErrorResponse } from "../_types";
+import { generateAndSendSigninCode } from "../_auth";
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,41 +16,24 @@ export default async function handler(
     return res.status(400).json({ error: "Email is required" });
   }
 
-  // Delete all signin codes associated with the email
-  await prisma.signinCode.deleteMany({
-    where: { email: email },
+  // TODO: Do we need to check if chip matches email?
+
+  // Check if email is already registered
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
   });
+  if (user) {
+    // TODO: Propagate this error to the client
+    console.error("Email already registered");
+    return res.status(400).json({ error: "Email already registered" });
+  }
 
-  // Generate a one-time signin code as a 6 digit integer represented as a string, with leading zeros if necessary
-  const newSigninCode = Math.floor(Math.random() * 1000000)
-    .toString()
-    .padStart(6, "0");
-
-  // Set the expiration time to 30 minutes from the current time
-  // 30 minutes * 60 seconds per minute * 1000 milliseconds per second
-  const expiresAt = new Date(new Date().getTime() + 30 * 60 * 1000);
-
-  // Save the signin code and expiration time associated with the email in the database
-  const signinCodeEntry = await prisma.signinCode.create({
-    data: { value: newSigninCode, email, expiresAt, usedGuessAttempts: 0 },
-  });
-  const signinCode = signinCodeEntry.value;
-
-  try {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-    const msg = {
-      to: email,
-      from: "andrewclu98@gmail.com",
-      subject: "Your Signin Code",
-      text: `Your one-time signin code is: ${signinCode}. It will expire in 30 minutes.`,
-      html: `<strong>Your one-time signin code is: ${signinCode}</strong>. It will expire in 30 minutes.`,
-    };
-
-    await sgMail.send(msg);
-
+  const sentSigninCode = await generateAndSendSigninCode(email);
+  if (sentSigninCode) {
     return res.status(200).json({});
-  } catch (error) {
-    console.error("Error sending email", error);
+  } else {
     return res.status(500).json({ error: "Error sending email" });
   }
 }
