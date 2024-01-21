@@ -8,6 +8,7 @@ import {
   TODO_getChipTypeFromChipId,
 } from "../_iyk";
 import { MAX_SIGNIN_CODE_GUESS_ATTEMPTS } from "./verify_code";
+import { generateAuthToken } from "../_auth";
 
 const createAccountSchema = object({
   cmac: string().required(),
@@ -23,9 +24,13 @@ const createAccountSchema = object({
   passwordHash: string().optional(),
 });
 
+export type AuthTokenResponse = {
+  authToken: string;
+};
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<EmptyResponse | ErrorResponse>
+  res: NextApiResponse<AuthTokenResponse | ErrorResponse>
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -106,7 +111,7 @@ export default async function handler(
   });
 
   // Create user
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       chipId,
       email,
@@ -121,5 +126,7 @@ export default async function handler(
     },
   });
 
-  return res.status(200).json({});
+  const authToken = await generateAuthToken(user.id);
+
+  return res.status(200).json({ authToken });
 }

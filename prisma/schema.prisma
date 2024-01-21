@@ -45,3 +45,12 @@ model SigninCode {
   redeemedAt        DateTime? 
   createdAt         DateTime @default(now())
 }
+
+model AuthToken {
+  id          Int      @id @default(autoincrement())
+  value       String   @unique
+  userId      Int
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+}

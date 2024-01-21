@@ -84,8 +84,8 @@ export default function Register() {
         if (response.ok) {
           setDisplayState(DisplayState.INPUT_CODE);
         } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -184,7 +184,14 @@ export default function Register() {
       alert("Error creating account! Please try again.");
     }
 
-    console.log("Account created successfully!");
+    const data = await response.json();
+    if (!data.authToken) {
+      console.error("Account created, but no auth token returned.");
+      alert("Account created, but error logging in! Please try again.");
+      return;
+    }
+
+    console.log("Auth token: ", data.authToken);
 
     // TODO: Backup data
   };
@@ -231,7 +238,7 @@ export default function Register() {
           className="bg-gray-800 text-white p-4 rounded-md"
         >
           <label className="block mb-2">
-            Code:
+            Check your email {email} for a code:
             <input
               type="text"
               name="code"
