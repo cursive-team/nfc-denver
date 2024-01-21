@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import {
-  saveAuthToken,
-  getProfile,
-  Profile,
-  loadBackup,
-} from "../util/localStorage";
+import { saveAuthToken, loadBackup } from "../util/localStorage";
 import { encryptedBackupDataSchema } from "./api/backup";
 import { hashPassword } from "@/lib/password";
 import { decryptString } from "@/lib/backup";
@@ -68,7 +63,7 @@ export default function Login() {
     if (data.password) {
       try {
         const { encryptedData, authenticationTag, iv } =
-          encryptedBackupDataSchema.validateSync(data.backupData);
+          encryptedBackupDataSchema.validateSync(data.backup);
 
         // Save auth token
         const { value, expiresAt } = data.authToken;
@@ -89,16 +84,16 @@ export default function Login() {
       }
     } else {
       if (
-        !data.backupData ||
-        !data.backupData.decryptedData ||
-        typeof data.backupData.decryptedData !== "string"
+        !data.backup ||
+        !data.backup.decryptedData ||
+        typeof data.backup.decryptedData !== "string"
       ) {
         alert("Error logging in. Please try again.");
         return;
       }
 
       try {
-        loadBackup(data.backupData.decryptedData);
+        loadBackup(data.backup.decryptedData);
       } catch (error) {
         console.error(error);
         alert("Error logging in. Please try again.");
