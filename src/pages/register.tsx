@@ -5,7 +5,6 @@ import { generateSignatureKeyPair } from "@/lib/signature";
 import { generateSalt, hashPassword } from "@/lib/password";
 import {
   createBackup,
-  loadBackup,
   saveAuthToken,
   saveKeys,
   saveProfile,
@@ -199,6 +198,7 @@ export default function Register() {
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
       alert("Error creating account! Please try again.");
+      return;
     }
 
     const data = await response.json();
