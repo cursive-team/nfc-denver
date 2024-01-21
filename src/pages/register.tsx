@@ -3,8 +3,15 @@ import { useRouter } from "next/router";
 import { generateEncryptionKeyPair } from "@/lib/encryption";
 import { generateSignatureKeyPair } from "@/lib/signature";
 import { generateSalt, hashPassword } from "@/lib/password";
-import { saveAuthToken, saveKeys, saveProfile } from "@/util/localStorage";
+import {
+  createBackup,
+  loadBackup,
+  saveAuthToken,
+  saveKeys,
+  saveProfile,
+} from "@/util/localStorage";
 import { verifySigninCodeResponseSchema } from "./api/_auth";
+import { encryptString } from "@/lib/backup";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -153,7 +160,10 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = await generateSignatureKeyPair();
-    saveKeys(privateKey, signingKey);
+    saveKeys({
+      encryptionPrivateKey: privateKey,
+      signaturePrivateKey: signingKey,
+    });
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -204,6 +214,37 @@ export default function Register() {
     });
     saveAuthToken(data.value, new Date(data.expiresAt));
 
+    let backupData = createBackup();
+    if (!backupData) {
+      console.error("Error creating backup!");
+      alert("Error creating backup! Please try again.");
+      return;
+    }
+
+    // Encrypt backup data if user wants self custody
+    const backup = wantsServerCustody
+      ? backupData
+      : encryptString(backupData, email, password);
+
+    const backupResponse = await fetch("/api/backup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        backup,
+        wantsServerCustody,
+        authToken: data.value,
+      }),
+    });
+
+    if (!backupResponse.ok) {
+      console.error(`HTTP error! status: ${backupResponse.status}`);
+      alert("Error storing backup! Please try again.");
+      return;
+    }
+
+    alert("Account created and backed up!");
     router.push("/");
   };
 

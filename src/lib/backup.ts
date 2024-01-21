@@ -38,27 +38,31 @@ export const encryptString = (
   text: string,
   email: string,
   password: string
-): { encryptedText: string; authTag: string; iv: string } => {
+): { encryptedData: string; authenticationTag: string; iv: string } => {
   const key = deriveKey(email, password);
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
-  const authTag = cipher.getAuthTag().toString("hex");
-  return { encryptedText: encrypted, authTag, iv: iv.toString("hex") };
+  const authenticationTag = cipher.getAuthTag().toString("hex");
+  return {
+    encryptedData: encrypted,
+    authenticationTag,
+    iv: iv.toString("hex"),
+  };
 };
 
 /**
  * Decrypts a string using a key derived from an email and password.
- * @param encryptedText The encrypted text as a hex string.
- * @param authTag The authentication tag as a hex string.
+ * @param encryptedData The encrypted text as a hex string.
+ * @param authenticationTag The authentication tag as a hex string.
  * @param email The user's email.
  * @param password The user's password.
  * @returns The decrypted text.
  */
 export const decryptString = (
-  encryptedText: string,
-  authTag: string,
+  encryptedData: string,
+  authenticationTag: string,
   iv: string,
   email: string,
   password: string
@@ -66,8 +70,8 @@ export const decryptString = (
   const key = deriveKey(email, password);
   const ivBuffer = Buffer.from(iv, "hex");
   const decipher = createDecipheriv("aes-256-gcm", key, ivBuffer);
-  decipher.setAuthTag(Buffer.from(authTag, "hex"));
-  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decipher.setAuthTag(Buffer.from(authenticationTag, "hex"));
+  let decrypted = decipher.update(encryptedData, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
 };

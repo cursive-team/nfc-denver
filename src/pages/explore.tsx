@@ -1,6 +1,5 @@
 import { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/router";
-import { decryptString, encryptString } from "@/lib/backup";
 
 export default function Explore() {
   const router = useRouter();

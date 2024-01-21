@@ -166,3 +166,30 @@ export const verifySigninCode = async (
 
   return { success: true };
 };
+
+/**
+ * Verifies that an auth token is valid, and returns the user ID associated with it.
+ * @param token - The auth token to verify.
+ * @returns The user ID associated with the auth token, or undefined if the token is invalid.
+ */
+export const verifyAuthToken = async (
+  token: string
+): Promise<number | undefined> => {
+  const tokenEntry = await prisma.authToken.findUnique({
+    where: { value: token },
+  });
+
+  if (!tokenEntry) {
+    return undefined;
+  }
+
+  if (tokenEntry.expiresAt < new Date()) {
+    return undefined;
+  }
+
+  if (tokenEntry.revokedAt !== null && tokenEntry.revokedAt < new Date()) {
+    return undefined;
+  }
+
+  return tokenEntry.userId;
+};

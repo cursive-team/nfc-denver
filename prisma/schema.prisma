@@ -54,3 +54,13 @@ model AuthToken {
   revokedAt   DateTime?
   createdAt   DateTime @default(now())
 }
+
+model Backup {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  encryptedData       String
+  authenticationTag   String
+  iv                  String
+  isServerEncrypted   Boolean
+  createdAt           DateTime @default(now())
+}
