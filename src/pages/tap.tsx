@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   LocationTapResponse,
@@ -6,9 +6,22 @@ import {
   TapResponseCode,
   tapResponseSchema,
 } from "./api/tap";
+import LoginForm from "@/components/LoginForm";
+import { getAuthToken, updateUserFromTap } from "@/util/localStorage";
 
 export default function Tap() {
   const router = useRouter();
+  const [pendingPersonTapResponse, setPendingPersonTapResponse] =
+    useState<PersonTapResponse>();
+
+  // Save the newly tapped person to local storage and redirect to their profile
+  const processPersonTap = useCallback(
+    async (person: PersonTapResponse) => {
+      const userId = await updateUserFromTap(person);
+      router.push("/users/" + userId);
+    },
+    [router]
+  );
 
   useEffect(() => {
     const cmac = router.query.cmac as string;
@@ -27,7 +40,14 @@ export default function Tap() {
       router.push(`/register_location?cmac=${cmac}`);
     };
 
-    const handlePersonTap = async (person: PersonTapResponse) => {};
+    const handlePersonTap = async (person: PersonTapResponse) => {
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        setPendingPersonTapResponse(person);
+      } else {
+        processPersonTap(person);
+      }
+    };
 
     const handleLocationTap = async (location: LocationTapResponse) => {};
 
@@ -73,7 +93,18 @@ export default function Tap() {
         console.error(error);
         alert("Error! Please refresh and try again.");
       });
-  }, [router]);
+  }, [router, processPersonTap]);
+
+  if (pendingPersonTapResponse) {
+    return (
+      <LoginForm
+        onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
+        onFailedLogin={(errorMessage: string) => {
+          alert(errorMessage);
+        }}
+      />
+    );
+  }
 
   return null;
 }
