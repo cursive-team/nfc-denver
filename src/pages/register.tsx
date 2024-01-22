@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { generateEncryptionKeyPair } from "@/lib/encryption";
 import { generateSignatureKeyPair } from "@/lib/signature";
@@ -11,6 +11,10 @@ import {
 } from "@/util/localStorage";
 import { verifySigninCodeResponseSchema } from "./api/_auth";
 import { encryptString } from "@/lib/backup";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import Link from "next/link";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -23,6 +27,7 @@ enum DisplayState {
 
 export default function Register() {
   const router = useRouter();
+
   const [displayState, setDisplayState] = useState<DisplayState>(
     DisplayState.INPUT_EMAIL
   );
@@ -35,6 +40,7 @@ export default function Register() {
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (router.query.cmac) {
@@ -80,6 +86,7 @@ export default function Register() {
 
   const handleEmailSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     fetch("/api/register/get_code", {
       method: "POST",
       headers: {
@@ -93,15 +100,18 @@ export default function Register() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         alert(error.message);
+        setLoading(false);
       });
   };
 
   const handleCodeSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     fetch("/api/register/verify_code", {
       method: "POST",
       headers: {
@@ -127,10 +137,12 @@ export default function Register() {
             throw new Error(errorReason);
           }
         }
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         alert(error.message);
+        setLoading(false);
       });
   };
 
@@ -193,6 +205,7 @@ export default function Register() {
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
       alert("Error creating account! Please try again.");
+      setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
 
@@ -200,6 +213,7 @@ export default function Register() {
     if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
       alert("Account created, but error logging in! Please try again.");
+      setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
 
@@ -259,102 +273,99 @@ export default function Register() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
+    <>
       {displayState === DisplayState.INPUT_EMAIL && (
-        <form
+        <FormStepLayout
+          title="Welcome to ETHDenver"
+          description="February 23rd"
           onSubmit={handleEmailSubmit}
-          className="bg-gray-800 text-white p-4 rounded-md"
         >
-          <label className="block mb-2">
-            Email:
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={handleEmailChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-              required
-            />
-          </label>
-          <input
-            type="submit"
-            value="Next"
-            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          <Input
+            label="Email"
+            placeholder="Your email"
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleEmailChange}
+            required
           />
-        </form>
+          <Button loading={loading} type="submit">
+            Continue
+          </Button>
+          <Link href="/login" className="link text-center">
+            I have already registered
+          </Link>
+        </FormStepLayout>
       )}
       {displayState === DisplayState.INPUT_CODE && (
-        <form
+        <FormStepLayout
+          title={`We've just sent you a six digit code to ${email}`}
+          description="February 23rd"
           onSubmit={handleCodeSubmit}
-          className="bg-gray-800 text-white p-4 rounded-md"
         >
-          <label className="block mb-2">
-            Check your email {email} for a code:
-            <input
-              type="text"
-              name="code"
-              value={code}
-              onChange={handleCodeChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-              required
-            />
-          </label>
-          <input
-            type="submit"
-            value="Next"
-            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          <Input
+            type="text"
+            name="code"
+            value={code}
+            label="6-digit code"
+            placeholder="Confirm your 6-digit code"
+            onChange={handleCodeChange}
+            required
           />
-        </form>
+          <Button loading={loading} type="submit">
+            Continue
+          </Button>
+        </FormStepLayout>
       )}
       {displayState === DisplayState.INPUT_SOCIAL && (
-        <form
+        <FormStepLayout
+          title="Social settings"
+          description="1/2"
           onSubmit={handleSocialSubmit}
-          className="bg-gray-800 text-white p-4 rounded-md"
+          header={
+            <>
+              <span className="text-sm text-gray-11 font-light">
+                You can choose which social channels to share each time you make
+                a new connection
+              </span>
+              <Input
+                type="text"
+                name="displayName"
+                label="Display name"
+                placeholder="Choose a display name"
+                value={displayName}
+                onChange={handleDisplayNameChange}
+                required
+              />
+              <Input
+                type="text"
+                name="twitterUsername"
+                label="X (Optional)"
+                placeholder="twitter.com/username"
+                value={twitterUsername}
+                onChange={handleTwitterUsernameChange}
+              />
+              <Input
+                type="text"
+                name="telegramUsername"
+                label="Telegram (Optional)"
+                placeholder="Telegram username"
+                value={telegramUsername}
+                onChange={handleTelegramUsernameChange}
+              />
+            </>
+          }
         >
-          <label className="block mb-2">
-            Display Name:
-            <input
-              type="text"
-              name="displayName"
-              value={displayName}
-              onChange={handleDisplayNameChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-              required
-            />
-          </label>
-          <label className="block mb-2">
-            Twitter Username (optional):
-            <input
-              type="text"
-              name="twitterUsername"
-              value={twitterUsername}
-              onChange={handleTwitterUsernameChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-            />
-          </label>
-          <label className="block mb-2">
-            Telegram Username (optional):
-            <input
-              type="text"
-              name="telegramUsername"
-              value={telegramUsername}
-              onChange={handleTelegramUsernameChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-            />
-          </label>
-          <input
-            type="submit"
-            value="Next"
-            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          />
-        </form>
+          <Button type="submit">Create account</Button>
+        </FormStepLayout>
       )}
       {displayState === DisplayState.CHOOSE_CUSTODY && (
-        <div className="bg-gray-800 text-white p-4 rounded-md">
-          <form onSubmit={handleCustodySubmit}>
-            <fieldset>
-              <legend className="mb-4">Choose your custody option:</legend>
+        <FormStepLayout
+          onSubmit={handleCustodySubmit}
+          description="2/2"
+          title="Choose your custody option"
+          header={
+            <fieldset className="flex flex-col gap-2">
               <div className="flex items-center mb-4">
                 <input
                   id="selfCustody"
@@ -390,54 +401,42 @@ export default function Register() {
                 </label>
               </div>
             </fieldset>
-            <button
-              type="submit"
-              className="mt-4 w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Continue
-            </button>
-          </form>
-        </div>
+          }
+        >
+          <Button type="submit">Continue</Button>
+        </FormStepLayout>
       )}
       {displayState === DisplayState.INPUT_PASSWORD && (
-        <form
+        <FormStepLayout
+          title="Password"
           onSubmit={handleCreateSelfCustodyAccount}
-          className="bg-gray-800 text-white p-4 rounded-md"
         >
-          <label className="block mb-2">
-            Password:
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={handlePasswordChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-              required
-            />
-          </label>
-          <label className="block mb-2">
-            Confirm Password:
-            <input
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700"
-              required
-            />
-          </label>
-          <input
-            type="submit"
-            value="Create Account"
-            className="w-full px-3 py-2 text-white bg-indigo-500 border border-transparent rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          <Input
+            type="password"
+            name="password"
+            label="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            required
           />
-        </form>
+          <Input
+            type="password"
+            name="confirmPassword"
+            label="Confirm password"
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            required
+          />
+          <Button type="submit">Create account</Button>
+        </FormStepLayout>
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
-        <div className="bg-gray-800 text-white p-4 rounded-md">
-          Creating account...
-        </div>
+        <div className=" text-white p-4 rounded-md">Creating account...</div>
       )}
-    </div>
+    </>
   );
 }
+
+Register.getInitialProps = () => {
+  return { fullPage: true };
+};

@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import LoginForm from "@/components/LoginForm";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const router = useRouter();
 
   const onSuccessfulLogin = () => {
@@ -18,6 +18,8 @@ const LoginPage = () => {
       onFailedLogin={onFailedLogin}
     />
   );
-};
+}
 
-export default LoginPage;
+LoginPage.getInitialProps = () => {
+  return { fullPage: true };
+};

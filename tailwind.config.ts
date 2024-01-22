@@ -1,11 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       backgroundImage: {
@@ -13,8 +9,36 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      container: {
+        center: true,
+      },
+      fontSize: {
+        xs: "12px",
+      },
+      lineHeight: {
+        4: "16px",
+        8: "24px",
+      },
+      colors: {
+        candy: {
+          DEFAULT: "#8C00A3",
+          200: "#580067",
+        },
+        black: {
+          default: "#111",
+        },
+        gray: {
+          200: "#1B1B1B",
+          400: "#303030",
+          600: "#606060",
+          900: "#6E6E6E",
+          10: "#808080",
+          11: "#B1B1B1",
+          12: "#EEE",
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 };
 export default config;
