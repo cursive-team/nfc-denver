@@ -66,7 +66,7 @@ const AppFooter = () => {
     >
       <div className="md:container grid grid-cols-2 bottom-0 pt-4 pb-3 xs:py-4">
         {routerItems?.map((route, index) => {
-          const isActive = pathname.startsWith(route.href);
+          const isActive = pathname?.startsWith(route.href);
           return <TabItem key={index} {...route} isActive={isActive} />;
         })}
       </div>
