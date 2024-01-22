@@ -17,6 +17,7 @@ const QuestCard = () => {
         <>icons</>
         <Card.Description>0/1 completed</Card.Description>
       </div>
+      <Card.Progress />
     </Card.Base>
   );
 };

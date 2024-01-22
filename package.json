@@ -10,6 +10,7 @@
     "postinstall": "prisma migrate deploy && prisma generate"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.18",
     "@prisma/client": "^5.8.1",
     "@sendgrid/mail": "^8.1.0",
     "@tw-classed/react": "^1.7.0",

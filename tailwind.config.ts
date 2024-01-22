@@ -20,6 +20,10 @@ const config: Config = {
         8: "24px",
       },
       colors: {
+        candy: {
+          DEFAULT: "#8C00A3",
+          200: "#580067",
+        },
         black: {
           default: "#111",
         },
@@ -27,6 +31,7 @@ const config: Config = {
           200: "#1B1B1B",
           400: "#303030",
           600: "#606060",
+          900: "#6E6E6E",
           10: "#808080",
           11: "#B1B1B1",
           12: "#EEE",
