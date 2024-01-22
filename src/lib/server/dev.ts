@@ -1,7 +1,10 @@
+// THIS IS A DEVELOPMENT FILE
+// DO NOT USE THIS IN PRODUCTION
+
 /**
  * Returns the chipId for a given cmac, and if the cmac is new or has been used
  */
-export const TODO_getChipIdFromIykCmac = (
+export const getChipIdFromIykCmac = (
   cmac: string
 ): { chipId: string | undefined; isValid: boolean } => {
   const chipId = parseInt(cmac);
@@ -24,9 +27,7 @@ export enum ChipType {
  * Returns undefined if the chipId is invalid
  * TEMPORARY: PERSON CARDS HAVE CHIP IDS < 50, LOCATION CARDS HAVE CHIP IDS >= 50
  */
-export const TODO_getChipTypeFromChipId = (
-  chipId: string
-): ChipType | undefined => {
+export const getChipTypeFromChipId = (chipId: string): ChipType | undefined => {
   const parsedChipId = parseInt(chipId);
   if (isNaN(parsedChipId)) {
     return undefined;

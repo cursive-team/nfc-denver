@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { fetchUserByUUID, User } from "@/util/localStorage";
+import { fetchUserByUUID, User } from "@/lib/client/localStorage";
 
 const UserProfilePage = () => {
   const router = useRouter();

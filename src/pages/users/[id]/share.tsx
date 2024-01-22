@@ -6,9 +6,9 @@ import {
   getKeys,
   getProfile,
   User,
-} from "@/util/localStorage";
-import { sign } from "@/lib/signature";
-import { DEFAULT_MESSAGE_TYPE, encryptMessage } from "@/lib/jubSignal";
+} from "@/lib/client/localStorage";
+import { sign } from "@/lib/shared/signature";
+import { DEFAULT_MESSAGE_TYPE, encryptMessage } from "@/lib/client/jubSignal";
 
 const SharePage = () => {
   const router = useRouter();

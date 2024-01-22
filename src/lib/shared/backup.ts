@@ -17,7 +17,7 @@ const DIGEST = "sha512"; // Digest method for PBKDF2
  * @param password The user's password.
  * @returns A buffer containing the derived key.
  */
-const deriveKey = (email: string, password: string): Buffer => {
+const deriveBackupEncryptionKey = (email: string, password: string): Buffer => {
   return pbkdf2Sync(
     password,
     `${email}${SALT}`,
@@ -34,15 +34,15 @@ const deriveKey = (email: string, password: string): Buffer => {
  * @param password The user's password.
  * @returns An object containing the encrypted text as a hex string and the auth tag.
  */
-export const encryptString = (
-  text: string,
+export const encryptBackupString = (
+  backup: string,
   email: string,
   password: string
 ): { encryptedData: string; authenticationTag: string; iv: string } => {
-  const key = deriveKey(email, password);
+  const key = deriveBackupEncryptionKey(email, password);
   const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
-  let encrypted = cipher.update(text, "utf8", "hex");
+  let encrypted = cipher.update(backup, "utf8", "hex");
   encrypted += cipher.final("hex");
   const authenticationTag = cipher.getAuthTag().toString("hex");
   return {
@@ -60,14 +60,14 @@ export const encryptString = (
  * @param password The user's password.
  * @returns The decrypted text.
  */
-export const decryptString = (
+export const decryptBackupString = (
   encryptedData: string,
   authenticationTag: string,
   iv: string,
   email: string,
   password: string
 ): string => {
-  const key = deriveKey(email, password);
+  const key = deriveBackupEncryptionKey(email, password);
   const ivBuffer = Buffer.from(iv, "hex");
   const decipher = createDecipheriv("aes-256-gcm", key, ivBuffer);
   decipher.setAuthTag(Buffer.from(authenticationTag, "hex"));

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Icons } from "./Icons";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/client/utils";
 import { usePathname } from "next/navigation";
 
 interface RouterItem {

@@ -1,6 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ErrorResponse } from "../_types";
-import { VerifySigninCodeResponse, verifySigninCode } from "../_auth";
+import { ErrorResponse } from "../../../types";
+import {
+  VerifySigninCodeResponse,
+  verifySigninCode,
+} from "../../../lib/server/auth";
 
 export default async function handler(
   req: NextApiRequest,

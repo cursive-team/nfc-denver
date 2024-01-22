@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
-import { EmptyResponse, ErrorResponse } from "../_types";
-import { generateAndSendSigninCode } from "../_auth";
+import prisma from "@/lib/server/prisma";
+import { EmptyResponse, ErrorResponse } from "../../../types";
+import { generateAndSendSigninCode } from "../../../lib/server/auth";
 
 export default async function handler(
   req: NextApiRequest,
