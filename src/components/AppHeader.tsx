@@ -7,7 +7,7 @@ const Title = classed.h3("text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
 const Description = classed.span("text-sm text-gray-11 leading-5");
 
-const ContentWrapper = classed.div("flex flex-col gap-4");
+const ContentWrapper = classed.div("flex flex-col gap-4 mt-8");
 
 interface AppHeaderContentProps {
   isMenuOpen: boolean;
@@ -83,10 +83,14 @@ const AppHeaderContent = ({
         <ContentWrapper>
           <Title>Project Links</Title>
           <div className="flex flex-col gap-2">
-            <Subtitle>Link 1</Subtitle>
-            <Subtitle>Link 2</Subtitle>
-            <Subtitle>Link 3</Subtitle>
-            <Subtitle>Link 4</Subtitle>
+            <Subtitle>
+              GitHub:{" "}
+              <u>
+                <a href="https://github.com/nfc-denver/nfc-denver">
+                  github.com/nfc-denver/nfc-denver
+                </a>
+              </u>
+            </Subtitle>
           </div>
         </ContentWrapper>
       </div>

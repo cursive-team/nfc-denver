@@ -58,7 +58,6 @@ const AppFooter = () => {
     },
   ];
 
-  console.log("pathname", pathname);
   return (
     <footer
       id="footer"

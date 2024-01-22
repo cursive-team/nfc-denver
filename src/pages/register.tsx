@@ -40,6 +40,7 @@ export default function Register() {
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (router.query.cmac) {
@@ -85,6 +86,7 @@ export default function Register() {
 
   const handleEmailSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     fetch("/api/register/get_code", {
       method: "POST",
       headers: {
@@ -98,15 +100,18 @@ export default function Register() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         alert(error.message);
+        setLoading(false);
       });
   };
 
   const handleCodeSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     fetch("/api/register/verify_code", {
       method: "POST",
       headers: {
@@ -132,10 +137,12 @@ export default function Register() {
             throw new Error(errorReason);
           }
         }
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         alert(error.message);
+        setLoading(false);
       });
   };
 
@@ -198,6 +205,7 @@ export default function Register() {
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
       alert("Error creating account! Please try again.");
+      setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
 
@@ -205,6 +213,7 @@ export default function Register() {
     if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
       alert("Account created, but error logging in! Please try again.");
+      setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
 
@@ -280,7 +289,9 @@ export default function Register() {
             onChange={handleEmailChange}
             required
           />
-          <Button type="submit">Continue</Button>
+          <Button loading={loading} type="submit">
+            Continue
+          </Button>
           <Link href="/login" className="link text-center">
             I have already registered
           </Link>
@@ -301,7 +312,9 @@ export default function Register() {
             onChange={handleCodeChange}
             required
           />
-          <Button type="submit">Continue</Button>
+          <Button loading={loading} type="submit">
+            Continue
+          </Button>
         </FormStepLayout>
       )}
       {displayState === DisplayState.INPUT_SOCIAL && (
