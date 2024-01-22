@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/server/prisma";
 import { object, string } from "yup";
-import { decryptString, encryptString } from "@/lib/backup";
-import { verifyAuthToken } from "./_auth";
-import { EmptyResponse, ErrorResponse } from "./_types";
-import { backupSchema } from "@/util/localStorage";
+import { decryptBackupString, encryptBackupString } from "@/lib/shared/backup";
+import { verifyAuthToken } from "../../lib/server/auth";
+import { EmptyResponse, ErrorResponse } from "../../types";
+import { backupSchema } from "@/lib/client/localStorage";
 
 export type EncryptedBackupData = {
   encryptedData: string;
@@ -61,7 +61,7 @@ export default async function handler(
     if (backup.isServerEncrypted) {
       const serverEncryptionEmail = process.env.SERVER_ENCRYPTION_EMAIL!;
       const serverEncryptionPassword = process.env.SERVER_ENCRYPTION_PASSWORD!;
-      const decryptedBackup = decryptString(
+      const decryptedBackup = decryptBackupString(
         encryptedData,
         authenticationTag,
         iv,
@@ -117,7 +117,7 @@ export default async function handler(
       }
       const serverEncryptionEmail = process.env.SERVER_ENCRYPTION_EMAIL!;
       const serverEncryptionPassword = process.env.SERVER_ENCRYPTION_PASSWORD!;
-      const { encryptedData, authenticationTag, iv } = encryptString(
+      const { encryptedData, authenticationTag, iv } = encryptBackupString(
         backup,
         serverEncryptionEmail,
         serverEncryptionPassword

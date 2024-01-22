@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/server/prisma";
 import { object, string } from "yup";
-import { ErrorResponse } from "./_types";
+import { ErrorResponse } from "../../types";
 import {
   ChipType,
-  TODO_getChipIdFromIykCmac,
-  TODO_getChipTypeFromChipId,
-} from "./_iyk";
+  getChipIdFromIykCmac,
+  getChipTypeFromChipId,
+} from "../../lib/server/dev";
 
 export enum TapResponseCode {
   CMAC_INVALID = "CMAC_INVALID",
@@ -63,7 +63,7 @@ export const tapResponseSchema = object({
 /**
  * Returns a signature for a given location
  */
-export const TODO_generateLocationSignature = async (
+export const generateLocationSignature = async (
   locationId: number
 ): Promise<string> => {
   return "example_signature";
@@ -85,13 +85,13 @@ export default async function handler(
   // cmac must be provided
   const cmac = req.query.cmac;
   if (!cmac || typeof cmac !== "string") {
-    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
+    return res.status(400).json({ error: "Invalid code provided" });
   }
 
-  const { chipId, isValid } = TODO_getChipIdFromIykCmac(cmac);
+  const { chipId, isValid } = getChipIdFromIykCmac(cmac);
   // cmac must exist in iyk's lookup
   if (chipId === undefined) {
-    return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
+    return res.status(400).json({ error: "Invalid code provided" });
   }
   // cmac must not have been used before
   if (!isValid) {
@@ -123,7 +123,7 @@ export default async function handler(
     },
   });
   if (location) {
-    const signature = await TODO_generateLocationSignature(location.id);
+    const signature = await generateLocationSignature(location.id);
     const locationTapResponse: LocationTapResponse = {
       name: location.name,
       description: location.description,
@@ -139,7 +139,7 @@ export default async function handler(
   }
 
   // card is not registered, return whether it is a person card or location card
-  const chipType = TODO_getChipTypeFromChipId(chipId);
+  const chipType = getChipTypeFromChipId(chipId);
   if (chipType === ChipType.PERSON) {
     return res
       .status(200)

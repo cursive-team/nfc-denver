@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { saveAuthToken, loadBackup } from "../util/localStorage";
-import { hashPassword } from "@/lib/password";
-import { decryptString } from "@/lib/backup";
+import { saveAuthToken, loadBackup } from "../lib/client/localStorage";
+import { hashPassword } from "@/lib/client/utils";
+import { decryptBackupString } from "@/lib/shared/backup";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";
 import { Input } from "./Input";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
@@ -126,7 +126,7 @@ export default function LoginForm({
         return;
       }
 
-      const decryptedBackupData = decryptString(
+      const decryptedBackupData = decryptBackupString(
         encryptedData,
         authenticationTag,
         iv,

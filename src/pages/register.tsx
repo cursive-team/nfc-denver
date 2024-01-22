@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { generateEncryptionKeyPair } from "@/lib/encryption";
-import { generateSignatureKeyPair } from "@/lib/signature";
-import { generateSalt, hashPassword } from "@/lib/password";
+import { generateEncryptionKeyPair } from "@/lib/client/encryption";
+import { generateSignatureKeyPair } from "@/lib/shared/signature";
+import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,
   saveAuthToken,
   saveKeys,
   saveProfile,
-} from "@/util/localStorage";
-import { verifySigninCodeResponseSchema } from "./api/_auth";
-import { encryptString } from "@/lib/backup";
+} from "@/lib/client/localStorage";
+import { verifySigninCodeResponseSchema } from "../lib/server/auth";
+import { encryptBackupString } from "@/lib/shared/backup";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import Link from "next/link";
@@ -238,7 +238,7 @@ export default function Register() {
     // Encrypt backup data if user wants self custody
     const backup = wantsServerCustody
       ? backupData
-      : encryptString(backupData, email, password);
+      : encryptBackupString(backupData, email, password);
 
     const backupResponse = await fetch("/api/backup", {
       method: "POST",

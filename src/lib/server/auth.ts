@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/server/prisma";
 import sgMail from "@sendgrid/mail";
 import { object, string, boolean } from "yup";
 
@@ -37,7 +37,7 @@ export const generateAndSendSigninCode = async (
     sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
     const msg = {
       to: email,
-      from: "andrewclu98@gmail.com",
+      from: process.env.SENDGRID_SENDER_EMAIL!,
       subject: "Your Signin Code",
       text: `Your one-time signin code is: ${signinCode}. It will expire in 30 minutes.`,
       html: `<strong>Your one-time signin code is: ${signinCode}</strong>. It will expire in 30 minutes.`,

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ErrorResponse } from "../_types";
-import { generateAndSendSigninCode } from "../_auth";
+import { ErrorResponse } from "../../../types";
+import { generateAndSendSigninCode } from "../../../lib/server/auth";
 
 export default async function handler(
   req: NextApiRequest,

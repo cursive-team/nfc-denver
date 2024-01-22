@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
-import { verifyAuthToken } from "./_auth";
-import { EmptyResponse, ErrorResponse } from "./_types";
-import { EncryptedMessage } from "@/lib/jubSignal";
+import prisma from "@/lib/server/prisma";
+import { verifyAuthToken } from "../../lib/server/auth";
+import { EmptyResponse, ErrorResponse } from "../../types";
+import { EncryptedMessage } from "@/lib/client/jubSignal";
 
 export type MessageGetResponse = EncryptedMessage[];
 

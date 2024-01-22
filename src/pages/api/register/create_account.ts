@@ -1,17 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/server/prisma";
 import { object, string, boolean } from "yup";
-import { ErrorResponse } from "../_types";
+import { ErrorResponse } from "../../../types";
 import {
   ChipType,
-  TODO_getChipIdFromIykCmac,
-  TODO_getChipTypeFromChipId,
-} from "../_iyk";
+  getChipIdFromIykCmac,
+  getChipTypeFromChipId,
+} from "../../../lib/server/dev";
 import {
   AuthTokenResponse,
   generateAuthToken,
   verifySigninCode,
-} from "../_auth";
+} from "../../../lib/server/auth";
 
 const createAccountSchema = object({
   cmac: string().required(),
@@ -66,11 +66,11 @@ export default async function handler(
 
   // Validate cmac corresponds to an unregistered person chip
   // TODO: Do we need to check if chip matches email?
-  const { chipId } = TODO_getChipIdFromIykCmac(cmac);
+  const { chipId } = getChipIdFromIykCmac(cmac);
   if (chipId === undefined) {
     return res.status(400).json({ error: "Invalid cmac" });
   }
-  const chipType = TODO_getChipTypeFromChipId(chipId);
+  const chipType = getChipTypeFromChipId(chipId);
   if (chipType !== ChipType.PERSON) {
     return res.status(400).json({ error: "Invalid cmac" });
   }

@@ -7,8 +7,12 @@ import {
   getMessages,
   getProfile,
   writeMessages,
-} from "@/util/localStorage";
-import { EncryptedMessage, Message, decryptMessage } from "@/lib/jubSignal";
+} from "@/lib/client/localStorage";
+import {
+  EncryptedMessage,
+  Message,
+  decryptMessage,
+} from "@/lib/client/jubSignal";
 
 export default function Home() {
   const router = useRouter();

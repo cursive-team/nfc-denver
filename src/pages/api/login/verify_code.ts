@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/server/prisma";
 import {
   verifySigninCode,
   generateAuthToken,
   AuthTokenResponse,
-} from "../_auth";
-import { ErrorResponse } from "../_types";
+} from "../../../lib/server/auth";
+import { ErrorResponse } from "../../../types";
 import { BackupResponse } from "../backup";
-import { decryptString } from "@/lib/backup";
+import { decryptBackupString } from "@/lib/shared/backup";
 
 export type LoginResponse =
   | {
@@ -65,7 +65,7 @@ export default async function handler(
   if (backup.isServerEncrypted) {
     const serverEncryptionEmail = process.env.SERVER_ENCRYPTION_EMAIL!;
     const serverEncryptionPassword = process.env.SERVER_ENCRYPTION_PASSWORD!;
-    const decryptedBackup = decryptString(
+    const decryptedBackup = decryptBackupString(
       encryptedData,
       authenticationTag,
       iv,

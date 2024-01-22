@@ -7,7 +7,7 @@ import {
   tapResponseSchema,
 } from "./api/tap";
 import LoginForm from "@/components/LoginForm";
-import { getAuthToken, updateUserFromTap } from "@/util/localStorage";
+import { getAuthToken, updateUserFromTap } from "@/lib/client/localStorage";
 
 export default function Tap() {
   const router = useRouter();
