@@ -20,6 +20,7 @@ interface FiltersProps {
   defaultValue?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  label?: string;
 }
 
 const Filters = ({
@@ -27,6 +28,7 @@ const Filters = ({
   defaultValue,
   onChange,
   disabled,
+  label,
 }: FiltersProps) => {
   let [option, setOption] = useState(defaultValue);
 
@@ -36,24 +38,29 @@ const Filters = ({
   };
 
   return (
-    <RadioGroup
-      className={cn("flex gap-2 overflow-scroll", {
-        "opacity-50": disabled,
-      })}
-      value={option}
-      onChange={handleChange}
-      disabled={disabled}
-    >
-      {Object.entries(object).map(([key, label]) => {
-        return (
-          <RadioGroup.Option key={key} value={key}>
-            {({ checked }) => (
-              <RadioOptionItem checked={checked}>{label}</RadioOptionItem>
-            )}
-          </RadioGroup.Option>
-        );
-      })}
-    </RadioGroup>
+    <div className="flex items-center gap-2">
+      {label && (
+        <span className="text-xs text-gray-900 font-light">{label}</span>
+      )}
+      <RadioGroup
+        className={cn("flex gap-2 overflow-scroll", {
+          "opacity-50": disabled,
+        })}
+        value={option}
+        onChange={handleChange}
+        disabled={disabled}
+      >
+        {Object.entries(object).map(([key, label]) => {
+          return (
+            <RadioGroup.Option key={key} value={key}>
+              {({ checked }) => (
+                <RadioOptionItem checked={checked}>{label}</RadioOptionItem>
+              )}
+            </RadioGroup.Option>
+          );
+        })}
+      </RadioGroup>
+    </div>
   );
 };
 

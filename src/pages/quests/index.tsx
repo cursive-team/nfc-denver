@@ -22,6 +22,7 @@ export default function QuestsPage() {
       <div className="flex items-center gap-2">
         <span className="text-xs text-gray-900 font-light">Filters</span>
         <Filters
+          label="Filters"
           defaultValue="ALL"
           object={QuestTagMapping}
           onChange={setSelectedOption}
