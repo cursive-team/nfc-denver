@@ -18,7 +18,7 @@ export default function Tap() {
   const processPersonTap = useCallback(
     async (person: PersonTapResponse) => {
       const userId = await updateUserFromTap(person);
-      router.push("/users/" + userId);
+      router.push("/users/" + userId + "/share");
     },
     [router]
   );
