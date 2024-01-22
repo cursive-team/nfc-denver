@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,18 +17,23 @@
   }
 }
 
+html, body {
+  height: 100%;
+  @apply bg-black-default;
+  font-family: 'Questrial', sans-serif;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-black-default text-white;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .link {
+    @apply text-gray-11 underline leading-5 text-sm font-light;
   }
 }

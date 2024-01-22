@@ -3,11 +3,16 @@ import { saveAuthToken, loadBackup } from "../util/localStorage";
 import { hashPassword } from "@/lib/password";
 import { decryptString } from "@/lib/backup";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";
+import { Input } from "./Input";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
+import { Record } from "@prisma/client/runtime/library";
+import Link from "next/link";
+import { Button } from "./Button";
 
 enum DisplayState {
-  INPUT_EMAIL,
-  INPUT_CODE,
-  INPUT_PASSWORD,
+  INPUT_EMAIL = "INPUT_EMAIL",
+  INPUT_CODE = "INPUT_CODE",
+  INPUT_PASSWORD = "INPUT_PASSWORD",
 }
 
 interface LoginFormProps {
@@ -149,107 +154,74 @@ export default function LoginForm({
     setPassword(event.target.value);
   };
 
+  const StatusStepComponent: Record<
+    keyof typeof DisplayState,
+    React.ReactNode
+  > = {
+    INPUT_EMAIL: (
+      <FormStepLayout
+        title="Login"
+        description="Welcome to ETHDenver"
+        onSubmit={handleEmailSubmit}
+      >
+        <Input
+          type="email"
+          id="email"
+          name="email"
+          label="Email"
+          placeholder="example@xyz.com"
+          value={email}
+          onChange={handleEmailChange}
+          required
+        />
+        <Button type="submit">Send Code</Button>
+        <Link href="/register" className="link text-center">
+          I am not registered
+        </Link>
+      </FormStepLayout>
+    ),
+    INPUT_CODE: (
+      <FormStepLayout
+        title="Login"
+        description="Welcome to ETHDenver"
+        onSubmit={handleCodeSubmit}
+      >
+        <Input
+          type="text"
+          id="code"
+          name="code"
+          label="Code"
+          placeholder="XXX-XXX"
+          value={code}
+          onChange={handleCodeChange}
+          required
+        />
+        <Button type="submit">Login</Button>
+      </FormStepLayout>
+    ),
+    INPUT_PASSWORD: (
+      <FormStepLayout
+        title="Login"
+        description="Welcome to ETHDenver"
+        onSubmit={handlePasswordSubmit}
+      >
+        <Input
+          type="password"
+          id="password"
+          name="password"
+          label="Password"
+          value={password}
+          onChange={handlePasswordChange}
+          required
+        />
+        <Button type="submit">Login</Button>
+      </FormStepLayout>
+    ),
+  };
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
-        {displayState === DisplayState.INPUT_EMAIL && (
-          <form
-            onSubmit={handleEmailSubmit}
-            className="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4"
-          >
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={handleEmailChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Send Code
-              </button>
-            </div>
-          </form>
-        )}
-        {displayState === DisplayState.INPUT_CODE && (
-          <form
-            onSubmit={handleCodeSubmit}
-            className="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4"
-          >
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2"
-                htmlFor="code"
-              >
-                Code
-              </label>
-              <input
-                type="text"
-                id="code"
-                name="code"
-                value={code}
-                onChange={handleCodeChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Login
-              </button>
-            </div>
-          </form>
-        )}
-        {displayState === DisplayState.INPUT_PASSWORD && (
-          <form
-            onSubmit={handlePasswordSubmit}
-            className="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4"
-          >
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={handlePasswordChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Login
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
+    <div className="min-h-screen flex flex-col">
+      {StatusStepComponent[displayState]}
     </div>
   );
 }
