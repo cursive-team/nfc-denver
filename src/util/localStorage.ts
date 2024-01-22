@@ -1,4 +1,5 @@
 import { hashPublicKeyToUUID } from "@/lib/encryption";
+import { Message } from "@/lib/jubSignal";
 import { PersonTapResponse } from "@/pages/api/tap";
 import { object, string, boolean } from "yup";
 
@@ -184,4 +185,18 @@ export const fetchUserByUUID = (userId: string): User | undefined => {
   const users = getUsers();
 
   return users[userId];
+};
+
+// Overwrites existing messages in profile
+export const writeMessages = (messages: Message[]): void => {
+  saveToLocalStorage("messages", JSON.stringify(messages));
+};
+
+export const getMessages = (): Message[] => {
+  const messages = getFromLocalStorage("messages");
+  if (messages) {
+    return JSON.parse(messages);
+  }
+
+  return [];
 };
