@@ -1,11 +1,12 @@
 export const Icons: Record<string, any> = {
-  iyk: () => (
+  iyk: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="28"
-      height="28"
+      width={props.size || "28"}
+      height={props.size || "28"}
       viewBox="0 0 28 28"
       fill="none"
+      {...props}
     >
       <g clipPath="url(#clip0_397_4887)">
         <circle cx="14" cy="14" r="14" fill="#222222" />
@@ -21,13 +22,14 @@ export const Icons: Record<string, any> = {
       </defs>
     </svg>
   ),
-  x: () => (
+  x: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="5"
-      height="6"
+      width={props.size || "5"}
+      height={props.size || "6"}
       viewBox="0 0 5 6"
       fill="none"
+      {...props}
     >
       <path
         d="M3.1 3L5 1.1L4.4 0.5L2.5 2.4L0.6 0.5L0 1.1L1.9 3L0 4.9L0.6 5.5L2.5 3.6L4.4 5.5L5 4.9L3.1 3Z"
@@ -35,13 +37,14 @@ export const Icons: Record<string, any> = {
       />
     </svg>
   ),
-  jubmoji: () => (
+  jubmoji: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="26"
-      height="25"
+      width={props.size || "26"}
+      height={props.size || "25"}
       viewBox="0 0 26 25"
       fill="none"
+      {...props}
     >
       <path
         fillRule="evenodd"
