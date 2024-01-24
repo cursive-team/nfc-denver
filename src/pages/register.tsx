@@ -277,7 +277,10 @@ export default function Register() {
       {displayState === DisplayState.INPUT_EMAIL && (
         <FormStepLayout
           title="Welcome to ETHDenver"
-          description="February 23rd"
+          description={new Date().toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+          })}
           onSubmit={handleEmailSubmit}
         >
           <Input

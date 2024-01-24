@@ -94,19 +94,19 @@ model Message {
 
 model Quest {
   id          Int      @id @default(autoincrement())
-  summonId    String   @unique
+  summonId    String?   @unique
   name        String
   description String
-  sponsor     String
-  imageUrl    String
+  sponsor     String?
+  imageUrl    String?
   createdAt   DateTime @default(now())
   buidlReward Int
 
   userReqs     User[]     @relation("UserQuestReq")
   locationReqs Location[] @relation("LocationQuestReq")
 
-  userPartialCt       Int
+  userPartialCt       Int?
   userPartialReqs     User[]     @relation("UserQuestPartialReq")
-  locationPartialCt   Int
+  locationPartialCt   Int?
   locationPartialReqs Location[] @relation("LocationQuestPartialReq")
 }

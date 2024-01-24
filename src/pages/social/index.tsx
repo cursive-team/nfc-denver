@@ -1,5 +1,6 @@
 import { Icons } from "@/components/Icons";
 import { ProfileImage } from "@/components/ProfileImage";
+import { Button } from "@/components/Button";
 import { TabsProps, Tabs } from "@/components/Tabs";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
