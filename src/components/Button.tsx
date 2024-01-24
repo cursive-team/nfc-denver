@@ -102,9 +102,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         })}
         {...props}
       >
-        <div className={IconVariants[size ?? "md"]}>
-          {loading ? <LoadingSpinner /> : icon}
-        </div>
+        {(loading || icon) && (
+          <div className={IconVariants[size ?? "md"]}>
+            {loading ? <LoadingSpinner /> : icon}
+          </div>
+        )}
         <>{children}</>
       </ButtonComponent>
     );

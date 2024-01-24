@@ -1,3 +1,5 @@
+import { Button } from "@/components/Button";
+import { Icons } from "@/components/Icons";
 import { TabsProps, Tabs } from "@/components/Tabs";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
@@ -82,6 +84,16 @@ export default function Social() {
         <div className="flex flex-col gap-1 mt-2">
           <h2 className=" text-xl font-gray-12 font-light">Name</h2>
           <span className="text-sm font-light text-gray-10">Connections</span>
+          <div className="mt-2">
+            <Link href="/create-quest">
+              <Button size="md" align="left">
+                <span>Create quest</span>
+                <div className="ml-auto">
+                  <Icons.arrowRight />
+                </div>
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       <Tabs items={items} />
