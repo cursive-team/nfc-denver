@@ -15,7 +15,7 @@ interface ContactCardProps {
 
 const ContactCard = ({ name, date }: ContactCardProps) => {
   return (
-    <Link href="/social/1">
+    <Link href="/social/contact/1">
       <Card.Base className="flex justify-between p-3">
         <Card.Title>{name}</Card.Title>
         <Card.Description>{date}</Card.Description>
@@ -82,7 +82,7 @@ export default function Social() {
   return (
     <div className="flex flex-col gap-6 pt-4">
       <div className="flex gap-6">
-        <Link href="/social/art">
+        <Link href="/social/snapshot/1">
           <ProfileImage>
             <button type="button" className="absolute right-1 top-1">
               <Icons.zoom />
