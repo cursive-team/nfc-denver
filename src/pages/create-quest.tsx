@@ -157,7 +157,7 @@ export default function CreateQuest() {
         >
           <Input
             label="Requirements"
-            placeholder="Enter required users, comma separated"
+            placeholder="Enter user chipIds, comma separated"
             type="text"
             name="userReq"
             value={userReqs}
@@ -166,13 +166,13 @@ export default function CreateQuest() {
           />
           <Input
             label="Partial requirements"
-            placeholder="Enter partially required users, comma separated"
+            placeholder="Enter user chipIds, comma separated"
             type="text"
             name="partialUserReq"
             value={userPartialReqs}
             onChange={(event) => setUserPartialReqs(event.target.value)}
           />
-          {userPartialReqs.split(",").length > 1 && (
+          {userPartialReqs.length > 1 && (
             <Input
               label="Partial Requirement Count"
               placeholder="Enter count"
@@ -201,12 +201,12 @@ export default function CreateQuest() {
       {displayState === DisplayState.LOCATION_REQ && (
         <FormStepLayout
           title="Quest location requirements"
-          description="Select location that must be visited"
+          description="Select locations that must be visited"
           onSubmit={handleLocationReqSubmit}
         >
           <Input
-            label="Requirements*"
-            placeholder="Enter required locations, comma separated"
+            label="Requirements"
+            placeholder="Enter locations chipIds, comma separated"
             type="text"
             name="locationReqs"
             value={locationReqs}
@@ -215,13 +215,13 @@ export default function CreateQuest() {
           />
           <Input
             label="Partial requirements"
-            placeholder="Enter partially required locations, comma separated"
+            placeholder="Enter locations chipIds, comma separated"
             type="text"
             name="locationPartialReqs"
             value={locationPartialReqs}
             onChange={(event) => setLocationPartialReqs(event.target.value)}
           />
-          {locationPartialReqs.split(",").length > 1 && (
+          {locationPartialReqs.length > 0 && (
             <Input
               label="Partial requirement count"
               placeholder="How many partial requirements are needed?"
