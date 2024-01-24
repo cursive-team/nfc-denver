@@ -193,13 +193,14 @@ export const Icons: Record<string, any> = {
       </defs>
     </svg>
   ),
-  arrowRight: (...props: any) => (
+  arrowRight: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 16 16"
       fill="none"
+      {...props}
     >
       <path
         fill-rule="evenodd"
@@ -241,13 +242,14 @@ export const Icons: Record<string, any> = {
       />
     </svg>
   ),
-  checkedCircle: (...props: any) => (
+  checkedCircle: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 16 16"
       fill="none"
+      {...props}
     >
       <path
         fill-rule="evenodd"

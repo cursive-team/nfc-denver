@@ -2,6 +2,7 @@ import { Button } from "@/components/Button";
 import { Filters } from "@/components/Filters";
 import { Icons } from "@/components/Icons";
 import { QuestCard } from "@/components/cards/QuestCard";
+import { questListMock } from "@/mocks";
 import { QuestTagMapping } from "@/shared/constants";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -29,12 +30,11 @@ export default function QuestsPage() {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Link href="/quests/1">
-          <QuestCard />
-        </Link>
-        <Link href="/quests/2">
-          <QuestCard />
-        </Link>
+        {questListMock?.map(({ id, title, description }, index) => (
+          <Link href={`/quests/${id}`} key={id}>
+            <QuestCard title={title} description={description} />
+          </Link>
+        ))}
       </div>
     </div>
   );

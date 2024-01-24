@@ -1,17 +1,17 @@
 import React from "react";
 import { Card } from "./Card";
-import exp from "constants";
 
-const QuestCard = () => {
+type QuestCardProps = {
+  title: string;
+  description: string;
+};
+
+const QuestCard = ({ title, description }: QuestCardProps) => {
   return (
     <Card.Base className="flex flex-col gap-4 p-3">
       <div className="flex flex-col gap-2">
-        <Card.Title>Quest 1</Card.Title>
-        <Card.Description>
-          Visit the Optimism booth and lorem ipsum dolor sit amet, consectetur
-          adipiscing elit. Nulla commodo imperdiet lorem, non efficitur mi
-          bibendum et.
-        </Card.Description>
+        <Card.Title>{title}</Card.Title>
+        <Card.Description>{description}</Card.Description>
       </div>
       <div className="flex items-center justify-between">
         <>icons</>

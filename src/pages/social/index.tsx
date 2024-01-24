@@ -3,7 +3,6 @@ import { ProfileImage } from "@/components/ProfileImage";
 import { TabsProps, Tabs } from "@/components/Tabs";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
-import { classed } from "@tw-classed/react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
