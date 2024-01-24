@@ -7,6 +7,8 @@ import {
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
 } from "../../lib/server/dev";
+import { sign } from "@/lib/server/signature";
+import { v4 as uuidv4 } from "uuid";
 
 export enum TapResponseCode {
   CMAC_INVALID = "CMAC_INVALID",
@@ -31,6 +33,7 @@ export const personTapResponseSchema = object({
 });
 
 export type LocationTapResponse = {
+  id: string;
   name: string;
   description: string;
   sponsor: string;
@@ -40,6 +43,7 @@ export type LocationTapResponse = {
 };
 
 export const locationTapResponseSchema = object({
+  id: string().required(),
   name: string().required(),
   description: string().required(),
   sponsor: string().required(),
@@ -62,11 +66,24 @@ export const tapResponseSchema = object({
 
 /**
  * Returns a signature for a given location
+ * TEMPORARY: Signs a uuid for now
  */
 export const generateLocationSignature = async (
   locationId: number
 ): Promise<string> => {
-  return "example_signature";
+  const key = await prisma.locationKey.findUnique({
+    where: {
+      locationId,
+    },
+  });
+  if (!key) {
+    throw new Error("Location key not found");
+  }
+
+  const data = uuidv4();
+  const signature = await sign(key.signaturePrivateKey, data);
+
+  return signature;
 };
 
 /**
@@ -125,6 +142,7 @@ export default async function handler(
   if (location) {
     const signature = await generateLocationSignature(location.id);
     const locationTapResponse: LocationTapResponse = {
+      id: location.id.toString(),
       name: location.name,
       description: location.description,
       sponsor: location.sponsor,

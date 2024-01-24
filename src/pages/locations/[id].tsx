@@ -2,11 +2,17 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ErrorResponse } from "@/types";
 import { Location } from "@prisma/client";
+import {
+  LocationSignature,
+  getLocationSignature,
+} from "@/lib/client/localStorage/locationSignatures";
 
 const LocationDetails = () => {
   const router = useRouter();
   const { id } = router.query;
   const [location, setLocation] = useState<Location>();
+  const [locationSignature, setLocationSignature] =
+    useState<LocationSignature>();
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -26,6 +32,9 @@ const LocationDetails = () => {
           alert("An error occurred. Please try again.");
           router.push("/");
         }
+
+        const locationSignature = getLocationSignature(id);
+        setLocationSignature(locationSignature);
       }
     };
 
@@ -57,6 +66,17 @@ const LocationDetails = () => {
                   className="w-full h-auto object-cover"
                 />
               </dd>
+              {locationSignature && (
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Signature
+                  </dt>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-1">
+                    {"You visited this location on: " +
+                      locationSignature?.timestamp}
+                  </dd>
+                </div>
+              )}
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 Description
               </dt>
