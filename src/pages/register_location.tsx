@@ -72,8 +72,6 @@ const RegisterLocation = () => {
       handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
     });
 
-    console.log(newBlob.url);
-
     if (name.length > 64) {
       alert("Location name must be less than 64 characters.");
       return;
@@ -87,20 +85,21 @@ const RegisterLocation = () => {
       return;
     }
 
-    const queryParams = new URLSearchParams({
-      cmac,
-      name,
-      description,
-      sponsor,
-    });
+    const locationData = {
+      cmac: cmac,
+      name: name,
+      description: description,
+      sponsor: sponsor,
+      imageUrl: newBlob.url,
+    };
 
-    const response = await fetch(
-      `/api/register/location?${queryParams.toString()}`,
-      {
-        method: "POST",
-        body: imageFile,
-      }
-    );
+    const response = await fetch("/api/register/location", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(locationData),
+    });
     if (!response.ok) {
       alert("Error registering location. Please try again.");
       return;

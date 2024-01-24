@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { put } from "@vercel/blob";
+import { head } from "@vercel/blob";
 import prisma from "@/lib/server/prisma";
 import { ErrorResponse } from "@/types";
 import { getChipIdFromIykCmac } from "@/lib/server/dev";
@@ -14,13 +14,14 @@ export default async function handler(
   res: NextApiResponse<LocationRegistrationResponse | ErrorResponse>
 ) {
   if (req.method === "POST") {
-    const { cmac, name, description, sponsor } = req.query;
+    const { cmac, name, description, sponsor, imageUrl } = req.body;
 
     if (
       typeof cmac !== "string" ||
       typeof name !== "string" ||
       typeof description !== "string" ||
-      typeof sponsor !== "string"
+      typeof sponsor !== "string" ||
+      typeof imageUrl !== "string"
     ) {
       return res.status(400).json({ error: "Invalid input parameters" });
     }
@@ -30,6 +31,7 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid cmac" });
     }
 
+    // Check that location is not already registered
     const existingLocation = await prisma.location.findUnique({
       where: {
         chipId,
@@ -39,21 +41,14 @@ export default async function handler(
       return res.status(400).json({ error: "Location already registered" });
     }
 
-    const filename = "locationImages/" + chipId + ".png";
-    let blob;
+    // Check that user uploaded location image to vercel blob
     try {
-      blob = await put(filename, req, {
-        access: "public",
-      });
+      await head(imageUrl);
     } catch (error) {
-      console.error("Image upload error: ", error);
-      return res.status(500).json({ error: "Error creating location" });
+      return res.status(400).json({ error: "Invalid image url" });
     }
 
-    if (!blob) {
-      return res.status(500).json({ error: "Error creating location" });
-    }
-
+    // Generate signing keypair for the location
     const { signingKey, verifyingKey } = await generateSignatureKeyPair();
 
     const location = await prisma.location.create({
@@ -62,7 +57,7 @@ export default async function handler(
         name,
         description,
         sponsor,
-        imageUrl: blob.url,
+        imageUrl,
         signaturePublicKey: verifyingKey,
       },
     });

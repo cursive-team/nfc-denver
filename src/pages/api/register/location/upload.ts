@@ -10,7 +10,7 @@ export default async function handler(
   const { cmac } = request.query;
 
   if (typeof cmac !== "string") {
-    return response.status(400).json({ error: "cmac is required" });
+    return response.status(400).json({ error: "Invalid input parameters" });
   }
 
   const { chipId } = getChipIdFromIykCmac(cmac);
@@ -33,33 +33,22 @@ export default async function handler(
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (
-        pathname: string
-        /* clientPayload?: string, */
-      ) => {
-        // Generate a client token for the browser to upload the file
-        // ⚠️ Authenticate and authorize users before generating the token.
-        // Otherwise, you're allowing anonymous uploads.
-
+      onBeforeGenerateToken: async (pathname: string) => {
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
           tokenPayload: JSON.stringify({
-            chipId, // Pass the chipId as part of the token payload
+            chipId,
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Get notified of client upload completion
-        // ⚠️ This will not work on `localhost` websites,
-        // Use ngrok or similar to get the full upload flow
-
         console.log("blob upload completed", tokenPayload);
       },
     });
 
     return response.status(200).json(jsonResponse);
   } catch (error) {
-    // The webhook will retry 5 times waiting for a 200
+    console.error(error);
     return response.status(400).json({ error: (error as Error).message });
   }
 }
