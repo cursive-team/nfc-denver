@@ -1,6 +1,10 @@
+import { Icons } from "@/components/Icons";
+import { ProfileImage } from "@/components/ProfileImage";
 import { TabsProps, Tabs } from "@/components/Tabs";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
+import { classed } from "@tw-classed/react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -78,10 +82,38 @@ export default function Social() {
   return (
     <div className="flex flex-col gap-6 pt-4">
       <div className="flex gap-6">
-        <div className="h-32 w-32 rounded bg-slate-200"></div>
-        <div className="flex flex-col gap-1 mt-2">
-          <h2 className=" text-xl font-gray-12 font-light">Name</h2>
-          <span className="text-sm font-light text-gray-10">Connections</span>
+        <Link href="/social/art">
+          <ProfileImage>
+            <button type="button" className="absolute right-1 top-1">
+              <Icons.zoom />
+            </button>
+          </ProfileImage>
+        </Link>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1 mt-2">
+            <div className="flex gap-[6px] items-center">
+              <h2 className="text-xl font-gray-12 font-light">Name</h2>
+              <Card.Base className="bg-gray-100/10 px-1 py-0.5 flex items-center gap-[6px]">
+                <Image
+                  width={15}
+                  height={15}
+                  src="/icons/bittle.png"
+                  alt="bittle"
+                />
+                <span className="text-gray-100 text-xs font-thin">
+                  XX Bittle
+                </span>
+              </Card.Base>
+            </div>
+            <span className="text-sm font-light text-gray-10">
+              XX Connections
+            </span>
+          </div>
+          <Link href="/leaderboard">
+            <Card.Base className="flex items-center justify-center p-2 bg-gray-200">
+              <span className="text-white text-sm">View leaderboard</span>
+            </Card.Base>
+          </Link>
         </div>
       </div>
       <Tabs items={items} />
