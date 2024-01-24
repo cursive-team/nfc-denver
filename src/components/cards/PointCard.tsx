@@ -21,7 +21,7 @@ const PointCard = ({ label, point = 0, onClick }: PointCardProps) => {
       )}
       <Card.Base className="bg-gray-100/10 px-1 py-0.5 flex items-center gap-[6px]">
         <Image width={15} height={15} src="/icons/bittle.png" alt="bittle" />
-        <span className="text-gray-100 text-xs font-thin">{`${point} BUILD`}</span>
+        <span className="text-gray-100 text-xs font-thin">{`${point} BUIDL`}</span>
       </Card.Base>
     </button>
   );

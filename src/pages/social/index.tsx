@@ -100,7 +100,7 @@ export default function Social() {
                   alt="bittle"
                 />
                 <span className="text-gray-100 text-xs font-thin">
-                  XX Bittle
+                  XX BUIDL
                 </span>
               </Card.Base>
             </div>
