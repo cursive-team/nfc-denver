@@ -37,6 +37,15 @@ model Location {
   imageUrl            String
   signaturePublicKey  String
   createdAt           DateTime @default(now())
+  signaturePrivateKey LocationKey? @relation
+}
+
+model LocationKey {
+  id                  Int      @id @default(autoincrement())
+  locationId          Int      @unique
+  signaturePrivateKey String
+  createdAt           DateTime @default(now())
+  location            Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
 model SigninCode {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
-import { generateSignatureKeyPair } from "@/lib/shared/signature";
+import { generateSignatureKeyPair } from "@/lib/client/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,

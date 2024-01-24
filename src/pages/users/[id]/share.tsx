@@ -7,7 +7,7 @@ import {
   getProfile,
   User,
 } from "@/lib/client/localStorage";
-import { sign } from "@/lib/shared/signature";
+import { sign } from "@/lib/client/signature";
 import { DEFAULT_MESSAGE_TYPE, encryptMessage } from "@/lib/client/jubSignal";
 
 const SharePage = () => {
