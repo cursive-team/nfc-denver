@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 
-const RegisterLocation = () => {
+const RegisterLocation: React.FC = () => {
   const router = useRouter();
   const [cmac, setCmac] = useState<string>("");
   const [image, setImage] = useState<string>("");
@@ -140,21 +140,21 @@ const RegisterLocation = () => {
         placeholder="Location Name"
         value={name}
         onChange={handleNameChange}
-        className="mb-4"
+        className="mb-4 text-black"
       />
       <Input
         type="text"
         placeholder="Description"
         value={description}
         onChange={handleDescriptionChange}
-        className="mb-4"
+        className="mb-4 text-black"
       />
       <Input
         type="text"
         placeholder="Sponsor"
         value={sponsor}
         onChange={handleSponsorChange}
-        className="mb-4"
+        className="mb-4 text-black"
       />
       <Button onClick={handleSubmit}>Submit</Button>
     </div>
