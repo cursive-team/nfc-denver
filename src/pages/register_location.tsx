@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
@@ -65,6 +66,13 @@ const RegisterLocation = () => {
       alert("Please select an image.");
       return;
     }
+
+    const newBlob = await upload(imageFile.name, imageFile, {
+      access: "public",
+      handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
+    });
+
+    console.log(newBlob.url);
 
     if (name.length > 64) {
       alert("Location name must be less than 64 characters.");

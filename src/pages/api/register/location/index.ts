@@ -39,7 +39,7 @@ export default async function handler(
       return res.status(400).json({ error: "Location already registered" });
     }
 
-    const filename = "locationImages/" + chipId;
+    const filename = "locationImages/" + chipId + ".png";
     let blob;
     try {
       blob = await put(filename, req, {
