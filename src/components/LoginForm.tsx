@@ -220,7 +220,7 @@ export default function LoginForm({
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col">
       {StatusStepComponent[displayState]}
     </div>
   );

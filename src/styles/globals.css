@@ -37,3 +37,9 @@ body {
     @apply text-gray-11 underline leading-5 text-sm font-light;
   }
 }
+
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+}

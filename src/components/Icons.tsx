@@ -193,13 +193,14 @@ export const Icons: Record<string, any> = {
       </defs>
     </svg>
   ),
-  arrowRight: (...props: any) => (
+  arrowRight: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 16 16"
       fill="none"
+      {...props}
     >
       <path
         fill-rule="evenodd"
@@ -241,13 +242,14 @@ export const Icons: Record<string, any> = {
       />
     </svg>
   ),
-  checkedCircle: (...props: any) => (
+  checkedCircle: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 16 16"
       fill="none"
+      {...props}
     >
       <path
         fill-rule="evenodd"
@@ -270,6 +272,33 @@ export const Icons: Record<string, any> = {
         fill="#8C00A3"
         fill-opacity="0.2"
       />
+    </svg>
+  ),
+  zoom: (props: any) => (
+    <svg
+      fill="none"
+      height="28"
+      viewBox="0 0 28 28"
+      width="28"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <clipPath id="a">
+        <path d="m6 6h16v16h-16z" />
+      </clipPath>
+      <rect fill="#1b1b1b" fill-opacity=".8" height="28" rx="4" width="28" />
+      <g
+        clip-path="url(#a)"
+        stroke="#eee"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m17.5 10.5h-7v7h7z" />
+        <path d="m6.40601 11.531v-3.5c0-.39783.15803-.77936.43934-1.06066.2813-.28131.66283-.43934 1.06066-.43934h2.99999" />
+        <path d="m16.406 6.531h3.5c.3978 0 .7794.15803 1.0607.43934.2813.2813.4393.66283.4393 1.06066v3.5" />
+        <path d="m21.406 16.531v3.5c0 .3978-.158.7794-.4393 1.0607s-.6629.4393-1.0607.4393h-3.5" />
+        <path d="m11.406 21.531h-3.49999c-.39783 0-.77936-.158-1.06066-.4393-.28131-.2813-.43934-.6629-.43934-1.0607v-3.5" />
+      </g>
     </svg>
   ),
 };

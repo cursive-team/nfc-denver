@@ -15,7 +15,7 @@ const FormStepLayout = ({
   children,
   header,
   onSubmit,
-  className,
+  className = "",
 }: FormStepLayoutProps) => {
   const handleSubmit = (event: React.FormEvent) => {
     if (typeof onSubmit === "function") {
@@ -25,7 +25,7 @@ const FormStepLayout = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`flex flex-col justify-between grow pt-4 pb-8 py-4 focus ${className}`}
+      className={`flex flex-col w-full grow pt-4 pb-8 py-4 focus ${className}`}
     >
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-1">
@@ -40,7 +40,9 @@ const FormStepLayout = ({
         </div>
         {header}
       </div>
-      <div className="flex flex-col gap-6">{children}</div>
+      <div className="flex grow fixed bottom-8 left-4 right-4">
+        <div className="flex flex-col gap-6 w-full">{children}</div>
+      </div>
     </form>
   );
 };

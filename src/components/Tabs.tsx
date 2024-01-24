@@ -28,7 +28,7 @@ const Tabs = ({ items }: TabsProps) => {
       <Tab.List className="flex gap-8 relative">
         {items.map(({ label }, index) => {
           return (
-            <Tab key={index}>
+            <Tab className="outline-none" key={index}>
               {({ selected }) => (
                 <div className="relative">
                   <TabButton selected={selected}>{label}</TabButton>
