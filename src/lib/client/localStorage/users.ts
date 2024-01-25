@@ -1,6 +1,12 @@
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
 import { PersonTapResponse } from "@/pages/api/tap";
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
+
+export const USERS_STORAGE_KEY = "users";
 
 export type User = {
   displayName: string;
@@ -10,11 +16,11 @@ export type User = {
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
-  saveToLocalStorage("users", JSON.stringify(users));
+  saveToLocalStorage(USERS_STORAGE_KEY, JSON.stringify(users));
 };
 
 export const getUsers = (): Record<string, User> => {
-  const users = getFromLocalStorage("users");
+  const users = getFromLocalStorage(USERS_STORAGE_KEY);
   if (users) {
     return JSON.parse(users);
   }
@@ -58,4 +64,8 @@ export const fetchUserByUUID = (userId: string): User | undefined => {
   const users = getUsers();
 
   return users[userId];
+};
+
+export const deleteAllUsers = (): void => {
+  deleteFromLocalStorage(USERS_STORAGE_KEY);
 };

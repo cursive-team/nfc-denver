@@ -4,6 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "./Button";
+import {
+  deleteAllKeys,
+  deleteAllMessages,
+  deleteAllUsers,
+  deleteAuthToken,
+  deleteProfile,
+} from "@/lib/client/localStorage";
+import { deleteAllLocationSignatures } from "@/lib/client/localStorage/locationSignatures";
 
 const Title = classed.h3("text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -105,7 +113,13 @@ const AppHeader = () => {
   const username = "Username";
 
   const handleSignout = () => {
-    console.log("Sign out");
+    deleteAuthToken();
+    deleteAllKeys();
+    deleteAllLocationSignatures();
+    deleteAllMessages();
+    deleteProfile();
+    deleteAllUsers();
+    window.location.href = "/";
   };
 
   return (

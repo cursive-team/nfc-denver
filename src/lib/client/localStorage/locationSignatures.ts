@@ -1,5 +1,11 @@
 import { LocationTapResponse } from "@/pages/api/tap";
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
+
+export const LOCATION_SIGNATURES_STORAGE_KEY = "locationSignatures";
 
 export type LocationSignature = {
   locationId: string;
@@ -11,11 +17,14 @@ export type LocationSignature = {
 export const saveLocationSignatures = (
   signatures: Record<string, LocationSignature>
 ): void => {
-  saveToLocalStorage("locationSignatures", JSON.stringify(signatures));
+  saveToLocalStorage(
+    LOCATION_SIGNATURES_STORAGE_KEY,
+    JSON.stringify(signatures)
+  );
 };
 
 export const getLocationSignatures = (): Record<string, LocationSignature> => {
-  const signatures = getFromLocalStorage("locationSignatures");
+  const signatures = getFromLocalStorage(LOCATION_SIGNATURES_STORAGE_KEY);
   if (signatures) {
     return JSON.parse(signatures);
   }
@@ -45,8 +54,11 @@ export const updateLocationSignatureFromTap = async (
 export const getLocationSignature = (
   locationId: string
 ): LocationSignature | undefined => {
-  console.log("fetch");
   const signatures = getLocationSignatures();
 
   return signatures[locationId];
+};
+
+export const deleteAllLocationSignatures = (): void => {
+  deleteFromLocalStorage(LOCATION_SIGNATURES_STORAGE_KEY);
 };

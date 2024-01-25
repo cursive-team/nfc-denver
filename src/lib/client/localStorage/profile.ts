@@ -1,5 +1,11 @@
 import { object, string, boolean } from "yup";
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
+
+export const PROFILE_STORAGE_KEY = "profile";
 
 export type Profile = {
   displayName: string;
@@ -22,14 +28,18 @@ export const profileSchema = object({
 });
 
 export const saveProfile = (profile: Profile): void => {
-  saveToLocalStorage("profile", JSON.stringify(profile));
+  saveToLocalStorage(PROFILE_STORAGE_KEY, JSON.stringify(profile));
 };
 
 export const getProfile = (): Profile | undefined => {
-  const profile = getFromLocalStorage("profile");
+  const profile = getFromLocalStorage(PROFILE_STORAGE_KEY);
   if (profile) {
     return JSON.parse(profile);
   }
 
   return undefined;
+};
+
+export const deleteProfile = (): void => {
+  deleteFromLocalStorage(PROFILE_STORAGE_KEY);
 };
