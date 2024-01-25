@@ -97,8 +97,8 @@ export default function Social() {
                 <Image
                   width={15}
                   height={15}
-                  src="/icons/bittle.png"
-                  alt="bittle"
+                  src="/icons/buidl.png"
+                  alt="buidl"
                 />
                 <span className="text-gray-100 text-xs font-thin">
                   XX BUIDL

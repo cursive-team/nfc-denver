@@ -36,6 +36,16 @@ export default function QuestsPage() {
           </Link>
         ))}
       </div>
+      <div className="mt-2">
+        <Link href="/create-quest">
+          <Button size="md" align="left">
+            <span>Create quest</span>
+            <div className="ml-auto">
+              <Icons.arrowRight />
+            </div>
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

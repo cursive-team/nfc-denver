@@ -1,14 +1,55 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { object, string, array, number, mixed } from "yup";
+import { Quest } from "@prisma/client";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { EmptyResponse, ErrorResponse } from "@/types";
-import { Quest, User, Location } from "@prisma/client";
+
+export type QuestRequirementRequest = {
+  type: "USER" | "LOCATION";
+  ids: string[];
+  numSigsRequired: number;
+};
+
+const questRequirementRequestSchema = object().shape({
+  type: mixed()
+    .oneOf(["USER", "LOCATION"])
+    .required("Requirement type is required"),
+  ids: array()
+    .of(string().required("ID is required"))
+    .required("IDs are required"),
+  numSigsRequired: number()
+    .min(1, "At least one signature is required")
+    .required("Number of signatures required is required"),
+});
+
+export type QuestCreateRequest = {
+  token: string;
+  name: string;
+  description: string;
+  buidlReward: number;
+  requirements: QuestRequirementRequest[];
+};
+
+const questCreateRequestSchema = object().shape({
+  token: string().required("Token is required"),
+  name: string().required("Quest name is required"),
+  description: string().required("Quest description is required"),
+  buidlReward: number().required("Buidl reward is required"),
+  requirements: array()
+    .of(questRequirementRequestSchema)
+    .required("Requirements are required"),
+});
+
+export type QuestCreateResponse = {
+  id: number;
+};
 
 export type QuestGetResponse = Quest[];
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<QuestGetResponse | EmptyResponse | ErrorResponse>
+  res: NextApiResponse<QuestGetResponse | QuestCreateResponse | ErrorResponse>
 ) {
   if (req.method === "GET") {
     const { token } = req.query;
@@ -26,146 +67,84 @@ export default async function handler(
 
     const quests = await prisma.quest.findMany({
       include: {
-        userReqs: {
-          select: {
-            displayName: true,
+        userRequirements: {
+          include: {
+            users: {
+              select: {
+                displayName: true,
+              },
+            },
           },
         },
-        userPartialReqs: {
-          select: {
-            displayName: true,
-          },
-        },
-        locationReqs: {
-          select: {
-            name: true,
-          },
-        },
-        locationPartialReqs: {
-          select: {
-            name: true,
+        locationRequirements: {
+          include: {
+            locations: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
     });
-
     res.status(200).json(quests);
   } else if (req.method === "POST") {
-    const {
-      token,
-      name,
-      description,
-      buidlReward,
-      userReqChipIds,
-      userPartialReqChipIds,
-      userPartialCt,
-      locationReqChipIds,
-      locationPartialReqChipIds,
-      locationPartialCt,
-    } = req.body;
+    try {
+      const { token, name, description, buidlReward, requirements } =
+        await questCreateRequestSchema.validate(req.body);
 
-    if (
-      !name ||
-      !description ||
-      !buidlReward ||
-      !userReqChipIds ||
-      !userPartialReqChipIds ||
-      !locationReqChipIds ||
-      !locationPartialReqChipIds
-    ) {
-      res.status(400).json({ error: "Missing necessary quest data" });
+      const senderUserId = await verifyAuthToken(token);
+      if (!senderUserId) {
+        res.status(401).json({ error: "Invalid or expired token" });
+        return;
+      }
+
+      const userRequirements: QuestRequirementRequest[] = [];
+      const locationRequirements: QuestRequirementRequest[] = [];
+      requirements.forEach((requirement: any) => {
+        if (
+          parseInt(requirement.numSigsRequired) <= 0 ||
+          parseInt(requirement.numSigsRequired) > requirement.ids.length
+        ) {
+          res
+            .status(400)
+            .json({ error: "Invalid number of signatures required" });
+          return;
+        }
+
+        if (requirement.type === "USER") {
+          userRequirements.push(requirement);
+        } else if (requirement.type === "LOCATION") {
+          locationRequirements.push(requirement);
+        }
+      });
+
+      const quest = await prisma.quest.create({
+        data: {
+          name,
+          description,
+          buidlReward: buidlReward,
+          userRequirements: {
+            create: userRequirements.map((req) => ({
+              userIds: req.ids.map((id) => parseInt(id)),
+              numSigsRequired: req.numSigsRequired,
+            })),
+          },
+          locationRequirements: {
+            create: locationRequirements.map((req) => ({
+              locationIds: req.ids.map((id) => parseInt(id)),
+              numSigsRequired: req.numSigsRequired,
+            })),
+          },
+        },
+      });
+
+      return res.status(200).json({ id: quest.id });
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ error: "Failed to validate request" });
       return;
     }
-
-    const senderUserId = await verifyAuthToken(token);
-    if (!senderUserId) {
-      res.status(401).json({ error: "Invalid or expired token" });
-      return;
-    }
-
-    for (const userChipId of userReqChipIds) {
-      const user = await prisma.user.findUnique({
-        where: {
-          chipId: userChipId,
-        },
-      });
-      if (!user) {
-        res.status(404).json({ error: `User chipId ${userChipId} not found` });
-        return;
-      }
-    }
-
-    for (const userChipId of userPartialReqChipIds) {
-      const user = await prisma.user.findUnique({
-        where: {
-          chipId: userChipId,
-        },
-      });
-      if (!user) {
-        res.status(404).json({ error: `User chipId ${userChipId} not found` });
-        return;
-      }
-    }
-
-    for (const locationChipId of locationReqChipIds) {
-      const location = await prisma.location.findUnique({
-        where: {
-          chipId: locationChipId,
-        },
-      });
-      if (!location) {
-        res
-          .status(404)
-          .json({ error: `Location chipId ${locationChipId} not found` });
-        return;
-      }
-    }
-
-    for (const locationChipId of locationPartialReqChipIds) {
-      const location = await prisma.location.findUnique({
-        where: {
-          chipId: locationChipId,
-        },
-      });
-      if (!location) {
-        res
-          .status(404)
-          .json({ error: `Location chipId ${locationChipId} not found` });
-        return;
-      }
-    }
-
-    const quest = await prisma.quest.create({
-      data: {
-        name,
-        description,
-        buidlReward,
-        userReqs: {
-          connect: userReqChipIds.map((chipId: number) => {
-            chipId: chipId;
-          }),
-        },
-        locationReqs: {
-          connect: locationReqChipIds.map((chipId: number) => {
-            chipId: chipId;
-          }),
-        },
-        userPartialReqs: {
-          connect: userPartialReqChipIds.map((chipId: number) => {
-            chipId: chipId;
-          }),
-        },
-        locationPartialReqs: {
-          connect: locationPartialReqChipIds.map((chipId: number) => {
-            chipId: chipId;
-          }),
-        },
-        userPartialCt: userPartialCt || 0,
-        locationPartialCt: locationPartialCt || 0,
-      },
-    });
-
-    res.status(200).json(quest);
   } else {
     res.setHeader("Allow", ["GET", "POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);

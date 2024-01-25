@@ -12,9 +12,9 @@ datasource db {
 }
 
 model User {
-  id                  Int      @id @default(autoincrement())
-  chipId              String   @unique
-  email               String   @unique
+  id                  Int               @id @default(autoincrement())
+  chipId              String            @unique
+  email               String            @unique
   displayName         String
   encryptionPublicKey String
   signaturePublicKey  String
@@ -23,11 +23,10 @@ model User {
   passwordHash        String?
   twitterUsername     String?
   telegramUsername    String?
-  createdAt           DateTime @default(now())
-  sentMessages        Message[] @relation("MessageSender")
-  receivedMessages    Message[] @relation("MessageRecipient")
-  questReq            Quest[] @relation("UserQuestReq")
-  questPartialReq     Quest[] @relation("UserQuestPartialReq")
+  createdAt           DateTime          @default(now())
+  sentMessages        Message[]         @relation("MessageSender")
+  receivedMessages    Message[]         @relation("MessageRecipient")
+  questRequirements   UserRequirement[] @relation("UserQuestRequirements")
 }
 
 model LocationKey {
@@ -36,21 +35,19 @@ model LocationKey {
   signaturePrivateKey String
   createdAt           DateTime @default(now())
   location            Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-    
 }
 
 model Location {
-  id                  Int      @id @default(autoincrement())
-  chipId              String   @unique
-  signaturePublicKey  String   @unique
+  id                  Int                   @id @default(autoincrement())
+  chipId              String                @unique
+  signaturePublicKey  String                
   name                String
   description         String
   sponsor             String
   imageUrl            String
-  createdAt           DateTime @default(now())
-  signaturePrivateKey LocationKey? @relation
-  questReq            Quest[] @relation("LocationQuestReq")
-  questPartialReq     Quest[] @relation("LocationQuestPartialReq")
+  createdAt           DateTime              @default(now())
+  signaturePrivateKey LocationKey?          @relation
+  questRequirements   LocationRequirement[] @relation("LocationQuestRequirements")
 }
 
 model SigninCode {
@@ -93,20 +90,34 @@ model Message {
 }
 
 model Quest {
-  id          Int      @id @default(autoincrement())
-  summonId    String?   @unique
-  name        String
-  description String
-  sponsor     String?
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  buidlReward Int
+  id                   Int                   @id @default(autoincrement())
+  name                 String
+  description          String
+  sponsor              String?
+  imageUrl             String?
+  summonId             String?               @unique
+  buidlReward          Int
+  createdAt            DateTime              @default(now())
+  userRequirements     UserRequirement[]
+  locationRequirements LocationRequirement[]
+}
 
-  userReqs     User[]     @relation("UserQuestReq")
-  locationReqs Location[] @relation("LocationQuestReq")
+model UserRequirement {
+  id              Int      @id @default(autoincrement())
+  questId         Int
+  userIds         Int[]
+  numSigsRequired Int
+  createdAt       DateTime @default(now())
+  quest           Quest    @relation(fields: [questId], references: [id])
+  users           User[]   @relation("UserQuestRequirements")
+}
 
-  userPartialCt       Int?
-  userPartialReqs     User[]     @relation("UserQuestPartialReq")
-  locationPartialCt   Int?
-  locationPartialReqs Location[] @relation("LocationQuestPartialReq")
+model LocationRequirement {
+  id              Int        @id @default(autoincrement())
+  questId         Int
+  locationIds     Int[]
+  numSigsRequired Int
+  createdAt       DateTime   @default(now())
+  quest           Quest      @relation(fields: [questId], references: [id])
+  locations       Location[] @relation("LocationQuestRequirements")
 }
