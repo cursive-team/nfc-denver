@@ -8,17 +8,29 @@ import {
 } from "./api/tap";
 import LoginForm from "@/components/LoginForm";
 import { getAuthToken, updateUserFromTap } from "@/lib/client/localStorage";
+import { updateLocationSignatureFromTap } from "@/lib/client/localStorage/locationSignatures";
 
 export default function Tap() {
   const router = useRouter();
   const [pendingPersonTapResponse, setPendingPersonTapResponse] =
     useState<PersonTapResponse>();
+  const [pendingLocationTapResponse, setPendingLocationTapResponse] =
+    useState<LocationTapResponse>();
 
   // Save the newly tapped person to local storage and redirect to their profile
   const processPersonTap = useCallback(
     async (person: PersonTapResponse) => {
       const userId = await updateUserFromTap(person);
       router.push("/users/" + userId + "/share");
+    },
+    [router]
+  );
+
+  // Save the newly tapped location to local storage and redirect to their profile
+  const processLocationTap = useCallback(
+    async (location: LocationTapResponse) => {
+      const locationId = await updateLocationSignatureFromTap(location);
+      router.push("/locations/" + locationId);
     },
     [router]
   );
@@ -49,7 +61,16 @@ export default function Tap() {
       }
     };
 
-    const handleLocationTap = async (location: LocationTapResponse) => {};
+    const handleLocationTap = async (location: LocationTapResponse) => {
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        alert("You must be logged in to connect");
+        setPendingLocationTapResponse(location);
+        return;
+      } else {
+        processLocationTap(location);
+      }
+    };
 
     fetch(`/api/tap?cmac=${cmac}`, {
       method: "GET",
@@ -93,12 +114,21 @@ export default function Tap() {
         console.error(error);
         alert("Error! Please refresh and try again.");
       });
-  }, [router, processPersonTap]);
+  }, [router, processPersonTap, processLocationTap]);
 
   if (pendingPersonTapResponse) {
     return (
       <LoginForm
         onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
+        onFailedLogin={(errorMessage: string) => {
+          alert(errorMessage);
+        }}
+      />
+    );
+  } else if (pendingLocationTapResponse) {
+    return (
+      <LoginForm
+        onSuccessfulLogin={() => processLocationTap(pendingLocationTapResponse)}
         onFailedLogin={(errorMessage: string) => {
           alert(errorMessage);
         }}
