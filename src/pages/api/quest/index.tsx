@@ -76,6 +76,8 @@ export default async function handler(
             users: {
               select: {
                 displayName: true,
+                encryptionPublicKey: true,
+                signaturePublicKey: true,
               },
             },
           },
@@ -86,7 +88,9 @@ export default async function handler(
             numSigsRequired: true,
             locations: {
               select: {
+                id: true,
                 name: true,
+                imageUrl: true,
               },
             },
           },
@@ -140,15 +144,19 @@ export default async function handler(
           userRequirements: {
             create: userRequirements.map((req) => ({
               name: req.name,
-              userIds: req.ids.map((id) => parseInt(id)),
               numSigsRequired: req.numSigsRequired,
+              users: {
+                connect: req.ids.map((id) => ({ id: parseInt(id) })),
+              },
             })),
           },
           locationRequirements: {
             create: locationRequirements.map((req) => ({
               name: req.name,
-              locationIds: req.ids.map((id) => parseInt(id)),
               numSigsRequired: req.numSigsRequired,
+              locations: {
+                connect: req.ids.map((id) => ({ id: parseInt(id) })),
+              },
             })),
           },
         },

@@ -45,6 +45,7 @@ export const updateLocationSignatureFromTap = async (
 export const getLocationSignature = (
   locationId: string
 ): LocationSignature | undefined => {
+  console.log("fetch");
   const signatures = getLocationSignatures();
 
   return signatures[locationId];

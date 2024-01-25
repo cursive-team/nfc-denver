@@ -26,6 +26,8 @@ export default async function handler(
                 users: {
                   select: {
                     displayName: true,
+                    encryptionPublicKey: true,
+                    signaturePublicKey: true,
                   },
                 },
               },
@@ -36,7 +38,9 @@ export default async function handler(
                 numSigsRequired: true,
                 locations: {
                   select: {
+                    id: true,
                     name: true,
+                    imageUrl: true,
                   },
                 },
               },

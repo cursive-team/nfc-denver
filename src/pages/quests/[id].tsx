@@ -77,24 +77,24 @@ export default function QuestById() {
           </div>
           <div className="flex flex-col gap-2">
             {quest.userRequirements.map(
-              ({ name, numSigsRequired }, index: number) => (
+              ({ name, numSigsRequired, users }, index: number) => (
                 <QuestRequirementCard
                   key={index}
-                  questName={quest.name}
                   title={name}
                   numSigsRequired={numSigsRequired}
                   questRequirementType={QuestRequirementType.USER}
+                  users={users}
                 />
               )
             )}
             {quest.locationRequirements.map(
-              ({ name, numSigsRequired }, index: number) => (
+              ({ name, numSigsRequired, locations }, index: number) => (
                 <QuestRequirementCard
                   key={index}
-                  questName={quest.name}
                   title={name}
                   numSigsRequired={numSigsRequired}
                   questRequirementType={QuestRequirementType.LOCATION}
+                  locations={locations}
                 />
               )
             )}

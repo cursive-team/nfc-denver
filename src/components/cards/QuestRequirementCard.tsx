@@ -3,24 +3,30 @@ import { Card } from "./Card";
 import { Icons } from "../Icons";
 import { cn } from "@/lib/client/utils";
 import { QuestRequirementModal } from "../modals/QuestRequirementModal";
-import { QuestRequirementType } from "@/types";
+import {
+  LocationRequirementPreview,
+  QuestRequirementType,
+  UserRequirementPreview,
+} from "@/types";
 
 interface QuestRequirementCardProps {
-  questName: string;
   title: string;
   numSigsRequired: number;
+  questRequirementType: QuestRequirementType;
+  users?: UserRequirementPreview[];
+  locations?: LocationRequirementPreview[];
   showProgress?: boolean;
   completed?: boolean;
-  questRequirementType: QuestRequirementType;
 }
 
 const QuestRequirementCard = ({
-  questName,
   title,
   numSigsRequired,
+  questRequirementType,
+  users,
+  locations,
   showProgress = false,
   completed = false,
-  questRequirementType,
 }: QuestRequirementCardProps) => {
   const [showQuestRequirement, setShowQuestRequirement] = useState(false);
 
@@ -31,10 +37,12 @@ const QuestRequirementCard = ({
   return (
     <>
       <QuestRequirementModal
+        requirementName={title}
+        questRequirementType={questRequirementType}
+        users={users}
+        locations={locations}
         isOpen={showQuestRequirement}
         setIsOpen={setShowQuestRequirement}
-        questName={questName}
-        questRequirementType={questRequirementType}
       />
       <Card.Base
         onClick={onShowQuestRequirement}
