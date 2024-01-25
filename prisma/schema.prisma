@@ -104,6 +104,7 @@ model Quest {
 
 model UserRequirement {
   id              Int      @id @default(autoincrement())
+  name            String
   questId         Int
   userIds         Int[]
   numSigsRequired Int
@@ -114,6 +115,7 @@ model UserRequirement {
 
 model LocationRequirement {
   id              Int        @id @default(autoincrement())
+  name            String
   questId         Int
   locationIds     Int[]
   numSigsRequired Int

@@ -3,13 +3,13 @@ import { Card } from "./Card";
 import { Icons } from "../Icons";
 import { cn } from "@/lib/client/utils";
 import { QuestRequirementModal } from "../modals/QuestRequirementModal";
-import { QuestRequirement } from "@/types";
+import { QuestRequirementType } from "@/types";
 
 interface QuestRequirementCardProps {
   title: string;
   showProgress?: boolean;
   completed?: boolean;
-  questType: QuestRequirement;
+  questType: QuestRequirementType;
 }
 
 const QuestRequirementCard = ({

@@ -6,12 +6,14 @@ import { verifyAuthToken } from "@/lib/server/auth";
 import { ErrorResponse } from "@/types";
 
 export type QuestRequirementRequest = {
+  name: string;
   type: "USER" | "LOCATION";
   ids: string[];
   numSigsRequired: number;
 };
 
 const questRequirementRequestSchema = object().shape({
+  name: string().required("Requirement name is required"),
   type: mixed()
     .oneOf(["USER", "LOCATION"])
     .required("Requirement type is required"),
@@ -133,12 +135,14 @@ export default async function handler(
           buidlReward,
           userRequirements: {
             create: userRequirements.map((req) => ({
+              name: req.name,
               userIds: req.ids.map((id) => parseInt(id)),
               numSigsRequired: req.numSigsRequired,
             })),
           },
           locationRequirements: {
             create: locationRequirements.map((req) => ({
+              name: req.name,
               locationIds: req.ids.map((id) => parseInt(id)),
               numSigsRequired: req.numSigsRequired,
             })),

@@ -13,6 +13,7 @@ enum DisplayState {
 }
 
 type QuestRequirement = {
+  name: string;
   type: "USER" | "LOCATION";
   ids: string[];
   numSigsRequired: number;
@@ -77,6 +78,7 @@ export default function CreateQuest() {
 
   const handleAddRequirement = () => {
     setTempQuestReq({
+      name: "",
       type: "USER",
       ids: [],
       numSigsRequired: 1,
@@ -89,6 +91,16 @@ export default function CreateQuest() {
 
     if (!tempQuestReq) {
       alert("Invalid requirement!");
+      return;
+    }
+
+    if (tempQuestReq.name === "") {
+      alert("You must enter a description for this requirement!");
+      return;
+    }
+
+    if (tempQuestReq.name.length > 100) {
+      alert("Requirement description must be 100 characters or less!");
       return;
     }
 
@@ -175,7 +187,7 @@ export default function CreateQuest() {
               {questReqs.map((req, index) => (
                 <div key={index} className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Requirement {index + 1}
+                    {req.name}
                   </span>
                   <div className="flex flex-col gap-2">
                     <span className="text-sm text-gray-900 dark:text-white">
@@ -212,6 +224,17 @@ export default function CreateQuest() {
           description="Select a condition that must be met"
           onSubmit={handleRequirementSubmit}
         >
+          <Input
+            label="Requirement Description"
+            placeholder="Enter a description for this requirement"
+            type="string"
+            name="requirementName"
+            value={tempQuestReq.name}
+            onChange={(event) =>
+              setTempQuestReq({ ...tempQuestReq, name: event.target.value })
+            }
+            required
+          />
           <div className="mb-4">
             <label
               htmlFor="typeSelect"
