@@ -6,6 +6,8 @@ import { QuestRequirementCard } from "@/components/cards/QuestRequirementCard";
 import { classed } from "@tw-classed/react";
 import { useParams } from "next/navigation";
 import { QuestRequirementType, QuestWithRequirements } from "@/types";
+import { Button } from "@/components/Button";
+import { CompleteQuestModal } from "@/components/modals/CompleteQuestModal";
 
 type QuestDetailProps = {
   title: string;
@@ -38,6 +40,7 @@ const QuestDetail = ({ title, description, buidlReward }: QuestDetailProps) => {
 
 export default function QuestById() {
   const params = useParams();
+  const [completeQuestModal, setCompleteQuestModal] = useState(false);
   const { id: questId } = params;
   const [quest, setQuest] = useState<QuestWithRequirements>();
 
@@ -68,16 +71,32 @@ export default function QuestById() {
   return (
     <div>
       <AppBackHeader />
+      <CompleteQuestModal
+        isOpen={completeQuestModal}
+        setIsOpen={setCompleteQuestModal}
+        questName={quest.name}
+        type="item"
+      />
       <div className="flex flex-col gap-8">
         <QuestDetail title={quest.name} description={quest.description} />
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label>Requirements</Label>
-            <Label>{`X/${totalNumRequirements}`}</Label>
+            <div className="flex items-center gap-2">
+              <Label>{`X/${totalNumRequirements}`}</Label>
+              <Button
+                onClick={() => {
+                  setCompleteQuestModal(true);
+                }}
+                size="tiny"
+              >
+                Complete quest
+              </Button>
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             {quest.userRequirements.map(
-              ({ name, numSigsRequired, users }, index: number) => (
+              ({ name, numSigsRequired, users }: any, index: number) => (
                 <QuestRequirementCard
                   key={index}
                   title={name}
@@ -88,7 +107,7 @@ export default function QuestById() {
               )
             )}
             {quest.locationRequirements.map(
-              ({ name, numSigsRequired, locations }, index: number) => (
+              ({ name, numSigsRequired, locations }: any, index: number) => (
                 <QuestRequirementCard
                   key={index}
                   title={name}

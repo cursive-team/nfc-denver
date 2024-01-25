@@ -64,14 +64,13 @@ const LocationDetail = ({
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
         <div
-          className="bg-slate-200 rounded"
+          className="bg-slate-200 rounded bg-cover bg-center bg-no-repeat"
           style={{
             width: `${pageWidth - 32}px`,
             height: `${pageWidth - 32}px`,
+            backgroundImage: `url(${location.imageUrl})`,
           }}
-        >
-          <img src={location.imageUrl} />
-        </div>
+        ></div>
         <div className="flex flex-col gap-4 jus">
           <div className="flex flex-col">
             <Label>Location</Label>
@@ -132,7 +131,9 @@ const UserDetail = ({ title, completed, users }: UserDetailProps) => {
                 className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1"
               >
                 <div className="flex items-center gap-2">
-                  <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full"></div>
+                  <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                    <Icons.person size={12} />
+                  </div>
                   <Card.Title>{displayName}</Card.Title>
                 </div>
                 {collected && <Icons.checkedCircle />}

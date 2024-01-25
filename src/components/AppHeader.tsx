@@ -138,7 +138,9 @@ const AppHeader = () => {
           {isMenuOpen ? (
             "Close"
           ) : (
-            <Button onClick={handleSignout}>Logout</Button>
+            <Button size="tiny" onClick={handleSignout}>
+              Logout
+            </Button>
           )}
         </span>
         <button onClick={() => setIsMenuOpen(!isMenuOpen)}>

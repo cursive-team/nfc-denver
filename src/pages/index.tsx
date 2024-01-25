@@ -23,6 +23,7 @@ import {
   Message,
   decryptMessage,
 } from "@/lib/client/jubSignal";
+import { PointCard } from "@/components/cards/PointCard";
 
 interface ContactCardProps {
   name: string;
@@ -44,7 +45,9 @@ const ConnectionFeed = ({ name, date }: ContactCardProps) => {
   return (
     <div className="flex justify-between py-1">
       <div className="flex items-center gap-2">
-        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full"></div>
+        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+          <Icons.person />
+        </div>
         <Card.Title>{name}</Card.Title>
       </div>
       <Card.Description>{date}</Card.Description>
@@ -191,19 +194,9 @@ export default function Social() {
           <div className="flex flex-col gap-1 mt-2">
             <div className="flex gap-[6px] items-center">
               <h2 className="text-xl font-gray-12 font-light">
-                {profile.displayName}
+                {profile?.displayName}
               </h2>
-              <Card.Base className="bg-gray-100/10 px-1 py-0.5 flex items-center gap-[6px]">
-                <Image
-                  width={15}
-                  height={15}
-                  src="/icons/buidl.png"
-                  alt="buidl"
-                />
-                <span className="text-gray-100 text-xs font-thin">
-                  100 BUIDL
-                </span>
-              </Card.Base>
+              <PointCard point={199} />
             </div>
             <span className="text-sm font-light text-gray-10">
               {`${Object.keys(users).length} Connections`}

@@ -8,6 +8,7 @@ import {
   QuestRequirementType,
   UserRequirementPreview,
 } from "@/types";
+import Image from "next/image";
 
 interface QuestRequirementCardProps {
   title: string;
@@ -34,6 +35,10 @@ const QuestRequirementCard = ({
     setShowQuestRequirement(!showQuestRequirement);
   };
 
+  const isUserRequirement = questRequirementType == QuestRequirementType.USER;
+  const isLocationRequirement =
+    questRequirementType == QuestRequirementType.LOCATION;
+
   return (
     <>
       <QuestRequirementModal
@@ -49,7 +54,23 @@ const QuestRequirementCard = ({
         className="text-center flex justify-center py-4"
       >
         <div className="flex flex-col gap-2 items-center">
-          <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
+          <div
+            className={cn(
+              "flex items-center  justify-center h-10 w-10 rounded-full",
+              isUserRequirement && "bg-[#677363]",
+              isLocationRequirement && "bg-gray-400"
+            )}
+          >
+            {isUserRequirement && <Icons.person size={16} />}
+            {isLocationRequirement && (
+              <Image
+                width={18}
+                height={18}
+                alt="home icon"
+                src="/icons/home.png"
+              />
+            )}
+          </div>
           <div className="flex flex-col">
             <Card.Title>{title}</Card.Title>
             <Card.Description>
