@@ -26,7 +26,7 @@ type HeaderProps = {
   completed?: boolean;
 };
 
-const Header = ({ title, label, completed }: HeaderProps) => {
+export const Header = ({ title, label, completed }: HeaderProps) => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-col ">
