@@ -3,16 +3,15 @@ import { Filters } from "@/components/Filters";
 import { Icons } from "@/components/Icons";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { getAuthToken } from "@/lib/client/localStorage";
-import { questListMock } from "@/mocks";
 import { QuestTagMapping } from "@/shared/constants";
-import { Quest } from "@prisma/client";
+import { QuestWithRequirements } from "@/types";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
 export default function QuestsPage() {
   const router = useRouter();
-  const [quests, setQuests] = useState<Quest[]>();
+  const [quests, setQuests] = useState<QuestWithRequirements[]>();
   const [selectedOption, setSelectedOption] = useState("ALL");
 
   useEffect(() => {
@@ -57,11 +56,22 @@ export default function QuestsPage() {
         />
       </div>
       <div className="flex flex-col gap-2">
-        {quests?.map(({ id, name, description }, index) => (
-          <Link href={`/quests/${id}`} key={id}>
-            <QuestCard title={name} description={description} />
-          </Link>
-        ))}
+        {quests?.map(
+          (
+            { id, name, description, userRequirements, locationRequirements },
+            index
+          ) => (
+            <Link href={`/quests/${id}`} key={id}>
+              <QuestCard
+                title={name}
+                description={description}
+                numSigsRequired={
+                  userRequirements.length + locationRequirements.length
+                }
+              />
+            </Link>
+          )
+        )}
       </div>
       <div className="mt-2">
         <Link href="/create-quest">

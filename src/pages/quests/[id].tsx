@@ -1,20 +1,21 @@
+import React, { useEffect, useState } from "react";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
 import { PointCard } from "@/components/cards/PointCard";
 import { QuestRequirementCard } from "@/components/cards/QuestRequirementCard";
-import { questListMock } from "@/mocks";
 import { classed } from "@tw-classed/react";
 import { useParams } from "next/navigation";
-import React from "react";
+import { QuestRequirementType, QuestWithRequirements } from "@/types";
 
 type QuestDetailProps = {
   title: string;
   description: string;
+  buidlReward?: number;
 };
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 
-const QuestDetail = ({ title, description }: QuestDetailProps) => {
+const QuestDetail = ({ title, description, buidlReward }: QuestDetailProps) => {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
@@ -29,7 +30,7 @@ const QuestDetail = ({ title, description }: QuestDetailProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
-        <PointCard label="Reward" point={500} />
+        {buidlReward && <PointCard label="Reward" point={buidlReward} />}
       </div>
     </div>
   );
@@ -38,35 +39,65 @@ const QuestDetail = ({ title, description }: QuestDetailProps) => {
 export default function QuestById() {
   const params = useParams();
   const { id: questId } = params;
+  const [quest, setQuest] = useState<QuestWithRequirements>();
 
-  // get quest item by id
-  const questItem = questListMock.find(({ id }) => id === Number(questId));
+  useEffect(() => {
+    const fetchQuest = async () => {
+      try {
+        const response = await fetch(`/api/quest/${questId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: QuestWithRequirements = await response.json();
+        setQuest(data);
+      } catch (error) {
+        console.error("Error fetching quest:", error);
+      }
+    };
 
-  const requirements = questItem?.requirements?.length || 0;
+    if (questId) {
+      fetchQuest();
+    }
+  }, [questId]);
 
-  if (!questItem) return null; // quest item not present
+  if (!quest) return null;
+
+  const totalNumRequirements =
+    quest.userRequirements.length + quest.locationRequirements.length;
 
   return (
     <div>
       <AppBackHeader />
       <div className="flex flex-col gap-8">
-        <QuestDetail
-          title={questItem?.title}
-          description={questItem?.description}
-        />
+        <QuestDetail title={quest.name} description={quest.description} />
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label>Requirements</Label>
-            <Label>{`X/${requirements}`}</Label>
+            <Label>{`X/${totalNumRequirements}`}</Label>
           </div>
           <div className="flex flex-col gap-2">
-            {questItem?.requirements?.map(({ title, type }, index) => (
-              <QuestRequirementCard
-                key={index}
-                title={title}
-                questType={type}
-              />
-            ))}
+            {quest.userRequirements.map(
+              ({ name, numSigsRequired }, index: number) => (
+                <QuestRequirementCard
+                  key={index}
+                  questName={quest.name}
+                  title={name}
+                  numSigsRequired={numSigsRequired}
+                  questRequirementType={QuestRequirementType.USER}
+                />
+              )
+            )}
+            {quest.locationRequirements.map(
+              ({ name, numSigsRequired }, index: number) => (
+                <QuestRequirementCard
+                  key={index}
+                  questName={quest.name}
+                  title={name}
+                  numSigsRequired={numSigsRequired}
+                  questRequirementType={QuestRequirementType.LOCATION}
+                />
+              )
+            )}
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { object, string, array, number, mixed } from "yup";
 import { Quest } from "@prisma/client";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
-import { ErrorResponse } from "@/types";
+import { ErrorResponse, QuestWithRequirements } from "@/types";
 
 export type QuestRequirementRequest = {
   name: string;
@@ -47,7 +47,7 @@ export type QuestCreateResponse = {
   id: number;
 };
 
-export type QuestGetResponse = Quest[];
+export type QuestGetResponse = QuestWithRequirements[];
 
 export default async function handler(
   req: NextApiRequest,
@@ -67,10 +67,12 @@ export default async function handler(
       return;
     }
 
-    const quests = await prisma.quest.findMany({
+    const quests: QuestGetResponse = await prisma.quest.findMany({
       include: {
         userRequirements: {
-          include: {
+          select: {
+            name: true,
+            numSigsRequired: true,
             users: {
               select: {
                 displayName: true,
@@ -79,7 +81,9 @@ export default async function handler(
           },
         },
         locationRequirements: {
-          include: {
+          select: {
+            name: true,
+            numSigsRequired: true,
             locations: {
               select: {
                 name: true,

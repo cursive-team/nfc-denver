@@ -6,17 +6,21 @@ import { QuestRequirementModal } from "../modals/QuestRequirementModal";
 import { QuestRequirementType } from "@/types";
 
 interface QuestRequirementCardProps {
+  questName: string;
   title: string;
+  numSigsRequired: number;
   showProgress?: boolean;
   completed?: boolean;
-  questType: QuestRequirementType;
+  questRequirementType: QuestRequirementType;
 }
 
 const QuestRequirementCard = ({
+  questName,
   title,
+  numSigsRequired,
   showProgress = false,
   completed = false,
-  questType,
+  questRequirementType,
 }: QuestRequirementCardProps) => {
   const [showQuestRequirement, setShowQuestRequirement] = useState(false);
 
@@ -29,7 +33,8 @@ const QuestRequirementCard = ({
       <QuestRequirementModal
         isOpen={showQuestRequirement}
         setIsOpen={setShowQuestRequirement}
-        questType={questType}
+        questName={questName}
+        questRequirementType={questRequirementType}
       />
       <Card.Base
         onClick={onShowQuestRequirement}
@@ -40,7 +45,7 @@ const QuestRequirementCard = ({
           <div className="flex flex-col">
             <Card.Title>{title}</Card.Title>
             <Card.Description>
-              {completed ? "Complete" : "X/X"}
+              {completed ? "Complete" : `X/${numSigsRequired}`}
             </Card.Description>
           </div>
         </div>

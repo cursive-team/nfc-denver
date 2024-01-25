@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { Modal, ModalProps } from "./Modal";
-import { QuestRequirement } from "@/types";
+import { QuestRequirementType } from "@/types";
 import { Icons } from "../Icons";
 import { classed } from "@tw-classed/react";
 import useSettings from "@/hooks/useSettings";
@@ -17,7 +17,7 @@ type HeaderProps = {
   completed?: boolean;
 };
 
-interface LocationDetailProps extends HeaderProps {}
+interface DetailProps extends HeaderProps {}
 
 const Header = ({ title, label, completed }: HeaderProps) => {
   return (
@@ -31,7 +31,7 @@ const Header = ({ title, label, completed }: HeaderProps) => {
   );
 };
 
-const LocationDetail = ({ title, completed }: LocationDetailProps) => {
+const LocationDetail = ({ title, completed }: DetailProps) => {
   const { pageWidth } = useSettings();
   return (
     <div className="flex flex-col gap-8">
@@ -59,7 +59,7 @@ const LocationDetail = ({ title, completed }: LocationDetailProps) => {
   );
 };
 
-const PersonDetail = ({ title, completed }: LocationDetailProps) => {
+const PersonDetail = ({ title, completed }: DetailProps) => {
   return (
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
@@ -87,30 +87,31 @@ const PersonDetail = ({ title, completed }: LocationDetailProps) => {
 };
 
 interface QuestRequirementModalProps extends ModalProps {
-  questType: QuestRequirement;
+  questName: string;
+  questRequirementType: QuestRequirementType;
 }
 
 const QuestRequirementMapping: Record<
-  QuestRequirement,
+  QuestRequirementType,
   (props: HeaderProps) => ReactNode
 > = {
   LOCATION: LocationDetail,
-  PERSON: PersonDetail,
+  USER: PersonDetail,
 };
 
 const QuestRequirementModal = ({
   isOpen,
   setIsOpen,
-  questType,
+  questName,
+  questRequirementType,
 }: QuestRequirementModalProps) => {
-  const Component = QuestRequirementMapping[questType];
-  const title = "Quest name";
+  const Component = QuestRequirementMapping[questRequirementType];
   const completed = false;
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
       <div className="flex flex-col">
-        <Component title={title} completed={completed} />
+        <Component title={questName} completed={completed} />
       </div>
     </Modal>
   );
