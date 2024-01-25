@@ -38,6 +38,11 @@ export default function CreateQuest() {
       return;
     }
 
+    if (questReqs.length === 0) {
+      alert("You must have at least one requirement");
+      return;
+    }
+
     setLoading(true);
     fetch("/api/quest", {
       method: "POST",
@@ -54,11 +59,14 @@ export default function CreateQuest() {
     })
       .then((response) => {
         if (response.ok) {
-          router.push("/social");
+          return response.json();
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+      })
+      .then((data) => {
         setLoading(false);
+        router.push(`/quests/${data.id}`);
       })
       .catch((error) => {
         console.error("Error:", error);

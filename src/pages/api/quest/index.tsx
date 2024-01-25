@@ -3,7 +3,7 @@ import { object, string, array, number, mixed } from "yup";
 import { Quest } from "@prisma/client";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
-import { EmptyResponse, ErrorResponse } from "@/types";
+import { ErrorResponse } from "@/types";
 
 export type QuestRequirementRequest = {
   type: "USER" | "LOCATION";
@@ -99,6 +99,13 @@ export default async function handler(
         return;
       }
 
+      if (requirements.length === 0) {
+        res
+          .status(400)
+          .json({ error: "Quest must have at least one requirement" });
+        return;
+      }
+
       const userRequirements: QuestRequirementRequest[] = [];
       const locationRequirements: QuestRequirementRequest[] = [];
       requirements.forEach((requirement: any) => {
@@ -123,7 +130,7 @@ export default async function handler(
         data: {
           name,
           description,
-          buidlReward: buidlReward,
+          buidlReward,
           userRequirements: {
             create: userRequirements.map((req) => ({
               userIds: req.ids.map((id) => parseInt(id)),
