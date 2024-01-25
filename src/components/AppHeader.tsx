@@ -1,7 +1,9 @@
 import { Icons } from "@/components/Icons";
 import { classed } from "@tw-classed/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { use, useState } from "react";
+import { useState } from "react";
+import { Button } from "./Button";
 
 const Title = classed.h3("text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -102,17 +104,29 @@ const AppHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const username = "Username";
 
+  const handleSignout = () => {
+    console.log("Sign out");
+  };
+
   return (
     <div className="flex w-full items-center p-4">
       {!isMenuOpen && (
-        <button type="button" className="flex gap-2 items-center">
-          <Icons.iyk />
-          <Icons.x />
-          <Icons.jubmoji />
-        </button>
+        <Link href="/">
+          <button type="button" className="flex gap-2 items-center">
+            <Icons.iyk />
+            <Icons.x />
+            <Icons.jubmoji />
+          </button>
+        </Link>
       )}
       <div className="flex gap-4 items-center ml-auto">
-        <span className="text-gray-11">{isMenuOpen ? "Close" : username}</span>
+        <span className="text-gray-11">
+          {isMenuOpen ? (
+            "Close"
+          ) : (
+            <Button onClick={handleSignout}>Logout</Button>
+          )}
+        </span>
         <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <Icons.close /> : <Icons.burgher />}
         </button>

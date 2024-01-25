@@ -15,7 +15,7 @@ const QuestCard = ({ title, description, numSigsRequired }: QuestCardProps) => {
         <Card.Description>{description}</Card.Description>
       </div>
       <div className="flex items-center justify-between">
-        <>icons</>
+        <div />
         <Card.Description>{`0/${numSigsRequired} completed`}</Card.Description>
       </div>
       <Card.Progress />

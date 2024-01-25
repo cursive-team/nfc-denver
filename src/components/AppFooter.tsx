@@ -46,7 +46,7 @@ const AppFooter = () => {
   const routerItems: RouterItem[] = [
     {
       label: "Social",
-      href: "/social",
+      href: "/",
       icon: Icons.social,
       iconActive: Icons.socialActive,
     },
