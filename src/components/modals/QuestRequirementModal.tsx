@@ -164,8 +164,7 @@ const QuestRequirementModal = ({
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {
-  const MORE_QUESTS_TO_SHOW = 4;
-  const { quests } = useQuests();
+ 
   const completed = false;
 
   const showUsers = questRequirementType === QuestRequirementType.USER && users;
@@ -191,35 +190,6 @@ const QuestRequirementModal = ({
             completed={completed}
           />
         )}
-      </div>
-      <div className="flex flex-col gap-4">
-        <span className="text-xs text-gray-10 font-light">More quests</span>
-        <div className="flex flex-col gap-2">
-          {quests
-            ?.slice(0, MORE_QUESTS_TO_SHOW)
-            ?.map(
-              (
-                {
-                  id,
-                  name,
-                  description,
-                  userRequirements,
-                  locationRequirements,
-                },
-                index
-              ) => (
-                <Link href={`/quests/${id}`} key={id}>
-                  <QuestCard
-                    title={name}
-                    description={description}
-                    completedSigs={1}
-                    userRequirements={userRequirements}
-                    locationRequirements={locationRequirements}
-                  />
-                </Link>
-              )
-            )}
-        </div>
       </div>
     </Modal>
   );

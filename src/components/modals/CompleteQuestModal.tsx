@@ -3,6 +3,9 @@ import { Icons } from "../Icons";
 import { PointCard } from "../cards/PointCard";
 import { Modal, ModalProps } from "./Modal";
 import { Button } from "../Button";
+import useQuests from "@/hooks/useQuests";
+import Link from "next/link";
+import { QuestCard } from "../cards/QuestCard";
 
 interface QuestDetailProps {
   questName?: string;
@@ -90,13 +93,54 @@ const CompleteQuestModal = ({
   questName,
   type,
 }: CompleteQuestModalProps) => {
+  const { quests } = useQuests();
+  const [isQuestCompleted, setIsQuestCompleted] = useState(true);
+  const MORE_QUESTS_TO_SHOW = 4;
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
       <div className="flex h-[50vh]">
         {type === "point" && <RedeemPoint questName={questName} />}
         {type === "item" && <RedeemItem questName={questName} />}
       </div>
-      
+      {isQuestCompleted ? (
+        <div className="flex flex-col gap-4">
+          <span className="text-xs text-gray-10 font-light">More quests</span>
+          <div className="flex flex-col gap-2">
+            {quests
+              ?.slice(0, MORE_QUESTS_TO_SHOW)
+              ?.map(
+                (
+                  {
+                    id,
+                    name,
+                    description,
+                    userRequirements,
+                    locationRequirements,
+                  },
+                  index
+                ) => (
+                  <Link href={`/quests/${id}`} key={id}>
+                    <QuestCard
+                      title={name}
+                      description={description}
+                      completedSigs={1}
+                      userRequirements={userRequirements}
+                      locationRequirements={locationRequirements}
+                    />
+                  </Link>
+                )
+              )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          <span className="text-xs text-gray-10 font-light">
+            Continue quest
+          </span>
+          <div className="flex flex-col gap-2"></div>
+        </div>
+      )}
     </Modal>
   );
 };
