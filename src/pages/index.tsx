@@ -61,11 +61,16 @@ const items: TabsProps["items"] = [
     children: (
       <div className="flex flex-col gap-4">
         <ListLayout className="!gap-2" label="January 22nd">
-          <ConnectionFeed name="Mr K" date="12:38am" />
-          <ConnectionFeed name="Elon" date="12:38am" />
+          <ConnectionFeed name="Andrew" date="12:45am" />
+          <ConnectionFeed name="Alex" date="5:43pm" />
+          <ConnectionFeed name="Kali" date="5:45pm" />
         </ListLayout>
-        <ListLayout className="!gap-2" label="January 23nd">
-          <ConnectionFeed name="Mr t" date="14:38am" />
+        <ListLayout className="!gap-2" label="January 23rd">
+          <ConnectionFeed name="Alan" date="1:31pm" />
+          <ConnectionFeed name="Ben" date="2:45pm" />
+        </ListLayout>
+        <ListLayout className="!gap-2" label="January 24th">
+          <ConnectionFeed name="Bobby" date="1:25pm" />
         </ListLayout>
       </div>
     ),
@@ -76,20 +81,20 @@ const items: TabsProps["items"] = [
       <div className="flex flex-col gap-5">
         <ListLayout className="!gap-2" label="A">
           <div className="flex flex-col gap-1">
-            <ContactCard name="Andrew" date="Today 12:45am" />
-            <ContactCard name="Alan" date="Today 12:45am" />
-            <ContactCard name="Alex" date="Today 12:45am" />
+            <ContactCard name="Andrew" date="January 22nd 12:45am" />
+            <ContactCard name="Alan" date="January 23rd 1:31pm" />
+            <ContactCard name="Alex" date="January 22nd 5:43pm" />
           </div>
         </ListLayout>
         <ListLayout className="!gap-2" label="B">
           <div className="flex flex-col gap-1">
-            <ContactCard name="Ben" date="Today 12:45am" />
-            <ContactCard name="Bobby" date="Today 12:45am" />
+            <ContactCard name="Ben" date="January 23rd 2:45pm" />
+            <ContactCard name="Bobby" date="January 24th 1:25pm" />
           </div>
         </ListLayout>
         <ListLayout className="!gap-2" label="K">
           <div className="flex flex-col gap-1">
-            <ContactCard name="Kali" date="Today 12:45am" />
+            <ContactCard name="Kali" date="January 22nd 5:45pm" />
           </div>
         </ListLayout>
       </div>
