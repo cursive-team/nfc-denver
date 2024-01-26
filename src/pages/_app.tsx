@@ -18,14 +18,14 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <OnlyMobileLayout>
       <div
-        className="flex flex-col"
+        className="flex flex-col overflow-scroll"
         style={{
           height: `${pageHeight}px`,
         }}
       >
         <div className="flex flex-col grow">
           {showHeader && !fullPage && <AppHeader />}
-          <div className="flex flex-col grow container px-4">
+          <div className="flex flex-col grow container px-4 pb-24">
             <Component {...pageProps} />
           </div>
           {showFooter && !fullPage && <AppFooter />}

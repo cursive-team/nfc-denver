@@ -115,6 +115,7 @@ export default function RegisterLocation() {
       title="Registration"
       description="Set up a location chip"
       onSubmit={handleSubmit}
+      actions={<Button type="submit">Submit</Button>}
     >
       <Input
         type="text"
@@ -164,7 +165,6 @@ export default function RegisterLocation() {
           className="mb-4 h-48 w-full object-cover"
         />
       )}
-      <Button type="submit">Submit</Button>
     </FormStepLayout>
   );
 }

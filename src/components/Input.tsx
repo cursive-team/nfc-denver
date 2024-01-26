@@ -39,6 +39,7 @@ const Input = ({ label, variant, placeholder, ...props }: InputProps) => {
       )}
       <InputComponent
         type="text"
+        autoComplete="off"
         placeholder={placeholder}
         variant={variant}
         {...props}

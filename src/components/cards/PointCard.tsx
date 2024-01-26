@@ -1,28 +1,79 @@
 import Image from "next/image";
-import { Card } from "./Card";
+import type * as Classed from "@tw-classed/react";
+import { classed } from "@tw-classed/react";
 
-interface PointCardProps {
+const PointCardComponent = classed.div(
+  "relative rounded overflow-hidden px-1 py-0.5 flex items-center gap-[6px]",
+  {
+    variants: {
+      variant: {
+        default: "!bg-gray-100/10",
+        transparent: "!bg-transparent",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+const PointCardLabel = classed.span("font-light", {
+  variants: {
+    color: {
+      gray: "text-gray-10",
+      white: "text-white",
+    },
+    size: {
+      xs: "text-xs",
+      sm: "text-sm",
+    },
+  },
+  defaultVariants: {
+    color: "gray",
+    size: "xs",
+  },
+});
+
+type PointCardVariants = Classed.VariantProps<typeof PointCardComponent>;
+type PointLabelVariants = Classed.VariantProps<typeof PointCardLabel>;
+
+interface PointCardProps extends PointCardVariants, PointLabelVariants {
   label?: string;
   point: number;
   onClick?: () => void;
+  className?: string;
 }
 
-const PointCard = ({ label, point = 0, onClick }: PointCardProps) => {
+const PointCard = ({
+  label,
+  className = "",
+  point = 0,
+  onClick,
+  color,
+  size,
+  variant,
+}: PointCardProps) => {
   return (
     <button
-      className="flex items-center gap-1"
+      className={`flex items-center gap-1 ${className}`}
       type="button"
       onClick={() => {
         onClick?.();
       }}
     >
       {label && (
-        <span className="text-gray-10 text-xs font-light">{label}</span>
+        <PointCardLabel color={color} size={size}>
+          {label}
+        </PointCardLabel>
       )}
-      <Card.Base className="bg-gray-100/10 px-1 py-0.5 flex items-center gap-[6px]">
+      <PointCardComponent variant={variant}>
         <Image width={15} height={15} src="/icons/buidl.png" alt="buidl" />
-        <span className="text-gray-100 text-xs font-thin">{`${point} BUIDL`}</span>
-      </Card.Base>
+        <PointCardLabel
+          color={color}
+          size={size}
+          className="uppercase"
+        >{`${point} BUIDL`}</PointCardLabel>
+      </PointCardComponent>
     </button>
   );
 };
