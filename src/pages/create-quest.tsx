@@ -212,7 +212,7 @@ export default function CreateQuest() {
             <Button loading={loading} type="submit">
               Submit
             </Button>
-            <Link href="/social" className="link text-center">
+            <Link href="/" className="link text-center">
               Cancel
             </Link>
           </div>
