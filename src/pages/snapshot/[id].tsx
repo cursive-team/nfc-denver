@@ -31,7 +31,12 @@ export default function ContactSnapshotPage() {
               width: `${cardSize}px`,
               height: `${cardSize}px`,
             }}
-          />
+          >
+            <img
+              width="100%"
+              src="https://fnhxjtmpinl8vxmj.public.blob.vercel-storage.com/Your_Artwork-Evl6XS2t9gSpQ6LHk2HU1pSHKMsjHY.png"
+            />
+          </ProfileImage>
           <div className="flex flex-col">
             {!isLoggedUser && (
               <Description>Snapshot at the time you met [XXX]</Description>

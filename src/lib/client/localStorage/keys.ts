@@ -1,5 +1,11 @@
 import { object, string } from "yup";
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
+
+export const KEYS_STORAGE_KEY = "keys";
 
 export type Keys = {
   encryptionPrivateKey: string;
@@ -13,23 +19,27 @@ export const keysSchema = object({
 
 export const saveKeys = (keys: Keys): void => {
   const { encryptionPrivateKey, signaturePrivateKey } = keys;
-  const currentKeys = getFromLocalStorage("keys");
+  const currentKeys = getFromLocalStorage(KEYS_STORAGE_KEY);
   if (currentKeys) {
     const parsedKeys = JSON.parse(currentKeys);
     parsedKeys.encryptionPrivateKey = encryptionPrivateKey;
     parsedKeys.signaturePrivateKey = signaturePrivateKey;
-    saveToLocalStorage("keys", JSON.stringify(parsedKeys));
+    saveToLocalStorage(KEYS_STORAGE_KEY, JSON.stringify(parsedKeys));
     return;
   } else {
-    saveToLocalStorage("keys", JSON.stringify(keys));
+    saveToLocalStorage(KEYS_STORAGE_KEY, JSON.stringify(keys));
   }
 };
 
 export const getKeys = (): Keys | undefined => {
-  const keys = getFromLocalStorage("keys");
+  const keys = getFromLocalStorage(KEYS_STORAGE_KEY);
   if (keys) {
     return JSON.parse(keys);
   }
 
   return undefined;
+};
+
+export const deleteAllKeys = (): void => {
+  deleteFromLocalStorage(KEYS_STORAGE_KEY);
 };

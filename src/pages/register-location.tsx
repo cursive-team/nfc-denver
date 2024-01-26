@@ -4,8 +4,9 @@ import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
 
-const RegisterLocation: React.FC = () => {
+export default function RegisterLocation() {
   const router = useRouter();
   const [cmac, setCmac] = useState<string>("");
   const [image, setImage] = useState<string>("");
@@ -110,7 +111,35 @@ const RegisterLocation: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <FormStepLayout
+      title="Registration"
+      description="Set up a location chip"
+      onSubmit={handleSubmit}
+    >
+      <Input
+        type="text"
+        label="Name"
+        placeholder="Name of the location"
+        value={name}
+        onChange={handleNameChange}
+        className="mb-4 text-black"
+      />
+      <Input
+        type="text"
+        label="Description"
+        placeholder="Description of location"
+        value={description}
+        onChange={handleDescriptionChange}
+        className="mb-4 text-black"
+      />
+      <Input
+        type="text"
+        label="Sponsor"
+        placeholder="Sponsor associated with location"
+        value={sponsor}
+        onChange={handleSponsorChange}
+        className="mb-4 text-black"
+      />
       <input
         ref={fileInputRef}
         type="file"
@@ -124,7 +153,7 @@ const RegisterLocation: React.FC = () => {
         onClick={handleTakePhoto}
         className="flex items-center justify-center w-full p-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-4"
       >
-        Take Photo
+        Attach photo
       </Button>
       {image && (
         <Image
@@ -135,30 +164,11 @@ const RegisterLocation: React.FC = () => {
           className="mb-4 h-48 w-full object-cover"
         />
       )}
-      <Input
-        type="text"
-        placeholder="Location Name"
-        value={name}
-        onChange={handleNameChange}
-        className="mb-4 text-black"
-      />
-      <Input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={handleDescriptionChange}
-        className="mb-4 text-black"
-      />
-      <Input
-        type="text"
-        placeholder="Sponsor"
-        value={sponsor}
-        onChange={handleSponsorChange}
-        className="mb-4 text-black"
-      />
-      <Button onClick={handleSubmit}>Submit</Button>
-    </div>
+      <Button type="submit">Submit</Button>
+    </FormStepLayout>
   );
-};
+}
 
-export default RegisterLocation;
+RegisterLocation.getInitialProps = () => {
+  return { showFooter: false, showHeader: false };
+};

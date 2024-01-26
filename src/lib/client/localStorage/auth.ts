@@ -1,11 +1,17 @@
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
+
+export const AUTH_TOKEN_STORAGE_KEY = "authToken";
 
 export const saveAuthToken = (value: string, expiresAt: Date): void => {
   const authToken = JSON.stringify({
     value,
     expiresAt,
   });
-  saveToLocalStorage("authToken", authToken);
+  saveToLocalStorage(AUTH_TOKEN_STORAGE_KEY, authToken);
 };
 
 export const getAuthToken = ():
@@ -14,7 +20,7 @@ export const getAuthToken = ():
       expiresAt: Date;
     }
   | undefined => {
-  const authToken = getFromLocalStorage("authToken");
+  const authToken = getFromLocalStorage(AUTH_TOKEN_STORAGE_KEY);
   if (authToken) {
     const parsedToken = JSON.parse(authToken);
     parsedToken.expiresAt = new Date(parsedToken.expiresAt);
@@ -22,4 +28,8 @@ export const getAuthToken = ():
   }
 
   return undefined;
+};
+
+export const deleteAuthToken = (): void => {
+  deleteFromLocalStorage(AUTH_TOKEN_STORAGE_KEY);
 };

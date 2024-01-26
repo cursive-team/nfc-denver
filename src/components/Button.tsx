@@ -8,7 +8,7 @@ const ButtonComponent = classed.button(
   {
     variants: {
       size: {
-        tiny: "text-sm py-2 px-3 gap-1",
+        tiny: "text-sm py-1 px-3 gap-1",
         sm: "text-[13px] leading-none gap-1 py-2 px-4",
         md: "text-[14px] py-[14px] leading-none gap-2 px-4",
         lg: "text-[16px] py-3 leading-none gap-2 px-4",
@@ -102,9 +102,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         })}
         {...props}
       >
-        <div className={IconVariants[size ?? "md"]}>
-          {loading ? <LoadingSpinner /> : icon}
-        </div>
+        {(loading || icon) && (
+          <div className={IconVariants[size ?? "md"]}>
+            {loading ? <LoadingSpinner /> : icon}
+          </div>
+        )}
         <>{children}</>
       </ButtonComponent>
     );

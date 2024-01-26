@@ -1,7 +1,17 @@
 import { Icons } from "@/components/Icons";
 import { classed } from "@tw-classed/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { use, useState } from "react";
+import { useState } from "react";
+import { Button } from "./Button";
+import {
+  deleteAllKeys,
+  deleteAllMessages,
+  deleteAllUsers,
+  deleteAuthToken,
+  deleteProfile,
+} from "@/lib/client/localStorage";
+import { deleteAllLocationSignatures } from "@/lib/client/localStorage/locationSignatures";
 
 const Title = classed.h3("text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -12,6 +22,7 @@ const ContentWrapper = classed.div("flex flex-col gap-4 mt-8");
 interface AppHeaderContentProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (value: boolean) => void;
+  handleSignout: () => void;
 }
 
 export const AppBackHeader = () => {
@@ -34,6 +45,7 @@ export const AppBackHeader = () => {
 const AppHeaderContent = ({
   isMenuOpen,
   setIsMenuOpen,
+  handleSignout,
 }: AppHeaderContentProps) => {
   if (!isMenuOpen) return null;
 
@@ -68,17 +80,6 @@ const AppHeaderContent = ({
               suscipit vel rhoncus ut.
             </Description>
           </div>
-          <div className="flex flex-col gap-2">
-            <Subtitle>
-              Lorem ipsum dolor sit amet, consectetur adipiscing?
-            </Subtitle>
-            <Description>
-              Curabitur ultrices faucibus urna, a gravida mi dictum sed. Nullam
-              dictum quam id odio scelerisque ultrices. Nulla rhoncus tortor
-              nunc, a mollis justo varius sed. Vestibulum turpis ligula,
-              suscipit vel rhoncus ut.
-            </Description>
-          </div>
         </ContentWrapper>
         <ContentWrapper>
           <Title>Project Links</Title>
@@ -93,6 +94,12 @@ const AppHeaderContent = ({
             </Subtitle>
           </div>
         </ContentWrapper>
+        <ContentWrapper>
+          <Title>Account</Title>
+          <Button size="sm" onClick={handleSignout}>
+            Logout
+          </Button>
+        </ContentWrapper>
       </div>
     </div>
   );
@@ -102,22 +109,38 @@ const AppHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const username = "Username";
 
+  const handleSignout = () => {
+    deleteAuthToken();
+    deleteAllKeys();
+    deleteAllLocationSignatures();
+    deleteAllMessages();
+    deleteProfile();
+    deleteAllUsers();
+    window.location.href = "/";
+  };
+
   return (
     <div className="flex w-full items-center p-4">
       {!isMenuOpen && (
-        <button type="button" className="flex gap-2 items-center">
-          <Icons.iyk />
-          <Icons.x />
-          <Icons.jubmoji />
-        </button>
+        <Link href="/">
+          <button type="button" className="flex gap-2 items-center">
+            <Icons.iyk />
+            <Icons.x />
+            <Icons.jubmoji />
+          </button>
+        </Link>
       )}
       <div className="flex gap-4 items-center ml-auto">
-        <span className="text-gray-11">{isMenuOpen ? "Close" : username}</span>
+        <span className="text-gray-11">{isMenuOpen && "Close"}</span>
         <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <Icons.close /> : <Icons.burgher />}
         </button>
       </div>
-      <AppHeaderContent isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <AppHeaderContent
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        handleSignout={handleSignout}
+      />
     </div>
   );
 };

@@ -6,13 +6,20 @@ import {
   LocationSignature,
   getLocationSignature,
 } from "@/lib/client/localStorage/locationSignatures";
+import { classed } from "@tw-classed/react";
+import { Header } from "@/components/modals/QuestRequirementModal";
+import useSettings from "@/hooks/useSettings";
+
+// TODO: Create shared component for this
+const Label = classed.span("text-xs text-gray-10 font-light");
+const Description = classed.span("text-gray-12 text-sm font-light");
 
 const LocationDetails = () => {
+  const { pageWidth } = useSettings();
   const router = useRouter();
   const { id } = router.query;
   const [location, setLocation] = useState<Location>();
-  const [locationSignature, setLocationSignature] =
-    useState<LocationSignature>();
+  const [signature, setSignature] = useState<LocationSignature>();
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -34,7 +41,7 @@ const LocationDetails = () => {
         }
 
         const locationSignature = getLocationSignature(id);
-        setLocationSignature(locationSignature);
+        setSignature(locationSignature);
       }
     };
 
@@ -46,51 +53,30 @@ const LocationDetails = () => {
   }
 
   return (
-    <div className="p-4 overflow-auto">
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-            {location.name}
-          </h3>
+    <div className="flex flex-col gap-8">
+      {/* TODO: Create shared component for Header */}
+      <Header title={location.name} label="Location" />
+      <div className="flex flex-col gap-4">
+        <div
+          className="bg-slate-200 rounded"
+          style={{
+            width: `${pageWidth - 32}px`,
+            height: `${pageWidth - 32}px`,
+          }}
+        >
+          <img src={location.imageUrl} />
         </div>
-        <div className="border-t border-gray-200 dark:border-gray-700">
-          <dl>
-            <div className="bg-gray-50 dark:bg-gray-700 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Image
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-1">
-                <img
-                  src={location.imageUrl}
-                  alt={location.name}
-                  className="w-full h-auto object-cover"
-                />
-              </dd>
-              {locationSignature && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Signature
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-1">
-                    {"You visited this location on: " +
-                      locationSignature?.timestamp}
-                  </dd>
-                </div>
-              )}
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Description
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-1">
-                {location.description}
-              </dd>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Sponsor
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-1">
-                {location.sponsor}
-              </dd>
+        <div className="flex flex-col gap-4 jus">
+          <div className="flex flex-col">
+            <Label>Description</Label>
+            <Description>{location.description}</Description>
+          </div>
+          {signature !== undefined && (
+            <div className="flex flex-col">
+              <Label>Visited On</Label>
+              <Description>{`${signature.timestamp}`}</Description>
             </div>
-          </dl>
+          )}
         </div>
       </div>
     </div>
