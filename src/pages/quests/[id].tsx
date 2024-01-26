@@ -77,8 +77,12 @@ export default function QuestById() {
         questName={quest.name}
         type="point"
       />
-      <div className="flex flex-col gap-8">
-        <QuestDetail title={quest.name} description={quest.description} />
+      <div className="flex flex-col gap-4">
+        <QuestDetail
+          title={quest.name}
+          description={quest.description}
+          buidlReward={quest.buidlReward}
+        />
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <Label>Requirements</Label>
