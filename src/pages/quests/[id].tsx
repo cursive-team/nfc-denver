@@ -75,7 +75,7 @@ export default function QuestById() {
         isOpen={completeQuestModal}
         setIsOpen={setCompleteQuestModal}
         questName={quest.name}
-        type="item"
+        type="point"
       />
       <div className="flex flex-col gap-8">
         <QuestDetail title={quest.name} description={quest.description} />

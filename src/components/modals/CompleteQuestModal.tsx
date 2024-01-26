@@ -23,7 +23,7 @@ const RedeemPoint = ({ questName }: Omit<QuestDetailProps, "type">) => {
           <span className="text-xl text-gray-12">Quest completed</span>
         </div>
       </div>
-      <div className="self-center w-full">
+      <div className="flex self-center w-full justify-center">
         {!redeemPoint ? (
           <Button
             onClick={() => {
