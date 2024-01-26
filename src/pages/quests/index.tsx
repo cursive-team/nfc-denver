@@ -39,14 +39,6 @@ export default function QuestsPage() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Link href="/leaderboard">
-        <Button size="tiny" align="left">
-          <span>View leaderboard</span>
-          <div className="ml-auto">
-            <Icons.arrowRight />
-          </div>
-        </Button>
-      </Link>
       <div className="flex items-center gap-2">
         <Filters
           label="Filters"
