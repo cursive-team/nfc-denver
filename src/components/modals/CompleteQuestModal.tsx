@@ -96,6 +96,7 @@ const CompleteQuestModal = ({
         {type === "point" && <RedeemPoint questName={questName} />}
         {type === "item" && <RedeemItem questName={questName} />}
       </div>
+      
     </Modal>
   );
 };
