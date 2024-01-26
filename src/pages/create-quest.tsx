@@ -115,6 +115,8 @@ export default function CreateQuest() {
       return;
     }
 
+    setLoading(true);
+
     const response = await fetch("/api/quest/validate_requirement", {
       method: "POST",
       headers: {
@@ -137,6 +139,7 @@ export default function CreateQuest() {
     }
 
     setQuestReqs([...questReqs, tempQuestReq]);
+    setLoading(false);
     setTempQuestReq(undefined);
     setDisplayState(DisplayState.CREATE_QUEST_FORM);
   };
@@ -149,40 +152,40 @@ export default function CreateQuest() {
           description=""
           onSubmit={handleQuestCreation}
         >
-          <div className="mt-2 overflow-auto">
-            <Input
-              label="Name"
-              placeholder="Name of quest"
-              type="text"
-              name="questName"
-              value={questName}
-              onChange={(event) => setQuestName(event.target.value)}
-              required
-            />
-            <Input
-              label="Description"
-              placeholder="Description of quest"
-              type="text"
-              name="questDescription"
-              value={questDescription}
-              onChange={(event) => setQuestDescription(event.target.value)}
-              required
-            />
-            <Input
-              label="Buidl Reward"
-              placeholder="Reward for quest"
-              type="number"
-              name="buidlReward"
-              value={buidlReward}
-              onChange={(event) => setBuidlReward(parseInt(event.target.value))}
-              required
-            />
-            <Button onClick={handleAddRequirement} size="md" align="left">
-              <span>Add a requirement</span>
-              <div className="ml-auto">
-                <Icons.arrowRight />
-              </div>
-            </Button>
+          <Input
+            label="Name"
+            placeholder="Name of quest"
+            type="text"
+            name="questName"
+            value={questName}
+            onChange={(event) => setQuestName(event.target.value)}
+            required
+          />
+          <Input
+            label="Description"
+            placeholder="Description of quest"
+            type="text"
+            name="questDescription"
+            value={questDescription}
+            onChange={(event) => setQuestDescription(event.target.value)}
+            required
+          />
+          <Input
+            label="Buidl Reward"
+            placeholder="Reward for quest"
+            type="number"
+            name="buidlReward"
+            value={buidlReward}
+            onChange={(event) => setBuidlReward(parseInt(event.target.value))}
+            required
+          />
+          <Button onClick={handleAddRequirement} size="md" align="left">
+            <span>Add a requirement</span>
+            <div className="ml-auto">
+              <Icons.arrowRight />
+            </div>
+          </Button>
+          {questReqs.length > 0 && (
             <div className="flex flex-col gap-2">
               {questReqs.map((req, index) => (
                 <div key={index} className="flex flex-col gap-2">
@@ -207,7 +210,7 @@ export default function CreateQuest() {
                 </div>
               ))}
             </div>
-          </div>
+          )}
           <div className="flex flex-col gap-4">
             <Button loading={loading} type="submit">
               Submit
@@ -235,10 +238,10 @@ export default function CreateQuest() {
             }
             required
           />
-          <div className="mb-4">
+          <div>
             <label
               htmlFor="typeSelect"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+              className="label-text font-light text-white text-[12px]"
             >
               Requirement Type
             </label>

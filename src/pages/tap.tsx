@@ -49,7 +49,7 @@ export default function Tap() {
     };
 
     const handleLocationRegistration = (cmac: string) => {
-      router.push(`/register_location?cmac=${cmac}`);
+      router.push(`/register-location?cmac=${cmac}`);
     };
 
     const handlePersonTap = async (person: PersonTapResponse) => {
