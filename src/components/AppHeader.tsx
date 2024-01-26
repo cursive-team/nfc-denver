@@ -120,7 +120,7 @@ const AppHeader = () => {
   };
 
   return (
-    <div className="flex w-full items-center p-4">
+    <div className="flex w-full items-center p-4 bg-black-default z-50">
       {!isMenuOpen && (
         <Link href="/">
           <button type="button" className="flex gap-2 items-center">

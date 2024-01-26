@@ -151,6 +151,16 @@ export default function CreateQuest() {
           title="Create quest"
           description=""
           onSubmit={handleQuestCreation}
+          actions={
+            <div className="flex flex-col gap-4">
+              <Button loading={loading} type="submit">
+                Submit
+              </Button>
+              <Link href="/" className="link text-center">
+                Cancel
+              </Link>
+            </div>
+          }
         >
           <Input
             label="Name"
@@ -211,14 +221,6 @@ export default function CreateQuest() {
               ))}
             </div>
           )}
-          <div className="flex flex-col gap-4">
-            <Button loading={loading} type="submit">
-              Submit
-            </Button>
-            <Link href="/" className="link text-center">
-              Cancel
-            </Link>
-          </div>
         </FormStepLayout>
       )}
       {displayState === DisplayState.ADD_REQUIREMENT && tempQuestReq && (
@@ -226,6 +228,19 @@ export default function CreateQuest() {
           title="Quest requirement"
           description="Select a condition that must be met"
           onSubmit={handleRequirementSubmit}
+          actions={
+            <div className="flex flex-col gap-4">
+              <Button loading={loading} type="submit">
+                Confirm
+              </Button>
+              <span
+                onClick={() => setDisplayState(DisplayState.CREATE_QUEST_FORM)}
+                className="link text-center"
+              >
+                Back
+              </span>
+            </div>
+          }
         >
           <Input
             label="Requirement Description"
@@ -290,17 +305,6 @@ export default function CreateQuest() {
             }
             required
           />
-          <div className="flex flex-col gap-4">
-            <Button loading={loading} type="submit">
-              Confirm
-            </Button>
-            <span
-              onClick={() => setDisplayState(DisplayState.CREATE_QUEST_FORM)}
-              className="link text-center"
-            >
-              Back
-            </span>
-          </div>
         </FormStepLayout>
       )}
     </>

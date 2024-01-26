@@ -46,18 +46,19 @@ export interface ButtonProps
 }
 
 const IconVariants: Record<NonNullable<ButtonVariants["size"]>, string> = {
-  tiny: "text-[9px] ",
-  sm: "text-[9px]",
-  md: "text-base",
-  lg: "text-base",
+  tiny: "w-2 h-2",
+  sm: "w-3 h-3",
+  md: "w-3 h-3",
+  lg: "w-4 h-4",
 };
+export const LoadingSpinner = ({ size }: Pick<ButtonProps, "size">) => {
+  const iconSize = IconVariants[size ?? "md"];
 
-export const LoadingSpinner = () => {
   return (
     <div role="status">
       <svg
         aria-hidden="true"
-        className="inline w-4 h-4 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        className={`${iconSize} inline mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-white`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -86,6 +87,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       loading,
       icon,
       rounded,
+      disabled,
       iconPosition = "left",
       ...props
     },
@@ -97,15 +99,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         variant={variant}
         size={size}
         rounded={rounded}
+        disabled={loading || disabled}
         className={cn({
           "flex-row-reverse": iconPosition === "right",
         })}
         {...props}
       >
         {(loading || icon) && (
-          <div className={IconVariants[size ?? "md"]}>
-            {loading ? <LoadingSpinner /> : icon}
-          </div>
+          <div>{loading ? <LoadingSpinner size={size} /> : icon}</div>
         )}
         <>{children}</>
       </ButtonComponent>
