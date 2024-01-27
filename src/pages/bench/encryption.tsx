@@ -247,8 +247,8 @@ const EncryptionBenchmarkPage = () => {
               <Button loading={isBenchmarking} type="submit">
                 Confirm
               </Button>
-              <Link href="/bench" className="link text-center">
-                Back
+              <Link href="/bench" className="link text-center mb-16">
+                <Button>Back</Button>
               </Link>
             </div>
           }
@@ -276,6 +276,7 @@ const EncryptionBenchmarkPage = () => {
             placeholder="Number of API requests to batch messages into (each batch must be <1 MB)"
             type="number"
             name="numBatches"
+            className="mb-20"
             value={numBatches}
             onChange={(event) => setNumBatches(parseInt(event.target.value))}
             required
@@ -297,7 +298,7 @@ const EncryptionBenchmarkPage = () => {
             Try Another Encryption
           </Button>
           <Link href="/bench" className="link text-center">
-            Back to Benches
+            <Button>Back to Benches</Button>
           </Link>
         </div>
       )}
