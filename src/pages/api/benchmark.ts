@@ -1,12 +1,110 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import prisma from "@/lib/server/prisma";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    const { messages } = req.body;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === "GET") {
+    // Extract the token and queryDate from the query parameters
+    const { token, queryTime } = req.query;
 
-    res.status(200).json({ numMessagesReceived: messages.length });
+    if (
+      !token ||
+      !queryTime ||
+      typeof token !== "string" ||
+      typeof queryTime !== "string"
+    ) {
+      res.status(400).json({ error: "Invalid query parameters" });
+      return;
+    }
+
+    // Validate the token and retrieve the userId associated with it
+    const authToken = await prisma.authToken.findUnique({
+      where: { value: token },
+    });
+
+    if (!authToken || authToken.expiresAt < new Date()) {
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    // Parse the queryTime and validate it
+    const parsedQueryTime = new Date(queryTime);
+    if (isNaN(parsedQueryTime.getTime())) {
+      res.status(400).json({ error: "Invalid queryTime format" });
+      return;
+    }
+
+    // Retrieve all messages before the given date for the user
+    const messages = await prisma.message.findMany({
+      where: {
+        recipientId: authToken.userId,
+        createdAt: {
+          gt: parsedQueryTime,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Delete all messages from prisma created after parsedQueryTime
+    await prisma.message.deleteMany({
+      where: {
+        recipientId: authToken.userId,
+        createdAt: {
+          gt: parsedQueryTime,
+        },
+      },
+    });
+
+    // Filter messages to ensure they are before the queryDate
+    const filteredMessages = messages.map((message) => message.encryptedData);
+
+    res.status(200).json({ messages: filteredMessages });
+  } else if (req.method === "POST") {
+    const { token, messages } = req.body;
+
+    if (!token || typeof token !== "string") {
+      res.status(400).json({ error: "Invalid query parameters" });
+      return;
+    }
+
+    // Validate the token and retrieve the userId associated with it
+    const authToken = await prisma.authToken.findUnique({
+      where: { value: token },
+    });
+
+    if (!authToken || authToken.expiresAt < new Date()) {
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    const senderId = authToken.userId;
+    const recipientId = authToken.userId;
+
+    const messageData = messages.map((message: any) => ({
+      senderId,
+      recipientId,
+      encryptedData: message,
+    }));
+
+    try {
+      const createdMessages = await prisma.message.createMany({
+        data: messageData,
+      });
+
+      res.status(200).json({ numMessagesReceived: createdMessages.count });
+    } catch (error) {
+      console.error("Failed to insert messages into the database", error);
+      res
+        .status(500)
+        .json({ error: "Failed to insert messages into the database" });
+      return;
+    }
   } else {
-    res.setHeader("Allow", ["POST"]);
+    res.setHeader("Allow", ["GET", "POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
