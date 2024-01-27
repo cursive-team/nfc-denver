@@ -29,7 +29,6 @@ const EncryptionBenchmarkPage = () => {
   const [profile, setProfile] = useState<Profile>();
   const [keys, setKeys] = useState<Keys>();
   const [isBenchmarking, setIsBenchmarking] = useState(false);
-  const [benchmarkStartTime, setBenchmarkStartTime] = useState<Date>();
   const [keyGenerationTime, setKeyGenerationTime] = useState<number>();
   const [encryptionTime, setEncryptionTime] = useState<number>();
   const [encryptionRequestTime, setEncryptionRequestTime] = useState<number>();
@@ -47,7 +46,9 @@ const EncryptionBenchmarkPage = () => {
     setKeys(getKeys());
   }, []);
 
-  const sendEncryptedMessages = async () => {
+  const handleBeginBenchmark = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     if (!token || !profile || !keys) {
       alert("You must be logged in to run benchmarks.");
       return;
@@ -60,7 +61,6 @@ const EncryptionBenchmarkPage = () => {
 
     setIsBenchmarking(true);
     const startTotalTime = new Date();
-    setBenchmarkStartTime(startTotalTime);
 
     // ----- KEY GENERATION -----
     const startKeyGenerationTime = new Date();
@@ -106,7 +106,6 @@ const EncryptionBenchmarkPage = () => {
     try {
       let totalNumMessages = 0;
       const batchSize = Math.floor(encryptedMessages.length / numBatches);
-      console.log("Batch size: ", batchSize);
       for (let i = 0; i < encryptedMessages.length; i += batchSize) {
         const batch = encryptedMessages.slice(i, i + batchSize);
         const response = await fetch("/api/benchmark", {
@@ -124,11 +123,11 @@ const EncryptionBenchmarkPage = () => {
         }
 
         const { numMessagesReceived } = await response.json();
-        console.log(
-          `Processed messages ${i}-${
-            i + batchSize
-          }, size ${numMessagesReceived}`
-        );
+        // console.log(
+        //   `Processed messages ${i}-${
+        //     i + batchSize
+        //   }, size ${numMessagesReceived}`
+        // );
         totalNumMessages += numMessagesReceived;
       }
 
@@ -150,7 +149,7 @@ const EncryptionBenchmarkPage = () => {
     const startDecryptionRequestTime = new Date();
     try {
       const response = await fetch(
-        `/api/benchmark?token=${token}&queryTime=${benchmarkStartTime}`,
+        `/api/benchmark?token=${token}&queryTime=${startTotalTime}`,
         {
           method: "GET",
           headers: {
@@ -218,10 +217,9 @@ const EncryptionBenchmarkPage = () => {
     setDisplayState(DisplayState.RESULTS);
   };
 
-  const resetEncryptionBenchmark = () => {
+  const handleResetBenchmark = () => {
     setDisplayState(DisplayState.ENCRYPTION);
     setIsBenchmarking(false);
-    setBenchmarkStartTime(undefined);
     setKeyGenerationTime(undefined);
     setEncryptionTime(undefined);
     setEncryptionRequestTime(undefined);
@@ -241,7 +239,7 @@ const EncryptionBenchmarkPage = () => {
           Message Length = length of each message to encrypt. 
           Number of Batches = how many backend requests to separate encrypted messages into. Each batch must have total size <1 MB.
           "
-          onSubmit={sendEncryptedMessages}
+          onSubmit={handleBeginBenchmark}
           actions={
             <div className="flex flex-col gap-4">
               <Button loading={isBenchmarking} type="submit">
@@ -288,18 +286,22 @@ const EncryptionBenchmarkPage = () => {
           <h1 className="text-2xl text-center font-semibold">
             Encryption Benchmark Results
           </h1>
-          <p className="text-center text-gray-500">{`Key Generation Time: ${keyGenerationTime}`}</p>
-          <p className="text-center text-gray-500">{`Encryption Time: ${encryptionTime}`}</p>
-          <p className="text-center text-gray-500">{`Encryption Request Time: ${encryptionRequestTime}`}</p>
-          <p className="text-center text-gray-500">{`Decryption Request Time: ${decryptionRequestTime}`}</p>
-          <p className="text-center text-gray-500">{`Decryption Time: ${decryptionTime}`}</p>
-          <p className="text-center text-gray-500">{`Total Time: ${totalTime}`}</p>
-          <Button onClick={resetEncryptionBenchmark}>
-            Try Another Encryption
-          </Button>
-          <Link href="/bench" className="link text-center">
-            <Button>Back to Benches</Button>
-          </Link>
+          <div className="flex flex-col m-4 gap-1">
+            <p className="text-center text-gray-500">{`Key Generation Time: ${keyGenerationTime}ms`}</p>
+            <p className="text-center text-gray-500">{`Encryption Time: ${encryptionTime}ms`}</p>
+            <p className="text-center text-gray-500">{`Encryption Request Time: ${encryptionRequestTime}ms`}</p>
+            <p className="text-center text-gray-500">{`Decryption Request Time: ${decryptionRequestTime}ms`}</p>
+            <p className="text-center text-gray-500">{`Decryption Time: ${decryptionTime}ms`}</p>
+            <p className="text-center text-gray-500">{`Total Time: ${totalTime}ms`}</p>
+          </div>
+          <div className="flex flex-col m-4 gap-4">
+            <Button onClick={handleResetBenchmark}>
+              Try Another Encryption
+            </Button>
+            <Link href="/bench" className="link text-center">
+              <Button>Back to Benches</Button>
+            </Link>
+          </div>
         </div>
       )}
     </>
