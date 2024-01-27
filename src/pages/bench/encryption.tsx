@@ -12,6 +12,7 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
 import { Input } from "@/components/Input";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
+import { BenchmarkMessage } from "@prisma/client";
 
 enum DisplayState {
   ENCRYPTION,
@@ -107,7 +108,11 @@ const EncryptionBenchmarkPage = () => {
       let totalNumMessages = 0;
       const batchSize = Math.floor(encryptedMessages.length / numBatches);
       for (let i = 0; i < encryptedMessages.length; i += batchSize) {
-        const batch = encryptedMessages.slice(i, i + batchSize);
+        // Record index of each message to map decryption keys
+        const batch: Record<number, string> = {};
+        encryptedMessages.slice(i, i + batchSize).forEach((message, index) => {
+          batch[i + index] = message;
+        });
         const response = await fetch("/api/benchmark", {
           method: "POST",
           headers: {
@@ -145,7 +150,7 @@ const EncryptionBenchmarkPage = () => {
     }
 
     // ----- DECRYPTION REQUEST -----
-    let encryptedMessagesFromServer: string[] = [];
+    let encryptedMessagesFromServer: BenchmarkMessage[] = [];
     const startDecryptionRequestTime = new Date();
     try {
       const response = await fetch(
@@ -164,8 +169,8 @@ const EncryptionBenchmarkPage = () => {
         throw new Error("Failed to fetch benchmark data from the server.");
       }
 
-      const { messages } = await response.json();
-      encryptedMessagesFromServer = messages;
+      const { benchmarkMessages } = await response.json();
+      encryptedMessagesFromServer = benchmarkMessages;
       const decryptionRequestTime =
         new Date().getTime() - startDecryptionRequestTime.getTime();
       setDecryptionRequestTime(decryptionRequestTime);
@@ -182,13 +187,13 @@ const EncryptionBenchmarkPage = () => {
     // ----- DECRYPTION -----
     const decryptionStartTime = new Date();
     const decryptedMessages = await Promise.all(
-      encryptedMessagesFromServer.map((encryptedMessage: string, index) =>
+      encryptedMessagesFromServer.map((encryptedMessage: BenchmarkMessage) =>
         decryptMessage(
           {
             toPublicKey: profile.encryptionPublicKey,
-            fromPublicKey: encryptionPublicKeys[index],
+            fromPublicKey: encryptionPublicKeys[encryptedMessage.benchmarkId],
             fromDisplayName: "TEST",
-            encryptedContents: encryptedMessage,
+            encryptedContents: encryptedMessage.encryptedData,
             timestamp: new Date(),
           },
           keys.encryptionPrivateKey
@@ -287,6 +292,9 @@ const EncryptionBenchmarkPage = () => {
             Encryption Benchmark Results
           </h1>
           <div className="flex flex-col m-4 gap-1">
+            <p className="text-center text-gray-500">{`Number of Messages: ${numMessages}`}</p>
+            <p className="text-center text-gray-500">{`Message Length: ${messageLength}`}</p>
+            <p className="text-center text-gray-500">{`Number of Batches: ${numBatches}`}</p>
             <p className="text-center text-gray-500">{`Key Generation Time: ${keyGenerationTime}ms`}</p>
             <p className="text-center text-gray-500">{`Encryption Time: ${encryptionTime}ms`}</p>
             <p className="text-center text-gray-500">{`Encryption Request Time: ${encryptionRequestTime}ms`}</p>

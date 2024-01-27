@@ -12,21 +12,23 @@ datasource db {
 }
 
 model User {
-  id                  Int               @id @default(autoincrement())
-  chipId              String            @unique
-  email               String            @unique
-  displayName         String
-  encryptionPublicKey String
-  signaturePublicKey  String
-  wantsServerCustody  Boolean
-  passwordSalt        String?
-  passwordHash        String?
-  twitterUsername     String?
-  telegramUsername    String?
-  createdAt           DateTime          @default(now())
-  sentMessages        Message[]         @relation("MessageSender")
-  receivedMessages    Message[]         @relation("MessageRecipient")
-  questRequirements   UserRequirement[] @relation("UserQuestRequirements")
+  id                        Int                 @id @default(autoincrement())
+  chipId                    String              @unique
+  email                     String              @unique
+  displayName               String
+  encryptionPublicKey       String
+  signaturePublicKey        String
+  wantsServerCustody        Boolean
+  passwordSalt              String?
+  passwordHash              String?
+  twitterUsername           String?
+  telegramUsername          String?
+  createdAt                 DateTime            @default(now())
+  sentMessages              Message[]           @relation("MessageSender")
+  receivedMessages          Message[]           @relation("MessageRecipient")
+  questRequirements         UserRequirement[]   @relation("UserQuestRequirements")
+  sentBenchmarkMessages     BenchmarkMessage[]  @relation("BenchmarkMessageSender")
+  receivedBenchmarkMessages BenchmarkMessage[]  @relation("BenchmarkMessageRecipient")
 }
 
 model LocationKey {
@@ -122,4 +124,16 @@ model LocationRequirement {
   createdAt       DateTime   @default(now())
   quest           Quest      @relation(fields: [questId], references: [id])
   locations       Location[] @relation("LocationQuestRequirements")
+}
+
+// Mirrors the Message model, but only used for benchmarking
+model BenchmarkMessage {
+  id            Int      @id @default(autoincrement())
+  benchmarkId   Int      // Used to identify messages during benchmarking
+  senderId      Int
+  recipientId   Int
+  encryptedData String
+  createdAt     DateTime @default(now())
+  sender        User     @relation(name: "BenchmarkMessageSender", fields: [senderId], references: [id])
+  recipient     User     @relation(name: "BenchmarkMessageRecipient", fields: [recipientId], references: [id])
 }

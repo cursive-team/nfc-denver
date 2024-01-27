@@ -37,7 +37,7 @@ export default async function handler(
     }
 
     // Retrieve all messages before the given date for the user
-    const messages = await prisma.message.findMany({
+    const messages = await prisma.benchmarkMessage.findMany({
       where: {
         recipientId: authToken.userId,
         createdAt: {
@@ -49,20 +49,14 @@ export default async function handler(
       },
     });
 
-    // Delete all messages from prisma created after parsedQueryTime
-    await prisma.message.deleteMany({
+    // Delete all messages for this user's benchmarks
+    await prisma.benchmarkMessage.deleteMany({
       where: {
         recipientId: authToken.userId,
-        createdAt: {
-          gt: parsedQueryTime,
-        },
       },
     });
 
-    // Filter messages to ensure they are before the queryDate
-    const filteredMessages = messages.map((message) => message.encryptedData);
-
-    res.status(200).json({ messages: filteredMessages });
+    res.status(200).json({ benchmarkMessages: messages });
   } else if (req.method === "POST") {
     const { token, messages } = req.body;
 
@@ -83,15 +77,17 @@ export default async function handler(
 
     const senderId = authToken.userId;
     const recipientId = authToken.userId;
-
-    const messageData = messages.map((message: any) => ({
-      senderId,
-      recipientId,
-      encryptedData: message,
-    }));
+    const messageData = Object.entries(messages).map(
+      ([benchmarkId, message]) => ({
+        benchmarkId: parseInt(benchmarkId),
+        senderId,
+        recipientId,
+        encryptedData: message as string,
+      })
+    );
 
     try {
-      const createdMessages = await prisma.message.createMany({
+      const createdMessages = await prisma.benchmarkMessage.createMany({
         data: messageData,
       });
 
