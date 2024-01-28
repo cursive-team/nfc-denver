@@ -82,7 +82,7 @@ const LocationDetail = ({
           {signature !== undefined && (
             <div className="flex flex-col">
               <Label>Visited On</Label>
-              <Description>{`${signature.timestamp}`}</Description>
+              <Description>{`${signature.ts}`}</Description>
             </div>
           )}
         </div>
@@ -164,7 +164,6 @@ const QuestRequirementModal = ({
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {
- 
   const completed = false;
 
   const showUsers = questRequirementType === QuestRequirementType.USER && users;

@@ -39,6 +39,7 @@ export type LocationTapResponse = {
   sponsor: string;
   imageUrl: string;
   signaturePublicKey: string;
+  signatureMessage: string;
   signature: string;
 };
 
@@ -49,6 +50,7 @@ export const locationTapResponseSchema = object({
   sponsor: string().required(),
   imageUrl: string().required(),
   signaturePublicKey: string().required(),
+  signatureMessage: string().required(),
   signature: string().required(),
 });
 
@@ -66,10 +68,12 @@ export const tapResponseSchema = object({
 
 /**
  * Returns a signature for a given location
- * TEMPORARY: Signs a uuid for now
+ * @param locationId The id of the location for which to generate a signature
+ * @param message The message to sign
  */
 export const generateLocationSignature = async (
-  locationId: number
+  locationId: number,
+  message: string
 ): Promise<string> => {
   const key = await prisma.locationKey.findUnique({
     where: {
@@ -80,8 +84,7 @@ export const generateLocationSignature = async (
     throw new Error("Location key not found");
   }
 
-  const data = uuidv4();
-  const signature = await sign(key.signaturePrivateKey, data);
+  const signature = await sign(key.signaturePrivateKey, message);
 
   return signature;
 };
@@ -140,7 +143,8 @@ export default async function handler(
     },
   });
   if (location) {
-    const signature = await generateLocationSignature(location.id);
+    const message = uuidv4();
+    const signature = await generateLocationSignature(location.id, message);
     const locationTapResponse: LocationTapResponse = {
       id: location.id.toString(),
       name: location.name,
@@ -148,6 +152,7 @@ export default async function handler(
       sponsor: location.sponsor,
       imageUrl: location.imageUrl,
       signaturePublicKey: location.signaturePublicKey,
+      signatureMessage: message,
       signature,
     };
     return res.status(200).json({

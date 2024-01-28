@@ -7,8 +7,14 @@ import {
   tapResponseSchema,
 } from "./api/tap";
 import LoginForm from "@/components/LoginForm";
-import { getAuthToken, updateUserFromTap } from "@/lib/client/localStorage";
+import {
+  getAuthToken,
+  getKeys,
+  getProfile,
+  updateUserFromTap,
+} from "@/lib/client/localStorage";
 import { updateLocationSignatureFromTap } from "@/lib/client/localStorage/locationSignatures";
+import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 
 export default function Tap() {
   const router = useRouter();
@@ -26,9 +32,59 @@ export default function Tap() {
     [router]
   );
 
-  // Save the newly tapped location to local storage and redirect to their profile
+  // First, record the location signature as a jubSignal message
+  // Then, save the newly tapped location to local storage and redirect to their profile
   const processLocationTap = useCallback(
     async (location: LocationTapResponse) => {
+      const authToken = getAuthToken();
+      const profile = getProfile();
+      const keys = getKeys();
+
+      if (!authToken || authToken.expiresAt < new Date() || !profile || !keys) {
+        alert("You must be logged in to connect");
+        router.push("/login");
+        return;
+      }
+
+      const recipientPublicKey = profile.encryptionPublicKey;
+      const encryptedMessage = await encryptLocationTapMessage({
+        locationId: location.id,
+        locationName: location.name,
+        signaturePublicKey: location.signaturePublicKey,
+        signatureMessage: location.signatureMessage,
+        signature: location.signature,
+        senderPrivateKey: keys.encryptionPrivateKey,
+        recipientPublicKey,
+      });
+
+      // Send location tap as encrypted jubSignal message to self
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: encryptedMessage,
+            recipientPublicKey,
+            token: authToken.value,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Error sending message");
+        }
+      } catch (error) {
+        console.error(
+          "Error sending encrypted location tap to server: ",
+          error
+        );
+        alert("An error occured while processing the tap. Please try again.");
+        router.push("/");
+        return;
+      }
+
+      // Update location signature in local storage
       const locationId = await updateLocationSignatureFromTap(location);
       router.push("/locations/" + locationId);
     },

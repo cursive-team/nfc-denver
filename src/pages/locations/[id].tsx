@@ -74,7 +74,7 @@ const LocationDetails = () => {
           {signature !== undefined && (
             <div className="flex flex-col">
               <Label>Visited On</Label>
-              <Description>{`${signature.timestamp}`}</Description>
+              <Description>{`${signature.ts}`}</Description>
             </div>
           )}
         </div>

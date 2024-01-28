@@ -129,7 +129,7 @@ const SharePage = () => {
         throw new Error("Failed to share information");
       }
     } catch (error) {
-      console.error("Error sharing information:", error);
+      console.error("Error sharing information: ", error);
       alert("An error occurred while sending the message. Please try again.");
     }
 
