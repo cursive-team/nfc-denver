@@ -10,10 +10,13 @@ export const USERS_STORAGE_KEY = "users";
 
 export type User = {
   name: string; // User's display name
-  pk: string; // User's encryption public key
+  encPk: string; // User's encryption public key
   x?: string; // User's Twitter username
   tg?: string; // User's Telegram username
   note?: string; // Private note
+  sigPk?: string; // User's signature public key
+  msg?: string; // User's signature message
+  sig?: string; // User's signature
   outTs?: Date; // Time of last outbound tap
   inTs?: Date; // Time of last inbound tap
 };
@@ -43,7 +46,7 @@ export const updateUserFromTap = async (
     const updatedUser = {
       ...user,
       name: userUpdate.displayName,
-      pk: userUpdate.encryptionPublicKey,
+      encPk: userUpdate.encryptionPublicKey,
       x: userUpdate.twitterUsername,
       tg: userUpdate.telegramUsername,
     };
@@ -52,7 +55,7 @@ export const updateUserFromTap = async (
   } else {
     const newUser = {
       name: userUpdate.displayName,
-      pk: userUpdate.encryptionPublicKey,
+      encPk: userUpdate.encryptionPublicKey,
       x: userUpdate.twitterUsername,
       tg: userUpdate.telegramUsername,
     };

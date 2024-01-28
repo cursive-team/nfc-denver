@@ -12,8 +12,8 @@ import {
   getKeys,
   getProfile,
   updateUserFromTap,
+  updateLocationSignatureFromTap,
 } from "@/lib/client/localStorage";
-import { updateLocationSignatureFromTap } from "@/lib/client/localStorage/locationSignatures";
 import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 
 export default function Tap() {

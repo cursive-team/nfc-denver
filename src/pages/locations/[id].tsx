@@ -5,7 +5,7 @@ import { Location } from "@prisma/client";
 import {
   LocationSignature,
   getLocationSignature,
-} from "@/lib/client/localStorage/locationSignatures";
+} from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
 import { Header } from "@/components/modals/QuestRequirementModal";
 import useSettings from "@/hooks/useSettings";

@@ -44,7 +44,7 @@ const UserProfilePage = () => {
                 Encryption Public Key
               </dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                {user.pk}
+                {user.encPk}
               </dd>
             </div>
             {user.x && (

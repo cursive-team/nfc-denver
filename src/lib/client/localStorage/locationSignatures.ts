@@ -9,6 +9,7 @@ export const LOCATION_SIGNATURES_STORAGE_KEY = "locationSignatures";
 
 export type LocationSignature = {
   id: string; // locationId
+  name: string; // Display name for the location
   pk: string; // Location signature public key
   msg: string; // Message that is signed
   sig: string; // Signature
@@ -41,6 +42,7 @@ export const updateLocationSignatureFromTap = async (
 
   const newLocationSignature = {
     id: locationUpdate.id,
+    name: locationUpdate.name,
     pk: locationUpdate.signaturePublicKey,
     msg: locationUpdate.signatureMessage,
     sig: locationUpdate.signature,

@@ -65,9 +65,9 @@ const SharePage = () => {
 
     // ----- SEND MESSAGE TO OTHER USER -----
     // This messages sends contact information to the other user
-    const dataToSign = user.pk; // For now, we just sign the other user's encryption public key
+    const dataToSign = user.encPk; // For now, we just sign the other user's encryption public key
     const signature = await sign(signaturePrivateKey, dataToSign);
-    const recipientPublicKey = user.pk;
+    const recipientPublicKey = user.encPk;
     const encryptedMessage = await encryptInboundTapMessage({
       twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
       telegramUsername: shareTelegram ? profile.telegramUsername : undefined,
@@ -104,7 +104,7 @@ const SharePage = () => {
     const selfPublicKey = profile.encryptionPublicKey;
     const selfEncryptedMessage = await encryptOutboundTapMessage({
       displayName: user.name,
-      encryptionPublicKey: user.pk,
+      encryptionPublicKey: user.encPk,
       twitterUsername: user.x,
       telegramUsername: user.tg,
       privateNote,
@@ -134,7 +134,7 @@ const SharePage = () => {
     }
 
     // Updates local storage with new private note and timestamp
-    updateUserFromOutboundTap(user.pk, privateNote);
+    updateUserFromOutboundTap(user.encPk, privateNote);
     alert(`Successfully shared information with ${user.name}!`);
     router.push(`/users/${id}`);
   };

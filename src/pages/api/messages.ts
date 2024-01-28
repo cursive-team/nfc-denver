@@ -11,7 +11,7 @@ export default async function handler(
   res: NextApiResponse<MessageGetResponse | EmptyResponse | ErrorResponse>
 ) {
   if (req.method === "GET") {
-    const { token, startDate } = req.query;
+    const { token, startDate, endDate } = req.query;
 
     if (typeof token !== "string") {
       res.status(400).json({ error: "Invalid token" });
@@ -31,17 +31,19 @@ export default async function handler(
       return;
     }
 
-    if (typeof startDate !== "string" || isNaN(Date.parse(startDate))) {
-      res.status(400).json({ error: "Invalid startDate" });
-      return;
+    // Add date filters if they are valid
+    const dateFilter: { gte?: Date; lte?: Date } = {};
+    if (typeof startDate === "string" && !isNaN(Date.parse(startDate))) {
+      dateFilter["gte"] = new Date(startDate);
+    }
+    if (typeof endDate === "string" && !isNaN(Date.parse(endDate))) {
+      dateFilter["lte"] = new Date(endDate);
     }
 
     const receivedMessages = await prisma.message.findMany({
       where: {
         recipientId: userId,
-        createdAt: {
-          gte: new Date(startDate),
-        },
+        createdAt: dateFilter,
       },
       include: {
         sender: {
@@ -52,7 +54,7 @@ export default async function handler(
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: "asc",
       },
     });
 

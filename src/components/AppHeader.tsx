@@ -10,8 +10,8 @@ import {
   deleteAllUsers,
   deleteAuthToken,
   deleteProfile,
+  deleteAllLocationSignatures,
 } from "@/lib/client/localStorage";
-import { deleteAllLocationSignatures } from "@/lib/client/localStorage/locationSignatures";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "./Input";
 

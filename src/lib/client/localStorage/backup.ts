@@ -1,16 +1,38 @@
 import { object } from "yup";
-import { getProfile, profileSchema, saveProfile } from "./profile";
-import { getKeys, keysSchema, saveKeys } from "./keys";
+import { Profile, getProfile, profileSchema, saveProfile } from "./profile";
+import { Keys, getKeys, keysSchema, saveKeys } from "./keys";
 
 export const backupSchema = object({
   profile: profileSchema.required(),
   keys: keysSchema.required(),
 });
 
-export const loadBackup = (backup: string): void => {
+export const loadBackup = (
+  backup: string
+): { profile: Profile; keys: Keys } => {
   const { profile, keys } = JSON.parse(backup);
+
+  let validatedProfile: Profile;
+  try {
+    validatedProfile = profileSchema.validateSync(profile);
+  } catch (e) {
+    throw new Error("Invalid profile.");
+  }
+
+  let validateKeys: Keys;
+  try {
+    validateKeys = keysSchema.validateSync(keys);
+  } catch (e) {
+    throw new Error("Invalid keys.");
+  }
+
   saveProfile(profile);
   saveKeys(keys);
+
+  return {
+    profile: validatedProfile,
+    keys: validateKeys,
+  };
 };
 
 export const createBackup = (): string | undefined => {

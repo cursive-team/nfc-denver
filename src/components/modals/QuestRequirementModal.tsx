@@ -10,10 +10,10 @@ import { classed } from "@tw-classed/react";
 import useSettings from "@/hooks/useSettings";
 import { Card } from "../cards/Card";
 import {
+  getUsers,
   LocationSignature,
   getLocationSignature,
-} from "@/lib/client/localStorage/locationSignatures";
-import { getUsers } from "@/lib/client/localStorage";
+} from "@/lib/client/localStorage";
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
 import useQuests from "@/hooks/useQuests";
 import Link from "next/link";
