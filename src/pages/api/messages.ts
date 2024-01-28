@@ -51,14 +51,19 @@ export default async function handler(
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const messages: EncryptedMessage[] = receivedMessages.map((message) => ({
-      toPublicKey: user.encryptionPublicKey,
-      fromPublicKey: message.sender.encryptionPublicKey,
-      fromDisplayName: message.sender.displayName,
+      metadata: {
+        toPublicKey: user.encryptionPublicKey,
+        fromPublicKey: message.sender.encryptionPublicKey,
+        fromDisplayName: message.sender.displayName,
+        timestamp: message.createdAt,
+      },
       encryptedContents: message.encryptedData,
-      timestamp: message.createdAt,
     }));
 
     res.status(200).json(messages);

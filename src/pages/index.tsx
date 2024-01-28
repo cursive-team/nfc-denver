@@ -20,7 +20,7 @@ import {
 } from "@/lib/client/localStorage";
 import {
   EncryptedMessage,
-  Message,
+  PlaintextMessage,
   decryptMessage,
 } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
@@ -106,7 +106,7 @@ export default function Social() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<Record<string, User>>({});
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<PlaintextMessage[]>([]);
 
   useEffect(() => {
     const profileData = getProfile();

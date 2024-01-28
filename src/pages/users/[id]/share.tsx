@@ -8,7 +8,7 @@ import {
   User,
 } from "@/lib/client/localStorage";
 import { sign } from "@/lib/client/signature";
-import { DEFAULT_MESSAGE_TYPE, encryptMessage } from "@/lib/client/jubSignal";
+import { encryptInboundTapMessage } from "@/lib/client/jubSignal";
 
 const SharePage = () => {
   const router = useRouter();
@@ -57,19 +57,18 @@ const SharePage = () => {
     const { encryptionPrivateKey, signaturePrivateKey } = keys;
 
     // For now, we just sign the other user's encryption public key
-    const signature = await sign(signaturePrivateKey, user.encryptionPublicKey);
-    const shareData = {
+    const dataToSign = user.encryptionPublicKey;
+    const signature = await sign(signaturePrivateKey, dataToSign);
+    const recipientPublicKey = user.encryptionPublicKey;
+    const encryptedMessage = await encryptInboundTapMessage({
+      twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
+      telegramUsername: shareTelegram ? profile.telegramUsername : undefined,
+      signaturePublicKey: profile.signaturePublicKey,
+      signatureMessage: dataToSign,
       signature,
-      twitter: shareTwitter ? profile.twitterUsername : undefined,
-      telegram: shareTelegram ? profile.telegramUsername : undefined,
-    };
-
-    const encryptedMessage = await encryptMessage(
-      DEFAULT_MESSAGE_TYPE,
-      shareData,
-      encryptionPrivateKey,
-      user.encryptionPublicKey
-    );
+      senderPrivateKey: encryptionPrivateKey,
+      recipientPublicKey,
+    });
 
     try {
       const response = await fetch("/api/messages", {
@@ -79,7 +78,7 @@ const SharePage = () => {
         },
         body: JSON.stringify({
           message: encryptedMessage,
-          recipientPublicKey: user.encryptionPublicKey,
+          recipientPublicKey,
           token: authToken.value,
         }),
       });
