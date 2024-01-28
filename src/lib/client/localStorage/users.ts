@@ -9,10 +9,13 @@ import {
 export const USERS_STORAGE_KEY = "users";
 
 export type User = {
-  displayName: string;
-  encryptionPublicKey: string;
-  twitterUsername?: string;
-  telegramUsername?: string;
+  name: string; // User's display name
+  pk: string; // User's encryption public key
+  x?: string; // User's Twitter username
+  tg?: string; // User's Telegram username
+  note?: string; // Private note
+  outTs?: Date; // Time of last outbound tap
+  inTs?: Date; // Time of last inbound tap
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -37,18 +40,52 @@ export const updateUserFromTap = async (
   const user = users[userId];
 
   if (user) {
-    const updatedUser = { ...user, ...userUpdate };
+    const updatedUser = {
+      ...user,
+      name: userUpdate.displayName,
+      pk: userUpdate.encryptionPublicKey,
+      x: userUpdate.twitterUsername,
+      tg: userUpdate.telegramUsername,
+    };
+
     users[userId] = updatedUser;
   } else {
     const newUser = {
-      ...userUpdate,
+      name: userUpdate.displayName,
+      pk: userUpdate.encryptionPublicKey,
+      x: userUpdate.twitterUsername,
+      tg: userUpdate.telegramUsername,
     };
+
     users[userId] = newUser;
   }
 
   saveUsers(users);
 
   return userId;
+};
+
+// Update user information after an outbound tap
+export const updateUserFromOutboundTap = async (
+  encryptionPublicKey: string,
+  privateNote?: string
+): Promise<void> => {
+  const users = getUsers();
+  const userId = await hashPublicKeyToUUID(encryptionPublicKey);
+  const user = users[userId];
+
+  if (!user) {
+    return;
+  }
+
+  const updatedUser = {
+    ...user,
+    note: privateNote,
+    outTs: new Date(),
+  };
+
+  users[userId] = updatedUser;
+  saveUsers(users);
 };
 
 // Users are stored based on the hash of their encryption public key

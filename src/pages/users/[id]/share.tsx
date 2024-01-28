@@ -5,10 +5,14 @@ import {
   getAuthToken,
   getKeys,
   getProfile,
+  updateUserFromOutboundTap,
   User,
 } from "@/lib/client/localStorage";
 import { sign } from "@/lib/client/signature";
-import { encryptInboundTapMessage } from "@/lib/client/jubSignal";
+import {
+  encryptInboundTapMessage,
+  encryptOutboundTapMessage,
+} from "@/lib/client/jubSignal";
 
 const SharePage = () => {
   const router = useRouter();
@@ -16,11 +20,15 @@ const SharePage = () => {
   const [user, setUser] = useState<User>();
   const [shareTwitter, setShareTwitter] = useState(false);
   const [shareTelegram, setShareTelegram] = useState(false);
+  const [privateNote, setPrivateNote] = useState<string>();
 
   useEffect(() => {
     if (typeof id === "string") {
       const fetchedUser = fetchUserByUUID(id);
-      setUser(fetchedUser);
+      if (fetchedUser) {
+        setUser(fetchedUser);
+        setPrivateNote(fetchedUser.note);
+      }
     }
   }, [id]);
 
@@ -45,6 +53,7 @@ const SharePage = () => {
       router.push("/login");
       return;
     }
+    const { encryptionPrivateKey, signaturePrivateKey } = keys;
 
     const profile = getProfile();
     if (!profile) {
@@ -54,12 +63,11 @@ const SharePage = () => {
       return;
     }
 
-    const { encryptionPrivateKey, signaturePrivateKey } = keys;
-
-    // For now, we just sign the other user's encryption public key
-    const dataToSign = user.encryptionPublicKey;
+    // ----- SEND MESSAGE TO OTHER USER -----
+    // This messages sends contact information to the other user
+    const dataToSign = user.pk; // For now, we just sign the other user's encryption public key
     const signature = await sign(signaturePrivateKey, dataToSign);
-    const recipientPublicKey = user.encryptionPublicKey;
+    const recipientPublicKey = user.pk;
     const encryptedMessage = await encryptInboundTapMessage({
       twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
       telegramUsername: shareTelegram ? profile.telegramUsername : undefined,
@@ -86,13 +94,49 @@ const SharePage = () => {
       if (!response.ok) {
         throw new Error("Failed to share information");
       }
-
-      alert("Shared information successfully!");
-      router.push("/");
     } catch (error) {
       console.error("Error sharing information:", error);
       alert("An error occurred while sending the message. Please try again.");
     }
+
+    // ----- SEND MESSAGE TO SELF -----
+    // This message records the outbound interaction and saves the private note
+    const selfPublicKey = profile.encryptionPublicKey;
+    const selfEncryptedMessage = await encryptOutboundTapMessage({
+      displayName: user.name,
+      encryptionPublicKey: user.pk,
+      twitterUsername: user.x,
+      telegramUsername: user.tg,
+      privateNote,
+      senderPrivateKey: encryptionPrivateKey,
+      recipientPublicKey: selfPublicKey,
+    });
+
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: selfEncryptedMessage,
+          recipientPublicKey: selfPublicKey,
+          token: authToken.value,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to share information");
+      }
+    } catch (error) {
+      console.error("Error sharing information:", error);
+      alert("An error occurred while sending the message. Please try again.");
+    }
+
+    // Updates local storage with new private note and timestamp
+    updateUserFromOutboundTap(user.pk, privateNote);
+    alert(`Successfully shared information with ${user.name}!`);
+    router.push(`/users/${id}`);
   };
 
   const handleTwitterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,18 +154,18 @@ const SharePage = () => {
   return (
     <div className="p-4">
       <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-        Connect with {user.displayName}
+        Connect with {user.name}
       </h3>
       <div className="mt-4">
         <label className="inline-flex items-center">
           <input
             type="checkbox"
             className="form-checkbox"
-            disabled={!user.twitterUsername}
+            disabled={!user.x}
             checked={shareTwitter}
             onChange={handleTwitterChange}
           />
-          <span className="ml-2">Share my Twitter @{user.twitterUsername}</span>
+          <span className="ml-2">Share my Twitter @{user.x}</span>
         </label>
       </div>
       <div className="mt-4">
@@ -129,13 +173,24 @@ const SharePage = () => {
           <input
             type="checkbox"
             className="form-checkbox"
-            disabled={!user.telegramUsername}
+            disabled={!user.tg}
             checked={shareTelegram}
             onChange={handleTelegramChange}
           />
-          <span className="ml-2">
-            Share my Telegram @{user.telegramUsername}
-          </span>
+          <span className="ml-2">Share my Telegram @{user.tg}</span>
+        </label>
+      </div>
+      <div className="mt-4">
+        <label className="inline-flex items-center">
+          <input
+            type="longtext"
+            disabled
+            value={privateNote}
+            onChange={(event) => {
+              setPrivateNote(event.target.value);
+            }}
+          />
+          <span className="ml-2">Private Note</span>
         </label>
       </div>
       <div className="mt-8">

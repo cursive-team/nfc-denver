@@ -36,7 +36,7 @@ const UserProfilePage = () => {
                 Full name
               </dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                {user.displayName}
+                {user.name}
               </dd>
             </div>
             <div className="bg-white dark:bg-gray-800 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -44,26 +44,26 @@ const UserProfilePage = () => {
                 Encryption Public Key
               </dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                {user.encryptionPublicKey}
+                {user.pk}
               </dd>
             </div>
-            {user.twitterUsername && (
+            {user.x && (
               <div className="bg-gray-50 dark:bg-gray-900 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   Twitter
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                  @{user.twitterUsername}
+                  @{user.x}
                 </dd>
               </div>
             )}
-            {user.telegramUsername && (
+            {user.tg && (
               <div className="bg-white dark:bg-gray-800 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   Telegram
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                  @{user.telegramUsername}
+                  @{user.tg}
                 </dd>
               </div>
             )}
