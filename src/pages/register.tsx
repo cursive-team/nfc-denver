@@ -4,6 +4,7 @@ import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { generateSignatureKeyPair } from "@/lib/client/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
+  AuthToken,
   createBackup,
   saveAuthToken,
   saveKeys,
@@ -226,7 +227,10 @@ export default function Register() {
       twitterUsername,
       telegramUsername,
     });
-    saveAuthToken(data.value, new Date(data.expiresAt));
+    saveAuthToken({
+      value: data.value,
+      expiresAt: new Date(data.expiresAt),
+    });
 
     let backupData = createBackup();
     if (!backupData) {
