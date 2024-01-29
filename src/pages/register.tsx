@@ -84,8 +84,9 @@ export default function Register() {
     setConfirmPassword(event.target.value);
   };
 
-  const handleEmailSubmit = (event: React.FormEvent) => {
+  const handleEmailSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
     setLoading(true);
     fetch("/api/register/get_code", {
       method: "POST",

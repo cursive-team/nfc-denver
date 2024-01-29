@@ -8,6 +8,7 @@ import Link from "next/link";
 import { QuestCard } from "../cards/QuestCard";
 import { classed } from "@tw-classed/react";
 import QRCode from "react-qr-code";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 interface QuestDetailProps {
   questName?: string;
@@ -144,7 +145,7 @@ const CompleteQuestModal = ({
   questName,
   type,
 }: CompleteQuestModalProps) => {
-  const { quests } = useQuests();
+  const { isLoading, data: quests = [] } = useFetchQuests();
   const [isQuestCompleted, setIsQuestCompleted] = useState(true);
   const MORE_QUESTS_TO_SHOW = 4;
 
@@ -168,7 +169,7 @@ const CompleteQuestModal = ({
                     description,
                     userRequirements,
                     locationRequirements,
-                  },
+                  }: any,
                   index
                 ) => (
                   <Link href={`/quests/${id}`} key={id}>

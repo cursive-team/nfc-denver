@@ -8,6 +8,8 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Record } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { Button } from "./Button";
+import { useGetLoginCode } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -34,25 +36,23 @@ export default function LoginForm({
   const [passwordSalt, setPasswordSalt] = useState("");
   const [passwordHash, setPasswordHash] = useState("");
 
+  const getLoginCodeMutation = useGetLoginCode();
+
   const handleEmailSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      const response = await fetch("/api/login/get_code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    await getLoginCodeMutation.mutateAsync(
+      {
+        email,
+      },
+      {
+        onSuccess: () => {
+          setDisplayState(DisplayState.INPUT_CODE);
         },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setDisplayState(DisplayState.INPUT_CODE);
-      } else {
-        onFailedLogin("Error requesting code. Please try again.");
+        onError: () => {
+          toast.error("Error requesting code. Please try again.");
+        },
       }
-    } catch (error) {
-      onFailedLogin("An unexpected error occurred. Please try again.");
-    }
+    );
   };
 
   const handleCodeSubmit = async (event: React.FormEvent) => {
@@ -174,10 +174,14 @@ export default function LoginForm({
           onChange={handleEmailChange}
           required
         />
-        <Button type="submit">Send Code</Button>
-        <Link href="/register" className="link text-center">
-          I am not registered
-        </Link>
+        <Button loading={getLoginCodeMutation.isPending} type="submit">
+          Send Code
+        </Button>
+        <button type="button" disabled={getLoginCodeMutation.isPending}>
+          <Link href="/register" className="link text-center">
+            I am not registered
+          </Link>
+        </button>
       </FormStepLayout>
     ),
     INPUT_CODE: (

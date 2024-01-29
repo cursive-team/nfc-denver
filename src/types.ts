@@ -9,6 +9,8 @@ export type LabelProps = {
   content: string;
 };
 
+export interface QuestItem extends Quest {}
+
 export enum QuestRequirementType {
   USER = "USER",
   LOCATION = "LOCATION",
