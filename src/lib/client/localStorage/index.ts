@@ -1,6 +1,5 @@
 export * from "./auth";
 export * from "./backup";
-export * from "./messages";
 export * from "./profile";
 export * from "./keys";
 export * from "./users";

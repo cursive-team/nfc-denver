@@ -6,7 +6,6 @@ import { ReactNode, useState } from "react";
 import { Button } from "./Button";
 import {
   deleteAllKeys,
-  deleteAllMessages,
   deleteAllUsers,
   deleteAuthToken,
   deleteProfile,
@@ -205,7 +204,6 @@ const AppHeader = () => {
     deleteAuthToken();
     deleteAllKeys();
     deleteAllLocationSignatures();
-    deleteAllMessages();
     deleteProfile();
     deleteAllUsers();
     window.location.href = "/";
