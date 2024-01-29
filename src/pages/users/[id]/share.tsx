@@ -13,26 +13,39 @@ import {
   encryptInboundTapMessage,
   encryptOutboundTapMessage,
 } from "@/lib/client/jubSignal";
+import { Button } from "@/components/Button";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
+import { Input } from "@/components/Input";
+import Link from "next/link";
 
 const SharePage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [user, setUser] = useState<User>();
+  const [profile, setProfile] = useState(getProfile());
   const [shareTwitter, setShareTwitter] = useState(false);
   const [shareTelegram, setShareTelegram] = useState(false);
   const [privateNote, setPrivateNote] = useState<string>();
 
   useEffect(() => {
     if (typeof id === "string") {
+      const profile = getProfile();
+      if (!profile) {
+        alert("You must be logged in to connect");
+        router.push("/login");
+        return;
+      }
+      setProfile(profile);
+
       const fetchedUser = fetchUserByUUID(id);
       if (fetchedUser) {
         setUser(fetchedUser);
         setPrivateNote(fetchedUser.note);
       }
     }
-  }, [id]);
+  }, [id, router]);
 
-  const handleConnectClick = async () => {
+  const handleConnect = async () => {
     if (!user) {
       alert("An error occurred. Please try again.");
       router.push("/");
@@ -147,60 +160,50 @@ const SharePage = () => {
     setShareTelegram(event.target.checked);
   };
 
+  if (!profile) {
+    return <div>Loading...</div>;
+  }
+
   if (!user) {
     return <div>User not found</div>;
   }
 
   return (
-    <div className="p-4">
-      <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-        Connect with {user.name}
-      </h3>
-      <div className="mt-4">
-        <label className="inline-flex items-center">
-          <input
-            type="checkbox"
-            className="form-checkbox"
-            disabled={!user.x}
-            checked={shareTwitter}
-            onChange={handleTwitterChange}
-          />
-          <span className="ml-2">Share my Twitter @{user.x}</span>
-        </label>
-      </div>
-      <div className="mt-4">
-        <label className="inline-flex items-center">
-          <input
-            type="checkbox"
-            className="form-checkbox"
-            disabled={!user.tg}
-            checked={shareTelegram}
-            onChange={handleTelegramChange}
-          />
-          <span className="ml-2">Share my Telegram @{user.tg}</span>
-        </label>
-      </div>
-      <div className="mt-4">
-        <label className="inline-flex items-center">
-          <input
-            type="longtext"
-            disabled
-            value={privateNote}
-            onChange={(event) => {
-              setPrivateNote(event.target.value);
-            }}
-          />
-          <span className="ml-2">Private Note</span>
-        </label>
-      </div>
-      <div className="mt-8">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleConnectClick}
-        >
-          Connect
-        </button>
-      </div>
+    <div>
+      <FormStepLayout
+        title={`Connect with ${user.name}`}
+        description="Share your contact information with this user."
+        onSubmit={handleConnect}
+      >
+        <Input
+          type="checkbox"
+          className="form-checkbox"
+          label={`Share my Twitter: @${profile.twitterUsername}`}
+          disabled={!profile.twitterUsername}
+          checked={shareTwitter}
+          onChange={handleTwitterChange}
+        />
+        <Input
+          type="checkbox"
+          className="form-checkbox"
+          label={`Share my Telegram: @${profile.telegramUsername}`}
+          disabled={!profile.telegramUsername}
+          checked={shareTelegram}
+          onChange={handleTelegramChange}
+        />
+        <Input
+          type="longtext"
+          label="Private Note"
+          value={privateNote}
+          onChange={(event) => {
+            setPrivateNote(event.target.value);
+          }}
+        />
+        <Button type="submit">Connect</Button>
+      </FormStepLayout>
+      <Link href={`/users/${id}`}>
+        <Button>Back</Button>
+      </Link>
     </div>
   );
 };
