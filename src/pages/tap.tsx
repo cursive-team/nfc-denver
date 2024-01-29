@@ -13,6 +13,7 @@ import {
   getProfile,
   updateUserFromTap,
   updateLocationSignatureFromTap,
+  getLocationSignature,
 } from "@/lib/client/localStorage";
 import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 
@@ -43,6 +44,13 @@ export default function Tap() {
       if (!authToken || authToken.expiresAt < new Date() || !profile || !keys) {
         alert("You must be logged in to connect");
         router.push("/login");
+        return;
+      }
+
+      const locationSignature = getLocationSignature(location.id);
+      if (locationSignature) {
+        alert("You have already visited this location!");
+        router.push(`/locations/${location.id}`);
         return;
       }
 

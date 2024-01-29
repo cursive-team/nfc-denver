@@ -27,7 +27,7 @@ interface ContactCardProps {
 
 const ContactCard = ({ name, userId, date }: ContactCardProps) => {
   return (
-    <Link href={`/contact/${userId}`}>
+    <Link href={`/users/${userId}`}>
       <Card.Base className="flex justify-between p-3">
         <Card.Title>{name}</Card.Title>
         <Card.Description>{date}</Card.Description>
@@ -43,7 +43,71 @@ interface ActivityFeedProps {
   date: string;
 }
 
-const ActivityFeed = ({ name, date }: ActivityFeedProps) => {
+const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
+  switch (type) {
+    case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:
+      return (
+        <Link href={`/users/${id}`}>
+          <div className="flex justify-between py-1">
+            <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                <Icons.person />
+              </div>
+              <Card.Title>
+                {
+                  <div>
+                    <u>You</u> {"connected with"} <u>{name}</u>
+                  </div>
+                }
+              </Card.Title>
+            </div>
+            <Card.Description>{date}</Card.Description>
+          </div>
+        </Link>
+      );
+    case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
+      return (
+        <Link href={`/users/${id}`}>
+          <div className="flex justify-between py-1">
+            <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                <Icons.person />
+              </div>
+              <Card.Title>
+                {
+                  <div>
+                    <u>{name}</u> {"connected with"} <u>You</u>
+                  </div>
+                }
+              </Card.Title>
+            </div>
+            <Card.Description>{date}</Card.Description>
+          </div>
+        </Link>
+      );
+    case JUB_SIGNAL_MESSAGE_TYPE.LOCATION_TAP:
+      return (
+        <Link href={`/locations/${id}`}>
+          <div className="flex justify-between py-1">
+            <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                <Icons.person />
+              </div>
+              <Card.Title>
+                {
+                  <div>
+                    <u>You</u> {"visited"} <u>{name}</u>
+                  </div>
+                }
+              </Card.Title>
+            </div>
+            <Card.Description>{date}</Card.Description>
+          </div>
+        </Link>
+      );
+    default:
+      return null;
+  }
   return (
     <div className="flex justify-between py-1">
       <div className="flex items-center gap-2">
@@ -257,7 +321,9 @@ export default function Social() {
               <PointCard point={buidlBalance} />
             </div>
             <span className="text-sm font-light text-gray-10">
-              {`${numConnections} Connections`}
+              {numConnections === 1
+                ? `${numConnections} Connection`
+                : `${numConnections} Connections`}
             </span>
           </div>
           <Link href="/leaderboard">
