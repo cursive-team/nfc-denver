@@ -17,6 +17,7 @@ import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
 import Link from "next/link";
+import { AppBackHeader } from "@/components/AppHeader";
 
 const SharePage = () => {
   const router = useRouter();
@@ -170,6 +171,7 @@ const SharePage = () => {
 
   return (
     <div>
+      <AppBackHeader />
       <FormStepLayout
         title={`Connect with ${user.name}`}
         description="Share your contact information with this user."
@@ -201,9 +203,6 @@ const SharePage = () => {
         />
         <Button type="submit">Connect</Button>
       </FormStepLayout>
-      <Link href={`/users/${id}`}>
-        <Button>Back</Button>
-      </Link>
     </div>
   );
 };
