@@ -9,8 +9,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
+  Activity,
   Profile,
   User,
+  getActivities,
   getAuthToken,
   getKeys,
   getMessages,
@@ -106,14 +108,14 @@ export default function Social() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<Record<string, User>>({});
-  const [messages, setMessages] = useState<PlaintextMessage[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
     const profileData = getProfile();
     const keyData = getKeys();
     const authToken = getAuthToken();
     const users = getUsers();
-    const messages = getMessages();
+    const activities = getActivities();
     if (
       !profileData ||
       !keyData ||
@@ -124,61 +126,136 @@ export default function Social() {
     } else {
       setProfile(profileData);
       setUsers(users);
-      setMessages(messages);
+      setActivities(activities);
     }
   }, [router]);
-
-  // If user is logged in, fetch new messages
-  useEffect(() => {
-    const fetchMessages = async () => {
-      const authToken = getAuthToken();
-      if (!authToken || authToken.expiresAt < new Date()) {
-        return;
-      }
-
-      const keyData = getKeys();
-      if (!keyData) {
-        return;
-      }
-
-      // Get all messages in past 24 hours
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 1);
-
-      const response = await fetch(
-        `/api/messages?token=${encodeURIComponent(
-          authToken.value
-        )}&startDate=${startDate.toISOString()}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const messages = await response.json();
-
-        // TODO: Validate format of messages received
-        const decryptedMessages = await Promise.all(
-          messages.map((message: EncryptedMessage) =>
-            decryptMessage(message, keyData.encryptionPrivateKey)
-          )
-        );
-
-        writeMessages(decryptedMessages);
-      } else {
-        console.error("Failed to fetch messages");
-      }
-    };
-
-    fetchMessages();
-  }, []);
 
   if (!profile) {
     return null;
   }
+
+  // Group activities by date
+  const groupedActivities: Activity[][] = [];
+  let currentDate: string | undefined = undefined;
+  let currentDateActivities: Activity[] = [];
+  activities.forEach((activity) => {
+    const date = new Date(activity.ts).toDateString();
+    if (currentDate === undefined) {
+      currentDateActivities.push(activity);
+      currentDate = date;
+    } else if (currentDate === date) {
+      currentDateActivities.push(activity);
+    } else {
+      groupedActivities.push(currentDateActivities);
+      currentDateActivities = [activity];
+      currentDate = date;
+    }
+  });
+  groupedActivities.push(currentDateActivities);
+
+  // Sort contacts by name then group by first letter
+  const usersList = Object.values(users);
+  const sortedUsers = usersList.sort((a, b) => {
+    return a.name.localeCompare(b.name, "en", { sensitivity: "base" }); // Ignore case
+  });
+  const groupedUsers: User[][] = [];
+  let currentLetter: string | undefined = undefined;
+  let currentLetterUsers: User[] = [];
+  sortedUsers.forEach((user) => {
+    const letter = user.name[0].toUpperCase();
+    if (currentLetter === undefined) {
+      currentLetterUsers.push(user);
+      currentLetter = letter;
+    } else if (currentLetter === letter) {
+      currentLetterUsers.push(user);
+    } else {
+      groupedUsers.push(currentLetterUsers);
+      currentLetterUsers = [user];
+      currentLetter = letter;
+    }
+  });
+  groupedUsers.push(currentLetterUsers);
+
+  const tabItems: TabsProps["items"] = [
+    {
+      label: "Activity Feed",
+      children: (
+        <div className="flex flex-col gap-4">
+          {" "}
+          {activities.length === 0 && (
+            <div className="flex justify-center items-center h-40">
+              <span className="text-gray-10">No activities yet</span>
+            </div>
+          )}
+          {activities.length !== 0 &&
+            groupedActivities.map((activities, index) => {
+              return (
+                <ListLayout
+                  key={index}
+                  label={new Date(activities[0].ts).toDateString()}
+                >
+                  {activities.map((activity, index) => {
+                    return (
+                      <ConnectionFeed
+                        key={index}
+                        name={activity.name}
+                        date={new Date(activity.ts).toLocaleTimeString()}
+                      />
+                    );
+                  })}
+                </ListLayout>
+              );
+            })}
+        </div>
+      ),
+    },
+    {
+      label: "Contacts",
+      children: (
+        <div className="flex flex-col gap-5">
+          {" "}
+          {usersList.length === 0 && (
+            <div className="flex justify-center items-center h-40">
+              <span className="text-gray-10">No contacts yet</span>
+            </div>
+          )}
+          {usersList.length !== 0 &&
+            groupedUsers.map((users, index) => {
+              return (
+                <ListLayout key={index} label={users[0].name[0].toUpperCase()}>
+                  <div className="flex flex-col gap-1">
+                    {users.map((user, index) => {
+                      const { name, outTs, inTs } = user;
+                      const outDate = outTs ? new Date(outTs) : undefined;
+                      const inDate = inTs ? new Date(inTs) : undefined;
+
+                      // Use most recent timestamp of an interaction with this user
+                      let date;
+                      if (outDate && inDate) {
+                        date =
+                          inDate > outDate
+                            ? inDate.toLocaleString()
+                            : outDate.toLocaleString();
+                      } else if (inDate) {
+                        date = inDate.toLocaleString();
+                      } else if (outDate) {
+                        date = outDate.toLocaleString();
+                      } else {
+                        date = "";
+                      }
+
+                      return (
+                        <ContactCard key={index} name={name} date={date} />
+                      );
+                    })}
+                  </div>
+                </ListLayout>
+              );
+            })}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6 pt-4">
@@ -214,7 +291,7 @@ export default function Social() {
           </Link>
         </div>
       </div>
-      <Tabs items={items} />
+      <Tabs items={tabItems} />
     </div>
   );
 }

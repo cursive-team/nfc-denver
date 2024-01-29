@@ -91,7 +91,7 @@ export default function LoginForm({
     const users: Record<string, User> = {};
     const locationSignatures: Record<string, LocationSignature> = {};
     const activities: Activity[] = [];
-    messages.forEach(async (message: any) => {
+    for (const message of messages) {
       try {
         const encryptedMessage = await encryptedMessageSchema.validate(message);
         const { metadata, type, data } = await decryptMessage(
@@ -118,7 +118,7 @@ export default function LoginForm({
                 user.x = user.x && x === undefined ? user.x : x;
                 user.tg = user.tg && tg === undefined ? user.tg : tg;
                 user.note = note;
-                user.outTs = metadata.timestamp;
+                user.outTs = metadata.timestamp.toISOString();
 
                 users[userId] = user;
               } else {
@@ -128,7 +128,7 @@ export default function LoginForm({
                   x,
                   tg,
                   note,
-                  outTs: metadata.timestamp,
+                  outTs: metadata.timestamp.toISOString(),
                 };
               }
 
@@ -136,7 +136,7 @@ export default function LoginForm({
                 type: JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP,
                 name,
                 id: userId,
-                ts: metadata.timestamp,
+                ts: metadata.timestamp.toISOString(),
               };
               activities.push(activity);
             } catch (error) {
@@ -162,7 +162,7 @@ export default function LoginForm({
                 user.sigPk = pk;
                 user.msg = msg;
                 user.sig = sig;
-                user.inTs = metadata.timestamp;
+                user.inTs = metadata.timestamp.toISOString();
 
                 users[userId] = user;
               } else {
@@ -174,7 +174,7 @@ export default function LoginForm({
                   sigPk: pk,
                   msg,
                   sig,
-                  inTs: metadata.timestamp,
+                  inTs: metadata.timestamp.toISOString(),
                 };
               }
 
@@ -182,7 +182,7 @@ export default function LoginForm({
                 type: JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP,
                 name: metadata.fromDisplayName,
                 id: userId,
-                ts: metadata.timestamp,
+                ts: metadata.timestamp.toISOString(),
               };
               activities.push(activity);
             } catch (error) {
@@ -210,7 +210,7 @@ export default function LoginForm({
                 location.pk = pk;
                 location.msg = msg;
                 location.sig = sig;
-                location.ts = metadata.timestamp;
+                location.ts = metadata.timestamp.toISOString();
 
                 locationSignatures[id] = location;
               } else {
@@ -220,7 +220,7 @@ export default function LoginForm({
                   pk,
                   msg,
                   sig,
-                  ts: metadata.timestamp,
+                  ts: metadata.timestamp.toISOString(),
                 };
               }
 
@@ -228,7 +228,7 @@ export default function LoginForm({
                 type: JUB_SIGNAL_MESSAGE_TYPE.LOCATION_TAP,
                 name,
                 id,
-                ts: metadata.timestamp,
+                ts: metadata.timestamp.toISOString(),
               };
               activities.push(activity);
             } catch (error) {
@@ -247,12 +247,12 @@ export default function LoginForm({
       } catch (error) {
         console.error("Invalid message received from server: ", message);
       }
-    });
+    }
 
     // Save users, location signatures, activities, and authToken to localStorage
     saveUsers(users);
     saveLocationSignatures(locationSignatures);
-    activities.reverse(); // We want activities to be in chronological order
+    activities.reverse(); // We want activities to be in reverse chronological order
     saveActivities(activities);
     saveAuthToken(authToken);
 
@@ -348,7 +348,7 @@ export default function LoginForm({
         }
 
         const backup = data.backup.decryptedData;
-        completeLogin(backup);
+        await completeLogin(backup);
       }
     } catch (error) {
       console.error(error);
@@ -374,7 +374,7 @@ export default function LoginForm({
         password
       );
 
-      completeLogin(decryptedBackupData);
+      await completeLogin(decryptedBackupData);
     } catch (error) {
       console.error(error);
       onFailedLogin("Error logging in. Please try again.");

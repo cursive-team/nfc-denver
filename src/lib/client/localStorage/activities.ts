@@ -7,7 +7,7 @@ export type Activity = {
   type: JUB_SIGNAL_MESSAGE_TYPE; // Activity type
   name: string; // Display name for the activity
   id: string; // Id for the activity
-  ts: Date; // Timestamp
+  ts: string; // Timestamp as ISO string
 };
 
 export const saveActivities = (activities: Activity[]): void => {
