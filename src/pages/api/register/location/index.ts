@@ -3,7 +3,7 @@ import { head } from "@vercel/blob";
 import prisma from "@/lib/server/prisma";
 import { ErrorResponse } from "@/types";
 import { getChipIdFromIykCmac } from "@/lib/server/dev";
-import { generateSignatureKeyPair } from "@/lib/server/signature";
+import { generateSignatureKeyPair } from "@/lib/shared/signature";
 
 export type LocationRegistrationResponse = {
   locationId: Number;
@@ -49,7 +49,7 @@ export default async function handler(
     }
 
     // Generate signing keypair for the location
-    const { signingKey, verifyingKey } = await generateSignatureKeyPair();
+    const { signingKey, verifyingKey } = generateSignatureKeyPair();
 
     const location = await prisma.location.create({
       data: {
