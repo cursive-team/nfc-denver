@@ -50,7 +50,6 @@ const QuestCard = ({
     ? (completedSigs / numSigsRequired) * 100
     : 0;
 
-  console.log(userRequirements);
   return (
     <Card.Base className="flex flex-col gap-4 p-3">
       <div className="flex flex-col gap-2">

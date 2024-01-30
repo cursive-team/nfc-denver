@@ -2,7 +2,7 @@ import { classed } from "@tw-classed/react";
 import { Card } from "../cards/Card";
 import { ReactNode } from "react";
 
-type PlaceholderType = "card";
+type PlaceholderType = "card" | "line";
 
 interface PlaceholderPlaceholderProps {
   type?: PlaceholderType;
@@ -54,6 +54,7 @@ const PlaceholderCircle = classed.div(PlaceholderBase, "block rounded-full", {
 
 const PlaceholderComponentMapping: Record<PlaceholderType, ReactNode> = {
   card: <PlaceholderCard />,
+  line: <PlaceholderLine />,
 };
 
 const ListByTypePlaceholder = ({

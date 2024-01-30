@@ -10,3 +10,12 @@ export const QuestTagMapping: Record<
   COMPLETED: "Completed",
   IN_PROGRESS: "In Progress",
 };
+
+export const StoreSortMapping: Record<
+  "ASC" | "POINT_ASC" | "POINT_DESC",
+  string
+> = {
+  ASC: "A-Z",
+  POINT_ASC: "BUILD High",
+  POINT_DESC: "BUILD Low",
+};

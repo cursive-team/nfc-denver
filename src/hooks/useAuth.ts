@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 interface GetLoginCodeProps {
   email: string;
@@ -33,7 +34,15 @@ export const useVerifyCode = () => {
         },
         body: JSON.stringify({ email, code }),
       });
+
+      if (!response.ok) {
+        toast.error("Error logging in. Please try again.");
+        return Promise.reject();
+      }
+
       const data = await response.json();
+
+      return Promise.resolve(data);
     },
   });
 };

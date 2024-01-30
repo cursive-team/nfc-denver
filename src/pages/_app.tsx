@@ -2,14 +2,19 @@ import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
 import "@/styles/globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { on } from "events";
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient({
-  defaultOptions: {},
+  queryCache: new QueryCache({
+    onError: (error) => toast.error(`Something went wrong: ${error.message}`),
+  }),
 });
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -33,7 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
         >
           <div className="flex flex-col grow">
             {showHeader && !fullPage && <AppHeader />}
-            <div className="flex flex-col grow container px-4 pb-24">
+            <div className="flex flex-col grow container px-4">
               <Component {...pageProps} />
             </div>
             {showFooter && !fullPage && <AppFooter />}

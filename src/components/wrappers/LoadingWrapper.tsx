@@ -24,7 +24,7 @@ const LoadingWrapper = ({
 
   return (
     <>
-      {isLoading && fallback}
+      {isLoading && <div className={className}>{fallback}</div>}
       <Transition
         show={!isLoading}
         enter="transition-opacity duration-200"

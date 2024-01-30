@@ -8,7 +8,7 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Record } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { Button } from "./Button";
-import { useGetLoginCode } from "@/hooks/useAuth";
+import { useGetLoginCode, useVerifyCode } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 
 enum DisplayState {
@@ -37,6 +37,7 @@ export default function LoginForm({
   const [passwordHash, setPasswordHash] = useState("");
 
   const getLoginCodeMutation = useGetLoginCode();
+  const loginVerifyCodeMutation = useVerifyCode();
 
   const handleEmailSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -57,63 +58,50 @@ export default function LoginForm({
 
   const handleCodeSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      const response = await fetch("/api/login/verify_code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    await loginVerifyCodeMutation.mutateAsync(
+      { email, code },
+      {
+        onSuccess: (data: any) => {
+          // Todo: validate login response
+
+          // Password hint is provided if user chooses self custody
+          if (data.password) {
+            const { encryptedData, authenticationTag, iv } =
+              encryptedBackupDataSchema.validateSync(data.backup);
+
+            // Save auth token
+            const { value, expiresAt } = data.authToken;
+            saveAuthToken(value, new Date(expiresAt));
+
+            // User must confirm password to decrypt data
+            setEncryptedData(encryptedData);
+            setAuthenticationTag(authenticationTag);
+            setIv(iv);
+            setPasswordSalt(data.password.salt);
+            setPasswordHash(data.password.hash);
+
+            setDisplayState(DisplayState.INPUT_PASSWORD);
+          } else {
+            if (
+              !data.backup ||
+              !data.backup.decryptedData ||
+              typeof data.backup.decryptedData !== "string"
+            ) {
+              toast.error("Error logging in. Please try again.");
+              return;
+            }
+
+            loadBackup(data.backup.decryptedData);
+
+            // Save auth token
+            const { value, expiresAt } = data.authToken;
+            saveAuthToken(value, new Date(expiresAt));
+
+            onSuccessfulLogin();
+          }
         },
-        body: JSON.stringify({ email, code }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        onFailedLogin("Error logging in. Please try again.");
-        console.error(data.error);
-        return;
       }
-
-      // Todo: validate login response
-
-      // Password hint is provided if user chooses self custody
-      if (data.password) {
-        const { encryptedData, authenticationTag, iv } =
-          encryptedBackupDataSchema.validateSync(data.backup);
-
-        // Save auth token
-        const { value, expiresAt } = data.authToken;
-        saveAuthToken(value, new Date(expiresAt));
-
-        // User must confirm password to decrypt data
-        setEncryptedData(encryptedData);
-        setAuthenticationTag(authenticationTag);
-        setIv(iv);
-        setPasswordSalt(data.password.salt);
-        setPasswordHash(data.password.hash);
-
-        setDisplayState(DisplayState.INPUT_PASSWORD);
-      } else {
-        if (
-          !data.backup ||
-          !data.backup.decryptedData ||
-          typeof data.backup.decryptedData !== "string"
-        ) {
-          onFailedLogin("Error logging in. Please try again.");
-          return;
-        }
-
-        loadBackup(data.backup.decryptedData);
-
-        // Save auth token
-        const { value, expiresAt } = data.authToken;
-        saveAuthToken(value, new Date(expiresAt));
-
-        onSuccessfulLogin();
-      }
-    } catch (error) {
-      console.error(error);
-      onFailedLogin("An unexpected error occurred. Please try again.");
-    }
+    );
   };
 
   const handlePasswordSubmit = async (event: React.FormEvent) => {
@@ -200,7 +188,9 @@ export default function LoginForm({
           onChange={handleCodeChange}
           required
         />
-        <Button type="submit">Login</Button>
+        <Button loading={loginVerifyCodeMutation.isPending} type="submit">
+          Login
+        </Button>
       </FormStepLayout>
     ),
     INPUT_PASSWORD: (
