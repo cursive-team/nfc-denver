@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
-import { generateSignatureKeyPair } from "@/lib/client/signature";
+import { generateSignatureKeyPair } from "@/lib/shared/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,
@@ -170,7 +170,7 @@ export default function Register() {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
-    const { signingKey, verifyingKey } = await generateSignatureKeyPair();
+    const { signingKey, verifyingKey } = generateSignatureKeyPair();
     saveKeys({
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,

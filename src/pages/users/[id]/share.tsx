@@ -7,7 +7,7 @@ import {
   getProfile,
   User,
 } from "@/lib/client/localStorage";
-import { sign } from "@/lib/client/signature";
+import { sign } from "@/lib/shared/signature";
 import { DEFAULT_MESSAGE_TYPE, encryptMessage } from "@/lib/client/jubSignal";
 
 const SharePage = () => {
@@ -57,7 +57,7 @@ const SharePage = () => {
     const { encryptionPrivateKey, signaturePrivateKey } = keys;
 
     // For now, we just sign the other user's encryption public key
-    const signature = await sign(signaturePrivateKey, user.encryptionPublicKey);
+    const signature = sign(signaturePrivateKey, user.encryptionPublicKey);
     const shareData = {
       signature,
       twitter: shareTwitter ? profile.twitterUsername : undefined,
