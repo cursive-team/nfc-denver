@@ -15,9 +15,6 @@ import {
 } from "@/lib/client/localStorage/locationSignatures";
 import { getUsers } from "@/lib/client/localStorage";
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
-import useQuests from "@/hooks/useQuests";
-import Link from "next/link";
-import { QuestCard } from "../cards/QuestCard";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -164,7 +161,6 @@ const QuestRequirementModal = ({
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {
- 
   const completed = false;
 
   const showUsers = questRequirementType === QuestRequirementType.USER && users;

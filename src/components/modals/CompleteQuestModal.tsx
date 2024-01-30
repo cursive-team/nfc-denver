@@ -3,7 +3,6 @@ import { Icons } from "../Icons";
 import { PointCard } from "../cards/PointCard";
 import { Modal, ModalProps } from "./Modal";
 import { Button } from "../Button";
-import useQuests from "@/hooks/useQuests";
 import Link from "next/link";
 import { QuestCard } from "../cards/QuestCard";
 import { classed } from "@tw-classed/react";
