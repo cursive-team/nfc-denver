@@ -6,11 +6,13 @@ import {
 
 export const AUTH_TOKEN_STORAGE_KEY = "authToken";
 
-export const saveAuthToken = (value: string, expiresAt: Date): void => {
-  const authToken = JSON.stringify({
-    value,
-    expiresAt,
-  });
+export type AuthToken = {
+  value: string;
+  expiresAt: Date;
+};
+
+export const saveAuthToken = (token: AuthToken): void => {
+  const authToken = JSON.stringify(token);
   saveToLocalStorage(AUTH_TOKEN_STORAGE_KEY, authToken);
 };
 

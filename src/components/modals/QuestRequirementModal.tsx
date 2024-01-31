@@ -10,10 +10,10 @@ import { classed } from "@tw-classed/react";
 import useSettings from "@/hooks/useSettings";
 import { Card } from "../cards/Card";
 import {
+  getUsers,
   LocationSignature,
   getLocationSignature,
-} from "@/lib/client/localStorage/locationSignatures";
-import { getUsers } from "@/lib/client/localStorage";
+} from "@/lib/client/localStorage";
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
@@ -79,7 +79,7 @@ const LocationDetail = ({
           {signature !== undefined && (
             <div className="flex flex-col">
               <Label>Visited On</Label>
-              <Description>{`${signature.timestamp}`}</Description>
+              <Description>{`${signature.ts}`}</Description>
             </div>
           )}
         </div>

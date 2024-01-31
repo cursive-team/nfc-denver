@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
-import { generateSignatureKeyPair } from "@/lib/client/signature";
+import { generateSignatureKeyPair } from "@/lib/shared/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,
@@ -150,7 +150,11 @@ export default function Register() {
   const handleSocialSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // Validate display name: alphanumeric and reasonable length
-    if (!/^[a-z0-9]+$/i.test(displayName) || displayName.length > 20) {
+    if (
+      !displayName ||
+      !/^[a-z0-9]+$/i.test(displayName) ||
+      displayName.length > 20
+    ) {
       alert("Display name must be alphanumeric and less than 20 characters.");
       return;
     }
@@ -171,7 +175,7 @@ export default function Register() {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
-    const { signingKey, verifyingKey } = await generateSignatureKeyPair();
+    const { signingKey, verifyingKey } = generateSignatureKeyPair();
     saveKeys({
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,
@@ -227,7 +231,10 @@ export default function Register() {
       twitterUsername,
       telegramUsername,
     });
-    saveAuthToken(data.value, new Date(data.expiresAt));
+    saveAuthToken({
+      value: data.value,
+      expiresAt: new Date(data.expiresAt),
+    });
 
     let backupData = createBackup();
     if (!backupData) {

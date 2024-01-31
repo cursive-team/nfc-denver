@@ -1,6 +1,13 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { fetchUserByUUID, User } from "@/lib/client/localStorage";
+import { AppBackHeader } from "@/components/AppHeader";
+import { Icons } from "@/components/Icons";
+import { CandyCard } from "@/components/cards/CandyCard";
+import { Card } from "@/components/cards/Card";
+import { ListLayout } from "@/layouts/ListLayout";
+import Link from "next/link";
+import { Button } from "@/components/Button";
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -19,56 +26,62 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="p-4">
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-            User Profile
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-            Personal details and application.
-          </p>
-        </div>
-        <div className="border-t border-gray-200 dark:border-gray-700">
-          <dl>
-            <div className="bg-gray-50 dark:bg-gray-900 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Full name
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                {user.displayName}
-              </dd>
+    <div>
+      <AppBackHeader />
+      <div className="flex flex-col gap-6">
+        <div className="flex gap-6 items-center">
+          <div className="h-32 w-32 rounded bg-slate-200"></div>
+          <div className="flex flex-col gap-1">
+            <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>
+            <div className="flex items-center gap-1">
+              <Icons.checkedCircle />
+              <span className="text-sm font-light text-white">
+                Connected XXX
+              </span>
             </div>
-            <div className="bg-white dark:bg-gray-800 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Encryption Public Key
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                {user.encryptionPublicKey}
-              </dd>
-            </div>
-            {user.twitterUsername && (
-              <div className="bg-gray-50 dark:bg-gray-900 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Twitter
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                  @{user.twitterUsername}
-                </dd>
-              </div>
-            )}
-            {user.telegramUsername && (
-              <div className="bg-white dark:bg-gray-800 px-4 py-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Telegram
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:col-span-2">
-                  @{user.telegramUsername}
-                </dd>
-              </div>
-            )}
-          </dl>
+            <Button onClick={() => router.push(`/users/${id}/share`)}>
+              Connect
+            </Button>
+          </div>
         </div>
+        <div className="flex flex-col gap-2">
+          {user.outTs ? (
+            <span>{`You connected with ${user.name} on ${new Date(
+              user.outTs
+            ).toLocaleString()}`}</span>
+          ) : (
+            <span>{`You have not yet connected with ${user.name}.`}</span>
+          )}
+          {user.inTs ? (
+            <span>{`${user.name} connected with you on ${new Date(
+              user.inTs
+            ).toLocaleString()}`}</span>
+          ) : (
+            <span>{`${user.name} has not yet connected with you.`}</span>
+          )}
+        </div>
+        <ListLayout className="!gap-2" label="Links">
+          <div className="flex flex-col gap-1">
+            {user.x && (
+              <Link href={`https://x.com/${user.x}`}>
+                <Card.Base className="flex gap-2 p-3">
+                  <Card.Title>Twitter</Card.Title>
+                  <Card.Description>@{user.x}</Card.Description>
+                </Card.Base>
+              </Link>
+            )}
+            {user.tg && (
+              <Link href={`https://t.me/${user.tg}`}>
+                <Card.Base className="flex gap-2 p-3">
+                  <Card.Title>Telegram</Card.Title>
+                  <Card.Description>
+                    {user.tg ? "@" + user.tg : "N/A"}
+                  </Card.Description>
+                </Card.Base>
+              </Link>
+            )}
+          </div>
+        </ListLayout>
       </div>
     </div>
   );

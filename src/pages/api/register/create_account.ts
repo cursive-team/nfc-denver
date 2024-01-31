@@ -64,6 +64,17 @@ export default async function handler(
     passwordHash,
   } = validatedData;
 
+  if (
+    displayName === "" ||
+    !/^[a-z0-9]+$/i.test(displayName) ||
+    displayName.length > 20
+  ) {
+    return res.status(400).json({
+      error:
+        "Invalid display name. Must be alphanumeric and less than 20 characters",
+    });
+  }
+
   // Validate cmac corresponds to an unregistered person chip
   // TODO: Do we need to check if chip matches email?
   const { chipId } = getChipIdFromIykCmac(cmac);
