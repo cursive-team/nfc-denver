@@ -160,12 +160,14 @@ const AppHeaderContent = ({
             <span className="text-gray-11">Back</span>
           </button>
         )}
-        <div className="flex gap-4 items-center ml-auto">
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="flex gap-3 items-center ml-auto"
+        >
           <span className="text-gray-11">Close</span>
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <Icons.close /> : <Icons.burgher />}
-          </button>
-        </div>
+          {isMenuOpen ? <Icons.close /> : <Icons.burgher />}
+        </button>
       </div>
       <div className="mt-2">
         <div className="flex flex-col gap-6">

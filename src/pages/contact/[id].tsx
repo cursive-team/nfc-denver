@@ -5,6 +5,20 @@ import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import React from "react";
 
+interface SocialCardProps {
+  title: string;
+  description: string;
+}
+
+const SocialCard = ({ title, description }: SocialCardProps) => {
+  return (
+    <Card.Base className="flex items-center gap-2 p-3">
+      <Card.Title>{title}</Card.Title>
+      <Card.Description>{description}</Card.Description>
+    </Card.Base>
+  );
+};
+
 export default function SocialDetail() {
   return (
     <div>
@@ -25,14 +39,8 @@ export default function SocialDetail() {
         <CandyCard />
         <ListLayout className="!gap-2" label="Links">
           <div className="flex flex-col gap-1">
-            <Card.Base className="flex gap-2 p-3">
-              <Card.Title>Telegram</Card.Title>
-              <Card.Description>@telegram</Card.Description>
-            </Card.Base>
-            <Card.Base className="flex gap-2 p-3">
-              <Card.Title>X</Card.Title>
-              <Card.Description>@twitter</Card.Description>
-            </Card.Base>
+            <SocialCard title="Twitter" description="@twitter" />
+            <SocialCard title="Telegram" description="@telegram" />
           </div>
         </ListLayout>
       </div>

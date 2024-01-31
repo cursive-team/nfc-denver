@@ -69,9 +69,9 @@ const AppFooter = () => {
   return (
     <footer
       id="footer"
-      className="fixed border-t border-t-shark-700 bg-gray-200 w-full bottom-0"
+      className="sticky border-t border-t-shark-700 w-full bottom-0 mt-4"
     >
-      <div className="md:container grid grid-cols-3 bottom-0 pt-4 pb-3 xs:py-4">
+      <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-4 pb-3 xs:py-4">
         {routerItems?.map((route, index) => {
           const isActive = pathname === route.href;
           return <TabItem key={index} {...route} isActive={isActive} />;

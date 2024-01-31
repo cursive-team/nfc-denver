@@ -24,6 +24,7 @@ import {
   decryptMessage,
 } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
+import { SnapshotModal } from "@/components/modals/SnapshotModal";
 
 interface ContactCardProps {
   name: string;
@@ -34,23 +35,34 @@ const ContactCard = ({ name, date }: ContactCardProps) => {
   return (
     <Link href="/contact/1">
       <Card.Base className="flex justify-between p-3">
-        <Card.Title>{name}</Card.Title>
+        <Card.Title className="leading-none">{name}</Card.Title>
         <Card.Description>{date}</Card.Description>
       </Card.Base>
     </Link>
   );
 };
 
+const IconCard = () => {
+  return (
+    <div className="flex flex-col">
+      <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+        <Icons.person clasName="block" />
+      </div>
+    </div>
+  );
+};
+
 const ConnectionFeed = ({ name, date }: ContactCardProps) => {
   return (
-    <div className="flex justify-between py-1">
-      <div className="flex items-center gap-2">
-        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-          <Icons.person />
+    <div className="flex flex-col group">
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <IconCard />
+          <Card.Title>{name}</Card.Title>
         </div>
-        <Card.Title>{name}</Card.Title>
+        <Card.Description>{date}</Card.Description>
       </div>
-      <Card.Description>{date}</Card.Description>
+      <div className="group-last-of-type:hidden ml-[11px] h-[6px] w-[1px] bg-gray-300 my-1"></div>
     </div>
   );
 };
@@ -60,16 +72,16 @@ const items: TabsProps["items"] = [
     label: "Connection feed",
     children: (
       <div className="flex flex-col gap-4">
-        <ListLayout className="!gap-2" label="January 22nd">
+        <ListLayout label="January 22nd">
           <ConnectionFeed name="Andrew" date="12:45am" />
           <ConnectionFeed name="Alex" date="5:43pm" />
           <ConnectionFeed name="Kali" date="5:45pm" />
         </ListLayout>
-        <ListLayout className="!gap-2" label="January 23rd">
+        <ListLayout label="January 23rd">
           <ConnectionFeed name="Alan" date="1:31pm" />
           <ConnectionFeed name="Ben" date="2:45pm" />
         </ListLayout>
-        <ListLayout className="!gap-2" label="January 24th">
+        <ListLayout label="January 24th">
           <ConnectionFeed name="Bobby" date="1:25pm" />
         </ListLayout>
       </div>
@@ -104,6 +116,7 @@ const items: TabsProps["items"] = [
 
 export default function Social() {
   const router = useRouter();
+  const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   const [profile, setProfile] = useState<Profile>();
   const [users, setUsers] = useState<Record<string, User>>({});
   const [messages, setMessages] = useState<Message[]>([]);
@@ -181,40 +194,48 @@ export default function Social() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      <div className="flex gap-6">
-        <Link href="/snapshot/1">
-          <ProfileImage>
-            <img
-              width="100%"
-              src="https://fnhxjtmpinl8vxmj.public.blob.vercel-storage.com/Your_Artwork-Evl6XS2t9gSpQ6LHk2HU1pSHKMsjHY.png"
+    <>
+      <SnapshotModal
+        isOpen={showSnapshotModal}
+        setIsOpen={setShowSnapshotModal}
+      />
+      <div className="flex flex-col pt-4">
+        <div className="flex gap-6 mb-6">
+          <ProfileImage
+            onClick={() => {
+              setShowSnapshotModal(true);
+            }}
+          >
+            <Image
+              src="https://picsum.photos/600/600"
+              width={200}
+              height={200}
+              alt="Profile image"
+              className="bg-cover"
             />
-
             <button type="button" className="absolute right-1 top-1">
               <Icons.zoom />
             </button>
           </ProfileImage>
-        </Link>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1 mt-2">
-            <div className="flex gap-[6px] items-center">
-              <h2 className="text-xl font-gray-12 font-light">
-                {profile?.displayName}
-              </h2>
-              <PointCard point={199} />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="flex gap-[6px] items-center">
+                <h2 className="text-xl font-gray-12 font-light">
+                  {profile?.displayName}
+                </h2>
+                <PointCard point={199} color="white" size="xs" />
+              </div>
+              <span className="text-sm font-light text-gray-10">
+                {`${Object.keys(users).length} Connections`}
+              </span>
             </div>
-            <span className="text-sm font-light text-gray-10">
-              {`${Object.keys(users).length} Connections`}
-            </span>
+            <Link href="/leaderboard">
+              <Button size="tiny">View leaderboard</Button>
+            </Link>
           </div>
-          <Link href="/leaderboard">
-            <Card.Base className="flex items-center justify-center p-2 bg-gray-200">
-              <span className="text-white text-sm">View leaderboard</span>
-            </Card.Base>
-          </Link>
         </div>
+        <Tabs items={items} />
       </div>
-      <Tabs items={items} />
-    </div>
+    </>
   );
 }
