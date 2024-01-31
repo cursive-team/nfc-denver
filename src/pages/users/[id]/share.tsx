@@ -16,7 +16,6 @@ import {
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
-import Link from "next/link";
 import { AppBackHeader } from "@/components/AppHeader";
 
 const SharePage = () => {
@@ -46,7 +45,9 @@ const SharePage = () => {
     }
   }, [id, router]);
 
-  const handleConnect = async () => {
+  const handleConnect = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     if (!user) {
       alert("An error occurred. Please try again.");
       router.push("/");
@@ -106,11 +107,13 @@ const SharePage = () => {
       });
 
       if (!response.ok) {
+        const { error } = await response.json();
+        console.error("Error sharing information: ", error);
         throw new Error("Failed to share information");
       }
     } catch (error) {
-      console.error("Error sharing information:", error);
       alert("An error occurred while sending the message. Please try again.");
+      return;
     }
 
     // ----- SEND MESSAGE TO SELF -----
@@ -140,11 +143,13 @@ const SharePage = () => {
       });
 
       if (!response.ok) {
+        const { error } = await response.json();
+        console.error("Error sharing information: ", error);
         throw new Error("Failed to share information");
       }
     } catch (error) {
-      console.error("Error sharing information: ", error);
       alert("An error occurred while sending the message. Please try again.");
+      return;
     }
 
     // Updates local storage with new private note and timestamp
