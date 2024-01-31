@@ -6,11 +6,11 @@ import { ReactNode, useState } from "react";
 import { Button } from "./Button";
 import {
   deleteAllKeys,
-  deleteAllMessages,
   deleteAllUsers,
   deleteAuthToken,
   deleteProfile,
   deleteAllLocationSignatures,
+  deleteAllActivities,
 } from "@/lib/client/localStorage";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "./Input";
@@ -205,9 +205,9 @@ const AppHeader = () => {
     deleteAuthToken();
     deleteAllKeys();
     deleteAllLocationSignatures();
-    deleteAllMessages();
     deleteProfile();
     deleteAllUsers();
+    deleteAllActivities();
     window.location.href = "/";
   };
 

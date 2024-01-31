@@ -17,8 +17,8 @@ export type User = {
   sigPk?: string; // User's signature public key
   msg?: string; // User's signature message
   sig?: string; // User's signature
-  outTs?: Date; // Time of last outbound tap
-  inTs?: Date; // Time of last inbound tap
+  outTs?: string; // Time of last outbound tap as ISO string
+  inTs?: string; // Time of last inbound tap as ISO string
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -84,7 +84,7 @@ export const updateUserFromOutboundTap = async (
   const updatedUser = {
     ...user,
     note: privateNote,
-    outTs: new Date(),
+    outTs: new Date().toISOString(),
   };
 
   users[userId] = updatedUser;

@@ -13,7 +13,7 @@ export type LocationSignature = {
   pk: string; // Location signature public key
   msg: string; // Message that is signed
   sig: string; // Signature
-  ts: Date; // Timestamp
+  ts: string; // Timestamp as ISO string
 };
 
 export const saveLocationSignatures = (
@@ -46,7 +46,7 @@ export const updateLocationSignatureFromTap = async (
     pk: locationUpdate.signaturePublicKey,
     msg: locationUpdate.signatureMessage,
     sig: locationUpdate.signature,
-    ts: new Date(),
+    ts: new Date().toISOString(),
   };
 
   signatures[locationUpdate.id] = newLocationSignature;

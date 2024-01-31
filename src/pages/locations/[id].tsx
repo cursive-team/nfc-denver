@@ -9,6 +9,7 @@ import {
 import { classed } from "@tw-classed/react";
 import { Header } from "@/components/modals/QuestRequirementModal";
 import useSettings from "@/hooks/useSettings";
+import { AppBackHeader } from "@/components/AppHeader";
 
 // TODO: Create shared component for this
 const Label = classed.span("text-xs text-gray-10 font-light");
@@ -53,30 +54,33 @@ const LocationDetails = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* TODO: Create shared component for Header */}
-      <Header title={location.name} label="Location" />
-      <div className="flex flex-col gap-4">
-        <div
-          className="bg-slate-200 rounded"
-          style={{
-            width: `${pageWidth - 32}px`,
-            height: `${pageWidth - 32}px`,
-          }}
-        >
-          <img src={location.imageUrl} />
-        </div>
-        <div className="flex flex-col gap-4 jus">
-          <div className="flex flex-col">
-            <Label>Description</Label>
-            <Description>{location.description}</Description>
+    <div>
+      <AppBackHeader />
+      <div className="flex flex-col gap-8">
+        {/* TODO: Create shared component for Header */}
+        <Header title={location.name} label="Location" />
+        <div className="flex flex-col gap-4">
+          <div
+            className="bg-slate-200 rounded"
+            style={{
+              width: `${pageWidth - 32}px`,
+              height: `${pageWidth - 32}px`,
+            }}
+          >
+            <img src={location.imageUrl} />
           </div>
-          {signature !== undefined && (
+          <div className="flex flex-col gap-4 jus">
             <div className="flex flex-col">
-              <Label>Visited On</Label>
-              <Description>{`${signature.ts}`}</Description>
+              <Label>Description</Label>
+              <Description>{location.description}</Description>
             </div>
-          )}
+            {signature !== undefined && (
+              <div className="flex flex-col">
+                <Label>Visited On</Label>
+                <Description>{`${signature.ts}`}</Description>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
