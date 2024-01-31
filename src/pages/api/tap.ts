@@ -7,7 +7,7 @@ import {
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
 } from "../../lib/server/dev";
-import { sign } from "@/lib/server/signature";
+import { sign } from "@/lib/shared/signature";
 import { v4 as uuidv4 } from "uuid";
 
 export enum TapResponseCode {
@@ -84,9 +84,7 @@ export const generateLocationSignature = async (
     throw new Error("Location key not found");
   }
 
-  const signature = await sign(key.signaturePrivateKey, message);
-
-  return signature;
+  return sign(key.signaturePrivateKey, message);
 };
 
 /**
