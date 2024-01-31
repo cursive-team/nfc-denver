@@ -1,4 +1,8 @@
-import { getFromLocalStorage, saveToLocalStorage } from ".";
+import {
+  deleteFromLocalStorage,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from ".";
 import { JUB_SIGNAL_MESSAGE_TYPE } from "../jubSignal";
 
 export const ACTIVITIES_STORAGE_KEY = "activities";
@@ -21,4 +25,8 @@ export const getActivities = (): Activity[] => {
   }
 
   return [];
+};
+
+export const deleteAllActivities = (): void => {
+  deleteFromLocalStorage(ACTIVITIES_STORAGE_KEY);
 };

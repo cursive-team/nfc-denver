@@ -10,6 +10,7 @@ import {
   deleteAuthToken,
   deleteProfile,
   deleteAllLocationSignatures,
+  deleteAllActivities,
 } from "@/lib/client/localStorage";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "./Input";
@@ -206,6 +207,7 @@ const AppHeader = () => {
     deleteAllLocationSignatures();
     deleteProfile();
     deleteAllUsers();
+    deleteAllActivities();
     window.location.href = "/";
   };
 
