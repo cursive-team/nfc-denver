@@ -128,9 +128,7 @@ export default function Tap() {
     const handleLocationTap = async (location: LocationTapResponse) => {
       const authToken = getAuthToken();
       if (!authToken || authToken.expiresAt < new Date()) {
-        alert("You must be logged in to connect");
         setPendingLocationTapResponse(location);
-        return;
       } else {
         processLocationTap(location);
       }
