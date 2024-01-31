@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { fetchUserByUUID, User } from "@/lib/client/localStorage";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
-import { CandyCard } from "@/components/cards/CandyCard";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
