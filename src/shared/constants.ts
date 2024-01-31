@@ -16,6 +16,6 @@ export const StoreSortMapping: Record<
   string
 > = {
   ASC: "A-Z",
-  POINT_ASC: "BUILD High",
-  POINT_DESC: "BUILD Low",
+  POINT_ASC: "BUIDL High",
+  POINT_DESC: "BUIDL Low",
 };
