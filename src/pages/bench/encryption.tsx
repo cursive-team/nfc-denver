@@ -190,11 +190,13 @@ const EncryptionBenchmarkPage = () => {
       encryptedMessagesFromServer.map((encryptedMessage: BenchmarkMessage) =>
         decryptMessage(
           {
-            toPublicKey: profile.encryptionPublicKey,
-            fromPublicKey: encryptionPublicKeys[encryptedMessage.benchmarkId],
-            fromDisplayName: "TEST",
+            metadata: {
+              toPublicKey: profile.encryptionPublicKey,
+              fromPublicKey: encryptionPublicKeys[encryptedMessage.benchmarkId],
+              fromDisplayName: "TEST",
+              timestamp: new Date(),
+            },
             encryptedContents: encryptedMessage.encryptedData,
-            timestamp: new Date(),
           },
           keys.encryptionPrivateKey
         )

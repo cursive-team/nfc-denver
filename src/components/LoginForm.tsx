@@ -49,7 +49,7 @@ export default function LoginForm({
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [displayState, setDisplayState] = useState(DisplayState.INPUT_EMAIL);
-  const [authToken, setAuthToken] = useState<AuthToken>();
+  const [savedAuthToken, setSavedAuthToken] = useState<AuthToken>();
   const [encryptedData, setEncryptedData] = useState("");
   const [authenticationTag, setAuthenticationTag] = useState("");
   const [iv, setIv] = useState("");
@@ -59,7 +59,8 @@ export default function LoginForm({
   // This function is called once a backup is loaded
   // It fetches the user's jubSignal messages, populates localStorage,
   // saves the auth token, and calls the onSuccessfulLogin callback
-  const completeLogin = async (backup: string) => {
+  const completeLogin = async (backup: string, token?: AuthToken) => {
+    const authToken = savedAuthToken || token;
     if (!authToken) {
       console.error("No auth token found");
       onFailedLogin("Error logging in. Please try again.");
@@ -334,7 +335,7 @@ export default function LoginForm({
       // Save auth token
       const { value, expiresAt } = data.authToken;
       const authToken = { value, expiresAt: new Date(expiresAt) };
-      setAuthToken(authToken);
+      setSavedAuthToken(authToken); // Save auth token state for case where user needs to input password
 
       // Password hint is provided if user chooses self custody
       if (data.password) {
@@ -361,7 +362,7 @@ export default function LoginForm({
         }
 
         const backup = data.backup.decryptedData;
-        await completeLogin(backup);
+        await completeLogin(backup, authToken);
       }
     } catch (error) {
       console.error(error);
