@@ -9,6 +9,8 @@ import {
   saveLocationSignatures,
   saveActivities,
   Activity,
+  Profile,
+  Keys,
 } from "../lib/client/localStorage";
 import { hashPassword, hashPublicKeyToUUID } from "@/lib/client/utils";
 import { decryptBackupString } from "@/lib/shared/backup";
@@ -59,6 +61,7 @@ export default function LoginForm({
   // saves the auth token, and calls the onSuccessfulLogin callback
   const completeLogin = async (backup: string) => {
     if (!authToken) {
+      console.error("No auth token found");
       onFailedLogin("Error logging in. Please try again.");
       return;
     }
@@ -84,7 +87,17 @@ export default function LoginForm({
     const messages = await response.json();
 
     // Load backup into localStorage and fetch user profile and keys
-    const { profile, keys } = loadBackup(backup);
+    let profile: Profile;
+    let keys: Keys;
+    try {
+      const backupData = loadBackup(backup);
+      profile = backupData.profile;
+      keys = backupData.keys;
+    } catch (error) {
+      console.error("Error loading backup data into local storage");
+      onFailedLogin("Error logging in. Please try again.");
+      return;
+    }
     const recipientPrivateKey = keys.encryptionPrivateKey;
 
     // Decrypt messages and update localStorage with decrypted messages
