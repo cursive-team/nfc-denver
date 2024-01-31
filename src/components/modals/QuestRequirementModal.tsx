@@ -10,10 +10,10 @@ import { classed } from "@tw-classed/react";
 import useSettings from "@/hooks/useSettings";
 import { Card } from "../cards/Card";
 import {
+  getUsers,
   LocationSignature,
   getLocationSignature,
-} from "@/lib/client/localStorage/locationSignatures";
-import { getUsers } from "@/lib/client/localStorage";
+} from "@/lib/client/localStorage";
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
 import useQuests from "@/hooks/useQuests";
 import Link from "next/link";
@@ -82,7 +82,7 @@ const LocationDetail = ({
           {signature !== undefined && (
             <div className="flex flex-col">
               <Label>Visited On</Label>
-              <Description>{`${signature.timestamp}`}</Description>
+              <Description>{`${signature.ts}`}</Description>
             </div>
           )}
         </div>
@@ -164,7 +164,6 @@ const QuestRequirementModal = ({
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {
- 
   const completed = false;
 
   const showUsers = questRequirementType === QuestRequirementType.USER && users;

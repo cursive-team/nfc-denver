@@ -51,7 +51,9 @@ export default function RegisterLocation() {
     setSponsor(event.target.value);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     if (!cmac) {
       alert("Error processing tap. Please tap card again!");
       return;

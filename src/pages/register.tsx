@@ -4,6 +4,7 @@ import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { generateSignatureKeyPair } from "@/lib/client/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
+  AuthToken,
   createBackup,
   saveAuthToken,
   saveKeys,
@@ -149,7 +150,11 @@ export default function Register() {
   const handleSocialSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // Validate display name: alphanumeric and reasonable length
-    if (!/^[a-z0-9]+$/i.test(displayName) || displayName.length > 20) {
+    if (
+      !displayName ||
+      !/^[a-z0-9]+$/i.test(displayName) ||
+      displayName.length > 20
+    ) {
       alert("Display name must be alphanumeric and less than 20 characters.");
       return;
     }
@@ -226,7 +231,10 @@ export default function Register() {
       twitterUsername,
       telegramUsername,
     });
-    saveAuthToken(data.value, new Date(data.expiresAt));
+    saveAuthToken({
+      value: data.value,
+      expiresAt: new Date(data.expiresAt),
+    });
 
     let backupData = createBackup();
     if (!backupData) {

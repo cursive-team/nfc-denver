@@ -8,10 +8,12 @@ import {
 export const LOCATION_SIGNATURES_STORAGE_KEY = "locationSignatures";
 
 export type LocationSignature = {
-  locationId: string;
-  signaturePublicKey: string;
-  signature: string;
-  timestamp: Date;
+  id: string; // locationId
+  name: string; // Display name for the location
+  pk: string; // Location signature public key
+  msg: string; // Message that is signed
+  sig: string; // Signature
+  ts: string; // Timestamp as ISO string
 };
 
 export const saveLocationSignatures = (
@@ -39,10 +41,12 @@ export const updateLocationSignatureFromTap = async (
   const signatures = getLocationSignatures();
 
   const newLocationSignature = {
-    locationId: locationUpdate.id,
-    signaturePublicKey: locationUpdate.signaturePublicKey,
-    signature: locationUpdate.signature,
-    timestamp: new Date(),
+    id: locationUpdate.id,
+    name: locationUpdate.name,
+    pk: locationUpdate.signaturePublicKey,
+    msg: locationUpdate.signatureMessage,
+    sig: locationUpdate.signature,
+    ts: new Date().toISOString(),
   };
 
   signatures[locationUpdate.id] = newLocationSignature;
