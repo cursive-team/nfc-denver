@@ -84,9 +84,7 @@ export const generateLocationSignature = async (
     throw new Error("Location key not found");
   }
 
-  const signature = await sign(key.signaturePrivateKey, message);
-
-  return signature;
+  return sign(key.signaturePrivateKey, message);
 };
 
 /**

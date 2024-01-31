@@ -4,7 +4,6 @@ import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { generateSignatureKeyPair } from "@/lib/shared/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
-  AuthToken,
   createBackup,
   saveAuthToken,
   saveKeys,

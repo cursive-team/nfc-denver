@@ -8,11 +8,11 @@ import {
   updateUserFromOutboundTap,
   User,
 } from "@/lib/client/localStorage";
-import { sign } from "@/lib/client/signature";
 import {
   encryptInboundTapMessage,
   encryptOutboundTapMessage,
 } from "@/lib/client/jubSignal";
+import { sign } from "@/lib/shared/signature";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
@@ -81,7 +81,7 @@ const SharePage = () => {
     // ----- SEND MESSAGE TO OTHER USER -----
     // This messages sends contact information to the other user
     const dataToSign = user.encPk; // For now, we just sign the other user's encryption public key
-    const signature = await sign(signaturePrivateKey, dataToSign);
+    const signature = sign(signaturePrivateKey, dataToSign);
     const recipientPublicKey = user.encPk;
     const encryptedMessage = await encryptInboundTapMessage({
       twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
