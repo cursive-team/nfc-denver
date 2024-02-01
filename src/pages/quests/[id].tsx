@@ -138,8 +138,7 @@ export default function QuestById() {
         <CompleteQuestModal
           isOpen={completeQuestModal}
           setIsOpen={setCompleteQuestModal}
-          questName={quest.name}
-          type="item"
+          quest={quest}
         />
       )}
       <div className="flex flex-col gap-2">

@@ -1,4 +1,5 @@
 import { Quest } from "@prisma/client";
+import { MembershipProof } from "babyjubjub-ecdsa";
 
 export type EmptyResponse = {};
 
@@ -44,4 +45,9 @@ export type LocationRequirement = {
 export type QuestWithRequirements = Quest & {
   userRequirements: UserRequirement[];
   locationRequirements: LocationRequirement[];
+};
+
+export type QuestProof = {
+  userProofs: MembershipProof[][];
+  locationProofs: MembershipProof[][];
 };

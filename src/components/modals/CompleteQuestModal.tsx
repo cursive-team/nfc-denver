@@ -8,17 +8,48 @@ import { QuestCard } from "../cards/QuestCard";
 import { classed } from "@tw-classed/react";
 import QRCode from "react-qr-code";
 import { useFetchQuests } from "@/hooks/useFetchQuests";
-
-interface QuestDetailProps {
-  questName?: string;
-  type: "point" | "item";
-}
+import { QuestWithRequirements } from "@/types";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
-interface CompleteQuestModalProps extends QuestDetailProps, ModalProps {}
+const MoreQuests = () => {
+  const { isLoading, data: quests = [] } = useFetchQuests();
+  const MORE_QUESTS_TO_SHOW = 4;
 
-const RedeemPoint = ({ questName }: Omit<QuestDetailProps, "type">) => {
+  return (
+    <div className="flex flex-col gap-4">
+      <span className="text-xs text-gray-10 font-light">More quests</span>
+      <div className="flex flex-col gap-2">
+        {quests
+          ?.slice(0, MORE_QUESTS_TO_SHOW)
+          ?.map(
+            (
+              {
+                id,
+                name,
+                description,
+                userRequirements,
+                locationRequirements,
+              }: any,
+              index
+            ) => (
+              <Link href={`/quests/${id}`} key={id}>
+                <QuestCard
+                  title={name}
+                  description={description}
+                  completedSigs={1}
+                  userRequirements={userRequirements}
+                  locationRequirements={locationRequirements}
+                />
+              </Link>
+            )
+          )}
+      </div>
+    </div>
+  );
+};
+
+const RedeemPoint = ({ questName }: { questName: string }) => {
   const [redeemPoint, setRedeemPoint] = useState(false);
 
   return (
@@ -52,7 +83,7 @@ const RedeemPoint = ({ questName }: Omit<QuestDetailProps, "type">) => {
   );
 };
 
-const RedeemItem = ({ questName }: Omit<QuestDetailProps, "type">) => {
+const RedeemItem = ({ questName }: { questName: string }) => {
   const [redeemItem, setRedeemItem] = useState(false);
   const [itemPurchased, setItemPurchased] = useState(false);
   const qrCodeUrl = "https://www.google.com";
@@ -138,60 +169,65 @@ const RedeemItem = ({ questName }: Omit<QuestDetailProps, "type">) => {
   );
 };
 
+interface QuestDetailProps {
+  quest: QuestWithRequirements;
+}
+
+interface CompleteQuestModalProps extends QuestDetailProps, ModalProps {}
+
+enum CompleteQuestDisplayState {
+  INITIAL,
+  PROVING,
+  COMPLETED,
+  QR_CODE,
+}
+
 const CompleteQuestModal = ({
+  quest,
   isOpen,
   setIsOpen,
-  questName,
-  type,
 }: CompleteQuestModalProps) => {
-  const { isLoading, data: quests = [] } = useFetchQuests();
-  const [isQuestCompleted, setIsQuestCompleted] = useState(true);
-  const MORE_QUESTS_TO_SHOW = 4;
+  const [displayState, setDisplayState] = useState<CompleteQuestDisplayState>(
+    CompleteQuestDisplayState.INITIAL
+  );
+
+  const handleCompleteQuest = () => {
+    setDisplayState(CompleteQuestDisplayState.PROVING);
+  };
+
+  const getModalContent = (): JSX.Element => {
+    switch (displayState) {
+      case CompleteQuestDisplayState.INITIAL:
+        return (
+          <div className="flex flex-col w-full justify-center text-center gap-5">
+            <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
+            <div className="flex flex-col gap-1 self-center">
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-10">
+                  {
+                    "Completing this quest will generate a zero knowledge proof of completion"
+                  }
+                </span>
+                <span className="text-xl text-gray-12">{quest.name}</span>
+              </div>
+            </div>
+            <div className="self-center w-full">
+              <Button onClick={handleCompleteQuest}>Complete Quest</Button>
+            </div>
+            <div className="flex items-center gap-1 self-center">
+              <span className="text-sm text-gray-11">Share on</span>
+              <Icons.twitter />
+            </div>
+          </div>
+        );
+      default:
+        return <></>;
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
-      <div className="flex h-[50vh]">
-        {type === "point" && <RedeemPoint questName={questName} />}
-        {type === "item" && <RedeemItem questName={questName} />}
-      </div>
-      {isQuestCompleted ? (
-        <div className="flex flex-col gap-4">
-          <span className="text-xs text-gray-10 font-light">More quests</span>
-          <div className="flex flex-col gap-2">
-            {quests
-              ?.slice(0, MORE_QUESTS_TO_SHOW)
-              ?.map(
-                (
-                  {
-                    id,
-                    name,
-                    description,
-                    userRequirements,
-                    locationRequirements,
-                  }: any,
-                  index
-                ) => (
-                  <Link href={`/quests/${id}`} key={id}>
-                    <QuestCard
-                      title={name}
-                      description={description}
-                      completedSigs={1}
-                      userRequirements={userRequirements}
-                      locationRequirements={locationRequirements}
-                    />
-                  </Link>
-                )
-              )}
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          <span className="text-xs text-gray-10 font-light">
-            Continue quest
-          </span>
-          <div className="flex flex-col gap-2"></div>
-        </div>
-      )}
+      {getModalContent()}
     </Modal>
   );
 };
