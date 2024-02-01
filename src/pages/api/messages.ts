@@ -32,12 +32,13 @@ export default async function handler(
     }
 
     // Add date filters if they are valid
-    const dateFilter: { gte?: Date; lte?: Date } = {};
+    // Use half open interval [startDate, endDate)
+    const dateFilter: { gte?: Date; lt?: Date } = {};
     if (typeof startDate === "string" && !isNaN(Date.parse(startDate))) {
       dateFilter["gte"] = new Date(startDate);
     }
     if (typeof endDate === "string" && !isNaN(Date.parse(endDate))) {
-      dateFilter["lte"] = new Date(endDate);
+      dateFilter["lt"] = new Date(endDate);
     }
 
     const receivedMessages = await prisma.message.findMany({

@@ -1,4 +1,11 @@
-export * from "./auth";
+import { deleteAllActivities } from "./activities";
+import { deleteAllKeys } from "./keys";
+import { deleteAllLocationSignatures } from "./locationSignatures";
+import { deleteProfile } from "./profile";
+import { deleteSession } from "./session";
+import { deleteAllUsers } from "./users";
+
+export * from "./session";
 export * from "./backup";
 export * from "./profile";
 export * from "./keys";
@@ -16,4 +23,14 @@ export const getFromLocalStorage = (key: string): string | null => {
 
 export const deleteFromLocalStorage = (key: string): void => {
   localStorage.removeItem(key);
+};
+
+// Deletes all user account data from local storage
+export const deleteAccountFromLocalStorage = (): void => {
+  deleteSession();
+  deleteAllKeys();
+  deleteAllLocationSignatures();
+  deleteProfile();
+  deleteAllUsers();
+  deleteAllActivities();
 };

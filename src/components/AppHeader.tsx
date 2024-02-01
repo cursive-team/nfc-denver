@@ -4,14 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { Button } from "./Button";
-import {
-  deleteAllKeys,
-  deleteAllUsers,
-  deleteAuthToken,
-  deleteProfile,
-  deleteAllLocationSignatures,
-  deleteAllActivities,
-} from "@/lib/client/localStorage";
+import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "./Input";
 
@@ -201,15 +194,8 @@ const AppHeaderContent = ({
 const AppHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const username = "Username";
-
   const handleSignout = () => {
-    deleteAuthToken();
-    deleteAllKeys();
-    deleteAllLocationSignatures();
-    deleteProfile();
-    deleteAllUsers();
-    deleteAllActivities();
+    deleteAccountFromLocalStorage();
     window.location.href = "/";
   };
 
