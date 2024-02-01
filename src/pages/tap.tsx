@@ -16,6 +16,8 @@ import {
   getLocationSignature,
 } from "@/lib/client/localStorage";
 import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
+import { loadMessages } from "@/lib/client/jubSignalClient";
+import toast from "react-hot-toast";
 
 export default function Tap() {
   const router = useRouter();
@@ -42,14 +44,14 @@ export default function Tap() {
       const keys = getKeys();
 
       if (!authToken || authToken.expiresAt < new Date() || !profile || !keys) {
-        alert("You must be logged in to connect");
+        toast.error("You must be logged in to connect");
         router.push("/login");
         return;
       }
 
       const locationSignature = getLocationSignature(location.id);
       if (locationSignature) {
-        alert("You have already visited this location!");
+        toast.error("You have already visited this location!");
         router.push(`/locations/${location.id}`);
         return;
       }
@@ -87,14 +89,24 @@ export default function Tap() {
           "Error sending encrypted location tap to server: ",
           error
         );
-        alert("An error occured while processing the tap. Please try again.");
+        toast.error(
+          "An error occured while processing the tap. Please try again."
+        );
         router.push("/");
         return;
       }
 
-      // Update location signature in local storage
-      const locationId = await updateLocationSignatureFromTap(location);
-      router.push("/locations/" + locationId);
+      // Update location signature and activity feed in local storage
+      try {
+        await loadMessages({ forceRefresh: false });
+      } catch (error) {
+        console.error("Error loading messages after tapping location");
+        toast.error(
+          "An error occured while adding this event to your activity feed."
+        );
+      }
+
+      router.push("/locations/" + location.id);
     },
     [router]
   );
@@ -103,7 +115,7 @@ export default function Tap() {
     const cmac = router.query.cmac as string;
 
     if (!cmac) {
-      alert("No CMAC provided!");
+      toast.error("No CMAC provided!");
       router.push("/");
       return;
     }
@@ -174,7 +186,7 @@ export default function Tap() {
       })
       .catch((error) => {
         console.error(error);
-        alert("Error! Please refresh and try again.");
+        toast.error("Error! Please refresh and try again.");
       });
   }, [router, processPersonTap, processLocationTap]);
 
@@ -183,7 +195,7 @@ export default function Tap() {
       <LoginForm
         onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
         onFailedLogin={(errorMessage: string) => {
-          alert(errorMessage);
+          toast.error(errorMessage);
         }}
       />
     );
@@ -192,7 +204,7 @@ export default function Tap() {
       <LoginForm
         onSuccessfulLogin={() => processLocationTap(pendingLocationTapResponse)}
         onFailedLogin={(errorMessage: string) => {
-          alert(errorMessage);
+          toast.error(errorMessage);
         }}
       />
     );

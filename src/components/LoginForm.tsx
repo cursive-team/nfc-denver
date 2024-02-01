@@ -14,6 +14,7 @@ import { Record } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { Button } from "./Button";
 import { loadMessages } from "@/lib/client/jubSignalClient";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -59,7 +60,7 @@ export default function LoginForm({
     loadBackup(backup);
 
     try {
-      loadMessages({ forceRefresh: true });
+      await loadMessages({ forceRefresh: true });
     } catch (error) {
       deleteAccountFromLocalStorage(); // Clear localStorage if login fails
       onFailedLogin("Error logging in. Please try again.");
@@ -172,7 +173,7 @@ export default function LoginForm({
     try {
       const derivedPasswordHash = await hashPassword(password, passwordSalt);
       if (derivedPasswordHash !== passwordHash) {
-        alert("Incorrect password!");
+        toast.error("Incorrect password!");
         return;
       }
 
