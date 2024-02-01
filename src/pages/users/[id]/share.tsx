@@ -17,6 +17,8 @@ import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
 import { AppBackHeader } from "@/components/AppHeader";
+import toast from "react-hot-toast";
+import { loadMessages } from "@/lib/client/jubSignalClient";
 
 const SharePage = () => {
   const router = useRouter();
@@ -31,7 +33,7 @@ const SharePage = () => {
     if (typeof id === "string") {
       const profile = getProfile();
       if (!profile) {
-        alert("You must be logged in to connect");
+        toast.error("You must be logged in to connect");
         router.push("/login");
         return;
       }
@@ -49,14 +51,14 @@ const SharePage = () => {
     event.preventDefault();
 
     if (!user) {
-      alert("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
       router.push("/");
       return;
     }
 
     const authToken = getAuthToken();
     if (!authToken || authToken.expiresAt < new Date()) {
-      alert("You must be logged in to connect");
+      toast.error("You must be logged in to connect");
       router.push("/login");
       return;
     }
@@ -64,7 +66,7 @@ const SharePage = () => {
     const keys = getKeys();
     if (!keys) {
       console.error("Cannot find user keys");
-      alert("You must be logged in to connect");
+      toast.error("You must be logged in to connect");
       router.push("/login");
       return;
     }
@@ -73,7 +75,7 @@ const SharePage = () => {
     const profile = getProfile();
     if (!profile) {
       console.error("Cannot find user profile");
-      alert("You must be logged in to connect");
+      toast.error("You must be logged in to connect");
       router.push("/login");
       return;
     }
@@ -112,7 +114,9 @@ const SharePage = () => {
         throw new Error("Failed to share information");
       }
     } catch (error) {
-      alert("An error occurred while sending the message. Please try again.");
+      toast.error(
+        "An error occurred while sending the message. Please try again."
+      );
       return;
     }
 
@@ -148,13 +152,21 @@ const SharePage = () => {
         throw new Error("Failed to share information");
       }
     } catch (error) {
-      alert("An error occurred while sending the message. Please try again.");
+      toast.error(
+        "An error occurred while sending the message. Please try again."
+      );
       return;
     }
 
-    // Updates local storage with new private note and timestamp
-    updateUserFromOutboundTap(user.encPk, privateNote);
-    alert(`Successfully shared information with ${user.name}!`);
+    // Updates local storage and activity feed
+    try {
+      await loadMessages({ forceRefresh: false });
+      toast.success(`Successfully shared information with ${user.name}!`);
+    } catch (error) {
+      console.error("Error loading messages after sharing information");
+      toast.error("An error occurred while updating your activity feed.");
+    }
+
     router.push(`/users/${id}`);
   };
 

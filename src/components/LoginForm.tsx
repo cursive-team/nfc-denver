@@ -3,16 +3,9 @@ import {
   saveAuthToken,
   loadBackup,
   AuthToken,
-  User,
-  LocationSignature,
-  saveUsers,
-  saveLocationSignatures,
-  saveActivities,
-  Activity,
-  Profile,
-  Keys,
+  deleteAccountFromLocalStorage,
 } from "../lib/client/localStorage";
-import { hashPassword, hashPublicKeyToUUID } from "@/lib/client/utils";
+import { hashPassword } from "@/lib/client/utils";
 import { decryptBackupString } from "@/lib/shared/backup";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";
 import { Input } from "./Input";
@@ -20,14 +13,8 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Record } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { Button } from "./Button";
-import {
-  JUB_SIGNAL_MESSAGE_TYPE,
-  decryptMessage,
-  encryptedMessageSchema,
-  inboundTapMessageSchema,
-  locationTapMessageSchema,
-  outboundTapMessageSchema,
-} from "@/lib/client/jubSignal";
+import { loadMessages } from "@/lib/client/jubSignalClient";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -68,207 +55,17 @@ export default function LoginForm({
     }
 
     setDisplayState(DisplayState.LOGGING_IN);
-
-    // Fetch jubSignal messages from server
-    const response = await fetch(
-      `/api/messages?token=${encodeURIComponent(authToken.value)}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.error("Error fetching jubSignal messages from server");
-      onFailedLogin("Error logging in. Please try again.");
-      return;
-    }
-    const messages = await response.json();
-
-    // Load backup into localStorage and fetch user profile and keys
-    let profile: Profile;
-    let keys: Keys;
-    try {
-      const backupData = loadBackup(backup);
-      profile = backupData.profile;
-      keys = backupData.keys;
-    } catch (error) {
-      console.error("Error loading backup data into local storage");
-      onFailedLogin("Error logging in. Please try again.");
-      return;
-    }
-    const recipientPrivateKey = keys.encryptionPrivateKey;
-
-    // Decrypt messages and update localStorage with decrypted messages
-    const users: Record<string, User> = {};
-    const locationSignatures: Record<string, LocationSignature> = {};
-    const activities: Activity[] = [];
-    for (const message of messages) {
-      try {
-        const encryptedMessage = await encryptedMessageSchema.validate(message);
-        const { metadata, type, data } = await decryptMessage(
-          encryptedMessage,
-          recipientPrivateKey
-        );
-
-        switch (type) {
-          case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:
-            try {
-              if (metadata.fromPublicKey !== profile.encryptionPublicKey) {
-                throw new Error(
-                  "Invalid message: outbound tap messages must be sent from self"
-                );
-              }
-
-              const { name, pk, x, tg, note } =
-                await outboundTapMessageSchema.validate(data);
-              const userId = await hashPublicKeyToUUID(pk);
-              const user = users[userId];
-              if (user) {
-                user.name = name;
-                user.encPk = pk;
-                user.x = user.x && x === undefined ? user.x : x;
-                user.tg = user.tg && tg === undefined ? user.tg : tg;
-                user.note = note;
-                user.outTs = metadata.timestamp.toISOString();
-
-                users[userId] = user;
-              } else {
-                users[userId] = {
-                  name,
-                  encPk: pk,
-                  x,
-                  tg,
-                  note,
-                  outTs: metadata.timestamp.toISOString(),
-                };
-              }
-
-              const activity = {
-                type: JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP,
-                name,
-                id: userId,
-                ts: metadata.timestamp.toISOString(),
-              };
-              activities.push(activity);
-            } catch (error) {
-              console.error(
-                "Invalid outbound tap message received from server: ",
-                message
-              );
-            } finally {
-              break;
-            }
-          case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
-            // TODO: Can optionally validate received signature here
-            try {
-              const { x, tg, pk, msg, sig } =
-                await inboundTapMessageSchema.validate(data);
-              const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
-              const user = users[userId];
-              if (user) {
-                user.name = metadata.fromDisplayName;
-                user.encPk = metadata.fromPublicKey;
-                user.x = x;
-                user.tg = tg;
-                user.sigPk = pk;
-                user.msg = msg;
-                user.sig = sig;
-                user.inTs = metadata.timestamp.toISOString();
-
-                users[userId] = user;
-              } else {
-                users[userId] = {
-                  name: metadata.fromDisplayName,
-                  encPk: metadata.fromPublicKey,
-                  x,
-                  tg,
-                  sigPk: pk,
-                  msg,
-                  sig,
-                  inTs: metadata.timestamp.toISOString(),
-                };
-              }
-
-              const activity = {
-                type: JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP,
-                name: metadata.fromDisplayName,
-                id: userId,
-                ts: metadata.timestamp.toISOString(),
-              };
-              activities.push(activity);
-            } catch (error) {
-              console.error(
-                "Invalid inbound tap message received from server: ",
-                message
-              );
-            } finally {
-              break;
-            }
-          case JUB_SIGNAL_MESSAGE_TYPE.LOCATION_TAP:
-            try {
-              if (metadata.fromPublicKey !== profile.encryptionPublicKey) {
-                throw new Error(
-                  "Invalid message: location tap messages must be sent from self"
-                );
-              }
-
-              const { id, name, pk, msg, sig } =
-                await locationTapMessageSchema.validate(data);
-              const location = locationSignatures[id];
-              if (location) {
-                location.id = id;
-                location.name = name;
-                location.pk = pk;
-                location.msg = msg;
-                location.sig = sig;
-                location.ts = metadata.timestamp.toISOString();
-
-                locationSignatures[id] = location;
-              } else {
-                locationSignatures[id] = {
-                  id,
-                  name,
-                  pk,
-                  msg,
-                  sig,
-                  ts: metadata.timestamp.toISOString(),
-                };
-              }
-
-              const activity = {
-                type: JUB_SIGNAL_MESSAGE_TYPE.LOCATION_TAP,
-                name,
-                id,
-                ts: metadata.timestamp.toISOString(),
-              };
-              activities.push(activity);
-            } catch (error) {
-              console.error(
-                "Invalid location tap message received from server: ",
-                message
-              );
-            } finally {
-              break;
-            }
-          case JUB_SIGNAL_MESSAGE_TYPE.QUEST_COMPLETED:
-            throw new Error("Unable to handle quest completed messages");
-          default:
-            throw new Error("Invalid message type");
-        }
-      } catch (error) {
-        console.error("Invalid message received from server: ", message);
-      }
-    }
-
-    // Save users, location signatures, activities, and authToken to localStorage
-    saveUsers(users);
-    saveLocationSignatures(locationSignatures);
-    activities.reverse(); // We want activities to be in reverse chronological order
-    saveActivities(activities);
+    // Populate localStorage with auth and backup data to load messages
     saveAuthToken(authToken);
+    loadBackup(backup);
+
+    try {
+      await loadMessages({ forceRefresh: true });
+    } catch (error) {
+      deleteAccountFromLocalStorage(); // Clear localStorage if login fails
+      onFailedLogin("Error logging in. Please try again.");
+      return;
+    }
 
     // Login is successful
     onSuccessfulLogin();
@@ -376,7 +173,7 @@ export default function LoginForm({
     try {
       const derivedPasswordHash = await hashPassword(password, passwordSalt);
       if (derivedPasswordHash !== passwordHash) {
-        alert("Incorrect password!");
+        toast.error("Incorrect password!");
         return;
       }
 

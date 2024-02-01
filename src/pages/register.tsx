@@ -5,6 +5,7 @@ import { generateSignatureKeyPair } from "@/lib/shared/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,
+  deleteAccountFromLocalStorage,
   saveAuthToken,
   saveKeys,
   saveProfile,
@@ -175,10 +176,6 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
-    saveKeys({
-      encryptionPrivateKey: privateKey,
-      signaturePrivateKey: signingKey,
-    });
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -221,6 +218,12 @@ export default function Register() {
       return;
     }
 
+    // Ensure the user is logged out of an existing session before creating a new account
+    deleteAccountFromLocalStorage();
+    saveKeys({
+      encryptionPrivateKey: privateKey,
+      signaturePrivateKey: signingKey,
+    });
     saveProfile({
       displayName,
       email,
