@@ -6,9 +6,9 @@ interface ListLayoutProps {
 
 const ListLayout = ({ label, children, className }: ListLayoutProps) => {
   return (
-    <div className={`flex flex-col gap-4 ${className}`}>
+    <div className={`flex flex-col gap-3 ${className}`}>
       <span className="text-gray-10 font-light text-xs">{label}</span>
-      {children}
+      <div>{children}</div>
     </div>
   );
 };

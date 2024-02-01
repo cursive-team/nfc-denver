@@ -1,13 +1,16 @@
-import { AppBackHeader, AppHeader } from "@/components/AppHeader";
-import { ProfileImage } from "@/components/ProfileImage";
+import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { ProfileImage } from "../ProfileImage";
+import { ModalProps, Modal } from "./Modal";
 import { classed } from "@tw-classed/react";
-import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 const Label = classed.span("text-gray-10 text-xs font-light");
 const Description = classed.span("text-center text-gray-12 text-sm font-light");
 
-export default function ContactSnapshotPage() {
+interface SnapshotModalProps extends ModalProps {}
+
+const SnapshotModal = ({ isOpen, setIsOpen }: SnapshotModalProps) => {
   const [pageWidth, setPageHeight] = useState(0);
 
   const params = useParams();
@@ -19,22 +22,25 @@ export default function ContactSnapshotPage() {
     setPageHeight(window?.innerWidth);
   }, []);
 
-  const cardSize = pageWidth - 32;
+  const cardSize = pageWidth - 50;
 
   return (
-    <div className="flex flex-col h-screen">
-      <AppBackHeader />
-      <div className="flex flex-col gap-10 my-auto">
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
+      <div className="flex flex-col gap-10 mt-10">
         <div className="flex flex-col gap-4">
           <ProfileImage
+            className="mx-auto"
             style={{
               width: `${cardSize}px`,
               height: `${cardSize}px`,
             }}
           >
-            <img
-              width="100%"
-              src="https://fnhxjtmpinl8vxmj.public.blob.vercel-storage.com/Your_Artwork-Evl6XS2t9gSpQ6LHk2HU1pSHKMsjHY.png"
+            <Image
+              width={cardSize ?? 300}
+              height={cardSize ?? 300}
+              src="https://picsum.photos/600/600"
+              alt="Profile image"
+              className="bg-cover object-cover"
             />
           </ProfileImage>
           <div className="flex flex-col">
@@ -60,10 +66,9 @@ export default function ContactSnapshotPage() {
           </label>
         )}
       </div>
-    </div>
+    </Modal>
   );
-}
-
-ContactSnapshotPage.getInitialProps = () => {
-  return { fullPage: true };
 };
+
+SnapshotModal.displayName = "SnapshotModal";
+export { SnapshotModal };

@@ -51,7 +51,7 @@ const IconVariants: Record<NonNullable<ButtonVariants["size"]>, string> = {
   md: "w-3 h-3",
   lg: "w-4 h-4",
 };
-export const LoadingSpinner = ({ size }: Pick<ButtonProps, "size">) => {
+const LoadingSpinner = ({ size }: Pick<ButtonProps, "size">) => {
   const iconSize = IconVariants[size ?? "md"];
 
   return (

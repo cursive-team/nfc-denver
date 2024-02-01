@@ -67,12 +67,9 @@ const PointCard = ({
         </PointCardLabel>
       )}
       <PointCardComponent variant={variant}>
-        <Image width={15} height={15} src="/icons/buidl.png" alt="buidl" />
-        <PointCardLabel
-          color={color}
-          size={size}
-          className="uppercase"
-        >{`${point} BUIDL`}</PointCardLabel>
+        <PointCardLabel color={color} size={size} className="uppercase">
+          ✦ {`${point} BUIDL`}
+        </PointCardLabel>
       </PointCardComponent>
     </button>
   );

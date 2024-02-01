@@ -6,6 +6,14 @@ const nextConfig = {
     config.resolve.fallback = { fs: false, readline: false };
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

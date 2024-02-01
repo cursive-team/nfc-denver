@@ -9,20 +9,25 @@ interface RouterItem {
   label: string;
   href: string;
   icon: string;
-  iconActive: string;
   isActive?: boolean;
 }
 
-const TabItem = ({ label, href, icon, iconActive, isActive }: RouterItem) => {
-  const Icon: any = isActive ? iconActive : icon;
+const TabItem = ({ label, href, icon, isActive }: RouterItem) => {
+  const Icon: any = icon;
 
   return (
     <Link href={href}>
       <div className="flex flex-col text-center items-center justify-center gap-2">
-        <Icon height={24} />
+        <Icon
+          size={24}
+          className={cn(
+            "duration-200",
+            isActive ? "text-white" : "text-gray-10"
+          )}
+        />
         <span
           className={cn(
-            "text-sm font-light mt-auto",
+            "duration-200 delay-100 text-sm font-light mt-auto",
             isActive ? "text-white" : "text-gray-10"
           )}
         >
@@ -45,27 +50,30 @@ const AppFooter = () => {
 
   const routerItems: RouterItem[] = [
     {
-      label: "Social",
+      label: "Home",
       href: "/",
-      icon: Icons.social,
-      iconActive: Icons.socialActive,
+      icon: Icons.home,
     },
     {
       label: "Quests",
       href: "/quests",
       icon: Icons.quest,
-      iconActive: Icons.questActive,
+    },
+    {
+      label: "Store",
+      href: "/store",
+      icon: Icons.store,
     },
   ];
 
   return (
     <footer
       id="footer"
-      className="fixed border-t border-t-shark-700 bg-gray-200 w-full bottom-0"
+      className="sticky border-t border-t-shark-700 w-full bottom-0 mt-4"
     >
-      <div className="md:container grid grid-cols-2 bottom-0 pt-4 pb-3 xs:py-4">
+      <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-4 pb-3 xs:py-4">
         {routerItems?.map((route, index) => {
-          const isActive = pathname?.startsWith(route.href);
+          const isActive = pathname === route.href;
           return <TabItem key={index} {...route} isActive={isActive} />;
         })}
       </div>

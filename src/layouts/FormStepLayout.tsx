@@ -27,7 +27,7 @@ const FormStepLayout = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`flex flex-col w-full grow pt-4 pb-8 focus ${className}`}
+      className={`flex flex-col w-full grow pt-4 focus ${className}`}
     >
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-1">
@@ -43,11 +43,13 @@ const FormStepLayout = ({
         {header}
       </div>
       {children && (
-        <div className="flex flex-col gap-6 w-full mt-auto">{children}</div>
+        <div className="flex flex-col gap-6 w-full mt-auto mb-4">
+          {children}
+        </div>
       )}
       {actions && (
-        <div className="fixed bottom-0 right-0 left-0 bg-black-default">
-          <div className="pb-6 pt-2 px-4">{actions}</div>
+        <div className="sticky bottom-0 right-0 left-0 bg-black-default mt-4">
+          <div className="pb-6 pt-2">{actions}</div>
         </div>
       )}
     </form>

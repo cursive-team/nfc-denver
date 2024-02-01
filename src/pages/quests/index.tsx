@@ -1,17 +1,17 @@
 import { Button } from "@/components/Button";
 import { Filters } from "@/components/Filters";
 import { Icons } from "@/components/Icons";
+import { Placeholder } from "@/components/placeholders/Placeholder";
 import { QuestCard } from "@/components/cards/QuestCard";
-import useQuests from "@/hooks/useQuests";
+import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 import { QuestTagMapping } from "@/shared/constants";
-import { QuestWithRequirements } from "@/types";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 export default function QuestsPage() {
-  const { quests } = useQuests();
+  const { isLoading, data: quests = [] } = useFetchQuests();
   const [selectedOption, setSelectedOption] = useState("ALL");
 
   return (
@@ -19,17 +19,26 @@ export default function QuestsPage() {
       <div className="flex items-center gap-2">
         <Filters
           label="Filters"
-          defaultValue="ALL"
+          defaultValue={selectedOption}
           object={QuestTagMapping}
           onChange={setSelectedOption}
+          disabled={isLoading}
         />
       </div>
-      <div className="flex flex-col gap-2">
+      <LoadingWrapper
+        className="flex flex-col gap-2"
+        isLoading={isLoading}
+        fallback={<Placeholder.List items={3} />}
+        noResultsLabel="No quests found"
+      >
         {quests?.map(
-          (
-            { id, name, description, userRequirements, locationRequirements },
-            index
-          ) => (
+          ({
+            id,
+            name,
+            description,
+            userRequirements,
+            locationRequirements,
+          }: any) => (
             <Link href={`/quests/${id}`} key={id}>
               <QuestCard
                 title={name}
@@ -41,10 +50,10 @@ export default function QuestsPage() {
             </Link>
           )
         )}
-      </div>
+      </LoadingWrapper>
       <div className="mt-2">
         <Link href="/create-quest">
-          <Button size="md" align="left">
+          <Button size="md" align="left" disabled={isLoading}>
             <span>Create quest</span>
             <div className="ml-auto">
               <Icons.arrowRight />

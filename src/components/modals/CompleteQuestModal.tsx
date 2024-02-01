@@ -3,11 +3,11 @@ import { Icons } from "../Icons";
 import { PointCard } from "../cards/PointCard";
 import { Modal, ModalProps } from "./Modal";
 import { Button } from "../Button";
-import useQuests from "@/hooks/useQuests";
 import Link from "next/link";
 import { QuestCard } from "../cards/QuestCard";
 import { classed } from "@tw-classed/react";
 import QRCode from "react-qr-code";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 interface QuestDetailProps {
   questName?: string;
@@ -38,7 +38,7 @@ const RedeemPoint = ({ questName }: Omit<QuestDetailProps, "type">) => {
             }}
             className="w-full"
           >
-            Collected X BUILD
+            Collected X BUIDL
           </Button>
         ) : (
           <PointCard label="Your balance" point={99} />
@@ -144,7 +144,7 @@ const CompleteQuestModal = ({
   questName,
   type,
 }: CompleteQuestModalProps) => {
-  const { quests } = useQuests();
+  const { isLoading, data: quests = [] } = useFetchQuests();
   const [isQuestCompleted, setIsQuestCompleted] = useState(true);
   const MORE_QUESTS_TO_SHOW = 4;
 
@@ -168,7 +168,7 @@ const CompleteQuestModal = ({
                     description,
                     userRequirements,
                     locationRequirements,
-                  },
+                  }: any,
                   index
                 ) => (
                   <Link href={`/quests/${id}`} key={id}>

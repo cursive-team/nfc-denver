@@ -18,7 +18,7 @@ const RadioOptionItem = classed.div(
 interface FiltersProps {
   object?: Record<string, string>;
   defaultValue?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: any) => void;
   disabled?: boolean;
   label?: string;
 }
@@ -32,7 +32,7 @@ const Filters = ({
 }: FiltersProps) => {
   let [option, setOption] = useState(defaultValue);
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: any) => {
     setOption(value);
     if (onChange) onChange(value);
   };
