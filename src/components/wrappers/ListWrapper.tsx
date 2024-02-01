@@ -1,7 +1,6 @@
 import { classed } from "@tw-classed/react";
 import { ReactNode } from "react";
 import type * as Classed from "@tw-classed/react";
-import { Placeholder } from "../placeholders/Placeholder";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 
