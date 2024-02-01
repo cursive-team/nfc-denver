@@ -4,12 +4,14 @@ import { PointCard } from "./PointCard";
 interface StoreCardProps extends HTMLAttributes<HTMLDivElement> {
   partnerName: string;
   itemName: string;
+  itemId: number;
   pointsRequired?: number;
 }
 
 const StoreCard = ({
   partnerName,
   itemName,
+  itemId,
   pointsRequired = 0,
   ...props
 }: StoreCardProps) => {
@@ -19,7 +21,7 @@ const StoreCard = ({
         <img
           className="object-cover w-full min-h-[174px] bg-slate-200 "
           alt={`${partnerName} store item`}
-          src="https://picsum.photos/300/300"
+          src={`https://picsum.photos/id/${itemId}/300/300`}
         />
       </div>
       <div className="flex flex-col gap-0.5">

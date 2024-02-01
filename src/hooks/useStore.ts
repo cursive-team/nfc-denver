@@ -6,7 +6,7 @@ export const useFetchStore = () => {
     queryFn: async () => {
       // TODO: replace with actual API call
       return Array.from({ length: 10 }).map((_, i) => ({
-        id: i,
+        id: i * 10, // makes picsum image better
         partner: `Partner ${i + 1}`,
         itemName: `Item ${i + 1}`,
         points: i * 100,

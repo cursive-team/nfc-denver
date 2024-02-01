@@ -29,6 +29,7 @@ export default function QuestsPage() {
         className="flex flex-col gap-2"
         isLoading={isLoading}
         fallback={<Placeholder.List items={3} />}
+        noResultsLabel="No quests found"
       >
         {quests?.map(
           ({

@@ -38,7 +38,7 @@ const RedeemPoint = ({ questName }: Omit<QuestDetailProps, "type">) => {
             }}
             className="w-full"
           >
-            Collected X BUILD
+            Collected X BUIDL
           </Button>
         ) : (
           <PointCard label="Your balance" point={99} />

@@ -44,7 +44,11 @@ const StoreModalItem = ({
             <Image
               className="object-cover w-[174px] h-[174px]"
               alt={`${storeItem?.partnerName} store item`}
-              src="https://picsum.photos/300/300"
+              src={
+                storeItem
+                  ? `https://picsum.photos/id/${storeItem.id}/300/300`
+                  : `https://picsum.photos/300/300`
+              }
               width={174}
               height={174}
             />
@@ -102,6 +106,7 @@ const StoreModalItem = ({
             {relatedItems?.slice(0, 4)?.map((storeItem, index) => (
               <StoreCard
                 key={index}
+                itemId={storeItem.id}
                 partnerName={storeItem.partner}
                 itemName={storeItem.itemName}
                 pointsRequired={storeItem.points}

@@ -5,7 +5,7 @@ import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useFetchStore } from "@/hooks/useStore";
 import { StoreSortMapping } from "@/shared/constants";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function StorePage() {
   const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -43,6 +43,7 @@ export default function StorePage() {
               key={index}
               partnerName={storeItem.partner}
               itemName={storeItem.itemName}
+              itemId={storeItem.id}
               pointsRequired={storeItem.points}
               onClick={() => {
                 setStoreItem(storeItem);
