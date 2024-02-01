@@ -35,8 +35,9 @@ export const AppBackHeader = ({ redirectTo }: AppBackHeaderProps) => {
         onClick={() => {
           if (redirectTo) {
             router.push(redirectTo);
+          } else {
+            router.back();
           }
-          router.back();
         }}
       >
         <Icons.arrowLeft />

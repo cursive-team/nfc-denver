@@ -5,7 +5,6 @@ import {
   getAuthToken,
   getKeys,
   getProfile,
-  updateUserFromOutboundTap,
   User,
 } from "@/lib/client/localStorage";
 import {
@@ -188,7 +187,7 @@ const SharePage = () => {
 
   return (
     <div>
-      <AppBackHeader />
+      <AppBackHeader redirectTo="/" />
       <FormStepLayout
         title={
           <span className="text-base text-gray-12">{`Connect with ${user.name}`}</span>
@@ -224,6 +223,10 @@ const SharePage = () => {
       </FormStepLayout>
     </div>
   );
+};
+
+SharePage.getInitialProps = () => {
+  return { fullPage: true };
 };
 
 export default SharePage;

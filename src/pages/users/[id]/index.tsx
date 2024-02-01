@@ -8,6 +8,7 @@ import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
 import { Button } from "@/components/Button";
 import { classed } from "@tw-classed/react";
+import { Input } from "@/components/Input";
 
 const Label = classed.span("text-base text-gray-12");
 
@@ -29,7 +30,7 @@ const UserProfilePage = () => {
 
   return (
     <div>
-      <AppBackHeader />
+      <AppBackHeader redirectTo="/" />
       <div className="flex flex-col gap-6">
         <div className="flex gap-6 items-center">
           <div className="h-32 w-32 rounded bg-slate-200"></div>
@@ -38,7 +39,16 @@ const UserProfilePage = () => {
             <div className="flex items-center gap-1">
               <Icons.checkedCircle />
               <span className="text-sm font-light text-white">
-                Connected XXX
+                {user.inTs ? (
+                  <Label>{`Connected on ${new Date(user.inTs).toLocaleString(
+                    undefined,
+                    {
+                      dateStyle: "medium",
+                    }
+                  )}`}</Label>
+                ) : (
+                  <Label>{`Not connected.`}</Label>
+                )}
               </span>
             </div>
             <Button size="sm" onClick={() => router.push(`/users/${id}/share`)}>
@@ -53,13 +63,6 @@ const UserProfilePage = () => {
             ).toLocaleString()}`}</Label>
           ) : (
             <Label>{`You have not yet connected with ${user.name}.`}</Label>
-          )}
-          {user.inTs ? (
-            <Label>{`${user.name} connected with you on ${new Date(
-              user.inTs
-            ).toLocaleString()}`}</Label>
-          ) : (
-            <Label>{`${user.name} has not yet connected with you.`}</Label>
           )}
         </div>
         {(user?.x || user.tg) && (
@@ -86,9 +89,14 @@ const UserProfilePage = () => {
             </div>
           </ListLayout>
         )}
+        <Input label="Your private note" value={user?.note} readOnly disabled />
       </div>
     </div>
   );
+};
+
+UserProfilePage.getInitialProps = () => {
+  return { fullPage: true };
 };
 
 export default UserProfilePage;
