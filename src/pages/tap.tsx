@@ -212,3 +212,7 @@ export default function Tap() {
 
   return null;
 }
+
+Tap.getInitialProps = () => {
+  return { fullPage: true };
+};

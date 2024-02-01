@@ -190,7 +190,9 @@ const SharePage = () => {
     <div>
       <AppBackHeader />
       <FormStepLayout
-        title={`Connect with ${user.name}`}
+        title={
+          <span className="text-base text-gray-12">{`Connect with ${user.name}`}</span>
+        }
         description="Share your contact information with this user."
         onSubmit={handleConnect}
       >

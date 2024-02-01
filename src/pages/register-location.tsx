@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
+import toast from "react-hot-toast";
 
 export default function RegisterLocation() {
   const router = useRouter();
@@ -55,18 +56,18 @@ export default function RegisterLocation() {
     event.preventDefault();
 
     if (!cmac) {
-      alert("Error processing tap. Please tap card again!");
+      toast.error("Error processing tap. Please tap card again!");
       return;
     }
 
     if (!name || !description || !sponsor) {
-      alert("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
 
     const imageFile = fileInputRef.current?.files?.[0];
     if (!imageFile) {
-      alert("Please select an image.");
+      toast.error("Please select an image.");
       return;
     }
 
@@ -76,15 +77,15 @@ export default function RegisterLocation() {
     });
 
     if (name.length > 64) {
-      alert("Location name must be less than 64 characters.");
+      toast.error("Location name must be less than 64 characters.");
       return;
     }
     if (description.length > 256) {
-      alert("Description must be less than 256 characters.");
+      toast.error("Description must be less than 256 characters.");
       return;
     }
     if (sponsor.length > 32) {
-      alert("Sponsor must be less than 32 characters.");
+      toast.error("Sponsor must be less than 32 characters.");
       return;
     }
 
@@ -104,7 +105,7 @@ export default function RegisterLocation() {
       body: JSON.stringify(locationData),
     });
     if (!response.ok) {
-      alert("Error registering location. Please try again.");
+      toast.error("Error registering location. Please try again.");
       return;
     }
 

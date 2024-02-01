@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Input } from "@/components/Input";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { BenchmarkMessage } from "@prisma/client";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   ENCRYPTION,
@@ -51,12 +52,12 @@ const EncryptionBenchmarkPage = () => {
     event.preventDefault();
 
     if (!token || !profile || !keys) {
-      alert("You must be logged in to run benchmarks.");
+      toast.error("You must be logged in to run benchmarks.");
       return;
     }
 
     if (numMessages === 0 || messageLength === 0 || numBatches === 0) {
-      alert("You must fill in all fields.");
+      toast.error("You must fill in all fields.");
       return;
     }
 
@@ -142,7 +143,7 @@ const EncryptionBenchmarkPage = () => {
       console.log("Encryption request time: ", encryptionRequestTime);
     } catch (error) {
       console.error("Benchmark failed during encryption request: ", error);
-      alert(
+      toast.error(
         "Failed to send encrypted messages to server. See console for details."
       );
       setIsBenchmarking(false);
@@ -177,7 +178,7 @@ const EncryptionBenchmarkPage = () => {
       console.log("Decryption request time: ", decryptionRequestTime);
     } catch (error) {
       console.error("Benchmark failed during decryption request: ", error);
-      alert(
+      toast.error(
         "Benchmark failed during decryption request. See console for details."
       );
       setIsBenchmarking(false);
@@ -208,7 +209,7 @@ const EncryptionBenchmarkPage = () => {
         decryptedMessages.length,
         numMessages
       );
-      alert(
+      toast.error(
         "Decrypted messages length does not match numMessages. See console for details."
       );
     }

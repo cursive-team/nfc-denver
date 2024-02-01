@@ -16,6 +16,7 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import Link from "next/link";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -36,8 +37,8 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [code, setCode] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
-  const [twitterUsername, setTwitterUsername] = useState<string>("");
-  const [telegramUsername, setTelegramUsername] = useState<string>("");
+  const [twitterUsername, setTwitterUsername] = useState<string>("@");
+  const [telegramUsername, setTelegramUsername] = useState<string>("@");
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -105,7 +106,7 @@ export default function Register() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };
@@ -142,7 +143,7 @@ export default function Register() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };
@@ -155,7 +156,9 @@ export default function Register() {
       !/^[a-z0-9]+$/i.test(displayName) ||
       displayName.length > 20
     ) {
-      alert("Display name must be alphanumeric and less than 20 characters.");
+      toast.error(
+        "Display name must be alphanumeric and less than 20 characters."
+      );
       return;
     }
 
@@ -205,7 +208,7 @@ export default function Register() {
 
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
-      alert("Error creating account! Please try again.");
+      toast.error("Error creating account! Please try again.");
       setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
@@ -213,7 +216,7 @@ export default function Register() {
     const data = await response.json();
     if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
-      alert("Account created, but error logging in! Please try again.");
+      toast.error("Account created, but error logging in! Please try again.");
       setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
@@ -241,7 +244,7 @@ export default function Register() {
     let backupData = createBackup();
     if (!backupData) {
       console.error("Error creating backup!");
-      alert("Error creating backup! Please try again.");
+      toast.error("Error creating backup! Please try again.");
       return;
     }
 
@@ -264,18 +267,18 @@ export default function Register() {
 
     if (!backupResponse.ok) {
       console.error(`HTTP error! status: ${backupResponse.status}`);
-      alert("Error storing backup! Please try again.");
+      toast.error("Error storing backup! Please try again.");
       return;
     }
 
-    alert("Account created and backed up!");
+    toast.error("Account created and backed up!");
     router.push("/");
   };
 
   const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {
     event.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -451,5 +454,9 @@ export default function Register() {
 }
 
 Register.getInitialProps = () => {
+  return { fullPage: true };
+};
+
+Register.getServerSideProps = () => {
   return { fullPage: true };
 };

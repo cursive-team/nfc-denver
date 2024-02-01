@@ -10,6 +10,7 @@ import { classed } from "@tw-classed/react";
 import { Header } from "@/components/modals/QuestRequirementModal";
 import useSettings from "@/hooks/useSettings";
 import { AppBackHeader } from "@/components/AppHeader";
+import toast from "react-hot-toast";
 
 // TODO: Create shared component for this
 const Label = classed.span("text-xs text-gray-10 font-light");
@@ -30,14 +31,14 @@ const LocationDetails = () => {
           if (!response.ok) {
             const errorResponse: ErrorResponse = await response.json();
             console.error(errorResponse.error);
-            alert("An error occurred. Please try again.");
+            toast.error("An error occurred. Please try again.");
             router.push("/");
           } else {
             const data: Location = await response.json();
             setLocation(data);
           }
         } catch (err) {
-          alert("An error occurred. Please try again.");
+          toast.error("An error occurred. Please try again.");
           router.push("/");
         }
 
@@ -55,7 +56,7 @@ const LocationDetails = () => {
 
   return (
     <div>
-      <AppBackHeader />
+      <AppBackHeader redirectTo="/" />
       <div className="flex flex-col gap-8">
         {/* TODO: Create shared component for Header */}
         <Header title={location.name} label="Location" />

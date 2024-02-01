@@ -20,7 +20,11 @@ interface AppHeaderContentProps {
   handleSignout: () => void;
 }
 
-export const AppBackHeader = () => {
+interface AppBackHeaderProps {
+  redirectTo?: string; // redirect to this page instead of back
+}
+
+export const AppBackHeader = ({ redirectTo }: AppBackHeaderProps) => {
   const router = useRouter();
 
   return (
@@ -28,7 +32,12 @@ export const AppBackHeader = () => {
       <button
         type="button"
         className="flex items-center gap-1"
-        onClick={() => router.back()}
+        onClick={() => {
+          if (redirectTo) {
+            router.push(redirectTo);
+          }
+          router.back();
+        }}
       >
         <Icons.arrowLeft />
         <span className="text-gray-11 text-sm">Back</span>
@@ -52,7 +61,16 @@ const AppHeaderContent = ({
       label: "Profile & settings",
       children: (
         <>
-          <FormStepLayout actions={<Button>Save</Button>}>
+          <FormStepLayout
+            actions={
+              <div className="flex flex-col gap-2">
+                <Button size="sm">Save</Button>
+                <Button size="sm" onClick={handleSignout}>
+                  Logout
+                </Button>
+              </div>
+            }
+          >
             <div className="flex flex-col gap-6">
               <Input label="Display name" />
               <Input label="Email" />
@@ -124,9 +142,6 @@ const AppHeaderContent = ({
           </ContentWrapper>
           <ContentWrapper>
             <Title>Account</Title>
-            <Button size="sm" onClick={handleSignout}>
-              Logout
-            </Button>
           </ContentWrapper>
         </>
       ),

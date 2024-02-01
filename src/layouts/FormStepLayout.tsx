@@ -1,7 +1,9 @@
 "use client";
 
+import { ReactNode } from "react";
+
 type FormStepLayoutProps = {
-  title?: string;
+  title?: ReactNode;
   description?: string;
   children: React.ReactNode;
   header?: React.ReactNode;
