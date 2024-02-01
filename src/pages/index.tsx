@@ -327,6 +327,14 @@ export default function Social() {
                   : `${numConnections} Connections`}
               </span>
             </div>
+            <Link href="/leaderboard">
+              <Card.Base className="flex items-center justify-center p-2 bg-gray-200">
+                <span className="text-white text-sm">View leaderboard</span>
+                <div className="ml-auto">
+                  <Icons.arrowRight />
+                </div>
+              </Card.Base>
+            </Link>
           </div>
         </div>
       </div>
