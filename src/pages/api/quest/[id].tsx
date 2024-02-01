@@ -41,6 +41,7 @@ export default async function handler(
                     id: true,
                     name: true,
                     imageUrl: true,
+                    signaturePublicKey: true,
                   },
                 },
               },
