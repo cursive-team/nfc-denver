@@ -17,10 +17,7 @@ import {
 import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import toast from "react-hot-toast";
-<<<<<<< HEAD
 import { Spinner } from "@/components/Spinner";
-=======
->>>>>>> 0c5d4e8 (update local storage after user tap)
 
 export default function Tap() {
   const router = useRouter();

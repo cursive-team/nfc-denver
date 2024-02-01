@@ -12,22 +12,26 @@ import Image from "next/image";
 
 interface QuestRequirementCardProps {
   title: string;
+  numSigsCollected: number;
   numSigsRequired: number;
   questRequirementType: QuestRequirementType;
   users?: UserRequirementPreview[];
   locations?: LocationRequirementPreview[];
+  userPubKeysCollected?: string[];
+  locationPubKeysCollected?: string[];
   showProgress?: boolean;
-  completed?: boolean;
 }
 
 const QuestRequirementCard = ({
   title,
+  numSigsCollected,
   numSigsRequired,
   questRequirementType,
   users,
   locations,
+  userPubKeysCollected,
+  locationPubKeysCollected,
   showProgress = false,
-  completed = false,
 }: QuestRequirementCardProps) => {
   const [showQuestRequirement, setShowQuestRequirement] = useState(false);
 
@@ -39,6 +43,8 @@ const QuestRequirementCard = ({
   const isLocationRequirement =
     questRequirementType == QuestRequirementType.LOCATION;
 
+  const completed = numSigsCollected >= numSigsRequired;
+
   return (
     <>
       <QuestRequirementModal
@@ -46,6 +52,10 @@ const QuestRequirementCard = ({
         questRequirementType={questRequirementType}
         users={users}
         locations={locations}
+        userPubKeysCollected={userPubKeysCollected}
+        locationPubKeysCollected={locationPubKeysCollected}
+        numSigsRequired={numSigsRequired}
+        completed={completed}
         isOpen={showQuestRequirement}
         setIsOpen={setShowQuestRequirement}
       />
@@ -74,7 +84,9 @@ const QuestRequirementCard = ({
           <div className="flex flex-col">
             <Card.Title>{title}</Card.Title>
             <Card.Description>
-              {completed ? "Complete" : `X/${numSigsRequired}`}
+              {completed
+                ? "Complete"
+                : `${numSigsCollected}/${numSigsRequired}`}
             </Card.Description>
           </div>
         </div>

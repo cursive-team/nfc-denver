@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
 import { PointCard } from "@/components/cards/PointCard";
 import { QuestRequirementCard } from "@/components/cards/QuestRequirementCard";
 import { classed } from "@tw-classed/react";
 import { useParams } from "next/navigation";
-import { QuestRequirementType, QuestWithRequirements } from "@/types";
+import {
+  LocationRequirement,
+  QuestRequirementType,
+  QuestWithRequirements,
+  UserRequirement,
+} from "@/types";
 import { Button } from "@/components/Button";
 import { CompleteQuestModal } from "@/components/modals/CompleteQuestModal";
 import { useFetchQuestById } from "@/hooks/useFetchQuestById";
@@ -13,6 +18,16 @@ import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { QuestDetailPlaceholder } from "@/components/placeholders/QuestDetailPlaceHolder";
 import { ListWrapper } from "@/components/wrappers/ListWrapper";
 import { Placeholder } from "@/components/placeholders/Placeholder";
+import {
+  LocationSignature,
+  User,
+  getLocationSignatures,
+  getUsers,
+} from "@/lib/client/localStorage";
+import {
+  computeNumRequirementSignatures,
+  computeNumRequirementsSatisfied,
+} from "@/lib/client/quests";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -54,14 +69,65 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
 
 export default function QuestById() {
   const params = useParams();
+  const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
+  const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
   const [completeQuestModal, setCompleteQuestModal] = useState(false);
   const { id: questId } = params;
-
   const { isLoading, data: quest = null } = useFetchQuestById(
     questId as string
   );
 
-  const totalNumRequirements =
+  useEffect(() => {
+    const users = getUsers();
+    const locationSignatures = getLocationSignatures();
+
+    const validUserPublicKeys = Object.values(users)
+      .filter((user: User) => user.sig)
+      .map((user: User) => user.sigPk!);
+    setUserPublicKeys(validUserPublicKeys);
+
+    const validLocationPublicKeys = Object.values(locationSignatures).map(
+      (location: LocationSignature) => location.pk
+    );
+    setLocationPublicKeys(validLocationPublicKeys);
+  }, []);
+
+  const numRequirementsSatisfied: number = useMemo(() => {
+    if (!quest) return 0;
+
+    return computeNumRequirementsSatisfied({
+      userPublicKeys,
+      locationPublicKeys,
+      userRequirements: quest.userRequirements,
+      locationRequirements: quest.locationRequirements,
+    });
+  }, [quest, userPublicKeys, locationPublicKeys]);
+
+  const numUserRequirementSignatures: number[] = useMemo(() => {
+    if (!quest) return [];
+
+    return quest.userRequirements.map((requirement: UserRequirement) => {
+      return computeNumRequirementSignatures({
+        publicKeyList: userPublicKeys,
+        userRequirement: requirement,
+      });
+    });
+  }, [quest, userPublicKeys]);
+
+  const numLocationRequirementSignatures: number[] = useMemo(() => {
+    if (!quest) return [];
+
+    return quest.locationRequirements.map(
+      (requirement: LocationRequirement) => {
+        return computeNumRequirementSignatures({
+          publicKeyList: locationPublicKeys,
+          locationRequirement: requirement,
+        });
+      }
+    );
+  }, [quest, locationPublicKeys]);
+
+  const numRequirementsTotal =
     (quest?.userRequirements?.length ?? 0) +
     (quest?.locationRequirements?.length ?? 0);
 
@@ -86,7 +152,7 @@ export default function QuestById() {
             title="Requirements"
             label={
               <div className="flex gap-2 items-center">
-                <Label>{`X/${totalNumRequirements}`}</Label>
+                <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
                 <Button
                   onClick={() => {
                     setCompleteQuestModal(true);
@@ -105,9 +171,11 @@ export default function QuestById() {
                     <QuestRequirementCard
                       key={index}
                       title={name}
+                      numSigsCollected={numUserRequirementSignatures[index]}
                       numSigsRequired={numSigsRequired}
                       questRequirementType={QuestRequirementType.USER}
                       users={users}
+                      userPubKeysCollected={userPublicKeys}
                     />
                   )
                 )}
@@ -120,9 +188,11 @@ export default function QuestById() {
                     <QuestRequirementCard
                       key={index}
                       title={name}
+                      numSigsCollected={numLocationRequirementSignatures[index]}
                       numSigsRequired={numSigsRequired}
                       questRequirementType={QuestRequirementType.LOCATION}
                       locations={locations}
+                      locationPubKeysCollected={locationPublicKeys}
                     />
                   )
                 )}
