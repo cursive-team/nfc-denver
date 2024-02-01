@@ -456,7 +456,3 @@ export default function Register() {
 Register.getInitialProps = () => {
   return { fullPage: true };
 };
-
-Register.getServerSideProps = () => {
-  return { fullPage: true };
-};
