@@ -18,6 +18,7 @@ import { Input } from "@/components/Input";
 import { AppBackHeader } from "@/components/AppHeader";
 import toast from "react-hot-toast";
 import { loadMessages } from "@/lib/client/jubSignalClient";
+import { Checkbox } from "@/components/Checkbox";
 
 const SharePage = () => {
   const router = useRouter();
@@ -189,36 +190,44 @@ const SharePage = () => {
     <div>
       <AppBackHeader redirectTo="/" />
       <FormStepLayout
+        className="pt-0"
         title={
           <span className="text-base text-gray-12">{`Connect with ${user.name}`}</span>
         }
-        description="Share your contact information with this user."
         onSubmit={handleConnect}
       >
-        <Input
-          type="checkbox"
-          className="form-checkbox"
-          label={`Share my Twitter: @${profile.twitterUsername}`}
-          disabled={!profile.twitterUsername}
-          checked={shareTwitter}
-          onChange={handleTwitterChange}
-        />
-        <Input
-          type="checkbox"
-          className="form-checkbox"
-          label={`Share my Telegram: @${profile.telegramUsername}`}
-          disabled={!profile.telegramUsername}
-          checked={shareTelegram}
-          onChange={handleTelegramChange}
-        />
-        <Input
-          type="longtext"
-          label="Private Note"
-          value={privateNote}
-          onChange={(event) => {
-            setPrivateNote(event.target.value);
-          }}
-        />
+        <div className="flex flex-col gap-4">
+          <span className="text-sm text-gray-12">{`Choose which social usernames to share with ${user.name}`}</span>
+          <Input
+            type="longtext"
+            label="Save a private note"
+            value={privateNote}
+            onChange={(event) => {
+              setPrivateNote(event.target.value);
+            }}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Checkbox
+              id="twitter"
+              label="X"
+              //disabled={!profile.twitterUsername}
+              checked={shareTwitter}
+              onChange={handleTwitterChange}
+            />
+            <Checkbox
+              id="x"
+              label="Telegram"
+              //disabled={!profile.telegramUsername}
+              checked={shareTelegram}
+              onChange={handleTelegramChange}
+            />
+          </div>
+          <span className="text-gray-11 text-xs">
+            By connecting, you will let Chris satisfy any quests that require
+            meeting you in person. This works by sharing a unique digital
+            signature from a personal private key.
+          </span>
+        </div>
         <Button type="submit">Connect</Button>
       </FormStepLayout>
     </div>
