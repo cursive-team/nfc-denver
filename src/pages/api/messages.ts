@@ -12,6 +12,7 @@ export default async function handler(
 ) {
   if (req.method === "GET") {
     const { token, startDate, endDate } = req.query;
+    console.log(startDate, endDate, token);
 
     if (typeof token !== "string") {
       res.status(400).json({ error: "Invalid token" });

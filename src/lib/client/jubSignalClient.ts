@@ -50,14 +50,14 @@ export const loadMessages = async ({
   const newMessageFetchTime = new Date();
   const urlStartFilter =
     previousMessageFetchTime && !forceRefresh
-      ? `?startDate=${encodeURIComponent(
+      ? `&startDate=${encodeURIComponent(
           previousMessageFetchTime.toISOString()
         )}`
       : "";
   const url =
     `/api/messages?token=${encodeURIComponent(
       session.authToken.value
-    )}?endDate=${encodeURIComponent(newMessageFetchTime.toISOString())}` +
+    )}&endDate=${encodeURIComponent(newMessageFetchTime.toISOString())}` +
     urlStartFilter;
   const response = await fetch(url, {
     method: "GET",
