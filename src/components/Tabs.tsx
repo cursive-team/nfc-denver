@@ -3,6 +3,7 @@ import { classed } from "@tw-classed/react";
 
 interface TabProps {
   label: string;
+  badge?: number;
   children: React.ReactNode;
 }
 
@@ -22,16 +23,25 @@ const TabButton = classed.div("pb-4", {
   },
 });
 
+const TabBadge = classed.div(
+  "absolute -top-0.5 -right-2 bg-red-400 rounded-full text-white px-1 py-[0.2px] text-[8px]"
+);
+
 const Tabs = ({ items }: TabsProps) => {
   return (
     <Tab.Group>
       <Tab.List className="flex gap-8 relative">
-        {items.map(({ label }, index) => {
+        {items.map(({ label, badge }, index) => {
           return (
             <Tab className="outline-none" key={index}>
               {({ selected }) => (
                 <div className="relative">
-                  <TabButton selected={selected}>{label}</TabButton>
+                  <TabButton selected={selected}>
+                    <span className="relative">
+                      {label}
+                      {badge && <TabBadge>{badge}</TabBadge>}
+                    </span>
+                  </TabButton>
                   {selected && (
                     <div className="absolute bg-gray-12 bottom-0 h-[1px] w-full z-[1]"></div>
                   )}
@@ -50,5 +60,7 @@ const Tabs = ({ items }: TabsProps) => {
     </Tab.Group>
   );
 };
+
 Tabs.displayName = "Tabs";
+
 export { Tabs };

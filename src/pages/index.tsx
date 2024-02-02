@@ -259,6 +259,7 @@ export default function Social() {
       },
       {
         label: "Pending",
+        badge: 11,
         children: null,
       },
     ];
