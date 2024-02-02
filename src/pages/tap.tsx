@@ -12,12 +12,12 @@ import {
   getKeys,
   getProfile,
   updateUserFromTap,
-  updateLocationSignatureFromTap,
   getLocationSignature,
 } from "@/lib/client/localStorage";
 import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import toast from "react-hot-toast";
+import { Spinner } from "@/components/Spinner";
 
 export default function Tap() {
   const router = useRouter();
@@ -210,7 +210,11 @@ export default function Tap() {
     );
   }
 
-  return null;
+  return (
+    <div className="mx-auto my-auto">
+      <Spinner />
+    </div>
+  );
 }
 
 Tap.getInitialProps = () => {

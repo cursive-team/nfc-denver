@@ -28,6 +28,7 @@ const SharePage = () => {
   const [shareTwitter, setShareTwitter] = useState(false);
   const [shareTelegram, setShareTelegram] = useState(false);
   const [privateNote, setPrivateNote] = useState<string>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (typeof id === "string") {
@@ -49,6 +50,8 @@ const SharePage = () => {
 
   const handleConnect = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    setLoading(true);
 
     if (!user) {
       toast.error("An error occurred. Please try again.");
@@ -107,7 +110,7 @@ const SharePage = () => {
           token: authToken.value,
         }),
       });
-
+      setLoading(false);
       if (!response.ok) {
         const { error } = await response.json();
         console.error("Error sharing information: ", error);
@@ -117,6 +120,7 @@ const SharePage = () => {
       toast.error(
         "An error occurred while sending the message. Please try again."
       );
+      setLoading(false);
       return;
     }
 
@@ -170,14 +174,6 @@ const SharePage = () => {
     router.push(`/users/${id}`);
   };
 
-  const handleTwitterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShareTwitter(event.target.checked);
-  };
-
-  const handleTelegramChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShareTelegram(event.target.checked);
-  };
-
   if (!profile) {
     return <div>Loading...</div>;
   }
@@ -190,14 +186,13 @@ const SharePage = () => {
     <div>
       <AppBackHeader redirectTo="/" />
       <FormStepLayout
-        className="pt-0"
+        className="!pt-0"
         title={
           <span className="text-base text-gray-12">{`Connect with ${user.name}`}</span>
         }
         onSubmit={handleConnect}
       >
         <div className="flex flex-col gap-4">
-          <span className="text-sm text-gray-12">{`Choose which social usernames to share with ${user.name}`}</span>
           <Input
             type="longtext"
             label="Save a private note"
@@ -206,29 +201,36 @@ const SharePage = () => {
               setPrivateNote(event.target.value);
             }}
           />
-          <div className="grid grid-cols-2 gap-2">
-            <Checkbox
-              id="twitter"
-              label="X"
-              //disabled={!profile.twitterUsername}
-              checked={shareTwitter}
-              onChange={handleTwitterChange}
-            />
-            <Checkbox
-              id="x"
-              label="Telegram"
-              //disabled={!profile.telegramUsername}
-              checked={shareTelegram}
-              onChange={handleTelegramChange}
-            />
+          <div className="flex flex-col gap-3">
+            <span className="text-sm text-gray-12">{`Choose which social usernames to share with ${user.name}`}</span>
+            <div className="grid grid-cols-2 gap-2">
+              <Checkbox
+                id="twitter"
+                label="X"
+                disabled={!profile.twitterUsername}
+                checked={shareTwitter}
+                type="button"
+                onChange={setShareTwitter}
+              />
+              <Checkbox
+                id="x"
+                label="Telegram"
+                disabled={!profile.telegramUsername}
+                checked={shareTelegram}
+                type="button"
+                onChange={setShareTelegram}
+              />
+            </div>
           </div>
           <span className="text-gray-11 text-xs">
-            By connecting, you will let Chris satisfy any quests that require
+            {`By connecting, you will let ${user.name} satisfy any quests that require
             meeting you in person. This works by sharing a unique digital
-            signature from a personal private key.
+            signature from a personal private key.`}
           </span>
         </div>
-        <Button type="submit">Connect</Button>
+        <Button loading={loading} type="submit">
+          Connect
+        </Button>
       </FormStepLayout>
     </div>
   );

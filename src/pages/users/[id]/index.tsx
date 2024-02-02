@@ -6,11 +6,28 @@ import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
-import { Button } from "@/components/Button";
 import { classed } from "@tw-classed/react";
 import { Input } from "@/components/Input";
+import { labelStartWith } from "@/lib/shared/utils";
 
-const Label = classed.span("text-base text-gray-12");
+const Label = classed.span("text-sm text-gray-12");
+
+interface LinkCardProps {
+  label?: string;
+  href: string;
+  value?: string;
+}
+
+const LinkCard = ({ label, value, href }: LinkCardProps) => {
+  return (
+    <Link href={href}>
+      <Card.Base className="flex items-center gap-2 p-3">
+        <Card.Title>{label}</Card.Title>
+        <Card.Description>{value ?? "N/A"}</Card.Description>
+      </Card.Base>
+    </Link>
+  );
+};
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -43,7 +60,7 @@ const UserProfilePage = () => {
                   <Label>{`Connected on ${new Date(user.inTs).toLocaleString(
                     undefined,
                     {
-                      dateStyle: "medium",
+                      dateStyle: "short",
                     }
                   )}`}</Label>
                 ) : (
@@ -51,9 +68,6 @@ const UserProfilePage = () => {
                 )}
               </span>
             </div>
-            <Button size="sm" onClick={() => router.push(`/users/${id}/share`)}>
-              Connect
-            </Button>
           </div>
         </div>
         <div className="flex flex-col gap-2">
@@ -68,23 +82,19 @@ const UserProfilePage = () => {
         {(user?.x || user.tg) && (
           <ListLayout className="!gap-2" label="Links">
             <div className="flex flex-col gap-1">
-              {user.x && (
-                <Link href={`https://x.com/${user.x}`}>
-                  <Card.Base className="flex gap-2 p-3">
-                    <Card.Title>Twitter</Card.Title>
-                    <Card.Description>@{user.x}</Card.Description>
-                  </Card.Base>
-                </Link>
+              {(user?.x?.length ?? 0) > 1 && (
+                <LinkCard
+                  label="Twitter"
+                  href={`https://x.com/${user.x}`}
+                  value={labelStartWith(user.x, "@")}
+                />
               )}
-              {user.tg && (
-                <Link href={`https://t.me/${user.tg}`}>
-                  <Card.Base className="flex gap-2 p-3">
-                    <Card.Title>Telegram</Card.Title>
-                    <Card.Description>
-                      {user.tg ? "@" + user.tg : "N/A"}
-                    </Card.Description>
-                  </Card.Base>
-                </Link>
+              {(user?.tg?.length ?? 0) > 1 && (
+                <LinkCard
+                  label="Telegram"
+                  href={`https://t.me/${user.tg}`}
+                  value={labelStartWith(user.tg, "@")}
+                />
               )}
             </div>
           </ListLayout>
