@@ -10,9 +10,13 @@ const InputComponent = classed.input(
         primary:
           "bg-transparent border-b border-b-gray-600 focus:border-b-gray-600",
       },
+      hasIcon: {
+        true: "pl-[20px]",
+      },
     },
     defaultVariants: {
       variant: "primary",
+      hasIcon: false,
     },
   }
 );
@@ -27,24 +31,35 @@ interface InputProps
   label?: string;
 }
 
-const Input = ({ label, variant, placeholder, ...props }: InputProps) => {
+const Input = ({ label, variant, placeholder, icon, ...props }: InputProps) => {
   return (
-    <label className="form-control w-full">
-      {label && (
-        <div className="label p-0">
-          <span className="label-text font-light text-white text-[12px]">
-            {label}
-          </span>
+    <>
+      <label className="relative form-control w-full">
+        {label && (
+          <div className="label p-0">
+            <span className="label-text font-light text-white text-[12px]">
+              {label}
+            </span>
+          </div>
+        )}
+
+        <div className="relative">
+          {icon && (
+            <div className="pointer-events-none w-8 h-8 absolute top-[3.5px] transform left-1">
+              <span className="text-gray-10">{icon}</span>
+            </div>
+          )}
+          <InputComponent
+            type="text"
+            autoComplete="off"
+            placeholder={placeholder}
+            variant={variant}
+            hasIcon={!!icon}
+            {...props}
+          />
         </div>
-      )}
-      <InputComponent
-        type="text"
-        autoComplete="off"
-        placeholder={placeholder}
-        variant={variant}
-        {...props}
-      />
-    </label>
+      </label>
+    </>
   );
 };
 

@@ -11,11 +11,9 @@ export const QuestTagMapping: Record<
   IN_PROGRESS: "In Progress",
 };
 
-export const StoreSortMapping: Record<
-  "ASC" | "POINT_ASC" | "POINT_DESC",
-  string
-> = {
-  ASC: "A-Z",
-  POINT_ASC: "BUIDL High",
-  POINT_DESC: "BUIDL Low",
-};
+export const StoreSortMapping: Record<"ALL" | "UNLOCKED" | "REDEEMED", string> =
+  {
+    ALL: "All",
+    UNLOCKED: "Unlocked",
+    REDEEMED: "Redeemed",
+  };

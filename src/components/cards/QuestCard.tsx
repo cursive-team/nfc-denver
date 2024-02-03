@@ -1,7 +1,9 @@
 import React from "react";
 import { Card } from "./Card";
 import { LocationRequirement, UserRequirement } from "@/types";
-import { cn } from "@/lib/client/utils";
+import { Icons } from "../Icons";
+import Image from "next/image";
+import { classed } from "@tw-classed/react";
 
 type QuestCardProps = {
   title: string;
@@ -11,26 +13,67 @@ type QuestCardProps = {
   completedSigs?: number; // number of completed signatures
 };
 
+const CircleCard = classed.div(
+  "flex border-2 -ml-[4px] border-gray-200 justify-center items-center h-6 w-6 rounded-full overflow-hidden float-none",
+  {
+    variants: {
+      color: {
+        white: "bg-white/10",
+        gray: "bg-[#677363]",
+      },
+    },
+    defaultVariants: {
+      color: "white",
+    },
+  }
+);
+
 const QuestRequirementIcons = ({
   userRequirements = [],
   locationRequirements = [],
 }: Pick<QuestCardProps, "userRequirements" | "locationRequirements">) => {
+  const requirementIconsLimit = 4;
+
+  const overcomeRequirementLimit =
+    userRequirements.length + locationRequirements.length >
+    requirementIconsLimit;
+
+  const remainingRequirements =
+    userRequirements.length +
+    locationRequirements.length -
+    requirementIconsLimit;
+
   return (
-    <div className="flex relative gap-1">
-      {[...userRequirements, ...locationRequirements].map(
-        (requirement, index) => {
-          return (
-            <div
-              key={index}
-              style={{
-                marginLeft: `-${index}px`,
-              }}
-              className={cn(
-                "relative w-6 h-6 ring-transparent bg-slate-200 rounded-full overflow-hidden"
-              )}
-            ></div>
-          );
-        }
+    <div className="flex relative items-center gap-1">
+      <div className="flex">
+        {[...userRequirements, ...locationRequirements]
+          .splice(0, requirementIconsLimit)
+          .map((item: UserRequirement | LocationRequirement, index) => {
+            const isPersonRequirement = "users" in item;
+
+            return (
+              <CircleCard
+                key={index}
+                color={isPersonRequirement ? "white" : "gray"}
+              >
+                {isPersonRequirement ? (
+                  <Icons.person />
+                ) : (
+                  <Image
+                    src="/icons/home.png"
+                    height={12}
+                    width={12}
+                    alt="home image"
+                  />
+                )}
+              </CircleCard>
+            );
+          })}
+      </div>
+      {overcomeRequirementLimit && (
+        <span className="text-[11px] text-gray-11 font-light tracking-[0.8px]">
+          {`+${remainingRequirements}`}
+        </span>
       )}
     </div>
   );

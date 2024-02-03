@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { getAuthToken } from "@/lib/client/localStorage";
 import router from "next/router";
+import toast from "react-hot-toast";
 
 enum DisplayState {
   CREATE_QUEST_FORM,
@@ -34,13 +35,13 @@ export default function CreateQuest() {
 
     const authToken = getAuthToken();
     if (!authToken || authToken.expiresAt < new Date()) {
-      alert("You must be logged in to connect");
+      toast.error("You must be logged in to connect");
       router.push("/login");
       return;
     }
 
     if (questReqs.length === 0) {
-      alert("You must have at least one requirement");
+      toast.error("You must have at least one requirement");
       return;
     }
 
@@ -71,7 +72,7 @@ export default function CreateQuest() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };
@@ -90,26 +91,26 @@ export default function CreateQuest() {
     event.preventDefault();
 
     if (!tempQuestReq) {
-      alert("Invalid requirement!");
+      toast.error("Invalid requirement!");
       return;
     }
 
     if (tempQuestReq.name === "") {
-      alert("You must enter a description for this requirement!");
+      toast.error("You must enter a description for this requirement!");
       return;
     }
 
     if (tempQuestReq.name.length > 100) {
-      alert("Requirement description must be 100 characters or less!");
+      toast.error("Requirement description must be 100 characters or less!");
       return;
     }
 
     if (tempQuestReq.numSigsRequired <= 0) {
-      alert("You must require at least one signature");
+      toast.error("You must require at least one signature");
       return;
     }
     if (tempQuestReq.numSigsRequired > tempQuestReq.ids.length) {
-      alert(
+      toast.error(
         "You cannot require more signatures than the number of ids you have entered"
       );
       return;
@@ -134,7 +135,10 @@ export default function CreateQuest() {
     const result = await response.json();
 
     if (!result.valid) {
-      alert("One or more of the IDs you entered is invalid. Please try again.");
+      toast.error(
+        "One or more of the IDs you entered is invalid. Please try again."
+      );
+      setLoading(false);
       return false;
     }
 

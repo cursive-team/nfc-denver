@@ -15,7 +15,7 @@ export default function StorePage() {
   const { isLoading, data: storeItems } = useFetchStore();
 
   return (
-    <div>
+    <>
       <StoreModalItem
         isOpen={itemModalOpen}
         setIsOpen={setItemModalOpen}
@@ -53,6 +53,6 @@ export default function StorePage() {
           ))}
         </LoadingWrapper>
       </div>
-    </div>
+    </>
   );
 }

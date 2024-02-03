@@ -48,41 +48,45 @@ const LocationDetail = ({
   locations,
 }: LocationDetailProps) => {
   const { pageWidth } = useSettings();
-  const [location, setLocation] = useState<LocationRequirementPreview>();
-  const [signature, setSignature] = useState<LocationSignature>();
 
-  useEffect(() => {
-    if (locations.length === 0) return;
-    setLocation(locations[0]);
-    setSignature(getLocationSignature(locations[0].id.toString()));
-  }, [locations]);
+  if (locations.length === 0) return null;
 
-  if (!location) return null;
+  const [mainLocation] = locations ?? [];
+
+  const imageWidth = pageWidth - 48;
 
   return (
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
         <div
-          className="bg-slate-200 rounded bg-cover bg-center bg-no-repeat"
+          className="bg-slate-200 rounded bg-cover bg-center bg-no-repeat object-cover overflow-hidden mx-auto"
           style={{
-            width: `${pageWidth - 32}px`,
-            height: `${pageWidth - 32}px`,
-            backgroundImage: `url(${location.imageUrl})`,
+            width: `${imageWidth}px`,
+            height: `${imageWidth}px`,
+            backgroundImage: `url(${mainLocation.imageUrl})`,
           }}
         ></div>
-        <div className="flex flex-col gap-4 jus">
-          <div className="flex flex-col">
-            <Label>Location</Label>
-            <Description>{location.name}</Description>
-          </div>
-          {signature !== undefined && (
-            <div className="flex flex-col">
-              <Label>Visited On</Label>
-              <Description>{`${signature.ts}`}</Description>
+        {locations?.map((location: LocationRequirementPreview) => {
+          const signature: LocationSignature | undefined = getLocationSignature(
+            location.id.toString()
+          );
+
+          return (
+            <div key={location.id} className="flex gap-6">
+              <div className="flex flex-col">
+                <Label>Location</Label>
+                <Description>{location.name}</Description>
+              </div>
+              {signature !== undefined && (
+                <div className="flex flex-col">
+                  <Label>Visited On</Label>
+                  <Description>{`${signature?.ts}`}</Description>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -157,7 +161,20 @@ const QuestRequirementModal = ({
   requirementName,
   questRequirementType,
   users,
-  locations,
+  locations = [
+    {
+      id: 1,
+      name: "The Great Wall of China",
+      imageUrl:
+        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
+    },
+    {
+      id: 2,
+      name: "The Great Wall of China",
+      imageUrl:
+        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
+    },
+  ],
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {

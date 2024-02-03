@@ -175,7 +175,6 @@ export default function Social() {
         label: "Activity Feed",
         children: (
           <div className="flex flex-col gap-4">
-            {" "}
             {activities.length === 0 && (
               <div className="flex justify-center items-center h-40">
                 <span className="text-gray-10">No activities yet</span>
@@ -209,7 +208,6 @@ export default function Social() {
         label: "Contacts",
         children: (
           <div className="flex flex-col gap-5">
-            {" "}
             {usersList.length === 0 && (
               <div className="flex justify-center items-center h-40">
                 <span className="text-gray-10">No contacts yet</span>
@@ -258,6 +256,11 @@ export default function Social() {
               })}
           </div>
         ),
+      },
+      {
+        label: "Pending",
+        badge: 11,
+        children: null,
       },
     ];
   };

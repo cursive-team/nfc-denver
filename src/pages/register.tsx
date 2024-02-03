@@ -16,6 +16,12 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import Link from "next/link";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
+import toast from "react-hot-toast";
+import { handleNicknameChange } from "@/lib/shared/utils";
+import { Spinner } from "@/components/Spinner";
+import { Radio } from "@/components/Radio";
+import { Checkbox } from "@/components/Checkbox";
+import { Icons } from "@/components/Icons";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -36,9 +42,10 @@ export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [code, setCode] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
-  const [twitterUsername, setTwitterUsername] = useState<string>("");
-  const [telegramUsername, setTelegramUsername] = useState<string>("");
+  const [twitterUsername, setTwitterUsername] = useState<string>("@");
+  const [telegramUsername, setTelegramUsername] = useState<string>("@");
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
+  const [consentTracking, setConsentTracking] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,13 +73,13 @@ export default function Register() {
   const handleTwitterUsernameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setTwitterUsername(event.target.value);
+    setTwitterUsername(handleNicknameChange(event));
   };
 
   const handleTelegramUsernameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setTelegramUsername(event.target.value);
+    setTelegramUsername(handleNicknameChange(event));
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +112,7 @@ export default function Register() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };
@@ -142,7 +149,7 @@ export default function Register() {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };
@@ -155,7 +162,9 @@ export default function Register() {
       !/^[a-z0-9]+$/i.test(displayName) ||
       displayName.length > 20
     ) {
-      alert("Display name must be alphanumeric and less than 20 characters.");
+      toast.error(
+        "Display name must be alphanumeric and less than 20 characters."
+      );
       return;
     }
 
@@ -196,6 +205,7 @@ export default function Register() {
         twitterUsername,
         telegramUsername,
         wantsServerCustody,
+        consentTracking, // TODO: Implement consent tracking in the backend
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
         passwordSalt,
@@ -205,7 +215,7 @@ export default function Register() {
 
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
-      alert("Error creating account! Please try again.");
+      toast.error("Error creating account! Please try again.");
       setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
@@ -213,7 +223,7 @@ export default function Register() {
     const data = await response.json();
     if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
-      alert("Account created, but error logging in! Please try again.");
+      toast.error("Account created, but error logging in! Please try again.");
       setDisplayState(DisplayState.INPUT_EMAIL);
       return;
     }
@@ -241,7 +251,7 @@ export default function Register() {
     let backupData = createBackup();
     if (!backupData) {
       console.error("Error creating backup!");
-      alert("Error creating backup! Please try again.");
+      toast.error("Error creating backup! Please try again.");
       return;
     }
 
@@ -264,18 +274,18 @@ export default function Register() {
 
     if (!backupResponse.ok) {
       console.error(`HTTP error! status: ${backupResponse.status}`);
-      alert("Error storing backup! Please try again.");
+      toast.error("Error storing backup! Please try again.");
       return;
     }
 
-    alert("Account created and backed up!");
+    toast.success("Account created and backed up!");
     router.push("/");
   };
 
   const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {
     event.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -336,7 +346,7 @@ export default function Register() {
           description="1/2"
           onSubmit={handleSocialSubmit}
           header={
-            <>
+            <div className="flex flex-col gap-4">
               <span className="text-sm text-gray-11 font-light">
                 You can choose which social channels to share each time you make
                 a new connection
@@ -366,7 +376,7 @@ export default function Register() {
                 value={telegramUsername}
                 onChange={handleTelegramUsernameChange}
               />
-            </>
+            </div>
           }
         >
           <Button type="submit">Create account</Button>
@@ -378,41 +388,34 @@ export default function Register() {
           description="2/2"
           title="Choose your custody option"
           header={
-            <fieldset className="flex flex-col gap-2">
-              <div className="flex items-center mb-4">
-                <input
-                  id="selfCustody"
-                  type="radio"
-                  name="custody"
-                  value="self"
-                  checked={!wantsServerCustody}
-                  onChange={() => setWantsServerCustody(false)}
-                  className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
-                />
-                <label
-                  htmlFor="selfCustody"
-                  className="ml-2 block text-sm font-medium"
-                >
-                  Self Custody
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="serverCustody"
-                  type="radio"
-                  name="custody"
-                  value="server"
-                  checked={wantsServerCustody}
-                  onChange={() => setWantsServerCustody(true)}
-                  className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
-                />
-                <label
-                  htmlFor="serverCustody"
-                  className="ml-2 block text-sm font-medium"
-                >
-                  Server Custody
-                </label>
-              </div>
+            <fieldset className="flex flex-col gap-6">
+              <span className="text-gray-11 text-sm">
+                You can change this later lorem ipsum
+              </span>
+              <Radio
+                id="selfCustody"
+                name="custody"
+                value="self"
+                label="Self Custody"
+                checked={!wantsServerCustody}
+                onChange={() => setWantsServerCustody(false)}
+              />
+              <Radio
+                id="serverCustody"
+                type="radio"
+                name="custody"
+                value="server"
+                label="Server Custody"
+                checked={wantsServerCustody}
+                onChange={() => setWantsServerCustody(true)}
+              />
+              <Checkbox
+                id="consentTracking"
+                label="I consent to tracking"
+                description="We will never share your lorem ipsum dolor sit am et conspic ipsum dolor"
+                checked={consentTracking}
+                onChange={setConsentTracking}
+              />
             </fieldset>
           }
         >
@@ -421,7 +424,21 @@ export default function Register() {
       )}
       {displayState === DisplayState.INPUT_PASSWORD && (
         <FormStepLayout
-          title="Password"
+          title={
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setDisplayState(DisplayState.CHOOSE_CUSTODY);
+                }}
+                type="button"
+                className="flex gap-2 items-center"
+              >
+                <Icons.arrowLeft />
+                <span className="text-xs text-gray-11">Choose custody</span>
+              </button>
+              <span>Password</span>
+            </div>
+          }
           onSubmit={handleCreateSelfCustodyAccount}
         >
           <Input
@@ -444,7 +461,9 @@ export default function Register() {
         </FormStepLayout>
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
-        <div className=" text-white p-4 rounded-md">Creating account...</div>
+        <div className="my-auto mx-auto">
+          <Spinner />
+        </div>
       )}
     </>
   );
