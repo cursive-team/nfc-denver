@@ -157,28 +157,11 @@ const QuestRequirementModal = ({
   requirementName,
   questRequirementType,
   users,
-<<<<<<< HEAD
-  locations = [
-    {
-      id: 1,
-      name: "The Great Wall of China",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-    },
-    {
-      id: 2,
-      name: "The Great Wall of China",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-    },
-  ],
-=======
   locations,
   userPubKeysCollected,
   locationPubKeysCollected,
   numSigsRequired,
   completed,
->>>>>>> 2feee99 (populate quest requirement components)
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {

@@ -220,6 +220,27 @@ const CompleteQuestModal = ({
             </div>
           </div>
         );
+      case CompleteQuestDisplayState.PROVING:
+        return (
+          <div className="flex flex-col w-full justify-center text-center gap-5">
+            <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
+            <div className="flex flex-col gap-1 self-center">
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-10">
+                  {"Generating zero knowledge proof"}
+                </span>
+                <span className="text-xl text-gray-12">{quest.name}</span>
+              </div>
+            </div>
+            <div className="self-center w-full">
+              <Button disabled>Generating proof</Button>
+            </div>
+            <div className="flex items-center gap-1 self-center">
+              <span className="text-sm text-gray-11">Share on</span>
+              <Icons.twitter />
+            </div>
+          </div>
+        );
       default:
         return <></>;
     }
