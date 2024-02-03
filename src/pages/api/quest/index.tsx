@@ -4,6 +4,7 @@ import { Quest } from "@prisma/client";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { ErrorResponse, QuestWithRequirements } from "@/types";
+import { getRandomNullifierRandomness } from "@/lib/shared/provingConfig";
 
 export type QuestRequirementRequest = {
   name: string;
@@ -73,6 +74,7 @@ export default async function handler(
           select: {
             name: true,
             numSigsRequired: true,
+            sigNullifierRandomness: true,
             users: {
               select: {
                 displayName: true,
@@ -86,6 +88,7 @@ export default async function handler(
           select: {
             name: true,
             numSigsRequired: true,
+            sigNullifierRandomness: true,
             locations: {
               select: {
                 id: true,
@@ -146,6 +149,7 @@ export default async function handler(
             create: userRequirements.map((req) => ({
               name: req.name,
               numSigsRequired: req.numSigsRequired,
+              sigNullifierRandomness: getRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
               users: {
                 connect: req.ids.map((id) => ({ id: parseInt(id) })),
               },
@@ -155,6 +159,7 @@ export default async function handler(
             create: locationRequirements.map((req) => ({
               name: req.name,
               numSigsRequired: req.numSigsRequired,
+              sigNullifierRandomness: getRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
               locations: {
                 connect: req.ids.map((id) => ({ id: parseInt(id) })),
               },

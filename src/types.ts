@@ -26,6 +26,7 @@ export type UserRequirementPreview = {
 export type UserRequirement = {
   name: string;
   numSigsRequired: number;
+  sigNullifierRandomness: string;
   users: UserRequirementPreview[];
 };
 
@@ -39,6 +40,7 @@ export type LocationRequirementPreview = {
 export type LocationRequirement = {
   name: string;
   numSigsRequired: number;
+  sigNullifierRandomness: string;
   locations: LocationRequirementPreview[];
 };
 

@@ -6,10 +6,6 @@ import {
 } from "@/types";
 import {
   MembershipProof,
-  MerkleProof,
-  PublicInputs,
-  Signature,
-  batchProveMembership,
   computeMerkleProof,
   derDecodeSignature,
   deserializeMembershipProof,
@@ -75,9 +71,6 @@ export const generateProofForQuest = async (
   const users = getUsers();
   const locationSignatures = getLocationSignatures();
 
-  // TODO: Add sig nullifier randomness AT THE REQUIREMENT LEVEL
-  const sigNullifierRandomness = "0";
-
   let onUpdateProvingStateForCurrentRequirement = undefined;
   if (onUpdateProvingState) {
     onUpdateProvingStateForCurrentRequirement = (newProvingState: {
@@ -108,7 +101,6 @@ export const generateProofForQuest = async (
       const proof = await generateProofForUserRequirement(
         users,
         requirement,
-        sigNullifierRandomness,
         poseidon,
         onUpdateProvingStateForCurrentRequirement
       );
@@ -136,7 +128,6 @@ export const generateProofForQuest = async (
       const proof = await generateProofForLocationRequirement(
         locationSignatures,
         requirement,
-        sigNullifierRandomness,
         poseidon,
         onUpdateProvingStateForCurrentRequirement
       );
@@ -162,7 +153,6 @@ export const generateProofForQuest = async (
 const generateProofForUserRequirement = async (
   users: Record<string, User>,
   requirement: UserRequirement,
-  sigNullifierRandomness: string,
   hashFn: any,
   onUpdateProvingState?: (newProvingState: {
     currentRequirementNumSigsTotal: number;
@@ -183,8 +173,10 @@ const generateProofForUserRequirement = async (
     throw new Error("Not enough signatures for user requirement");
   }
 
-  // Must use random nullifier randomness for each batch membership proof
-  const randomNullifierRandomness = hexToBigInt(getRandomNullifierRandomness());
+  const sigNullifierRandomness = hexToBigInt(
+    requirement.sigNullifierRandomness
+  );
+  const pubKeyNullifierRandomness = hexToBigInt(getRandomNullifierRandomness()); // Ensures user cannot reuse a public key in a proof for this requirement
   const requiredSigPubKeysEdwards = requiredSigPubKeys.map((pubKey) =>
     publicKeyFromString(pubKey).toEdwards()
   );
@@ -216,8 +208,8 @@ const generateProofForUserRequirement = async (
       msgHash,
       publicInputs,
       merkleProof,
-      sigNullifierRandomness: hexToBigInt(sigNullifierRandomness),
-      pubKeyNullifierRandomness: randomNullifierRandomness,
+      sigNullifierRandomness,
+      pubKeyNullifierRandomness,
       pathToCircuits: getClientPathToCircuits(),
     });
     proofs.push(proof);
@@ -236,7 +228,6 @@ const generateProofForUserRequirement = async (
 const generateProofForLocationRequirement = async (
   locations: Record<string, LocationSignature>,
   requirement: LocationRequirement,
-  sigNullifierRandomness: string,
   hashFn: any,
   onUpdateProvingState?: (newProvingState: {
     currentRequirementNumSigsTotal: number;
@@ -257,8 +248,10 @@ const generateProofForLocationRequirement = async (
     throw new Error("Not enough signatures for location requirement");
   }
 
-  // Must use random nullifier randomness for each batch membership proof
-  const randomNullifierRandomness = hexToBigInt(getRandomNullifierRandomness());
+  const sigNullifierRandomness = hexToBigInt(
+    requirement.sigNullifierRandomness
+  );
+  const pubKeyNullifierRandomness = hexToBigInt(getRandomNullifierRandomness()); // Ensures user cannot reuse a public key in a proof for this requirement
   const requiredSigPubKeysEdwards = requiredSigPubKeys.map((pubKey) =>
     publicKeyFromString(pubKey).toEdwards()
   );
@@ -293,8 +286,8 @@ const generateProofForLocationRequirement = async (
       msgHash,
       publicInputs,
       merkleProof,
-      sigNullifierRandomness: hexToBigInt(sigNullifierRandomness),
-      pubKeyNullifierRandomness: randomNullifierRandomness,
+      sigNullifierRandomness,
+      pubKeyNullifierRandomness,
       pathToCircuits: getClientPathToCircuits(),
     });
     proofs.push(proof);

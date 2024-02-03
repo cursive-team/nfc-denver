@@ -23,6 +23,7 @@ export default async function handler(
               select: {
                 name: true,
                 numSigsRequired: true,
+                sigNullifierRandomness: true,
                 users: {
                   select: {
                     displayName: true,
@@ -36,6 +37,7 @@ export default async function handler(
               select: {
                 name: true,
                 numSigsRequired: true,
+                sigNullifierRandomness: true,
                 locations: {
                   select: {
                     id: true,

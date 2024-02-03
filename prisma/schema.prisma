@@ -12,9 +12,9 @@ datasource db {
 }
 
 model User {
-  id                        Int                 @id @default(autoincrement())
-  chipId                    String              @unique
-  email                     String              @unique
+  id                        Int                @id @default(autoincrement())
+  chipId                    String             @unique
+  email                     String             @unique
   displayName               String
   encryptionPublicKey       String
   signaturePublicKey        String
@@ -23,12 +23,12 @@ model User {
   passwordHash              String?
   twitterUsername           String?
   telegramUsername          String?
-  createdAt                 DateTime            @default(now())
-  sentMessages              Message[]           @relation("MessageSender")
-  receivedMessages          Message[]           @relation("MessageRecipient")
-  questRequirements         UserRequirement[]   @relation("UserQuestRequirements")
-  sentBenchmarkMessages     BenchmarkMessage[]  @relation("BenchmarkMessageSender")
-  receivedBenchmarkMessages BenchmarkMessage[]  @relation("BenchmarkMessageRecipient")
+  createdAt                 DateTime           @default(now())
+  sentMessages              Message[]          @relation("MessageSender")
+  receivedMessages          Message[]          @relation("MessageRecipient")
+  questRequirements         UserRequirement[]  @relation("UserQuestRequirements")
+  sentBenchmarkMessages     BenchmarkMessage[] @relation("BenchmarkMessageSender")
+  receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
 }
 
 model LocationKey {
@@ -42,7 +42,7 @@ model LocationKey {
 model Location {
   id                  Int                   @id @default(autoincrement())
   chipId              String                @unique
-  signaturePublicKey  String                
+  signaturePublicKey  String
   name                String
   description         String
   sponsor             String
@@ -105,31 +105,33 @@ model Quest {
 }
 
 model UserRequirement {
-  id              Int      @id @default(autoincrement())
-  name            String
-  questId         Int
-  userIds         Int[]
-  numSigsRequired Int
-  createdAt       DateTime @default(now())
-  quest           Quest    @relation(fields: [questId], references: [id])
-  users           User[]   @relation("UserQuestRequirements")
+  id                     Int      @id @default(autoincrement())
+  name                   String
+  questId                Int
+  userIds                Int[]
+  numSigsRequired        Int
+  sigNullifierRandomness String // Used to prevent signatures from being used in multiple proofs
+  createdAt              DateTime @default(now())
+  quest                  Quest    @relation(fields: [questId], references: [id])
+  users                  User[]   @relation("UserQuestRequirements")
 }
 
 model LocationRequirement {
-  id              Int        @id @default(autoincrement())
-  name            String
-  questId         Int
-  locationIds     Int[]
-  numSigsRequired Int
-  createdAt       DateTime   @default(now())
-  quest           Quest      @relation(fields: [questId], references: [id])
-  locations       Location[] @relation("LocationQuestRequirements")
+  id                     Int        @id @default(autoincrement())
+  name                   String
+  questId                Int
+  locationIds            Int[]
+  numSigsRequired        Int
+  sigNullifierRandomness String // Used to prevent signatures from being used in multiple proofs
+  createdAt              DateTime   @default(now())
+  quest                  Quest      @relation(fields: [questId], references: [id])
+  locations              Location[] @relation("LocationQuestRequirements")
 }
 
 // Mirrors the Message model, but only used for benchmarking
 model BenchmarkMessage {
   id            Int      @id @default(autoincrement())
-  benchmarkId   Int      // Used to identify messages during benchmarking
+  benchmarkId   Int // Used to identify messages during benchmarking
   senderId      Int
   recipientId   Int
   encryptedData String
