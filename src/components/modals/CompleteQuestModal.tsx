@@ -21,43 +21,6 @@ import { loadMessages } from "@/lib/client/jubSignalClient";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
-const MoreQuests = () => {
-  const { isLoading, data: quests = [] } = useFetchQuests();
-  const MORE_QUESTS_TO_SHOW = 4;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <span className="text-xs text-gray-10 font-light">More quests</span>
-      <div className="flex flex-col gap-2">
-        {quests
-          ?.slice(0, MORE_QUESTS_TO_SHOW)
-          ?.map(
-            (
-              {
-                id,
-                name,
-                description,
-                userRequirements,
-                locationRequirements,
-              }: any,
-              index
-            ) => (
-              <Link href={`/quests/${id}`} key={id}>
-                <QuestCard
-                  title={name}
-                  description={description}
-                  completedSigs={1}
-                  userRequirements={userRequirements}
-                  locationRequirements={locationRequirements}
-                />
-              </Link>
-            )
-          )}
-      </div>
-    </div>
-  );
-};
-
 const RedeemPoint = ({ questName }: { questName: string }) => {
   const [redeemPoint, setRedeemPoint] = useState(false);
 
