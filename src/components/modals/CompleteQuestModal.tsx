@@ -13,9 +13,11 @@ import {
   QuestProvingStateUpdate,
   generateProofForQuest,
 } from "@/lib/client/proving";
-import { getAuthToken } from "@/lib/client/localStorage";
+import { getAuthToken, getKeys, getProfile } from "@/lib/client/localStorage";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
+import { encryptQuestCompletedMessage } from "@/lib/client/jubSignal";
+import { loadMessages } from "@/lib/client/jubSignalClient";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
@@ -216,7 +218,10 @@ const CompleteQuestModal = ({
 
   const handleCompleteQuest = async () => {
     const authToken = getAuthToken();
-    if (!authToken || authToken.expiresAt < new Date()) {
+    const profile = getProfile();
+    const keys = getKeys();
+
+    if (!authToken || authToken.expiresAt < new Date() || !profile || !keys) {
       toast.error("You must be logged in to complete a quest");
       router.push("/login");
       return;
@@ -270,22 +275,76 @@ const CompleteQuestModal = ({
     }
 
     const data = await response.json();
-    if (data.verified === true) {
-      const proofId = data.proofId;
-      if (!proofId) {
-        toast.error("Failed to submit proof!");
-        setDisplayState(CompleteQuestDisplayState.INITIAL);
-        return;
-      }
-
-      setSerializedProof(serializedProof);
-      setProofId(proofId);
-      setDisplayState(CompleteQuestDisplayState.COMPLETED);
+    if (!data.verified) {
+      toast.error("Proof failed to verify!");
+      setDisplayState(CompleteQuestDisplayState.INITIAL);
       return;
     }
 
-    toast.error("Proof failed to verify!");
-    setDisplayState(CompleteQuestDisplayState.INITIAL);
+    const proofId = data.proofId;
+    if (!proofId) {
+      toast.error("Failed to submit proof!");
+      setDisplayState(CompleteQuestDisplayState.INITIAL);
+      return;
+    }
+
+    const senderPrivateKey = keys.encryptionPrivateKey;
+    const recipientPublicKey = profile.encryptionPublicKey;
+    const encryptedMessage = await encryptQuestCompletedMessage({
+      questId: quest.id.toString(),
+      questName: quest.name,
+      proofId,
+      senderPrivateKey,
+      recipientPublicKey,
+    });
+
+    // Send quest completed info as encrypted jubSignal message to self
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: encryptedMessage,
+          recipientPublicKey,
+          token: authToken.value,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error sending message");
+      }
+    } catch (error) {
+      console.error(
+        "Error sending encrypted quest completed info to server: ",
+        error
+      );
+      toast.error(
+        "An error occured while completing the quest. Please try again."
+      );
+      setDisplayState(CompleteQuestDisplayState.INITIAL);
+      return;
+    }
+
+    // Update activity feed in local storage
+    try {
+      await loadMessages({ forceRefresh: false });
+    } catch (error) {
+      console.error("Error loading messages after completing quest");
+      toast.error(
+        "An error occured while adding this event to your activity feed."
+      );
+    }
+
+    setSerializedProof(serializedProof);
+    setProofId(proofId);
+    setDisplayState(CompleteQuestDisplayState.COMPLETED);
+  };
+
+  const handleBackToQuests = () => {
+    setIsOpen(false);
+    router.push("/quests");
   };
 
   const getModalContent = (): JSX.Element => {
@@ -356,6 +415,9 @@ const CompleteQuestModal = ({
             <div className="flex items-center gap-1 self-center">
               <span className="text-sm text-gray-11">Share on</span>
               <Icons.twitter />
+            </div>
+            <div className="self-center w-full">
+              <Button onClick={handleBackToQuests}>Back to Quests</Button>
             </div>
           </div>
         );

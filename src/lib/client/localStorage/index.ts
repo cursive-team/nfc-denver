@@ -2,6 +2,7 @@ import { deleteAllActivities } from "./activities";
 import { deleteAllKeys } from "./keys";
 import { deleteAllLocationSignatures } from "./locationSignatures";
 import { deleteProfile } from "./profile";
+import { deleteAllQuestCompleted } from "./questCompleted";
 import { deleteSession } from "./session";
 import { deleteAllUsers } from "./users";
 
@@ -12,6 +13,7 @@ export * from "./keys";
 export * from "./users";
 export * from "./locationSignatures";
 export * from "./activities";
+export * from "./questCompleted";
 
 export const saveToLocalStorage = (key: string, value: string): void => {
   localStorage.setItem(key, value);
@@ -33,4 +35,5 @@ export const deleteAccountFromLocalStorage = (): void => {
   deleteProfile();
   deleteAllUsers();
   deleteAllActivities();
+  deleteAllQuestCompleted();
 };

@@ -22,6 +22,7 @@ import {
   LocationSignature,
   User,
   getLocationSignatures,
+  getQuestCompleted,
   getUsers,
 } from "@/lib/client/localStorage";
 import {
@@ -76,6 +77,18 @@ export default function QuestById() {
   const { isLoading, data: quest = null } = useFetchQuestById(
     questId as string
   );
+  const [existingProofId, setExistingProofId] = useState<string>();
+
+  useEffect(() => {
+    if (quest) {
+      // Check if the user has already submitted a proof for this quest
+      // (i.e. the quest is already completed)
+      const questCompleted = getQuestCompleted(quest.id.toString());
+      if (questCompleted) {
+        setExistingProofId(questCompleted.pfId);
+      }
+    }
+  }, [quest]);
 
   useEffect(() => {
     const users = getUsers();
@@ -131,6 +144,8 @@ export default function QuestById() {
     (quest?.userRequirements?.length ?? 0) +
     (quest?.locationRequirements?.length ?? 0);
 
+  const isQuestComplete = existingProofId !== undefined;
+
   return (
     <div>
       <AppBackHeader />
@@ -139,6 +154,7 @@ export default function QuestById() {
           isOpen={completeQuestModal}
           setIsOpen={setCompleteQuestModal}
           quest={quest}
+          // existingProofId={existingProofId}
         />
       )}
       <div className="flex flex-col gap-2">
@@ -151,17 +167,27 @@ export default function QuestById() {
             title="Requirements"
             label={
               <div className="flex gap-2 items-center">
-                <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
-                {quest && numRequirementsSatisfied === numRequirementsTotal && (
-                  <Button
-                    onClick={() => {
-                      setCompleteQuestModal(true);
-                    }}
-                    size="tiny"
-                  >
-                    Complete quest
-                  </Button>
+                {isQuestComplete && (
+                  <>
+                    <Label>{"Quest Complete"}</Label>
+                    <Icons.checkedCircle />
+                  </>
                 )}
+                {!isQuestComplete && (
+                  <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
+                )}
+                {quest &&
+                  numRequirementsSatisfied === numRequirementsTotal &&
+                  !isQuestComplete && (
+                    <Button
+                      onClick={() => {
+                        setCompleteQuestModal(true);
+                      }}
+                      size="tiny"
+                    >
+                      Complete quest
+                    </Button>
+                  )}
               </div>
             }
           >

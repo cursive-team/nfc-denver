@@ -14,6 +14,7 @@ import {
   getLocationSignatures,
   User,
   LocationSignature,
+  getAllQuestCompleted,
 } from "@/lib/client/localStorage";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 import { QuestWithRequirements } from "@/types";
@@ -23,7 +24,13 @@ export default function QuestsPage() {
   // Compute users and locations that user has signatures for
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
+  const [completedQuestIds, setCompletedQuestIds] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState("ALL");
+
+  useEffect(() => {
+    const questCompleted = getAllQuestCompleted();
+    setCompletedQuestIds(Object.keys(questCompleted));
+  }, []);
 
   useEffect(() => {
     const users = getUsers();
@@ -89,6 +96,7 @@ export default function QuestsPage() {
                   completedSigs={numRequirementsSatisfied[index]}
                   userRequirements={userRequirements}
                   locationRequirements={locationRequirements}
+                  isCompleted={completedQuestIds.includes(id.toString())}
                 />
               </Link>
             );

@@ -107,6 +107,26 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           </div>
         </Link>
       );
+    case JUB_SIGNAL_MESSAGE_TYPE.QUEST_COMPLETED:
+      return (
+        <Link href={`/quests/${id}`}>
+          <div className="flex justify-between py-1">
+            <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                <Icons.person />
+              </div>
+              <Card.Title>
+                {
+                  <div>
+                    <u>You</u> {"completed quest"} <u>{name}</u>
+                  </div>
+                }
+              </Card.Title>
+            </div>
+            <Card.Description>{date}</Card.Description>
+          </div>
+        </Link>
+      );
     default:
       return null;
   }
