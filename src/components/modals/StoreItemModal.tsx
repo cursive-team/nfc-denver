@@ -91,6 +91,7 @@ const StoreModalItem = ({
                     completedSigs={1}
                     userRequirements={userRequirements}
                     locationRequirements={locationRequirements}
+                    isCompleted={false}
                   />
                 </Link>
               )
