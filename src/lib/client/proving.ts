@@ -52,7 +52,7 @@ export const deserializeQuestProof = (serializedProof: string): QuestProof => {
   };
 };
 
-export type QuestProvingState = {
+export type QuestProvingStateUpdate = {
   numRequirementsUpdate?: {
     numRequirementsTotal: number;
     numRequirementsProven: number;
@@ -65,7 +65,7 @@ export type QuestProvingState = {
 
 export const generateProofForQuest = async (
   quest: QuestWithRequirements,
-  onUpdateProvingState?: (newProvingState: QuestProvingState) => void
+  onUpdateProvingState?: (newProvingState: QuestProvingStateUpdate) => void
 ): Promise<string> => {
   const poseidon = await buildPoseidon();
   const users = getUsers();

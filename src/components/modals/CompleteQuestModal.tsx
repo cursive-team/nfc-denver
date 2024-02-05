@@ -9,6 +9,10 @@ import { classed } from "@tw-classed/react";
 import QRCode from "react-qr-code";
 import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { QuestWithRequirements } from "@/types";
+import {
+  QuestProvingStateUpdate,
+  generateProofForQuest,
+} from "@/lib/client/proving";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
@@ -182,6 +186,13 @@ enum CompleteQuestDisplayState {
   QR_CODE,
 }
 
+type QuestProvingState = {
+  numRequirementsTotal: number;
+  numRequirementsProven: number;
+  currentRequirementNumSigsTotal: number;
+  currentRequirementNumSigsProven: number;
+};
+
 const CompleteQuestModal = ({
   quest,
   isOpen,
@@ -190,9 +201,46 @@ const CompleteQuestModal = ({
   const [displayState, setDisplayState] = useState<CompleteQuestDisplayState>(
     CompleteQuestDisplayState.INITIAL
   );
+  const [provingState, setProvingState] = useState<QuestProvingState>({
+    numRequirementsTotal: 0,
+    numRequirementsProven: 0,
+    currentRequirementNumSigsTotal: 0,
+    currentRequirementNumSigsProven: 0,
+  });
+  const [serializedProof, setSerializedProof] = useState<string>();
 
-  const handleCompleteQuest = () => {
+  const handleCompleteQuest = async () => {
     setDisplayState(CompleteQuestDisplayState.PROVING);
+
+    const onUpdateProvingState = (
+      provingStateUpdate: QuestProvingStateUpdate
+    ) => {
+      setProvingState((prevProvingState) => {
+        const newProvingState = { ...prevProvingState };
+        if (provingStateUpdate.numRequirementsUpdate) {
+          newProvingState.numRequirementsTotal =
+            provingStateUpdate.numRequirementsUpdate.numRequirementsTotal;
+          newProvingState.numRequirementsProven =
+            provingStateUpdate.numRequirementsUpdate.numRequirementsProven;
+        }
+        if (provingStateUpdate.currentRequirementUpdate) {
+          newProvingState.currentRequirementNumSigsTotal =
+            provingStateUpdate.currentRequirementUpdate.currentRequirementNumSigsTotal;
+          newProvingState.currentRequirementNumSigsProven =
+            provingStateUpdate.currentRequirementUpdate.currentRequirementNumSigsProven;
+        }
+
+        return newProvingState;
+      });
+    };
+
+    const serializedProof = await generateProofForQuest(
+      quest,
+      onUpdateProvingState
+    );
+
+    setSerializedProof(serializedProof);
+    setDisplayState(CompleteQuestDisplayState.COMPLETED);
   };
 
   const getModalContent = (): JSX.Element => {
@@ -226,14 +274,34 @@ const CompleteQuestModal = ({
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col">
+                <span className="text-xl text-gray-12">{quest.name}</span>
                 <span className="text-xs text-gray-10">
                   {"Generating zero knowledge proof"}
                 </span>
-                <span className="text-xl text-gray-12">{quest.name}</span>
+                <span className="text-xs text-gray-10">
+                  {`Proving requirement ${provingState.numRequirementsProven} of ${provingState.numRequirementsTotal}`}
+                </span>
+                <span className="text-xs text-gray-10">
+                  {`Proving signature ${provingState.currentRequirementNumSigsProven} of ${provingState.currentRequirementNumSigsTotal}`}
+                </span>
               </div>
             </div>
             <div className="self-center w-full">
               <Button disabled>Generating proof</Button>
+            </div>
+          </div>
+        );
+      case CompleteQuestDisplayState.COMPLETED:
+        return (
+          <div className="flex flex-col w-full justify-center text-center gap-5">
+            <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
+            <div className="flex flex-col gap-1 self-center">
+              <div className="flex flex-col">
+                <span className="text-xl text-gray-12">{quest.name}</span>
+                <span className="text-xs text-gray-10">
+                  {`Proof: ${serializedProof}`}
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-1 self-center">
               <span className="text-sm text-gray-11">Share on</span>

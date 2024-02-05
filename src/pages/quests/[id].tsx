@@ -152,14 +152,16 @@ export default function QuestById() {
             label={
               <div className="flex gap-2 items-center">
                 <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
-                <Button
-                  onClick={() => {
-                    setCompleteQuestModal(true);
-                  }}
-                  size="tiny"
-                >
-                  Complete quest
-                </Button>
+                {quest && numRequirementsSatisfied === numRequirementsTotal && (
+                  <Button
+                    onClick={() => {
+                      setCompleteQuestModal(true);
+                    }}
+                    size="tiny"
+                  >
+                    Complete quest
+                  </Button>
+                )}
               </div>
             }
           >
