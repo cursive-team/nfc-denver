@@ -20,6 +20,7 @@ import { JUB_SIGNAL_MESSAGE_TYPE } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
 import { SnapshotModal } from "@/components/modals/SnapshotModal";
 import Image from "next/image";
+import { Button } from "@/components/Button";
 
 interface ContactCardProps {
   name: string;
@@ -35,6 +36,20 @@ const ContactCard = ({ name, userId, date }: ContactCardProps) => {
         <Card.Description>{date}</Card.Description>
       </Card.Base>
     </Link>
+  );
+};
+
+const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
+  return (
+    <Card.Base className="flex justify-between p-3">
+      <Card.Title className="leading-none">{name}</Card.Title>
+      <Card.Description>{date}</Card.Description>
+      <div>
+        <Link href={`/users/${userId}/share`}>
+          <Button size="tiny">Share Back</Button>
+        </Link>
+      </div>
+    </Card.Base>
   );
 };
 
@@ -149,13 +164,14 @@ export default function Social() {
       ...value,
       uuid: key,
     }));
-    const sortedUsers = usersList.sort((a, b) => {
+    const contactUsersList = usersList.filter((user) => user.outTs);
+    const sortedContactUsers = contactUsersList.sort((a, b) => {
       return a.name.localeCompare(b.name, "en", { sensitivity: "base" }); // Ignore case
     });
-    const groupedUsers: (User & { uuid: string })[][] = []; // User with uuid property included
+    const groupedContactUsers: (User & { uuid: string })[][] = []; // User with uuid property included
     let currentLetter: string | undefined = undefined;
     let currentLetterUsers: (User & { uuid: string })[] = [];
-    sortedUsers.forEach((user) => {
+    sortedContactUsers.forEach((user) => {
       const letter = user.name[0].toUpperCase();
       if (currentLetter === undefined) {
         currentLetterUsers.push(user);
@@ -163,12 +179,20 @@ export default function Social() {
       } else if (currentLetter === letter) {
         currentLetterUsers.push(user);
       } else {
-        groupedUsers.push(currentLetterUsers);
+        groupedContactUsers.push(currentLetterUsers);
         currentLetterUsers = [user];
         currentLetter = letter;
       }
     });
-    groupedUsers.push(currentLetterUsers);
+    groupedContactUsers.push(currentLetterUsers);
+
+    // Sort pending contacts by timestamp
+    const pendingUsersList = usersList.filter(
+      (user) => user.inTs && !user.outTs
+    );
+    const sortedPendingUserList = pendingUsersList.sort(
+      (a, b) => new Date(b.inTs!).getTime() - new Date(a.inTs!).getTime()
+    );
 
     return [
       {
@@ -208,13 +232,13 @@ export default function Social() {
         label: "Contacts",
         children: (
           <div className="flex flex-col gap-5">
-            {usersList.length === 0 && (
+            {contactUsersList.length === 0 && (
               <div className="flex justify-center items-center h-40">
                 <span className="text-gray-10">No contacts yet</span>
               </div>
             )}
-            {usersList.length !== 0 &&
-              groupedUsers.map((users, index) => {
+            {contactUsersList.length !== 0 &&
+              groupedContactUsers.map((users, index) => {
                 return (
                   <ListLayout
                     key={index}
@@ -222,24 +246,8 @@ export default function Social() {
                   >
                     <div className="flex flex-col gap-1">
                       {users.map((user, index) => {
-                        const { name, outTs, inTs } = user;
-                        const outDate = outTs ? new Date(outTs) : undefined;
-                        const inDate = inTs ? new Date(inTs) : undefined;
-
-                        // Use most recent timestamp of an interaction with this user
-                        let date;
-                        if (outDate && inDate) {
-                          date =
-                            inDate > outDate
-                              ? inDate.toLocaleString()
-                              : outDate.toLocaleString();
-                        } else if (inDate) {
-                          date = inDate.toLocaleString();
-                        } else if (outDate) {
-                          date = outDate.toLocaleString();
-                        } else {
-                          date = "";
-                        }
+                        const { name, outTs } = user;
+                        const date = new Date(outTs!).toLocaleString();
 
                         return (
                           <ContactCard
@@ -260,7 +268,34 @@ export default function Social() {
       {
         label: "Pending",
         badge: 11,
-        children: null,
+        children: (
+          <div className="flex flex-col gap-5">
+            {sortedPendingUserList.length === 0 && (
+              <div className="flex justify-center items-center h-40">
+                <span className="text-gray-10">No pending contacts</span>
+              </div>
+            )}
+            {sortedPendingUserList.length !== 0 && (
+              <ListLayout label="Pending">
+                <div className="flex flex-col gap-1">
+                  {sortedPendingUserList.map((user, index) => {
+                    const { name, inTs } = user;
+                    const date = new Date(inTs!).toLocaleString();
+
+                    return (
+                      <PendingContactCard
+                        key={index}
+                        name={name}
+                        userId={user.uuid}
+                        date={date}
+                      />
+                    );
+                  })}
+                </div>
+              </ListLayout>
+            )}
+          </div>
+        ),
       },
     ];
   };
