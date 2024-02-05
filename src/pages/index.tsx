@@ -283,7 +283,9 @@ export default function Social() {
     } else {
       setProfile(profileData);
       setBuidlBalance(EXAMPLE_BUIDL_BALANCE);
-      setNumConnections(Object.keys(users).length);
+      setNumConnections(
+        Object.values(users).filter((user) => user.outTs).length
+      );
       setTabsItems(computeTabsItems(users, activities)); // Sorting logic for activities and contacts
     }
   }, [router]);

@@ -1,16 +1,10 @@
 import { AppBackHeader } from "@/components/AppHeader";
-import { Filters } from "@/components/Filters";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useGetLeaderboard } from "@/hooks/useLeaderboard";
+import { getAuthToken } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
-import React from "react";
-
-type LeaderBoardType = "CONNECTIONS" | "CANDY";
-const LeaderBoardMapping: Record<LeaderBoardType, string> = {
-  CONNECTIONS: "Connections",
-  CANDY: "Candy",
-};
+import React, { useMemo } from "react";
 
 const TableWrapper = classed.div("grid grid-cols-[25px_200px_1fr] gap-4");
 const TableHeaderLabel = classed.div(
@@ -33,27 +27,43 @@ const PositionCard = classed.div(
   }
 );
 export default function LeaderBoard() {
-  const [selectedOption, setSelectedOption] =
-    React.useState<LeaderBoardType>("CONNECTIONS");
-  const { isLoading, data: leaderboard = [] } = useGetLeaderboard();
+  const authToken = useMemo(getAuthToken, []);
+  const { isLoading, data: leaderboard = [] } = useGetLeaderboard(authToken);
 
-  const activeLabel = LeaderBoardMapping[selectedOption];
+  const getLeaderboardData = () => {
+    let rank = 0;
+    let prevConnections: Number | undefined;
+    let skip = 1;
 
+    return leaderboard?.map(({ name, connections, isCurrentUser }, index) => {
+      if (index === 0 || connections !== prevConnections) {
+        prevConnections = connections;
+        rank += skip;
+        skip = 1;
+      } else {
+        skip++;
+      }
+      const active = isCurrentUser;
+
+      return (
+        <TableWrapper key={index}>
+          <PositionCard active={active}>{rank}</PositionCard>
+          <DisplayName>{name}</DisplayName>
+          <Point className="text-right">{connections}</Point>
+        </TableWrapper>
+      );
+    });
+  };
   return (
     <div>
       <AppBackHeader />
       <div className="flex flex-col gap-6 pb-6">
-        <Filters
-          defaultValue="CONNECTIONS"
-          object={LeaderBoardMapping}
-          onChange={setSelectedOption}
-        />
         <div className="flex flex-col gap-2">
           <TableWrapper>
             <TableHeaderLabel className="text-center">#</TableHeaderLabel>
             <TableHeaderLabel>Display name</TableHeaderLabel>
             <TableHeaderLabel className="text-right">
-              {activeLabel}
+              Connections
             </TableHeaderLabel>
           </TableWrapper>
           <LoadingWrapper
@@ -61,20 +71,7 @@ export default function LeaderBoard() {
             className="flex flex-col gap-[6px]"
             fallback={<Placeholder.List type="line" items={20} />}
           >
-            {leaderboard?.map(({ name, connections, points }, index) => {
-              const position = index + 1;
-              const active = false;
-
-              return (
-                <TableWrapper key={index}>
-                  <PositionCard active={active}>{position}</PositionCard>
-                  <DisplayName>{name}</DisplayName>
-                  <Point className="text-right">
-                    {selectedOption === "CONNECTIONS" ? connections : points}
-                  </Point>
-                </TableWrapper>
-              );
-            })}
+            {getLeaderboardData()}
           </LoadingWrapper>
         </div>
       </div>

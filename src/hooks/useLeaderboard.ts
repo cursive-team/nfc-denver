@@ -1,20 +1,48 @@
+import { AuthToken } from "@/lib/client/localStorage";
 import { useQuery } from "@tanstack/react-query";
+import { array, boolean, number, object, string } from "yup";
 
-export const useGetLeaderboard = () => {
+export type LeaderboardData = {
+  name: string;
+  connections: number;
+  isCurrentUser?: boolean;
+}[];
+
+export const leaderboardDataSchema = array().of(
+  object().shape({
+    name: string().required("Name is required"),
+    connections: number()
+      .required("Connections count is required")
+      .min(0, "Connections cannot be negative"),
+    isCurrentUser: boolean().optional().default(false),
+  })
+);
+
+export const useGetLeaderboard = (authToken: AuthToken | undefined) => {
   return useQuery({
-    queryKey: ["leaderboard"],
-    queryFn: async () => {
-      // TODO: replace with real API call
+    queryKey: ["leaderboard", authToken],
+    queryFn: async (): Promise<LeaderboardData> => {
+      if (!authToken || authToken.expiresAt < new Date()) {
+        return [];
+      }
 
-      const data = Array.from({ length: 100 }).map((_, index) => ({
-        id: index,
-        name: `User ${index}`,
-        score: Math.floor(Math.random() * 1000),
-        connections: Math.floor(Math.random() * 100),
-        points: Math.floor(Math.random() * 100),
-      }));
+      const response = await fetch(`/api/leaderboard?token=${authToken.value}`);
+      if (!response.ok) {
+        return [];
+      }
 
-      return data;
+      const data = await response.json();
+      try {
+        const leaderboard = leaderboardDataSchema.validateSync(data);
+        if (!leaderboard) {
+          throw new Error("Invalid leaderboard data");
+        }
+
+        return leaderboard;
+      } catch (error) {
+        console.error("Failed to validate leaderboard data:", error);
+        return [];
+      }
     },
   });
 };
