@@ -6,12 +6,14 @@ import {
 } from "@/types";
 import {
   MembershipProof,
+  bytesToHex,
   computeMerkleProof,
   derDecodeSignature,
   deserializeMembershipProof,
   getECDSAMessageHash,
   getPublicInputsFromSignature,
   hexToBigInt,
+  isNode,
   proveMembership,
   publicKeyFromString,
   serializeMembershipProof,
@@ -24,10 +26,25 @@ import {
 } from "./localStorage";
 // @ts-ignore
 import { buildPoseidonReference as buildPoseidon } from "circomlibjs";
-import {
-  getClientPathToCircuits,
-  getRandomNullifierRandomness,
-} from "../shared/provingConfig";
+
+// In our current configuration, this is the path to the circuits directory for client side proving
+export const getClientPathToCircuits = (): string => {
+  return __dirname + "circuits/";
+};
+
+// Generates randomness for nullifiers for the client
+// Uses Crypto Web API in browser
+export const getClientRandomNullifierRandomness = (): string => {
+  const numBytes = 30; // Generate a number of bytes smaller than the size of a field element
+
+  if (isNode()) {
+    throw new Error(
+      "Used server side function to get nullifier randomness in client"
+    );
+  }
+
+  return bytesToHex(self.crypto.getRandomValues(new Uint8Array(numBytes)));
+};
 
 export const serializeQuestProof = (proof: QuestProof): string => {
   return JSON.stringify({
@@ -176,7 +193,9 @@ const generateProofForUserRequirement = async (
   const sigNullifierRandomness = hexToBigInt(
     requirement.sigNullifierRandomness
   );
-  const pubKeyNullifierRandomness = hexToBigInt(getRandomNullifierRandomness()); // Ensures user cannot reuse a public key in a proof for this requirement
+  const pubKeyNullifierRandomness = hexToBigInt(
+    getClientRandomNullifierRandomness()
+  ); // Ensures user cannot reuse a public key in a proof for this requirement
   const requiredSigPubKeysEdwards = requiredSigPubKeys.map((pubKey) =>
     publicKeyFromString(pubKey).toEdwards()
   );
@@ -251,7 +270,9 @@ const generateProofForLocationRequirement = async (
   const sigNullifierRandomness = hexToBigInt(
     requirement.sigNullifierRandomness
   );
-  const pubKeyNullifierRandomness = hexToBigInt(getRandomNullifierRandomness()); // Ensures user cannot reuse a public key in a proof for this requirement
+  const pubKeyNullifierRandomness = hexToBigInt(
+    getClientRandomNullifierRandomness()
+  ); // Ensures user cannot reuse a public key in a proof for this requirement
   const requiredSigPubKeysEdwards = requiredSigPubKeys.map((pubKey) =>
     publicKeyFromString(pubKey).toEdwards()
   );

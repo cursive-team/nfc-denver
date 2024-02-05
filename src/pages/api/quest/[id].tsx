@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/server/prisma";
 import { ErrorResponse, QuestWithRequirements } from "@/types";
+import { getQuestById } from "@/lib/server/database";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,43 +15,7 @@ export default async function handler(
     }
 
     try {
-      const quest: QuestWithRequirements | null = await prisma.quest.findUnique(
-        {
-          where: { id: parseInt(id) },
-          include: {
-            userRequirements: {
-              select: {
-                name: true,
-                numSigsRequired: true,
-                sigNullifierRandomness: true,
-                users: {
-                  select: {
-                    displayName: true,
-                    encryptionPublicKey: true,
-                    signaturePublicKey: true,
-                  },
-                },
-              },
-            },
-            locationRequirements: {
-              select: {
-                name: true,
-                numSigsRequired: true,
-                sigNullifierRandomness: true,
-                locations: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    signaturePublicKey: true,
-                  },
-                },
-              },
-            },
-          },
-        }
-      );
-
+      const quest = await getQuestById(parseInt(id));
       if (!quest) {
         res.status(404).json({ error: "Quest not found" });
         return;

@@ -29,6 +29,7 @@ model User {
   questRequirements         UserRequirement[]  @relation("UserQuestRequirements")
   sentBenchmarkMessages     BenchmarkMessage[] @relation("BenchmarkMessageSender")
   receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
+  questProofs               QuestProof[]       @relation("QuestProofUser")
 }
 
 model LocationKey {
@@ -102,6 +103,7 @@ model Quest {
   createdAt            DateTime              @default(now())
   userRequirements     UserRequirement[]
   locationRequirements LocationRequirement[]
+  proofs               QuestProof[]          @relation("QuestForProof")
 }
 
 model UserRequirement {
@@ -138,4 +140,14 @@ model BenchmarkMessage {
   createdAt     DateTime @default(now())
   sender        User     @relation(name: "BenchmarkMessageSender", fields: [senderId], references: [id])
   recipient     User     @relation(name: "BenchmarkMessageRecipient", fields: [recipientId], references: [id])
+}
+
+model QuestProof {
+  id              String   @id @default(uuid())
+  questId         Int
+  userId          Int
+  serializedProof String
+  createdAt       DateTime @default(now())
+  quest           Quest    @relation(name: "QuestForProof", fields: [questId], references: [id])
+  user            User     @relation(name: "QuestProofUser", fields: [userId], references: [id])
 }

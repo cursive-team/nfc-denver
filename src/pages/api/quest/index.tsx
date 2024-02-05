@@ -1,10 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { object, string, array, number, mixed } from "yup";
-import { Quest } from "@prisma/client";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { ErrorResponse, QuestWithRequirements } from "@/types";
-import { getRandomNullifierRandomness } from "@/lib/shared/provingConfig";
+import { getServerRandomNullifierRandomness } from "@/lib/server/proving";
 
 export type QuestRequirementRequest = {
   name: string;
@@ -149,7 +148,7 @@ export default async function handler(
             create: userRequirements.map((req) => ({
               name: req.name,
               numSigsRequired: req.numSigsRequired,
-              sigNullifierRandomness: getRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
+              sigNullifierRandomness: getServerRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
               users: {
                 connect: req.ids.map((id) => ({ id: parseInt(id) })),
               },
@@ -159,7 +158,7 @@ export default async function handler(
             create: locationRequirements.map((req) => ({
               name: req.name,
               numSigsRequired: req.numSigsRequired,
-              sigNullifierRandomness: getRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
+              sigNullifierRandomness: getServerRandomNullifierRandomness(), // Ensures signatures cannot be reused to meet this requirement
               locations: {
                 connect: req.ids.map((id) => ({ id: parseInt(id) })),
               },

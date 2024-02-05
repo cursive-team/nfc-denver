@@ -13,6 +13,9 @@ import {
   QuestProvingStateUpdate,
   generateProofForQuest,
 } from "@/lib/client/proving";
+import { getAuthToken } from "@/lib/client/localStorage";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
@@ -198,6 +201,7 @@ const CompleteQuestModal = ({
   isOpen,
   setIsOpen,
 }: CompleteQuestModalProps) => {
+  const router = useRouter();
   const [displayState, setDisplayState] = useState<CompleteQuestDisplayState>(
     CompleteQuestDisplayState.INITIAL
   );
@@ -208,8 +212,16 @@ const CompleteQuestModal = ({
     currentRequirementNumSigsProven: 0,
   });
   const [serializedProof, setSerializedProof] = useState<string>();
+  const [proofId, setProofId] = useState<string>();
 
   const handleCompleteQuest = async () => {
+    const authToken = getAuthToken();
+    if (!authToken || authToken.expiresAt < new Date()) {
+      toast.error("You must be logged in to complete a quest");
+      router.push("/login");
+      return;
+    }
+
     setDisplayState(CompleteQuestDisplayState.PROVING);
 
     const onUpdateProvingState = (
@@ -239,8 +251,41 @@ const CompleteQuestModal = ({
       onUpdateProvingState
     );
 
-    setSerializedProof(serializedProof);
-    setDisplayState(CompleteQuestDisplayState.COMPLETED);
+    const response = await fetch("/api/quest/submit_proof", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        questId: quest.id.toString(),
+        authToken: authToken.value,
+        serializedProof,
+      }),
+    });
+
+    if (!response.ok) {
+      toast.error("Failed to submit proof!");
+      setDisplayState(CompleteQuestDisplayState.INITIAL);
+      return;
+    }
+
+    const data = await response.json();
+    if (data.verified === true) {
+      const proofId = data.proofId;
+      if (!proofId) {
+        toast.error("Failed to submit proof!");
+        setDisplayState(CompleteQuestDisplayState.INITIAL);
+        return;
+      }
+
+      setSerializedProof(serializedProof);
+      setProofId(proofId);
+      setDisplayState(CompleteQuestDisplayState.COMPLETED);
+      return;
+    }
+
+    toast.error("Proof failed to verify!");
+    setDisplayState(CompleteQuestDisplayState.INITIAL);
   };
 
   const getModalContent = (): JSX.Element => {
@@ -297,9 +342,14 @@ const CompleteQuestModal = ({
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col">
-                <span className="text-xl text-gray-12">{quest.name}</span>
+                <span className="text-xl text-gray-12">
+                  {"Completed: " + quest.name}
+                </span>
                 <span className="text-xs text-gray-10">
                   {`Proof: ${serializedProof}`}
+                </span>
+                <span className="text-xs text-gray-10 mt-4">
+                  {`Proof ID: ${proofId}`}
                 </span>
               </div>
             </div>
