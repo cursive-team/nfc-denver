@@ -41,7 +41,7 @@ const ContactCard = ({ name, userId, date }: ContactCardProps) => {
 
 const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
   return (
-    <Card.Base className="flex justify-between p-3">
+    <Card.Base className="flex items-center justify-between p-3">
       <Card.Title className="leading-none">{name}</Card.Title>
       <Card.Description>{date}</Card.Description>
       <div>
@@ -267,7 +267,10 @@ export default function Social() {
       },
       {
         label: "Pending",
-        badge: 11,
+        badge:
+          sortedPendingUserList.length === 0
+            ? undefined
+            : sortedPendingUserList.length,
         children: (
           <div className="flex flex-col gap-5">
             {sortedPendingUserList.length === 0 && (
@@ -276,23 +279,21 @@ export default function Social() {
               </div>
             )}
             {sortedPendingUserList.length !== 0 && (
-              <ListLayout label="Pending">
-                <div className="flex flex-col gap-1">
-                  {sortedPendingUserList.map((user, index) => {
-                    const { name, inTs } = user;
-                    const date = new Date(inTs!).toLocaleString();
+              <div className="flex flex-col gap-1">
+                {sortedPendingUserList.map((user, index) => {
+                  const { name, inTs } = user;
+                  const date = new Date(inTs!).toLocaleString();
 
-                    return (
-                      <PendingContactCard
-                        key={index}
-                        name={name}
-                        userId={user.uuid}
-                        date={date}
-                      />
-                    );
-                  })}
-                </div>
-              </ListLayout>
+                  return (
+                    <PendingContactCard
+                      key={index}
+                      name={name}
+                      userId={user.uuid}
+                      date={date}
+                    />
+                  );
+                })}
+              </div>
             )}
           </div>
         ),
