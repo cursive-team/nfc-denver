@@ -58,7 +58,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
               <Card.Title>
                 {
                   <div>
-                    <u>You</u> {"connected with"} <u>{name}</u>
+                    {"Connected with"} <u>{name}</u>
                   </div>
                 }
               </Card.Title>
@@ -78,7 +78,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
               <Card.Title>
                 {
                   <div>
-                    <u>{name}</u> {"connected with"} <u>You</u>
+                    <u>{name}</u> {"connected with you"}
                   </div>
                 }
               </Card.Title>
@@ -93,12 +93,12 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           <div className="flex justify-between py-1">
             <div className="flex items-center gap-2">
               <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.person />
+                <Icons.home />
               </div>
               <Card.Title>
                 {
                   <div>
-                    <u>You</u> {"visited"} <u>{name}</u>
+                    {"Visited"} <u>{name}</u>
                   </div>
                 }
               </Card.Title>
@@ -113,12 +113,12 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           <div className="flex justify-between py-1">
             <div className="flex items-center gap-2">
               <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.person />
+                <Icons.quest />
               </div>
               <Card.Title>
                 {
                   <div>
-                    <u>You</u> {"completed quest"} <u>{name}</u>
+                    {"Completed "} <u>{name}</u>
                   </div>
                 }
               </Card.Title>

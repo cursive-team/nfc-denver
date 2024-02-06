@@ -111,13 +111,13 @@ const UserDetail = ({
     return users.filter((user) =>
       userPubKeysCollected.includes(user.signaturePublicKey)
     ).length;
-  }, [userPubKeysCollected]);
+  }, [userPubKeysCollected, users]);
 
   return (
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
-        <Label>{`${numSigsCollected}/${numSigsRequired} Collected`}</Label>
+        <Label>{`${numSigsCollected} collected out of ${numSigsRequired} required`}</Label>
         <div>
           {users.map(({ displayName, signaturePublicKey }, index) => {
             const collected = userPubKeysCollected.includes(signaturePublicKey);
