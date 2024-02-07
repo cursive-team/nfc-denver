@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Modal, ModalProps } from "./Modal";
 import {
   LocationRequirementPreview,
@@ -10,11 +10,9 @@ import { classed } from "@tw-classed/react";
 import useSettings from "@/hooks/useSettings";
 import { Card } from "../cards/Card";
 import {
-  getUsers,
   LocationSignature,
   getLocationSignature,
 } from "@/lib/client/localStorage";
-import { hashPublicKeyToUUID } from "@/lib/client/utils";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -40,12 +38,16 @@ export const Header = ({ title, label, completed }: HeaderProps) => {
 
 type LocationDetailProps = HeaderProps & {
   locations: LocationRequirementPreview[];
+  locationPubKeysCollected: string[];
+  numSigsRequired: number;
 };
 
 const LocationDetail = ({
   title,
   completed,
   locations,
+  locationPubKeysCollected,
+  numSigsRequired,
 }: LocationDetailProps) => {
   const { pageWidth } = useSettings();
 
@@ -94,41 +96,31 @@ const LocationDetail = ({
 
 type UserDetailProps = HeaderProps & {
   users: UserRequirementPreview[];
+  userPubKeysCollected: string[];
+  numSigsRequired: number;
 };
 
-const UserDetail = ({ title, completed, users }: UserDetailProps) => {
-  const [userSigsCollected, setUserSigsCollected] = useState<number[]>([]);
-
-  useEffect(() => {
-    const getCollectedSigs = async () => {
-      if (users.length === 0) return;
-
-      const userSigs = getUsers();
-      const sigsIndices: number[] = [];
-      const sigChecks = users.map(async (user, index) => {
-        const userId = await hashPublicKeyToUUID(user.encryptionPublicKey);
-        if (userSigs[userId]) {
-          sigsIndices.push(index);
-        }
-      });
-
-      await Promise.all(sigChecks);
-      setUserSigsCollected(sigsIndices);
-    };
-
-    getCollectedSigs();
-  }, [users]);
-
-  if (users.length === 0) return null;
+const UserDetail = ({
+  title,
+  completed,
+  users,
+  userPubKeysCollected,
+  numSigsRequired,
+}: UserDetailProps) => {
+  const numSigsCollected = useMemo(() => {
+    return users.filter((user) =>
+      userPubKeysCollected.includes(user.signaturePublicKey)
+    ).length;
+  }, [userPubKeysCollected, users]);
 
   return (
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
-        <Label>{`X/${users.length} Collected`}</Label>
+        <Label>{`${numSigsCollected} collected out of ${numSigsRequired} required`}</Label>
         <div>
-          {users.map(({ displayName }, index) => {
-            const collected = userSigsCollected.includes(index);
+          {users.map(({ displayName, signaturePublicKey }, index) => {
+            const collected = userPubKeysCollected.includes(signaturePublicKey);
             return (
               <div
                 key={index}
@@ -155,34 +147,32 @@ interface QuestRequirementModalProps extends ModalProps {
   questRequirementType: QuestRequirementType;
   users?: UserRequirementPreview[];
   locations?: LocationRequirementPreview[];
+  userPubKeysCollected?: string[];
+  locationPubKeysCollected?: string[];
+  numSigsRequired: number;
+  completed: boolean;
 }
 
 const QuestRequirementModal = ({
   requirementName,
   questRequirementType,
   users,
-  locations = [
-    {
-      id: 1,
-      name: "The Great Wall of China",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-    },
-    {
-      id: 2,
-      name: "The Great Wall of China",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517245386807-8bbaada0f0d2?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3JlYXQlMjB3YWxsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80",
-    },
-  ],
+  locations,
+  userPubKeysCollected,
+  locationPubKeysCollected,
+  numSigsRequired,
+  completed,
   isOpen,
   setIsOpen,
 }: QuestRequirementModalProps) => {
-  const completed = false;
-
-  const showUsers = questRequirementType === QuestRequirementType.USER && users;
+  const showUsers =
+    questRequirementType === QuestRequirementType.USER &&
+    users &&
+    userPubKeysCollected;
   const showLocations =
-    questRequirementType === QuestRequirementType.LOCATION && locations;
+    questRequirementType === QuestRequirementType.LOCATION &&
+    locations &&
+    locationPubKeysCollected;
 
   if (!showUsers && !showLocations) return null;
 
@@ -192,6 +182,8 @@ const QuestRequirementModal = ({
         {showUsers && (
           <UserDetail
             users={users}
+            userPubKeysCollected={userPubKeysCollected}
+            numSigsRequired={numSigsRequired}
             title={requirementName}
             completed={completed}
           />
@@ -199,6 +191,8 @@ const QuestRequirementModal = ({
         {showLocations && (
           <LocationDetail
             locations={locations}
+            locationPubKeysCollected={locationPubKeysCollected}
+            numSigsRequired={numSigsRequired}
             title={requirementName}
             completed={completed}
           />

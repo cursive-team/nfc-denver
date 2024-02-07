@@ -8,11 +8,57 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 import { QuestTagMapping } from "@/shared/constants";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  getUsers,
+  getLocationSignatures,
+  User,
+  LocationSignature,
+  getAllQuestCompleted,
+} from "@/lib/client/localStorage";
+import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
+import { QuestWithRequirements } from "@/types";
 
 export default function QuestsPage() {
   const { isLoading, data: quests = [] } = useFetchQuests();
+  // Compute users and locations that user has signatures for
+  const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
+  const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
+  const [completedQuestIds, setCompletedQuestIds] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState("ALL");
+
+  useEffect(() => {
+    const questCompleted = getAllQuestCompleted();
+    setCompletedQuestIds(Object.keys(questCompleted));
+  }, []);
+
+  useEffect(() => {
+    const users = getUsers();
+    const locationSignatures = getLocationSignatures();
+
+    const validUserPublicKeys = Object.values(users)
+      .filter((user: User) => user.sig)
+      .map((user: User) => user.sigPk!);
+    setUserPublicKeys(validUserPublicKeys);
+
+    const validLocationPublicKeys = Object.values(locationSignatures).map(
+      (location: LocationSignature) => location.pk
+    );
+    setLocationPublicKeys(validLocationPublicKeys);
+  }, []);
+
+  const numRequirementsSatisfied: number[] = useMemo(() => {
+    return quests.map(
+      ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
+        return computeNumRequirementsSatisfied({
+          userPublicKeys,
+          locationPublicKeys,
+          userRequirements,
+          locationRequirements,
+        });
+      }
+    );
+  }, [quests, userPublicKeys, locationPublicKeys]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -32,23 +78,29 @@ export default function QuestsPage() {
         noResultsLabel="No quests found"
       >
         {quests?.map(
-          ({
-            id,
-            name,
-            description,
-            userRequirements,
-            locationRequirements,
-          }: any) => (
-            <Link href={`/quests/${id}`} key={id}>
-              <QuestCard
-                title={name}
-                description={description}
-                completedSigs={1}
-                userRequirements={userRequirements}
-                locationRequirements={locationRequirements}
-              />
-            </Link>
-          )
+          (
+            {
+              id,
+              name,
+              description,
+              userRequirements,
+              locationRequirements,
+            }: QuestWithRequirements,
+            index
+          ) => {
+            return (
+              <Link href={`/quests/${id}`} key={id}>
+                <QuestCard
+                  title={name}
+                  description={description}
+                  completedSigs={numRequirementsSatisfied[index]}
+                  userRequirements={userRequirements}
+                  locationRequirements={locationRequirements}
+                  isCompleted={completedQuestIds.includes(id.toString())}
+                />
+              </Link>
+            );
+          }
         )}
       </LoadingWrapper>
       <div className="mt-2">

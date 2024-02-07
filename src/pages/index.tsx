@@ -73,7 +73,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
               <Card.Title>
                 {
                   <div>
-                    <u>You</u> {"connected with"} <u>{name}</u>
+                    {"Connected with"} <u>{name}</u>
                   </div>
                 }
               </Card.Title>
@@ -93,7 +93,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
               <Card.Title>
                 {
                   <div>
-                    <u>{name}</u> {"connected with"} <u>You</u>
+                    <u>{name}</u> {"connected with you"}
                   </div>
                 }
               </Card.Title>
@@ -108,12 +108,32 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           <div className="flex justify-between py-1">
             <div className="flex items-center gap-2">
               <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.person />
+                <Icons.home />
               </div>
               <Card.Title>
                 {
                   <div>
-                    <u>You</u> {"visited"} <u>{name}</u>
+                    {"Visited"} <u>{name}</u>
+                  </div>
+                }
+              </Card.Title>
+            </div>
+            <Card.Description>{date}</Card.Description>
+          </div>
+        </Link>
+      );
+    case JUB_SIGNAL_MESSAGE_TYPE.QUEST_COMPLETED:
+      return (
+        <Link href={`/quests/${id}`}>
+          <div className="flex justify-between py-1">
+            <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                <Icons.quest />
+              </div>
+              <Card.Title>
+                {
+                  <div>
+                    {"Completed "} <u>{name}</u>
                   </div>
                 }
               </Card.Title>

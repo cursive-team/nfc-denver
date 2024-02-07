@@ -11,6 +11,7 @@ type QuestCardProps = {
   userRequirements?: UserRequirement[];
   locationRequirements?: LocationRequirement[];
   completedSigs?: number; // number of completed signatures
+  isCompleted: boolean; // whether the quest is completed
 };
 
 const CircleCard = classed.div(
@@ -85,6 +86,7 @@ const QuestCard = ({
   locationRequirements = [],
   userRequirements = [],
   completedSigs,
+  isCompleted,
 }: QuestCardProps) => {
   const numSigsRequired =
     userRequirements?.length + locationRequirements?.length;
@@ -104,7 +106,11 @@ const QuestCard = ({
           userRequirements={userRequirements}
           locationRequirements={locationRequirements}
         />
-        <Card.Description>{`${completedSigs}/${numSigsRequired} completed`}</Card.Description>
+        {isCompleted ? (
+          <Card.Description>{"Quest Complete"}</Card.Description>
+        ) : (
+          <Card.Description>{`${completedSigs}/${numSigsRequired} completed`}</Card.Description>
+        )}
       </div>
       <Card.Progress
         style={{

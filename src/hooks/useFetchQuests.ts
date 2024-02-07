@@ -1,15 +1,15 @@
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/client/localStorage";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
-import { QuestItem } from "@/types";
+import { QuestWithRequirements } from "@/types";
 
 export const useFetchQuests = () => {
   const router = useRouter();
 
   return useQuery({
     queryKey: ["quests"],
-    queryFn: async (): Promise<QuestItem[]> => {
+    queryFn: async (): Promise<QuestWithRequirements[]> => {
       const authToken = getAuthToken();
       if (!authToken || authToken.expiresAt < new Date()) {
         toast.error("You must be logged in to connect");
@@ -23,7 +23,7 @@ export const useFetchQuests = () => {
         throw new Error("Network response was not ok");
       }
 
-      const quests = response.json() as Promise<QuestItem[]>;
+      const quests = response.json() as Promise<QuestWithRequirements[]>;
       return quests;
     },
   });

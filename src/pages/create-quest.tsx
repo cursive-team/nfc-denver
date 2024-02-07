@@ -202,23 +202,26 @@ export default function CreateQuest() {
           {questReqs.length > 0 && (
             <div className="flex flex-col gap-2">
               {questReqs.map((req, index) => (
-                <div key={index} className="flex flex-col gap-2">
+                <div
+                  key={index}
+                  className="flex flex-col gap-2  border-gray-300 border-2 p-2"
+                >
                   <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {req.name}
+                    {"#" +
+                      (index + 1) +
+                      ": " +
+                      req.name +
+                      " (" +
+                      req.type +
+                      ")"}
                   </span>
                   <div className="flex flex-col gap-2">
                     <span className="text-sm text-gray-900 dark:text-white">
-                      {req.type}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {"IDs: " + req.ids.join(", ")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {"Num sigs required: " + req.numSigsRequired}
+                      {"Need " +
+                        req.numSigsRequired +
+                        " of {" +
+                        req.ids.join(", ") +
+                        "}"}
                     </span>
                   </div>
                 </div>
@@ -274,7 +277,7 @@ export default function CreateQuest() {
                   type: event.target.value as "USER" | "LOCATION",
                 })
               }
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              className="mt-1 block w-full pl-2 pr-2 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-gray-900 text-white"
               required
             >
               <option value="USER">User</option>
