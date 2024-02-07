@@ -383,18 +383,11 @@ export default function Social() {
                 <PointCard point={buidlBalance} />
               </div>
               <span className="text-sm font-light text-gray-10">
-                {numConnections === 1
-                  ? `${numConnections} Connection`
-                  : `${numConnections} Connections`}
+                {`${numConnections} taps`}
               </span>
             </div>
             <Link href="/leaderboard">
-              <Card.Base className="flex items-center justify-center p-2 bg-gray-200">
-                <span className="text-white text-sm">View leaderboard</span>
-                <div className="ml-auto">
-                  <Icons.arrowRight />
-                </div>
-              </Card.Base>
+              <Button size="sm">View leaderboard</Button>
             </Link>
           </div>
         </div>

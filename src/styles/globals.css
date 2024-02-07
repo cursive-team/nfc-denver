@@ -29,6 +29,7 @@ body {
   @apply bg-black-default text-white;
   font-family: "RegolaPro", sans-serif;
   text-rendering: geometricPrecision;
+  font-feature-settings: "calt" off;
 }
 
 @layer utilities {
