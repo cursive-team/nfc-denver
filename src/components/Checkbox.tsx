@@ -15,7 +15,7 @@ interface CheckboxProps
 }
 
 const CheckboxBase = classed.label(
-  "duration-300 bg-transparent peer-checked:bg-gray-400 w-full flex border border-gray-400 text-sm justify-center items-center rounded-[4px] cursor-pointer py-[18px] overflow-hidden"
+  "duration-300 bg-transparent peer-checked:bg-gray-200 w-full flex border border-gray-400 text-sm justify-center items-center rounded-[4px] cursor-pointer py-[18px] overflow-hidden"
 );
 
 const CheckboxComponent = classed.label(
@@ -51,7 +51,7 @@ const CheckboxSquareBase = classed.div(
   {
     variants: {
       checked: {
-        true: "border-gray-12 before:bg-gray-12",
+        true: "border-gray-12 before:bg-gray-200",
       },
       disabled: {
         true: "opacity-50 pointer-events-none",

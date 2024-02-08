@@ -54,7 +54,6 @@ const AppFooter = () => {
     },
   ];
 
-  console.log("pathname", pathname);
   return (
     <footer
       id="footer"
@@ -63,9 +62,9 @@ const AppFooter = () => {
       <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-[17px] pb-[13px]">
         {routerItems?.map((route, index) => {
           const pathParts = route.href.split("/").filter(Boolean);
-
           const isHome = pathname === "/" && route.href === "/";
-          // is home or the first part of the path matches the first part of the href 
+
+          // is home or the first part of the path matches the first part of the href
           const isActive = isHome || pathParts[0] === pathname.split("/")[1];
 
           return <TabItem key={index} {...route} isActive={isActive} />;

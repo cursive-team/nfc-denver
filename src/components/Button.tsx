@@ -15,6 +15,7 @@ const ButtonComponent = classed.button(
       },
       variant: {
         primary: "bg-gray-200 text-white border border-gray-400",
+        secondary: "bg-white/5 text-gray-11 border border-transparent",
       },
       rounded: {
         true: "rounded-full",

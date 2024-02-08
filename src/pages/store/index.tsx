@@ -25,7 +25,7 @@ export default function StorePage() {
           setStoreItem(null); // reset selected store item
         }}
       />
-      <div className="flex flex-col gap-4 pb-24">
+      <div className="flex flex-col gap-4">
         <Filters
           label="Sort"
           defaultValue={selectedOption}

@@ -88,8 +88,9 @@ export default function QuestsPage() {
             }: QuestWithRequirements,
             index
           ) => {
+            const key = `${id}-${index}`;
             return (
-              <Link href={`/quests/${id}`} key={id}>
+              <Link href={`/quests/${id}`} key={key}>
                 <QuestCard
                   title={name}
                   description={description}

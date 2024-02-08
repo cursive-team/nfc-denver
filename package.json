@@ -20,6 +20,7 @@
     "babyjubjub-ecdsa": "^1.1.6",
     "circomlibjs": "^0.1.7",
     "clsx": "^2.1.0",
+    "dayjs": "^1.11.10",
     "mobile-detect": "^1.4.5",
     "next": "14.1.0",
     "react": "^18",

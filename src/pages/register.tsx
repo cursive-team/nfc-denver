@@ -156,6 +156,7 @@ export default function Register() {
 
   const handleSocialSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    console.log(displayName);
     // Validate display name: alphanumeric and reasonable length
     if (
       !displayName ||

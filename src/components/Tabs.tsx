@@ -3,7 +3,7 @@ import { classed } from "@tw-classed/react";
 
 interface TabProps {
   label: string;
-  badge?: number;
+  badge?: boolean;
   children: React.ReactNode;
 }
 
@@ -24,7 +24,7 @@ const TabButton = classed.div("pb-4", {
 });
 
 const TabBadge = classed.div(
-  "absolute -top-0.5 -right-2 bg-red-400 rounded-full text-white px-1 py-[0.2px] text-[8px]"
+  "absolute -top-0.5 -right-2 bg-[#D40018] rounded-full text-white w-[6px] h-[6px] text-[8px]"
 );
 
 const Tabs = ({ items }: TabsProps) => {
@@ -39,7 +39,7 @@ const Tabs = ({ items }: TabsProps) => {
                   <TabButton selected={selected}>
                     <span className="relative">
                       {label}
-                      {badge && <TabBadge>{badge}</TabBadge>}
+                      {badge && <TabBadge />}
                     </span>
                   </TabButton>
                   {selected && (

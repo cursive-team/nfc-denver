@@ -7,8 +7,8 @@ import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
 import { classed } from "@tw-classed/react";
-import { Input } from "@/components/Input";
 import { labelStartWith } from "@/lib/shared/utils";
+import { InputWrapper } from "@/components/input/InputWrapper";
 
 const Label = classed.span("text-sm text-gray-12");
 
@@ -20,10 +20,13 @@ interface LinkCardProps {
 
 const LinkCard = ({ label, value, href }: LinkCardProps) => {
   return (
-    <Link href={href}>
-      <Card.Base className="flex items-center gap-2 p-3">
-        <Card.Title>{label}</Card.Title>
-        <Card.Description>{value ?? "N/A"}</Card.Description>
+    <Link href={href} target="_blank">
+      <Card.Base className="flex items-center justify-between p-3">
+        <div className="flex items-center gap-1">
+          <Card.Title>{label}</Card.Title>
+          <Card.Description>{value ?? "N/A"}</Card.Description>
+        </div>
+        <Icons.externalLink size={18} />
       </Card.Base>
     </Link>
   );
@@ -56,31 +59,22 @@ const UserProfilePage = () => {
             <div className="flex items-center gap-1">
               <Icons.checkedCircle />
               <span className="text-sm font-light text-white">
-                {user.inTs ? (
-                  <Label>{`Connected on ${new Date(user.inTs).toLocaleString(
+                {user.outTs ? (
+                  <Label>{`You shared on ${new Date(user.outTs).toLocaleString(
                     undefined,
                     {
-                      dateStyle: "short",
+                      dateStyle: "medium",
                     }
                   )}`}</Label>
                 ) : (
-                  <Label>{`Not connected.`}</Label>
+                  <Label>{`You have not yet connected with ${user.name}.`}</Label>
                 )}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          {user.outTs ? (
-            <Label>{`You connected with ${user.name} on ${new Date(
-              user.outTs
-            ).toLocaleString()}`}</Label>
-          ) : (
-            <Label>{`You have not yet connected with ${user.name}.`}</Label>
-          )}
-        </div>
         {(user?.x || user.tg) && (
-          <ListLayout className="!gap-2" label="Links">
+          <ListLayout spacing="sm" label={`${user.name}'s links`}>
             <div className="flex flex-col gap-1">
               {(user?.x?.length ?? 0) > 1 && (
                 <LinkCard
@@ -99,7 +93,14 @@ const UserProfilePage = () => {
             </div>
           </ListLayout>
         )}
-        <Input label="Your private note" value={user?.note} readOnly disabled />
+        {user?.note && (
+          <InputWrapper
+            className="flex flex-col gap-2"
+            label="Your private note"
+          >
+            <span className="text-gray-11 left-5">{user?.note}</span>
+          </InputWrapper>
+        )}
       </div>
     </div>
   );
