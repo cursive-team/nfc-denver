@@ -196,7 +196,7 @@ const processEncryptedMessages = async (args: {
       case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
         // TODO: Can optionally validate received signature here
         try {
-          const { x, tg, bio, pk, msg, sig } =
+          const { x, tg, fc, bio, pk, msg, sig } =
             await inboundTapMessageSchema.validate(data);
           const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
           const user = users[userId];
@@ -205,6 +205,7 @@ const processEncryptedMessages = async (args: {
             user.encPk = metadata.fromPublicKey;
             user.x = x;
             user.tg = tg;
+            user.fc = fc;
             user.bio = bio;
             user.sigPk = pk;
             user.msg = msg;
@@ -218,6 +219,7 @@ const processEncryptedMessages = async (args: {
               encPk: metadata.fromPublicKey,
               x,
               tg,
+              fc,
               bio,
               sigPk: pk,
               msg,

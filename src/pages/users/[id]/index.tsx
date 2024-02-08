@@ -73,25 +73,40 @@ const UserProfilePage = () => {
             </div>
           </div>
         </div>
-        {(user?.x || user.tg) && (
+        {(user.x || user.tg || user.fc) && (
           <ListLayout spacing="sm" label={`${user.name}'s links`}>
             <div className="flex flex-col gap-1">
-              {(user?.x?.length ?? 0) > 1 && (
+              {(user.x?.length ?? 0) > 1 && (
                 <LinkCard
                   label="Twitter"
                   href={`https://x.com/${user.x}`}
                   value={labelStartWith(user.x, "@")}
                 />
               )}
-              {(user?.tg?.length ?? 0) > 1 && (
+              {(user.tg?.length ?? 0) > 1 && (
                 <LinkCard
                   label="Telegram"
                   href={`https://t.me/${user.tg}`}
                   value={labelStartWith(user.tg, "@")}
                 />
               )}
+              {(user.fc?.length ?? 0) > 1 && (
+                <LinkCard
+                  label="Farcaster"
+                  href={`https://warpcast.com/${user.fc}`}
+                  value={user.fc}
+                />
+              )}
             </div>
           </ListLayout>
+        )}
+        {user.bio && (
+          <InputWrapper
+            className="flex flex-col gap-2"
+            label={`${user.name}'s bio'`}
+          >
+            <span className="text-gray-11 left-5">{user.bio}</span>
+          </InputWrapper>
         )}
         {user?.note && (
           <InputWrapper

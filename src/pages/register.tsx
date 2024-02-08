@@ -17,7 +17,13 @@ import { Input } from "@/components/Input";
 import Link from "next/link";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import toast from "react-hot-toast";
-import { handleNicknameChange } from "@/lib/shared/utils";
+import {
+  displayNameRegex,
+  farcasterUsernameRegex,
+  handleNicknameChange,
+  telegramUsernameRegex,
+  twitterUsernameRegex,
+} from "@/lib/shared/utils";
 import { Spinner } from "@/components/Spinner";
 import { Radio } from "@/components/Radio";
 import { Checkbox } from "@/components/Checkbox";
@@ -44,6 +50,7 @@ export default function Register() {
   const [displayName, setDisplayName] = useState<string>("");
   const [twitterUsername, setTwitterUsername] = useState<string>("@");
   const [telegramUsername, setTelegramUsername] = useState<string>("@");
+  const [farcasterUsername, setFarcasterUsername] = useState<string>("@");
   const [bio, setBio] = useState<string>();
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
   const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(true);
@@ -81,6 +88,12 @@ export default function Register() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setTelegramUsername(handleNicknameChange(event));
+  };
+
+  const handleFarcasterUsernameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFarcasterUsername(handleNicknameChange(event));
   };
 
   const handleBioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,16 +174,22 @@ export default function Register() {
 
   const handleSocialSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Validate display name: alphanumeric and reasonable length
-    if (
-      !displayName ||
-      !/^[a-z0-9]+$/i.test(displayName) ||
-      displayName.length > 20
-    ) {
+    if (!displayNameRegex.test(displayName)) {
       toast.error(
         "Display name must be alphanumeric and less than 20 characters."
       );
-      return;
+    }
+
+    if (twitterUsername && !twitterUsernameRegex.test(twitterUsername)) {
+      toast.error("Invalid Twitter username.");
+    }
+
+    if (telegramUsername && !telegramUsernameRegex.test(telegramUsername)) {
+      toast.error("Invalid Telegram username.");
+    }
+
+    if (farcasterUsername && !farcasterUsernameRegex.test(farcasterUsername)) {
+      toast.error("Invalid Farcaster username.");
     }
 
     if (bio && bio.length > 200) {
@@ -214,6 +233,7 @@ export default function Register() {
         displayName,
         twitterUsername,
         telegramUsername,
+        farcasterUsername,
         bio,
         wantsServerCustody,
         allowsAnalytics,
@@ -254,6 +274,7 @@ export default function Register() {
       allowsAnalytics,
       twitterUsername,
       telegramUsername,
+      farcasterUsername,
       bio,
     });
     saveAuthToken({
@@ -388,6 +409,14 @@ export default function Register() {
                 placeholder="Telegram username"
                 value={telegramUsername}
                 onChange={handleTelegramUsernameChange}
+              />
+              <Input
+                type="text"
+                name="farcasterUsername"
+                label="Farcaster (Optional)"
+                placeholder="Farcaster username"
+                value={farcasterUsername}
+                onChange={handleFarcasterUsernameChange}
               />
               <Input
                 type="text"

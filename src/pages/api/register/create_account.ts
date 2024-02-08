@@ -1,17 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { object, string, boolean } from "yup";
-import { ErrorResponse } from "../../../types";
+import { ErrorResponse } from "@/types";
 import {
   ChipType,
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
-} from "../../../lib/server/dev";
+} from "@/lib/server/dev";
 import {
   AuthTokenResponse,
   generateAuthToken,
   verifySigninCode,
-} from "../../../lib/server/auth";
+} from "@/lib/server/auth";
+import {
+  displayNameRegex,
+  farcasterUsernameRegex,
+  telegramUsernameRegex,
+  twitterUsernameRegex,
+} from "@/lib/shared/utils";
 
 const createAccountSchema = object({
   cmac: string().required(),
@@ -20,6 +26,7 @@ const createAccountSchema = object({
   displayName: string().required(),
   twitterUsername: string().optional(),
   telegramUsername: string().optional(),
+  farcasterUsername: string().optional(),
   bio: string().optional(),
   wantsServerCustody: boolean().required(),
   allowsAnalytics: boolean().required(),
@@ -57,8 +64,9 @@ export default async function handler(
     email,
     code,
     displayName,
-    twitterUsername,
-    telegramUsername,
+    twitterUsername: atTwitterUsername,
+    telegramUsername: atTelegramUsername,
+    farcasterUsername: atFarcasterUsername,
     bio,
     wantsServerCustody,
     allowsAnalytics,
@@ -68,16 +76,36 @@ export default async function handler(
     passwordHash,
   } = validatedData;
 
-  if (
-    displayName === "" ||
-    !/^[a-z0-9]+$/i.test(displayName) ||
-    displayName.length > 20
-  ) {
+  if (!displayNameRegex.test(displayName)) {
     return res.status(400).json({
       error:
         "Invalid display name. Must be alphanumeric and less than 20 characters",
     });
   }
+
+  if (atTwitterUsername && !twitterUsernameRegex.test(atTwitterUsername)) {
+    return res.status(400).json({
+      error: "Invalid Twitter username",
+    });
+  }
+  const twitterUsername = atTwitterUsername?.slice(1);
+
+  if (atTelegramUsername && !telegramUsernameRegex.test(atTelegramUsername)) {
+    return res.status(400).json({
+      error: "Invalid Telegram username",
+    });
+  }
+  const telegramUsername = atTelegramUsername?.slice(1);
+
+  if (
+    atFarcasterUsername &&
+    !farcasterUsernameRegex.test(atFarcasterUsername)
+  ) {
+    return res.status(400).json({
+      error: "Invalid Farcaster username",
+    });
+  }
+  const farcasterUsername = atFarcasterUsername?.slice(1);
 
   if (bio && bio.length > 200) {
     return res
@@ -118,6 +146,7 @@ export default async function handler(
       displayName,
       twitterUsername,
       telegramUsername,
+      farcasterUsername,
       bio,
       wantsServerCustody,
       allowsAnalytics,

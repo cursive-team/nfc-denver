@@ -16,6 +16,7 @@ export type Profile = {
   allowsAnalytics: boolean;
   twitterUsername?: string;
   telegramUsername?: string;
+  farcasterUsername?: string;
   bio?: string;
 };
 
@@ -28,6 +29,7 @@ export const profileSchema = object({
   allowsAnalytics: boolean().required(),
   twitterUsername: string().optional(),
   telegramUsername: string().optional(),
+  farcasterUsername: string().optional(),
   bio: string().optional(),
 });
 

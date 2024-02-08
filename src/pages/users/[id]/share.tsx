@@ -31,6 +31,7 @@ const SharePage = () => {
   const [profile, setProfile] = useState(getProfile());
   const [shareTwitter, setShareTwitter] = useState(false);
   const [shareTelegram, setShareTelegram] = useState(false);
+  const [shareFarcaster, setShareFarcaster] = useState(false);
   const [shareBio, setShareBio] = useState(false);
   const [privateNote, setPrivateNote] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -96,6 +97,7 @@ const SharePage = () => {
     const encryptedMessage = await encryptInboundTapMessage({
       twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
       telegramUsername: shareTelegram ? profile.telegramUsername : undefined,
+      farcasterUsername: shareFarcaster ? profile.farcasterUsername : undefined,
       bio: shareBio ? profile.bio : undefined,
       signaturePublicKey: profile.signaturePublicKey,
       signatureMessage: dataToSign,
@@ -223,6 +225,14 @@ const SharePage = () => {
                 checked={shareTelegram}
                 type="button"
                 onChange={setShareTelegram}
+              />
+              <Checkbox
+                id="farcaster"
+                label="Farcaster"
+                disabled={!profile.farcasterUsername}
+                checked={shareFarcaster}
+                type="button"
+                onChange={setShareFarcaster}
               />
               <Checkbox
                 id="bio"

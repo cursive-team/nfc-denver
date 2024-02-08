@@ -26,3 +26,11 @@ export const formatDate = (date: string, formatReplace?: string): string => {
 
   return isToday ? `Today, ${formattedDate}` : formattedDate;
 };
+
+export const displayNameRegex = /^[a-zA-Z0-9]{1,20}$/;
+
+export const twitterUsernameRegex = /^@[a-zA-Z0-9_]{1,15}$/;
+
+export const telegramUsernameRegex = /^@[a-zA-Z0-9_]{5,32}$/;
+
+export const farcasterUsernameRegex = /^@[a-zA-Z0-9_.]{1,20}$/;
