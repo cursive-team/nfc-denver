@@ -63,7 +63,7 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
-        {buidlReward && <PartnerItemCard label="Reward" point={buidlReward} />}
+        {buidlReward && <PartnerItemCard label="Reward" />}
       </div>
     </LoadingWrapper>
   );
