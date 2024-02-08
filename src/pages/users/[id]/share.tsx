@@ -19,7 +19,10 @@ import { AppBackHeader } from "@/components/AppHeader";
 import toast from "react-hot-toast";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Checkbox } from "@/components/Checkbox";
-import { InputWrapper } from "@/components/input/InputWrapper";
+import {
+  InputWrapper,
+  InputDescription as Description,
+} from "@/components/input/InputWrapper";
 
 const SharePage = () => {
   const router = useRouter();
@@ -189,16 +192,19 @@ const SharePage = () => {
       <FormStepLayout
         className="!pt-0"
         title={
-          <span className="text-base text-gray-12 !pb-6">{`Share with ${user.name}`}</span>
+          <span className="text-base text-gray-12 !pb-1">{`Share with ${user.name}`}</span>
         }
         onSubmit={handleConnect}
       >
+        <Description>
+          {`By sharing, you privately send a signature to ${user.name} from a local private key. 
+          This will allow them to ZK prove they met you to complete quests that require it. `}
+        </Description>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
             <InputWrapper
               size="sm"
-              label={`Choose which social usernames to share with ${user.name}`}
-              description={`${user.name} may complete quest(s) that requires meeting you in person. This works by sharing a unique digital signature from a personal private key.`}
+              label={`Choose socials to share`}
               className="grid grid-cols-2 gap-2"
               spacing
             >
@@ -225,10 +231,11 @@ const SharePage = () => {
           type="longtext"
           label="Private note"
           placeholder="e.g Met on Saturday"
+          textSize="sm"
           description={
             <>
               <span className="block">
-                Use to help remember your interaction with Chris.
+                {`Use to help remember your interaction with ${user.name}.`}
               </span>
               <span className="block">Only you will see this.</span>
             </>

@@ -30,6 +30,7 @@ interface InputProps
     Pick<InputWrapperProps, "label" | "description"> {
   loading?: boolean;
   icon?: React.ReactNode;
+  textSize?: "xs" | "sm" | undefined;
 }
 
 const Input = ({
@@ -38,10 +39,11 @@ const Input = ({
   placeholder,
   description,
   icon,
+  textSize,
   ...props
 }: InputProps) => {
   return (
-    <InputWrapper label={label} description={description}>
+    <InputWrapper size={textSize} label={label} description={description}>
       <label className="relative form-control w-full">
         <div className="relative">
           {icon && (

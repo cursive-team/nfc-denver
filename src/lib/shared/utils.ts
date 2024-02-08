@@ -20,7 +20,7 @@ export const formatDate = (date: string, formatReplace?: string): string => {
     ? formatReplace
     : isToday
     ? "hh:mm"
-    : "Do MMM, hh:mm";
+    : "DD MMM, hh:mm";
 
   const formattedDate = dayjs(date).format(dateFormat);
 

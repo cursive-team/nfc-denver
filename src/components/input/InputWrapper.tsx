@@ -64,4 +64,4 @@ const InputWrapper = ({
 
 InputWrapper.displayName = "InputWrapper";
 
-export { InputWrapper };
+export { InputWrapper, InputDescription };
