@@ -44,8 +44,9 @@ export default function Register() {
   const [displayName, setDisplayName] = useState<string>("");
   const [twitterUsername, setTwitterUsername] = useState<string>("@");
   const [telegramUsername, setTelegramUsername] = useState<string>("@");
+  const [bio, setBio] = useState<string>();
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
-  const [consentTracking, setConsentTracking] = useState<boolean>(false);
+  const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(true);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,6 +81,10 @@ export default function Register() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setTelegramUsername(handleNicknameChange(event));
+  };
+
+  const handleBioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setBio(event.target.value);
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +173,11 @@ export default function Register() {
       return;
     }
 
+    if (bio && bio.length > 200) {
+      toast.error("Bio must be less than 200 characters.");
+      return;
+    }
+
     setDisplayState(DisplayState.CHOOSE_CUSTODY);
   };
 
@@ -204,8 +214,9 @@ export default function Register() {
         displayName,
         twitterUsername,
         telegramUsername,
+        bio,
         wantsServerCustody,
-        consentTracking, // TODO: Implement consent tracking in the backend
+        allowsAnalytics,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
         passwordSalt,
@@ -240,8 +251,10 @@ export default function Register() {
       encryptionPublicKey: publicKey,
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
+      allowsAnalytics,
       twitterUsername,
       telegramUsername,
+      bio,
     });
     saveAuthToken({
       value: data.value,
@@ -376,6 +389,14 @@ export default function Register() {
                 value={telegramUsername}
                 onChange={handleTelegramUsernameChange}
               />
+              <Input
+                type="text"
+                name="bio"
+                label="Bio (Optional)"
+                placeholder="Notes about yourself"
+                value={bio}
+                onChange={handleBioChange}
+              />
             </div>
           }
         >
@@ -410,11 +431,11 @@ export default function Register() {
                 onChange={() => setWantsServerCustody(true)}
               />
               <Checkbox
-                id="consentTracking"
-                label="I consent to tracking"
-                description="We will never share your lorem ipsum dolor sit am et conspic ipsum dolor"
-                checked={consentTracking}
-                onChange={setConsentTracking}
+                id="allowAnalytics"
+                label="I consent to sharing analytics data"
+                description="We use consent-based analytics to determine how to improve the app. Examples of this data include how long it takes your device to perform cryptographic operations. This does not include your personal data, which is never shared or sold."
+                checked={allowsAnalytics}
+                onChange={setAllowAnalytics}
               />
             </fieldset>
           }

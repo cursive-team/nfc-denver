@@ -157,15 +157,14 @@ const processEncryptedMessages = async (args: {
             );
           }
 
-          const { name, pk, x, tg, note } =
-            await outboundTapMessageSchema.validate(data);
+          const { name, pk, note } = await outboundTapMessageSchema.validate(
+            data
+          );
           const userId = await hashPublicKeyToUUID(pk);
           const user = users[userId];
           if (user) {
             user.name = name;
             user.encPk = pk;
-            user.x = user.x && x === undefined ? user.x : x;
-            user.tg = user.tg && tg === undefined ? user.tg : tg;
             user.note = note;
             user.outTs = metadata.timestamp.toISOString();
 
@@ -174,8 +173,6 @@ const processEncryptedMessages = async (args: {
             users[userId] = {
               name,
               encPk: pk,
-              x,
-              tg,
               note,
               outTs: metadata.timestamp.toISOString(),
             };
@@ -199,7 +196,7 @@ const processEncryptedMessages = async (args: {
       case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
         // TODO: Can optionally validate received signature here
         try {
-          const { x, tg, pk, msg, sig } =
+          const { x, tg, bio, pk, msg, sig } =
             await inboundTapMessageSchema.validate(data);
           const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
           const user = users[userId];
@@ -208,6 +205,7 @@ const processEncryptedMessages = async (args: {
             user.encPk = metadata.fromPublicKey;
             user.x = x;
             user.tg = tg;
+            user.bio = bio;
             user.sigPk = pk;
             user.msg = msg;
             user.sig = sig;
@@ -220,6 +218,7 @@ const processEncryptedMessages = async (args: {
               encPk: metadata.fromPublicKey,
               x,
               tg,
+              bio,
               sigPk: pk,
               msg,
               sig,

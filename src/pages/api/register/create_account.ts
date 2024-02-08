@@ -20,7 +20,9 @@ const createAccountSchema = object({
   displayName: string().required(),
   twitterUsername: string().optional(),
   telegramUsername: string().optional(),
+  bio: string().optional(),
   wantsServerCustody: boolean().required(),
+  allowsAnalytics: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
   passwordSalt: string().optional(),
@@ -57,7 +59,9 @@ export default async function handler(
     displayName,
     twitterUsername,
     telegramUsername,
+    bio,
     wantsServerCustody,
+    allowsAnalytics,
     encryptionPublicKey,
     signaturePublicKey,
     passwordSalt,
@@ -73,6 +77,12 @@ export default async function handler(
       error:
         "Invalid display name. Must be alphanumeric and less than 20 characters",
     });
+  }
+
+  if (bio && bio.length > 200) {
+    return res
+      .status(400)
+      .json({ error: "Bio must be less than 200 characters" });
   }
 
   // Validate cmac corresponds to an unregistered person chip
@@ -108,7 +118,9 @@ export default async function handler(
       displayName,
       twitterUsername,
       telegramUsername,
+      bio,
       wantsServerCustody,
+      allowsAnalytics,
       encryptionPublicKey,
       signaturePublicKey,
       passwordSalt,

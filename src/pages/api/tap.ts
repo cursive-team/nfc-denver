@@ -21,15 +21,11 @@ export enum TapResponseCode {
 export type PersonTapResponse = {
   displayName: string;
   encryptionPublicKey: string;
-  twitterUsername?: string;
-  telegramUsername?: string;
 };
 
 export const personTapResponseSchema = object({
   displayName: string().required(),
   encryptionPublicKey: string().required(),
-  twitterUsername: string().optional(),
-  telegramUsername: string().optional(),
 });
 
 export type LocationTapResponse = {
@@ -126,8 +122,6 @@ export default async function handler(
     const personTapResponse: PersonTapResponse = {
       displayName: user.displayName,
       encryptionPublicKey: user.encryptionPublicKey,
-      twitterUsername: user.twitterUsername ?? undefined,
-      telegramUsername: user.telegramUsername ?? undefined,
     };
     return res
       .status(200)

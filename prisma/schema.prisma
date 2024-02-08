@@ -19,10 +19,12 @@ model User {
   encryptionPublicKey       String
   signaturePublicKey        String
   wantsServerCustody        Boolean
+  allowsAnalytics           Boolean            
   passwordSalt              String?
   passwordHash              String?
   twitterUsername           String?
   telegramUsername          String?
+  bio                       String?
   createdAt                 DateTime           @default(now())
   sentMessages              Message[]          @relation("MessageSender")
   receivedMessages          Message[]          @relation("MessageRecipient")
