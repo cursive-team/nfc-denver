@@ -149,8 +149,6 @@ export default function QuestById() {
 
   const isQuestComplete = existingProofId !== undefined;
 
-  console.log("quest", quest);
-
   return (
     <div>
       <AppBackHeader />
