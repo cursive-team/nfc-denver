@@ -48,6 +48,18 @@ const SharePage = () => {
 
       const fetchedUser = fetchUserByUUID(id);
       if (fetchedUser) {
+        if (fetchedUser.encPk === profile.encryptionPublicKey) {
+          toast.error("You cannot connect with yourself");
+          router.push("/");
+          return;
+        }
+
+        if (fetchedUser.outTs) {
+          toast.error("You have already connected with this user");
+          router.push("/users/" + id);
+          return;
+        }
+
         setUser(fetchedUser);
         setPrivateNote(fetchedUser.note);
       }
