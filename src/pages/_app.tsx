@@ -1,5 +1,6 @@
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
+import { usePageReloadDetection } from "@/hooks/useUpdateMessagesUponPageReload";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
 import "@/styles/globals.css";
 import {
@@ -26,6 +27,8 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     setPageHeight(window?.innerHeight);
   }, []);
+
+  usePageReloadDetection();
 
   return (
     <QueryClientProvider client={queryClient}>
