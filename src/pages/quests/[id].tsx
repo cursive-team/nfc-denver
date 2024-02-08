@@ -29,7 +29,7 @@ import {
   computeNumRequirementSignatures,
   computeNumRequirementsSatisfied,
 } from "@/lib/client/quests";
-import { PartnerItemCard } from "@/components/cards/ParnerItemCard";
+import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
 
 interface QuestDetailProps {
   loading?: boolean;
