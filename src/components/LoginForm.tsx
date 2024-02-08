@@ -87,7 +87,11 @@ export default function LoginForm({
       if (response.ok) {
         setDisplayState(DisplayState.INPUT_CODE);
       } else {
-        onFailedLogin("Error requesting code. Please try again.");
+        onFailedLogin(
+          "The email you entered is not associated with a user. Please try again."
+        );
+        console.error("Email not found");
+        return;
       }
     } catch (error) {
       onFailedLogin("An unexpected error occurred. Please try again.");

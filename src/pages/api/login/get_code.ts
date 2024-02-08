@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ErrorResponse } from "../../../types";
-import { generateAndSendSigninCode } from "../../../lib/server/auth";
+import prisma from "@/lib/server/prisma";
+import { ErrorResponse } from "@/types";
+import { generateAndSendSigninCode } from "@/lib/server/auth";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,6 +14,15 @@ export default async function handler(
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (!user) {
+    return res.status(400).json({ error: "Email not registered" });
   }
 
   const success = await generateAndSendSigninCode(email);
