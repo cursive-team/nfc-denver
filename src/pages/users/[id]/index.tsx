@@ -7,7 +7,7 @@ import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
 import { classed } from "@tw-classed/react";
-import { labelStartWith } from "@/lib/shared/utils";
+import { labelStartWith, removeLabelStartWith } from "@/lib/shared/utils";
 import { InputWrapper } from "@/components/input/InputWrapper";
 
 const Label = classed.span("text-sm text-gray-12");
@@ -73,32 +73,62 @@ const UserProfilePage = () => {
             </div>
           </div>
         </div>
-        {(user?.x || user.tg) && (
-          <ListLayout spacing="sm" label={`${user.name}'s links`}>
-            <div className="flex flex-col gap-1">
-              {(user?.x?.length ?? 0) > 1 && (
-                <LinkCard
-                  label="Twitter"
-                  href={`https://x.com/${user.x}`}
-                  value={labelStartWith(user.x, "@")}
-                />
-              )}
-              {(user?.tg?.length ?? 0) > 1 && (
-                <LinkCard
-                  label="Telegram"
-                  href={`https://t.me/${user.tg}`}
-                  value={labelStartWith(user.tg, "@")}
-                />
-              )}
-            </div>
-          </ListLayout>
+        {!user.inTs && (
+          <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
+            <InputWrapper
+              className="flex flex-col gap-2"
+              label="Details pending"
+            >
+              <span className="text-gray-11 text-[14px] left-5 mt-1">
+                If {user.name} taps you back and shares their socials, they will
+                appear here.
+              </span>
+            </InputWrapper>
+          </div>
+        )}
+        {(user.x || user.tg || user.fc) && (
+          <div className="flex flex-col gap-1">
+            {(user.x?.length ?? 0) > 1 && (
+              <LinkCard
+                label="Twitter"
+                href={`https://x.com/${removeLabelStartWith(user.x, "@")}`}
+                value={labelStartWith(user.x, "@")}
+              />
+            )}
+            {(user.tg?.length ?? 0) > 1 && (
+              <LinkCard
+                label="Telegram"
+                href={`https://t.me/${removeLabelStartWith(user.tg, "@")}`}
+                value={labelStartWith(user.tg, "@")}
+              />
+            )}
+            {(user.fc?.length ?? 0) > 1 && (
+              <LinkCard
+                label="Farcaster"
+                href={`https://warpcast.com/${removeLabelStartWith(
+                  user.fc,
+                  "@"
+                )}`}
+                value={labelStartWith(user.fc, "@")}
+              />
+            )}
+          </div>
+        )}
+        {user.bio && (
+          <InputWrapper className="flex flex-col gap-2" label={`Bio`}>
+            <span className="text-gray-11 text-[14px] mt-1 left-5">
+              {user.bio}
+            </span>
+          </InputWrapper>
         )}
         {user?.note && (
           <InputWrapper
             className="flex flex-col gap-2"
             label="Your private note"
           >
-            <span className="text-gray-11 left-5">{user?.note}</span>
+            <span className="text-gray-11 text-[14px] mt-1 left-5">
+              {user?.note}
+            </span>
           </InputWrapper>
         )}
       </div>

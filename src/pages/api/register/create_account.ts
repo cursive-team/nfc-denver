@@ -1,26 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { object, string, boolean } from "yup";
-import { ErrorResponse } from "../../../types";
+import { ErrorResponse } from "@/types";
 import {
   ChipType,
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
-} from "../../../lib/server/dev";
+} from "@/lib/server/dev";
 import {
   AuthTokenResponse,
   generateAuthToken,
   verifySigninCode,
-} from "../../../lib/server/auth";
+} from "@/lib/server/auth";
+import { displayNameRegex } from "@/lib/shared/utils";
 
 const createAccountSchema = object({
   cmac: string().required(),
   email: string().email().required(),
   code: string().required(),
   displayName: string().required(),
-  twitterUsername: string().optional(),
-  telegramUsername: string().optional(),
   wantsServerCustody: boolean().required(),
+  allowsAnalytics: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
   passwordSalt: string().optional(),
@@ -55,20 +55,15 @@ export default async function handler(
     email,
     code,
     displayName,
-    twitterUsername,
-    telegramUsername,
     wantsServerCustody,
+    allowsAnalytics,
     encryptionPublicKey,
     signaturePublicKey,
     passwordSalt,
     passwordHash,
   } = validatedData;
 
-  if (
-    displayName === "" ||
-    !/^[a-z0-9]+$/i.test(displayName) ||
-    displayName.length > 20
-  ) {
+  if (!displayNameRegex.test(displayName)) {
     return res.status(400).json({
       error:
         "Invalid display name. Must be alphanumeric and less than 20 characters",
@@ -106,9 +101,8 @@ export default async function handler(
       chipId,
       email,
       displayName,
-      twitterUsername,
-      telegramUsername,
       wantsServerCustody,
+      allowsAnalytics,
       encryptionPublicKey,
       signaturePublicKey,
       passwordSalt,

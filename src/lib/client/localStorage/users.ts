@@ -13,6 +13,8 @@ export type User = {
   encPk: string; // User's encryption public key
   x?: string; // User's Twitter username
   tg?: string; // User's Telegram username
+  fc?: string; // User's Farcaster username
+  bio?: string; // User's bio
   note?: string; // Private note
   sigPk?: string; // User's signature public key
   msg?: string; // User's signature message
@@ -47,8 +49,6 @@ export const updateUserFromTap = async (
       ...user,
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
-      x: userUpdate.twitterUsername,
-      tg: userUpdate.telegramUsername,
     };
 
     users[userId] = updatedUser;
@@ -56,8 +56,6 @@ export const updateUserFromTap = async (
     const newUser = {
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
-      x: userUpdate.twitterUsername,
-      tg: userUpdate.telegramUsername,
     };
 
     users[userId] = newUser;

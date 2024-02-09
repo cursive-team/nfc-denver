@@ -22,6 +22,7 @@ import { SnapshotModal } from "@/components/modals/SnapshotModal";
 import Image from "next/image";
 import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
+import { loadMessages } from "@/lib/client/jubSignalClient";
 
 interface ContactCardProps {
   name: string;
@@ -323,28 +324,51 @@ export default function Social() {
   };
 
   useEffect(() => {
-    const EXAMPLE_BUIDL_BALANCE = 199;
+    const updateSocialInfo = async () => {
+      const EXAMPLE_BUIDL_BALANCE = 199;
 
-    const profileData = getProfile();
-    const keyData = getKeys();
-    const authToken = getAuthToken();
-    const users = getUsers();
-    const activities = getActivities();
-    if (
-      !profileData ||
-      !keyData ||
-      !authToken ||
-      authToken.expiresAt < new Date()
-    ) {
-      router.push("/login");
-    } else {
+      const profileData = getProfile();
+      const keyData = getKeys();
+      const authToken = getAuthToken();
+      if (
+        !profileData ||
+        !keyData ||
+        !authToken ||
+        authToken.expiresAt < new Date()
+      ) {
+        router.push("/login");
+        return;
+      }
+
+      // User is logged in, set profile and buidl balance
       setProfile(profileData);
       setBuidlBalance(EXAMPLE_BUIDL_BALANCE);
+
+      // If page is reloaded, load messages
+      const navigationEntries = window.performance.getEntriesByType(
+        "navigation"
+      ) as PerformanceNavigationTiming[];
+      if (navigationEntries.length > 0) {
+        const navigationEntry = navigationEntries[0];
+        if (navigationEntry.type && navigationEntry.type === "reload") {
+          try {
+            await loadMessages({ forceRefresh: false });
+          } catch (error) {
+            console.error("Failed to load messages upon page reload:", error);
+          }
+        }
+      }
+
+      // Compute tabs items
+      const users = getUsers();
+      const activities = getActivities();
       setNumConnections(
         Object.values(users).filter((user) => user.outTs).length
       );
-      setTabsItems(computeTabsItems(users, activities)); // Sorting logic for activities and contacts
-    }
+      setTabsItems(computeTabsItems(users, activities));
+    };
+
+    updateSocialInfo();
   }, [router]);
 
   if (!profile || !tabsItems) {

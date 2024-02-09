@@ -31,6 +31,8 @@ const SharePage = () => {
   const [profile, setProfile] = useState(getProfile());
   const [shareTwitter, setShareTwitter] = useState(false);
   const [shareTelegram, setShareTelegram] = useState(false);
+  const [shareFarcaster, setShareFarcaster] = useState(false);
+  const [shareBio, setShareBio] = useState(false);
   const [privateNote, setPrivateNote] = useState<string>();
   const [loading, setLoading] = useState(false);
 
@@ -46,6 +48,18 @@ const SharePage = () => {
 
       const fetchedUser = fetchUserByUUID(id);
       if (fetchedUser) {
+        if (fetchedUser.encPk === profile.encryptionPublicKey) {
+          toast.error("You cannot connect with yourself");
+          router.push("/");
+          return;
+        }
+
+        if (fetchedUser.outTs) {
+          toast.error("You have already connected with this user");
+          router.push("/users/" + id);
+          return;
+        }
+
         setUser(fetchedUser);
         setPrivateNote(fetchedUser.note);
       }
@@ -95,6 +109,8 @@ const SharePage = () => {
     const encryptedMessage = await encryptInboundTapMessage({
       twitterUsername: shareTwitter ? profile.twitterUsername : undefined,
       telegramUsername: shareTelegram ? profile.telegramUsername : undefined,
+      farcasterUsername: shareFarcaster ? profile.farcasterUsername : undefined,
+      bio: shareBio ? profile.bio : undefined,
       signaturePublicKey: profile.signaturePublicKey,
       signatureMessage: dataToSign,
       signature,
@@ -134,8 +150,6 @@ const SharePage = () => {
     const selfEncryptedMessage = await encryptOutboundTapMessage({
       displayName: user.name,
       encryptionPublicKey: user.encPk,
-      twitterUsername: user.x,
-      telegramUsername: user.tg,
       privateNote,
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey: selfPublicKey,
@@ -200,33 +214,58 @@ const SharePage = () => {
           {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
         This is done by sharing a private stamp that can be used to ZK prove they met you. `}
         </Description>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3">
-            <InputWrapper
-              size="sm"
-              label={`Choose socials to share`}
-              className="grid grid-cols-2 gap-2"
-              spacing
-            >
-              <Checkbox
-                id="twitter"
-                label="X"
-                disabled={!profile.twitterUsername}
-                checked={shareTwitter}
-                type="button"
-                onChange={setShareTwitter}
-              />
-              <Checkbox
-                id="x"
-                label="Telegram"
-                disabled={!profile.telegramUsername}
-                checked={shareTelegram}
-                type="button"
-                onChange={setShareTelegram}
-              />
-            </InputWrapper>
+        {(profile.twitterUsername ||
+          profile.telegramUsername ||
+          profile.farcasterUsername ||
+          profile.bio) && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <InputWrapper
+                size="sm"
+                label={`Choose socials to share`}
+                className="grid grid-cols-2 gap-2"
+                spacing
+              >
+                {profile.twitterUsername && (
+                  <Checkbox
+                    id="twitter"
+                    label="X"
+                    checked={shareTwitter}
+                    type="button"
+                    onChange={setShareTwitter}
+                  />
+                )}
+                {profile.telegramUsername && (
+                  <Checkbox
+                    id="telegram"
+                    label="Telegram"
+                    checked={shareTelegram}
+                    type="button"
+                    onChange={setShareTelegram}
+                  />
+                )}
+                {profile.farcasterUsername && (
+                  <Checkbox
+                    id="farcaster"
+                    label="Farcaster"
+                    checked={shareFarcaster}
+                    type="button"
+                    onChange={setShareFarcaster}
+                  />
+                )}
+                {profile.bio && (
+                  <Checkbox
+                    id="bio"
+                    label="Bio"
+                    checked={shareBio}
+                    type="button"
+                    onChange={setShareBio}
+                  />
+                )}
+              </InputWrapper>
+            </div>
           </div>
-        </div>
+        )}
         <Input
           type="longtext"
           label="Private note"

@@ -17,7 +17,13 @@ import { Input } from "@/components/Input";
 import Link from "next/link";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import toast from "react-hot-toast";
-import { handleNicknameChange } from "@/lib/shared/utils";
+import {
+  displayNameRegex,
+  farcasterUsernameRegex,
+  handleNicknameChange,
+  telegramUsernameRegex,
+  twitterUsernameRegex,
+} from "@/lib/shared/utils";
 import { Spinner } from "@/components/Spinner";
 import { Radio } from "@/components/Radio";
 import { Checkbox } from "@/components/Checkbox";
@@ -44,8 +50,10 @@ export default function Register() {
   const [displayName, setDisplayName] = useState<string>("");
   const [twitterUsername, setTwitterUsername] = useState<string>("@");
   const [telegramUsername, setTelegramUsername] = useState<string>("@");
+  const [farcasterUsername, setFarcasterUsername] = useState<string>("@");
+  const [bio, setBio] = useState<string>();
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
-  const [consentTracking, setConsentTracking] = useState<boolean>(false);
+  const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,6 +88,16 @@ export default function Register() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setTelegramUsername(handleNicknameChange(event));
+  };
+
+  const handleFarcasterUsernameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFarcasterUsername(handleNicknameChange(event));
+  };
+
+  const handleBioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setBio(event.target.value);
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,15 +174,39 @@ export default function Register() {
 
   const handleSocialSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Validate display name: alphanumeric and reasonable length
-    if (
-      !displayName ||
-      !/^[a-z0-9]+$/i.test(displayName) ||
-      displayName.length > 20
-    ) {
+    if (!displayNameRegex.test(displayName)) {
       toast.error(
         "Display name must be alphanumeric and less than 20 characters."
       );
+      return;
+    }
+
+    if (
+      twitterUsername !== "@" &&
+      !twitterUsernameRegex.test(twitterUsername)
+    ) {
+      toast.error("Invalid Twitter username.");
+      return;
+    }
+
+    if (
+      telegramUsername !== "@" &&
+      !telegramUsernameRegex.test(telegramUsername)
+    ) {
+      toast.error("Invalid Telegram username.");
+      return;
+    }
+
+    if (
+      farcasterUsername !== "@" &&
+      !farcasterUsernameRegex.test(farcasterUsername)
+    ) {
+      toast.error("Invalid Farcaster username.");
+      return;
+    }
+
+    if (bio && bio.length > 200) {
+      toast.error("Bio must be less than 200 characters.");
       return;
     }
 
@@ -202,10 +244,8 @@ export default function Register() {
         email,
         code,
         displayName,
-        twitterUsername,
-        telegramUsername,
         wantsServerCustody,
-        consentTracking, // TODO: Implement consent tracking in the backend
+        allowsAnalytics,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
         passwordSalt,
@@ -240,8 +280,12 @@ export default function Register() {
       encryptionPublicKey: publicKey,
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
-      twitterUsername,
-      telegramUsername,
+      allowsAnalytics,
+      twitterUsername: twitterUsername === "@" ? undefined : twitterUsername,
+      telegramUsername: telegramUsername === "@" ? undefined : telegramUsername,
+      farcasterUsername:
+        farcasterUsername === "@" ? undefined : farcasterUsername,
+      bio: bio === "" ? undefined : bio,
     });
     saveAuthToken({
       value: data.value,
@@ -348,8 +392,8 @@ export default function Register() {
           header={
             <div className="flex flex-col gap-4">
               <span className="text-sm text-gray-11 font-light">
-                You can choose which social channels to share each time you make
-                a new connection
+                You can choose which social channels to share each time you tap
+                someone else. You can change these at any time in the app.
               </span>
               <Input
                 type="text"
@@ -376,6 +420,22 @@ export default function Register() {
                 value={telegramUsername}
                 onChange={handleTelegramUsernameChange}
               />
+              <Input
+                type="text"
+                name="farcasterUsername"
+                label="Farcaster (Optional)"
+                placeholder="Farcaster username"
+                value={farcasterUsername}
+                onChange={handleFarcasterUsernameChange}
+              />
+              <Input
+                type="text"
+                name="bio"
+                label="Bio (Optional)"
+                placeholder="Notes about yourself"
+                value={bio}
+                onChange={handleBioChange}
+              />
             </div>
           }
         >
@@ -386,17 +446,20 @@ export default function Register() {
         <FormStepLayout
           onSubmit={handleCustodySubmit}
           description="2/2"
-          title="Choose your custody option"
+          title="Ownership & analytics consent"
           header={
             <fieldset className="flex flex-col gap-6">
               <span className="text-gray-11 text-sm">
-                You can change this later lorem ipsum
+                IYK has partnerned with Cursive to integrate ZK tech into this
+                experience to enable full data ownership and portability. Choose
+                if you want to enable it.
               </span>
               <Radio
                 id="selfCustody"
                 name="custody"
                 value="self"
-                label="Self Custody"
+                label="Self custody"
+                description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
                 checked={!wantsServerCustody}
                 onChange={() => setWantsServerCustody(false)}
               />
@@ -405,16 +468,22 @@ export default function Register() {
                 type="radio"
                 name="custody"
                 value="server"
-                label="Server Custody"
+                label="Server custody"
+                description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
                 checked={wantsServerCustody}
                 onChange={() => setWantsServerCustody(true)}
               />
+              <span className="text-gray-11 text-sm">
+                If we have your consent, Cursive will use client-side
+                performance analytics to determine how to improve the app. This
+                will never include any identifying information.
+              </span>
               <Checkbox
-                id="consentTracking"
-                label="I consent to tracking"
-                description="We will never share your lorem ipsum dolor sit am et conspic ipsum dolor"
-                checked={consentTracking}
-                onChange={setConsentTracking}
+                id="allowAnalytics"
+                label="I consent to sharing analytics data"
+                checked={allowsAnalytics}
+                onChange={setAllowAnalytics}
+                disabled={false}
               />
             </fieldset>
           }
@@ -436,7 +505,7 @@ export default function Register() {
                 <Icons.arrowLeft />
                 <span className="text-xs text-gray-11">Choose custody</span>
               </button>
-              <span>Password</span>
+              <span>Master password</span>
             </div>
           }
           onSubmit={handleCreateSelfCustodyAccount}
@@ -444,7 +513,7 @@ export default function Register() {
           <Input
             type="password"
             name="password"
-            label="Password"
+            label="Master password"
             value={password}
             onChange={handlePasswordChange}
             required
@@ -452,11 +521,16 @@ export default function Register() {
           <Input
             type="password"
             name="confirmPassword"
-            label="Confirm password"
+            label="Confirm master password"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             required
           />
+          <span className="text-gray-11 text-sm">
+            This master password is used to encrypt a backup of your interaction
+            data on our server. You are responsible for saving this password
+            and/or manually backing up your data from the app.
+          </span>
           <Button type="submit">Create account</Button>
         </FormStepLayout>
       )}

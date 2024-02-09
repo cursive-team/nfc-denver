@@ -13,8 +13,11 @@ export type Profile = {
   encryptionPublicKey: string;
   signaturePublicKey: string;
   wantsServerCustody: boolean;
+  allowsAnalytics: boolean;
   twitterUsername?: string;
   telegramUsername?: string;
+  farcasterUsername?: string;
+  bio?: string;
 };
 
 export const profileSchema = object({
@@ -23,8 +26,11 @@ export const profileSchema = object({
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
   wantsServerCustody: boolean().required(),
+  allowsAnalytics: boolean().required(),
   twitterUsername: string().optional(),
   telegramUsername: string().optional(),
+  farcasterUsername: string().optional(),
+  bio: string().optional(),
 });
 
 export const saveProfile = (profile: Profile): void => {
