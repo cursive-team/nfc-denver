@@ -7,17 +7,7 @@ export default function LoginPage() {
   const onSuccessfulLogin = () => {
     router.push("/");
   };
-
-  const onFailedLogin = (errorMessage: string) => {
-    toast.error(errorMessage);
-  };
-
-  return (
-    <LoginForm
-      onSuccessfulLogin={onSuccessfulLogin}
-      onFailedLogin={onFailedLogin}
-    />
-  );
+  return <LoginForm onSuccessfulLogin={onSuccessfulLogin} />;
 }
 
 LoginPage.getInitialProps = () => {

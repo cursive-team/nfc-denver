@@ -112,6 +112,12 @@ export default function Register() {
 
   const handleEmailSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!cmac) {
+      toast.error("Please tap your card to link it to your account.");
+      return;
+    }
+
     setLoading(true);
     fetch("/api/register/get_code", {
       method: "POST",
@@ -123,8 +129,12 @@ export default function Register() {
       .then((response) => {
         if (response.ok) {
           setDisplayState(DisplayState.INPUT_CODE);
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          throw new Error(data.error);
         }
         setLoading(false);
       })
@@ -146,13 +156,13 @@ export default function Register() {
       body: JSON.stringify({ email, code }),
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
         return response.json();
       })
       .then((data) => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
         const verifyCodeResponse =
           verifySigninCodeResponseSchema.validateSync(data);
         if (verifyCodeResponse.success) {
@@ -536,7 +546,7 @@ export default function Register() {
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
         <div className="my-auto mx-auto">
-          <Spinner />
+          <Spinner label="Your account is being created." />
         </div>
       )}
     </>
