@@ -58,7 +58,7 @@ const CheckboxSquareBase = classed.div(
       },
     },
     defaultVariants: {
-      checked: true,
+      checked: false,
     },
   }
 );

@@ -181,17 +181,26 @@ export default function Register() {
       return;
     }
 
-    if (twitterUsername && !twitterUsernameRegex.test(twitterUsername)) {
+    if (
+      twitterUsername !== "@" &&
+      !twitterUsernameRegex.test(twitterUsername)
+    ) {
       toast.error("Invalid Twitter username.");
       return;
     }
 
-    if (telegramUsername && !telegramUsernameRegex.test(telegramUsername)) {
+    if (
+      telegramUsername !== "@" &&
+      !telegramUsernameRegex.test(telegramUsername)
+    ) {
       toast.error("Invalid Telegram username.");
       return;
     }
 
-    if (farcasterUsername && !farcasterUsernameRegex.test(farcasterUsername)) {
+    if (
+      farcasterUsername !== "@" &&
+      !farcasterUsernameRegex.test(farcasterUsername)
+    ) {
       toast.error("Invalid Farcaster username.");
       return;
     }
@@ -235,10 +244,12 @@ export default function Register() {
         email,
         code,
         displayName,
-        twitterUsername,
-        telegramUsername,
-        farcasterUsername,
-        bio,
+        twitterUsername: twitterUsername === "@" ? undefined : twitterUsername,
+        telegramUsername:
+          telegramUsername === "@" ? undefined : telegramUsername,
+        farcasterUsername:
+          farcasterUsername === "@" ? undefined : farcasterUsername,
+        bio: bio === "" ? undefined : bio,
         wantsServerCustody,
         allowsAnalytics,
         encryptionPublicKey: publicKey,
@@ -276,10 +287,11 @@ export default function Register() {
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
       allowsAnalytics,
-      twitterUsername,
-      telegramUsername,
-      farcasterUsername,
-      bio,
+      twitterUsername: twitterUsername === "@" ? undefined : twitterUsername,
+      telegramUsername: telegramUsername === "@" ? undefined : telegramUsername,
+      farcasterUsername:
+        farcasterUsername === "@" ? undefined : farcasterUsername,
+      bio: bio === "" ? undefined : bio,
     });
     saveAuthToken({
       value: data.value,
@@ -386,8 +398,8 @@ export default function Register() {
           header={
             <div className="flex flex-col gap-4">
               <span className="text-sm text-gray-11 font-light">
-                You can choose which social channels to share each time you make
-                a new connection
+                You can choose which social channels to share each time you tap
+                someone else. You can change these at any time in the app.
               </span>
               <Input
                 type="text"
