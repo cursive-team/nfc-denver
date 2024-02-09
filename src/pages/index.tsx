@@ -384,7 +384,7 @@ export default function Social() {
                 <PointCard point={buidlBalance} />
               </div>
               <span className="text-sm font-light text-gray-10">
-                {`${numConnections} taps`}
+                {numConnections === 1 ? `1 tap` : `${numConnections} taps`}
               </span>
             </div>
             <Link href="/leaderboard">
