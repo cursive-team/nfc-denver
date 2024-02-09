@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { object, string } from "yup";
-import { ErrorResponse } from "../../types";
+import { ErrorResponse } from "@/types";
 import {
   ChipType,
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
-} from "../../lib/server/dev";
+} from "@/lib/server/dev";
 import { sign } from "@/lib/shared/signature";
 import { v4 as uuidv4 } from "uuid";
 

@@ -1,4 +1,4 @@
-import { LocationTapResponse } from "@/pages/api/tap";
+import { LocationTapResponse } from "@/pages/api/tap/cmac";
 import {
   deleteFromLocalStorage,
   getFromLocalStorage,
