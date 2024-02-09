@@ -239,7 +239,7 @@ export default function QuestById() {
             </>
           ) : (
             <span className="flex justify-center items-center text-center grow min-h-[80vh]">
-              Impossible to load this quest.
+              Unable to load this quest.
             </span>
           )}
         </LoadingWrapper>
