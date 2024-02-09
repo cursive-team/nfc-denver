@@ -6,6 +6,7 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import toast from "react-hot-toast";
+import { useRegisterLocation } from "@/hooks/useRegisterLocation";
 
 export default function RegisterLocation() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function RegisterLocation() {
   const [description, setDescription] = useState<string>("");
   const [sponsor, setSponsor] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const registerLocationMutation = useRegisterLocation();
 
   useEffect(() => {
     if (router.query.cmac) {
@@ -97,20 +100,11 @@ export default function RegisterLocation() {
       imageUrl: newBlob.url,
     };
 
-    const response = await fetch("/api/register/location", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    await registerLocationMutation.mutateAsync(locationData, {
+      onSuccess: (locationId) => {
+        router.push(`/locations/${locationId}`);
       },
-      body: JSON.stringify(locationData),
     });
-    if (!response.ok) {
-      toast.error("Error registering location. Please try again.");
-      return;
-    }
-
-    const { locationId } = await response.json();
-    router.push(`/locations/${locationId}`);
   };
 
   return (
@@ -118,7 +112,11 @@ export default function RegisterLocation() {
       title="Registration"
       description="Set up a location chip"
       onSubmit={handleSubmit}
-      actions={<Button type="submit">Submit</Button>}
+      actions={
+        <Button loading={registerLocationMutation.isPending} type="submit">
+          Submit
+        </Button>
+      }
     >
       <Input
         type="text"
@@ -152,11 +150,7 @@ export default function RegisterLocation() {
         onChange={handleImageChange}
         className="hidden"
       />
-      <Button
-        type="button"
-        onClick={handleTakePhoto}
-        className="flex items-center justify-center w-full p-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-4"
-      >
+      <Button type="button" onClick={handleTakePhoto}>
         Attach photo
       </Button>
       {image && (
@@ -165,7 +159,7 @@ export default function RegisterLocation() {
           width={400}
           height={300}
           alt="Location"
-          className="mb-4 h-48 w-full object-cover"
+          className="mb-4 h-48 w-full object-cover rounded"
         />
       )}
     </FormStepLayout>

@@ -536,7 +536,7 @@ export default function Register() {
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
         <div className="my-auto mx-auto">
-          <Spinner />
+          <Spinner label="Your account is being created." />
         </div>
       )}
     </>

@@ -42,11 +42,7 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   const { name: title, description, buidlReward } = quest ?? {};
 
   return (
-    <LoadingWrapper
-      isLoading={loading}
-      fallback={<QuestDetailPlaceholder />}
-      className="flex flex-col gap-5"
-    >
+    <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <div className="flex gap-3 items-center">
           <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
@@ -65,7 +61,7 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
         <span className=" text-gray-11 text-xs font-light">{description}</span>
         {buidlReward && <PartnerItemCard label="Reward" />}
       </div>
-    </LoadingWrapper>
+    </div>
   );
 };
 
@@ -151,7 +147,7 @@ export default function QuestById() {
 
   return (
     <div>
-      <AppBackHeader />
+      <AppBackHeader redirectTo="/quests" />
       {quest && (
         <CompleteQuestModal
           isOpen={completeQuestModal}
@@ -164,11 +160,16 @@ export default function QuestById() {
         <LoadingWrapper
           isLoading={isLoading}
           className="flex flex-col gap-6"
-          fallback={<Placeholder.List items={3} />}
+          fallback={
+            <>
+              <QuestDetailPlaceholder />
+              <Placeholder.List items={3} />
+            </>
+          }
         >
           {quest ? (
             <>
-              <QuestDetail quest={quest} loading={isLoading} />
+              <QuestDetail quest={quest} />
               <ListWrapper
                 title="Requirements"
                 label={

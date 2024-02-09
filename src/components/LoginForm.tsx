@@ -14,8 +14,13 @@ import { Record } from "@prisma/client/runtime/library";
 import Link from "next/link";
 import { Button } from "./Button";
 import { loadMessages } from "@/lib/client/jubSignalClient";
-import toast from "react-hot-toast";
 import useSettings from "@/hooks/useSettings";
+import { Spinner } from "./Spinner";
+import {
+  useEmailLogin,
+  useLoginCodeSubmit,
+  usePasswordLogin,
+} from "@/hooks/useLogin";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -44,6 +49,10 @@ export default function LoginForm({
   const [iv, setIv] = useState("");
   const [passwordSalt, setPasswordSalt] = useState("");
   const [passwordHash, setPasswordHash] = useState("");
+
+  const emailLoginMutation = useEmailLogin();
+  const submitLoginCodeMutation = useLoginCodeSubmit();
+  const passwordLoginMutation = usePasswordLogin();
 
   // This function is called once a backup is loaded
   // It fetches the user's jubSignal messages, populates localStorage,
@@ -75,127 +84,109 @@ export default function LoginForm({
 
   const handleEmailSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      const response = await fetch("/api/login/get_code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
 
-      if (response.ok) {
+    await emailLoginMutation.mutateAsync(email, {
+      onError: (error) => {
+        onFailedLogin("Error requesting code. Please try again.");
+        console.error(error);
+      },
+      onSuccess: () => {
         setDisplayState(DisplayState.INPUT_CODE);
-      } else {
-        onFailedLogin(
-          "The email you entered is not associated with a user. Please try again."
-        );
-        console.error("Email not found");
-        return;
-      }
-    } catch (error) {
-      onFailedLogin("An unexpected error occurred. Please try again.");
-    }
+      },
+    });
   };
 
   const handleCodeSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      const response = await fetch("/api/login/verify_code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, code }),
-      });
-      const data = await response.json();
 
-      if (!response.ok) {
-        onFailedLogin("Error logging in. Please try again.");
-        console.error(data.error);
-        return;
-      }
-
-      if (!data.backup) {
-        onFailedLogin("Error logging in. Please try again.");
-        console.error("No backup received");
-        return;
-      }
-
-      // Validate auth token is correctly formed
-      if (
-        !data.authToken ||
-        !data.authToken.value ||
-        typeof data.authToken.value !== "string" ||
-        !data.authToken.expiresAt ||
-        typeof data.authToken.expiresAt !== "string"
-      ) {
-        console.error("Invalid auth token received");
-        onFailedLogin("Error logging in. Please try again.");
-        return;
-      }
-
-      // Save auth token
-      const { value, expiresAt } = data.authToken;
-      const authToken = { value, expiresAt: new Date(expiresAt) };
-      setSavedAuthToken(authToken); // Save auth token state for case where user needs to input password
-
-      // Password hint is provided if user chooses self custody
-      if (data.password) {
-        const { encryptedData, authenticationTag, iv } =
-          encryptedBackupDataSchema.validateSync(data.backup);
-
-        // User must confirm password to decrypt data
-        setEncryptedData(encryptedData);
-        setAuthenticationTag(authenticationTag);
-        setIv(iv);
-        setPasswordSalt(data.password.salt);
-        setPasswordHash(data.password.hash);
-
-        setDisplayState(DisplayState.INPUT_PASSWORD);
-      } else {
-        if (
-          !data.backup ||
-          !data.backup.decryptedData ||
-          typeof data.backup.decryptedData !== "string"
-        ) {
-          console.error("Invalid backup received");
+    await submitLoginCodeMutation.mutateAsync(
+      {
+        email,
+        code,
+      },
+      {
+        onError() {
           onFailedLogin("Error logging in. Please try again.");
-          return;
-        }
+        },
+        onSuccess: async (data) => {
+          if (!data.backup) {
+            onFailedLogin("Error logging in. Please try again.");
+            console.error("No backup received");
+            return;
+          }
 
-        const backup = data.backup.decryptedData;
-        await completeLogin(backup, authToken);
+          // Validate auth token is correctly formed
+          if (
+            !data.authToken ||
+            !data.authToken.value ||
+            typeof data.authToken.value !== "string" ||
+            !data.authToken.expiresAt ||
+            typeof data.authToken.expiresAt !== "string"
+          ) {
+            console.error("Invalid auth token received");
+            onFailedLogin("Error logging in. Please try again.");
+            return;
+          }
+
+          // Save auth token
+          const { value, expiresAt } = data.authToken;
+          const authToken = { value, expiresAt: new Date(expiresAt) };
+          setSavedAuthToken(authToken); // Save auth token state for case where user needs to input password
+
+          // Password hint is provided if user chooses self custody
+          if (data.password) {
+            const { encryptedData, authenticationTag, iv } =
+              encryptedBackupDataSchema.validateSync(data.backup);
+
+            // User must confirm password to decrypt data
+            setEncryptedData(encryptedData);
+            setAuthenticationTag(authenticationTag);
+            setIv(iv);
+            setPasswordSalt(data.password.salt);
+            setPasswordHash(data.password.hash);
+
+            setDisplayState(DisplayState.INPUT_PASSWORD);
+          } else {
+            if (
+              !data.backup ||
+              !data.backup.decryptedData ||
+              typeof data.backup.decryptedData !== "string"
+            ) {
+              console.error("Invalid backup received");
+              onFailedLogin("Error logging in. Please try again.");
+              return;
+            }
+
+            const backup = data.backup.decryptedData;
+            await completeLogin(backup, authToken);
+          }
+        },
       }
-    } catch (error) {
-      console.error(error);
-      onFailedLogin("An unexpected error occurred. Please try again.");
-    }
+    );
   };
 
   const handlePasswordSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    try {
-      const derivedPasswordHash = await hashPassword(password, passwordSalt);
-      if (derivedPasswordHash !== passwordHash) {
-        toast.error("Incorrect password!");
-        return;
-      }
-
-      const decryptedBackupData = decryptBackupString(
+    await passwordLoginMutation.mutateAsync(
+      {
+        password,
+        passwordSalt,
+        passwordHash,
         encryptedData,
         authenticationTag,
         iv,
         email,
-        password
-      );
-
-      await completeLogin(decryptedBackupData);
-    } catch (error) {
-      console.error(error);
-      onFailedLogin("Error logging in. Please try again.");
-    }
+      },
+      {
+        onError: () => {
+          onFailedLogin("Error logging in. Please try again.");
+        },
+        onSuccess: async (data: any) => {
+          await completeLogin(data);
+        },
+      }
+    );
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +221,9 @@ export default function LoginForm({
           onChange={handleEmailChange}
           required
         />
-        <Button type="submit">Send Code</Button>
+        <Button loading={emailLoginMutation.isPending} type="submit">
+          Send Code
+        </Button>
         <Link href="/register" className="link text-center">
           I am not registered
         </Link>
@@ -252,7 +245,9 @@ export default function LoginForm({
           onChange={handleCodeChange}
           required
         />
-        <Button type="submit">Login</Button>
+        <Button loading={submitLoginCodeMutation.isPending} type="submit">
+          Login
+        </Button>
       </FormStepLayout>
     ),
     INPUT_PASSWORD: (
@@ -270,12 +265,14 @@ export default function LoginForm({
           onChange={handlePasswordChange}
           required
         />
-        <Button type="submit">Login</Button>
+        <Button loading={passwordLoginMutation.isPending} type="submit">
+          Login
+        </Button>
       </FormStepLayout>
     ),
     LOGGING_IN: (
-      <div>
-        <span>Logging in...</span>
+      <div className="flex h-screen items-center justify-center">
+        <Spinner label="Logging in into your account" />
       </div>
     ),
   };
