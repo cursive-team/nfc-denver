@@ -504,11 +504,6 @@ export default function Register() {
           }
           onSubmit={handleCreateSelfCustodyAccount}
         >
-          <span className="text-gray-11 text-sm">
-            This master password is used to encrypt a backup of your interaction
-            data on our server. You are responsible for remembering this
-            password.
-          </span>
           <Input
             type="password"
             name="password"
@@ -525,6 +520,11 @@ export default function Register() {
             onChange={handleConfirmPasswordChange}
             required
           />
+          <span className="text-gray-11 text-sm">
+            This master password is used to encrypt a backup of your interaction
+            data on our server. You are responsible for saving this password, or
+            manually backing up your data in the app.
+          </span>
           <Button type="submit">Create account</Button>
         </FormStepLayout>
       )}

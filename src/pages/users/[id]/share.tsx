@@ -214,49 +214,58 @@ const SharePage = () => {
           {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
         This is done by sharing a private stamp that can be used to ZK prove they met you. `}
         </Description>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3">
-            <InputWrapper
-              size="sm"
-              label={`Choose socials to share`}
-              className="grid grid-cols-2 gap-2"
-              spacing
-            >
-              <Checkbox
-                id="twitter"
-                label="X"
-                disabled={!profile.twitterUsername}
-                checked={shareTwitter}
-                type="button"
-                onChange={setShareTwitter}
-              />
-              <Checkbox
-                id="telegram"
-                label="Telegram"
-                disabled={!profile.telegramUsername}
-                checked={shareTelegram}
-                type="button"
-                onChange={setShareTelegram}
-              />
-              <Checkbox
-                id="farcaster"
-                label="Farcaster"
-                disabled={!profile.farcasterUsername}
-                checked={shareFarcaster}
-                type="button"
-                onChange={setShareFarcaster}
-              />
-              <Checkbox
-                id="bio"
-                label="Bio"
-                disabled={!profile.bio}
-                checked={shareBio}
-                type="button"
-                onChange={setShareBio}
-              />
-            </InputWrapper>
+        {(profile.twitterUsername ||
+          profile.telegramUsername ||
+          profile.farcasterUsername ||
+          profile.bio) && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <InputWrapper
+                size="sm"
+                label={`Choose socials to share`}
+                className="grid grid-cols-2 gap-2"
+                spacing
+              >
+                {profile.twitterUsername && (
+                  <Checkbox
+                    id="twitter"
+                    label="X"
+                    checked={shareTwitter}
+                    type="button"
+                    onChange={setShareTwitter}
+                  />
+                )}
+                {profile.telegramUsername && (
+                  <Checkbox
+                    id="telegram"
+                    label="Telegram"
+                    checked={shareTelegram}
+                    type="button"
+                    onChange={setShareTelegram}
+                  />
+                )}
+                {profile.farcasterUsername && (
+                  <Checkbox
+                    id="farcaster"
+                    label="Farcaster"
+                    checked={shareFarcaster}
+                    type="button"
+                    onChange={setShareFarcaster}
+                  />
+                )}
+                {profile.bio && (
+                  <Checkbox
+                    id="bio"
+                    label="Bio"
+                    checked={shareBio}
+                    type="button"
+                    onChange={setShareBio}
+                  />
+                )}
+              </InputWrapper>
+            </div>
           </div>
-        </div>
+        )}
         <Input
           type="longtext"
           label="Private note"

@@ -14,6 +14,17 @@ export const labelStartWith = (value?: string, startWith?: string): string => {
   return value.startsWith(startWith ?? "") ? value : `${startWith}${value}`;
 };
 
+export const removeLabelStartWith = (
+  value?: string,
+  startWith?: string
+): string => {
+  if (!value) return "";
+  if (!startWith) return value;
+  return value.startsWith(startWith ?? "")
+    ? value.slice(startWith.length)
+    : value;
+};
+
 export const formatDate = (date: string, formatReplace?: string): string => {
   const isToday = dayjs().isSame(date, "day");
   const dateFormat = formatReplace
