@@ -19,6 +19,8 @@ import {
   useLoginCodeSubmit,
   usePasswordLogin,
 } from "@/hooks/useLogin";
+import toast from "react-hot-toast";
+import { APP_CONFIG } from "@/shared/constants";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -29,13 +31,9 @@ enum DisplayState {
 
 interface LoginFormProps {
   onSuccessfulLogin: () => void;
-  onFailedLogin: (errorMessage: string) => void;
 }
 
-export default function LoginForm({
-  onSuccessfulLogin,
-  onFailedLogin,
-}: LoginFormProps) {
+export default function LoginForm({ onSuccessfulLogin }: LoginFormProps) {
   const { pageHeight } = useSettings();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -59,7 +57,7 @@ export default function LoginForm({
     const authToken = savedAuthToken || token;
     if (!authToken) {
       console.error("No auth token found");
-      onFailedLogin("Error logging in. Please try again.");
+      toast.error("Error logging in. Please try again.");
       return;
     }
 
@@ -72,7 +70,7 @@ export default function LoginForm({
       await loadMessages({ forceRefresh: true });
     } catch (error) {
       deleteAccountFromLocalStorage(); // Clear localStorage if login fails
-      onFailedLogin("Error logging in. Please try again.");
+      toast.error("Error logging in. Please try again.");
       return;
     }
 
@@ -85,7 +83,6 @@ export default function LoginForm({
 
     await emailLoginMutation.mutateAsync(email, {
       onError: (error) => {
-        onFailedLogin("Error requesting code. Please try again.");
         console.error(error);
       },
       onSuccess: () => {
@@ -103,12 +100,14 @@ export default function LoginForm({
         code,
       },
       {
-        onError() {
-          onFailedLogin("Error logging in. Please try again.");
+        onError: (error) => {
+          console.error(error);
         },
         onSuccess: async (data) => {
           if (!data.backup) {
-            onFailedLogin("Error logging in. Please try again.");
+            toast.error(
+              `No backup received. Contact ${APP_CONFIG.SUPPORT_EMAIL}`
+            );
             console.error("No backup received");
             return;
           }
@@ -122,7 +121,9 @@ export default function LoginForm({
             typeof data.authToken.expiresAt !== "string"
           ) {
             console.error("Invalid auth token received");
-            onFailedLogin("Error logging in. Please try again.");
+            toast.error(
+              `Invalid auth token. Contact ${APP_CONFIG.SUPPORT_EMAIL}`
+            );
             return;
           }
 
@@ -151,7 +152,9 @@ export default function LoginForm({
               typeof data.backup.decryptedData !== "string"
             ) {
               console.error("Invalid backup received");
-              onFailedLogin("Error logging in. Please try again.");
+              toast.error(
+                `Invalid backup received. Contact ${APP_CONFIG.SUPPORT_EMAIL}`
+              );
               return;
             }
 
@@ -177,8 +180,8 @@ export default function LoginForm({
         email,
       },
       {
-        onError: () => {
-          onFailedLogin("Error logging in. Please try again.");
+        onError: (error) => {
+          console.error(error);
         },
         onSuccess: async (data: any) => {
           await completeLogin(data);

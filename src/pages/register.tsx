@@ -112,6 +112,12 @@ export default function Register() {
 
   const handleEmailSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!cmac) {
+      toast.error("Please tap your card to link it to your account.");
+      return;
+    }
+
     setLoading(true);
     fetch("/api/register/get_code", {
       method: "POST",

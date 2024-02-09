@@ -194,18 +194,12 @@ export default function Tap() {
     return (
       <LoginForm
         onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
-        onFailedLogin={(errorMessage: string) => {
-          toast.error(errorMessage);
-        }}
       />
     );
   } else if (pendingLocationTapResponse) {
     return (
       <LoginForm
         onSuccessfulLogin={() => processLocationTap(pendingLocationTapResponse)}
-        onFailedLogin={(errorMessage: string) => {
-          toast.error(errorMessage);
-        }}
       />
     );
   }

@@ -1,6 +1,7 @@
 import { hashPassword } from "@/lib/client/utils";
 import { decryptBackupString } from "@/lib/shared/backup";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 interface SubmitLoginCode {
   email: string;
@@ -21,7 +22,8 @@ export function useEmailLogin() {
 
       if (!response.ok) {
         const data = await response.json();
-        return Promise.reject(data);
+        toast.error(data.error);
+        return Promise.reject();
       }
 
       return Promise.resolve();
@@ -43,7 +45,8 @@ export function useLoginCodeSubmit() {
       const data = await response.json();
 
       if (!response.ok) {
-        return Promise.reject(data);
+        toast.error(data.error);
+        return Promise.reject();
       }
 
       return Promise.resolve(data);
@@ -73,7 +76,8 @@ export const usePasswordLogin = () => {
     }) => {
       const derivedPasswordHash = await hashPassword(password, passwordSalt);
       if (derivedPasswordHash !== passwordHash) {
-        return Promise.reject({ error: "Incorrect password" });
+        toast.error("Incorrect password");
+        return Promise.reject();
       }
 
       const decryptedBackupData = decryptBackupString(
