@@ -12,22 +12,13 @@ import {
   generateAuthToken,
   verifySigninCode,
 } from "@/lib/server/auth";
-import {
-  displayNameRegex,
-  farcasterUsernameRegex,
-  telegramUsernameRegex,
-  twitterUsernameRegex,
-} from "@/lib/shared/utils";
+import { displayNameRegex } from "@/lib/shared/utils";
 
 const createAccountSchema = object({
   cmac: string().required(),
   email: string().email().required(),
   code: string().required(),
   displayName: string().required(),
-  twitterUsername: string().optional(),
-  telegramUsername: string().optional(),
-  farcasterUsername: string().optional(),
-  bio: string().optional(),
   wantsServerCustody: boolean().required(),
   allowsAnalytics: boolean().required(),
   encryptionPublicKey: string().required(),
@@ -64,10 +55,6 @@ export default async function handler(
     email,
     code,
     displayName,
-    twitterUsername: atTwitterUsername,
-    telegramUsername: atTelegramUsername,
-    farcasterUsername: atFarcasterUsername,
-    bio,
     wantsServerCustody,
     allowsAnalytics,
     encryptionPublicKey,
@@ -81,36 +68,6 @@ export default async function handler(
       error:
         "Invalid display name. Must be alphanumeric and less than 20 characters",
     });
-  }
-
-  if (atTwitterUsername && !twitterUsernameRegex.test(atTwitterUsername)) {
-    return res.status(400).json({
-      error: "Invalid Twitter username",
-    });
-  }
-  const twitterUsername = atTwitterUsername?.slice(1);
-
-  if (atTelegramUsername && !telegramUsernameRegex.test(atTelegramUsername)) {
-    return res.status(400).json({
-      error: "Invalid Telegram username",
-    });
-  }
-  const telegramUsername = atTelegramUsername?.slice(1);
-
-  if (
-    atFarcasterUsername &&
-    !farcasterUsernameRegex.test(atFarcasterUsername)
-  ) {
-    return res.status(400).json({
-      error: "Invalid Farcaster username",
-    });
-  }
-  const farcasterUsername = atFarcasterUsername?.slice(1);
-
-  if (bio && bio.length > 200) {
-    return res
-      .status(400)
-      .json({ error: "Bio must be less than 200 characters" });
   }
 
   // Validate cmac corresponds to an unregistered person chip
@@ -144,10 +101,6 @@ export default async function handler(
       chipId,
       email,
       displayName,
-      twitterUsername,
-      telegramUsername,
-      farcasterUsername,
-      bio,
       wantsServerCustody,
       allowsAnalytics,
       encryptionPublicKey,

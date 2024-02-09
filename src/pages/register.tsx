@@ -244,12 +244,6 @@ export default function Register() {
         email,
         code,
         displayName,
-        twitterUsername: twitterUsername === "@" ? undefined : twitterUsername,
-        telegramUsername:
-          telegramUsername === "@" ? undefined : telegramUsername,
-        farcasterUsername:
-          farcasterUsername === "@" ? undefined : farcasterUsername,
-        bio: bio === "" ? undefined : bio,
         wantsServerCustody,
         allowsAnalytics,
         encryptionPublicKey: publicKey,

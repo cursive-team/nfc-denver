@@ -22,10 +22,6 @@ model User {
   allowsAnalytics           Boolean            
   passwordSalt              String?
   passwordHash              String?
-  twitterUsername           String?
-  telegramUsername          String?
-  farcasterUsername         String?
-  bio                       String?
   createdAt                 DateTime           @default(now())
   sentMessages              Message[]          @relation("MessageSender")
   receivedMessages          Message[]          @relation("MessageRecipient")
