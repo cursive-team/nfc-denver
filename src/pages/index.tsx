@@ -50,7 +50,7 @@ const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
       <div>
         <Link href={`/users/${userId}/share`}>
           <Button variant="secondary" size="sm">
-            Share Back
+            Tap Back
           </Button>
         </Link>
       </div>
@@ -296,7 +296,7 @@ export default function Social() {
           <div className="flex flex-col gap-5">
             {sortedPendingUserList.length === 0 && (
               <div className="flex justify-center items-center h-40">
-                <span className="text-gray-10">No pending contacts</span>
+                <span className="text-gray-10">No pending taps</span>
               </div>
             )}
             {sortedPendingUserList.length !== 0 && (

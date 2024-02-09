@@ -197,8 +197,8 @@ const SharePage = () => {
         onSubmit={handleConnect}
       >
         <Description>
-          {`By sharing, you privately send a signature to ${user.name} from a local private key. 
-          This will allow them to ZK prove they met you to complete quests that require it. `}
+          {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
+        This is done by sharing a private stamp that can be used to ZK prove they met you. `}
         </Description>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
