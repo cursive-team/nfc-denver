@@ -1,5 +1,6 @@
 export const APP_CONFIG = {
-  APP_NAME: "nfc-denver",
+  APP_NAME: "BUIDLQuest",
+  SUPPORT_EMAIL: "help@buidlquest.xyz",
 };
 
 export const QuestTagMapping: Record<

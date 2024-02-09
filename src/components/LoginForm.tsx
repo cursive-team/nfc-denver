@@ -5,8 +5,6 @@ import {
   AuthToken,
   deleteAccountFromLocalStorage,
 } from "../lib/client/localStorage";
-import { hashPassword } from "@/lib/client/utils";
-import { decryptBackupString } from "@/lib/shared/backup";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";
 import { Input } from "./Input";
 import { FormStepLayout } from "@/layouts/FormStepLayout";

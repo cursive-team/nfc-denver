@@ -22,7 +22,8 @@ export function useRegisterLocation() {
       });
 
       if (!response.ok) {
-        toast.error("Error registering location. Please try again.");
+        const { error } = await response.json();
+        toast.error(`${error}. Please try again.`);
         return Promise.reject();
       }
 

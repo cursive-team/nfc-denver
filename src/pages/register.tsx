@@ -123,8 +123,12 @@ export default function Register() {
       .then((response) => {
         if (response.ok) {
           setDisplayState(DisplayState.INPUT_CODE);
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          throw new Error(data.error);
         }
         setLoading(false);
       })
@@ -146,13 +150,13 @@ export default function Register() {
       body: JSON.stringify({ email, code }),
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
         return response.json();
       })
       .then((data) => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
         const verifyCodeResponse =
           verifySigninCodeResponseSchema.validateSync(data);
         if (verifyCodeResponse.success) {
