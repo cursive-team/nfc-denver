@@ -450,9 +450,9 @@ export default function Register() {
           header={
             <fieldset className="flex flex-col gap-6">
               <span className="text-gray-11 text-sm">
-                Cursive has integrated ZK tech into this experience to enable
-                full data ownership and portability. Choose if you want to
-                enable it.
+                IYK has partnerned with Cursive to integrate ZK tech into this
+                experience to enable full data ownership and portability. Choose
+                if you want to enable it.
               </span>
               <Radio
                 id="selfCustody"
@@ -528,8 +528,8 @@ export default function Register() {
           />
           <span className="text-gray-11 text-sm">
             This master password is used to encrypt a backup of your interaction
-            data on our server. You are responsible for saving this password, or
-            manually backing up your data in the app.
+            data on our server. You are responsible for saving this password
+            and/or manually backing up your data from the app.
           </span>
           <Button type="submit">Create account</Button>
         </FormStepLayout>
