@@ -53,7 +53,7 @@ export default function Register() {
   const [farcasterUsername, setFarcasterUsername] = useState<string>("@");
   const [bio, setBio] = useState<string>();
   const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
-  const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(true);
+  const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -178,18 +178,22 @@ export default function Register() {
       toast.error(
         "Display name must be alphanumeric and less than 20 characters."
       );
+      return;
     }
 
     if (twitterUsername && !twitterUsernameRegex.test(twitterUsername)) {
       toast.error("Invalid Twitter username.");
+      return;
     }
 
     if (telegramUsername && !telegramUsernameRegex.test(telegramUsername)) {
       toast.error("Invalid Telegram username.");
+      return;
     }
 
     if (farcasterUsername && !farcasterUsernameRegex.test(farcasterUsername)) {
       toast.error("Invalid Farcaster username.");
+      return;
     }
 
     if (bio && bio.length > 200) {
@@ -436,17 +440,20 @@ export default function Register() {
         <FormStepLayout
           onSubmit={handleCustodySubmit}
           description="2/2"
-          title="Choose your custody option"
+          title="Ownership & analytics consent"
           header={
             <fieldset className="flex flex-col gap-6">
               <span className="text-gray-11 text-sm">
-                You can change this later lorem ipsum
+                Cursive has integrated ZK tech into this experience to enable
+                full data ownership and portability. Choose if you want to
+                enable it.
               </span>
               <Radio
                 id="selfCustody"
                 name="custody"
                 value="self"
-                label="Self Custody"
+                label="Self custody"
+                description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
                 checked={!wantsServerCustody}
                 onChange={() => setWantsServerCustody(false)}
               />
@@ -455,16 +462,22 @@ export default function Register() {
                 type="radio"
                 name="custody"
                 value="server"
-                label="Server Custody"
+                label="Server custody"
+                description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
                 checked={wantsServerCustody}
                 onChange={() => setWantsServerCustody(true)}
               />
+              <span className="text-gray-11 text-sm">
+                If we have your consent, Cursive will use client-side
+                performance analytics to determine how to improve the app. This
+                will never include any identifying information.
+              </span>
               <Checkbox
                 id="allowAnalytics"
                 label="I consent to sharing analytics data"
-                description="We use consent-based analytics to determine how to improve the app. Examples of this data include how long it takes your device to perform cryptographic operations. This does not include your personal data, which is never shared or sold."
                 checked={allowsAnalytics}
                 onChange={setAllowAnalytics}
+                disabled={false}
               />
             </fieldset>
           }
@@ -486,15 +499,20 @@ export default function Register() {
                 <Icons.arrowLeft />
                 <span className="text-xs text-gray-11">Choose custody</span>
               </button>
-              <span>Password</span>
+              <span>Master password</span>
             </div>
           }
           onSubmit={handleCreateSelfCustodyAccount}
         >
+          <span className="text-gray-11 text-sm">
+            This master password is used to encrypt a backup of your interaction
+            data on our server. You are responsible for remembering this
+            password.
+          </span>
           <Input
             type="password"
             name="password"
-            label="Password"
+            label="Master password"
             value={password}
             onChange={handlePasswordChange}
             required
@@ -502,7 +520,7 @@ export default function Register() {
           <Input
             type="password"
             name="confirmPassword"
-            label="Confirm password"
+            label="Confirm master password"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             required

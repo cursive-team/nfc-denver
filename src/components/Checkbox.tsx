@@ -51,14 +51,14 @@ const CheckboxSquareBase = classed.div(
   {
     variants: {
       checked: {
-        true: "border-gray-12 before:bg-gray-200",
+        true: "border-gray-12 before:bg-gray-12",
       },
       disabled: {
         true: "opacity-50 pointer-events-none",
       },
     },
     defaultVariants: {
-      checked: false,
+      checked: true,
     },
   }
 );
@@ -115,8 +115,6 @@ const Checkbox = (checkboxProps: CheckboxProps) => {
     ...props
   } = checkboxProps;
 
-  const [isChecked, setIsChecked] = useState(checked);
-
   const CheckboxComponentMapping: Record<
     CheckboxType,
     React.FC<CheckboxProps>
@@ -134,8 +132,7 @@ const Checkbox = (checkboxProps: CheckboxProps) => {
         checked={checked}
         disabled={disabled}
         onChange={() => {
-          setIsChecked(!isChecked);
-          onChange?.(!isChecked);
+          onChange?.(!checked);
         }}
         {...props}
       />
