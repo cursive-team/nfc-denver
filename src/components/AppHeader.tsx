@@ -22,13 +22,14 @@ interface AppHeaderContentProps {
 
 interface AppBackHeaderProps {
   redirectTo?: string; // redirect to this page instead of back
+  actions?: ReactNode;
 }
 
-export const AppBackHeader = ({ redirectTo }: AppBackHeaderProps) => {
+export const AppBackHeader = ({ redirectTo, actions }: AppBackHeaderProps) => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-center h-[60px]">
+    <div className="flex justify-between items-center h-[60px]">
       <button
         type="button"
         className="flex items-center gap-1"
@@ -43,6 +44,7 @@ export const AppBackHeader = ({ redirectTo }: AppBackHeaderProps) => {
         <Icons.arrowLeft />
         <span className="text-gray-11 text-sm">Back</span>
       </button>
+      {actions}
     </div>
   );
 };

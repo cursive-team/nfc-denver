@@ -77,13 +77,7 @@ const RedeemItem = ({ questName }: { questName: string }) => {
             setItemPurchased(true);
           }}
         >
-          <PointCard
-            label="Pay"
-            variant="transparent"
-            color="white"
-            size="sm"
-            point={99}
-          />
+          <PointCard label="Pay" size="sm" point={99} />
         </Button>
       </div>
     );

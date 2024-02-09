@@ -88,8 +88,9 @@ export default function QuestsPage() {
             }: QuestWithRequirements,
             index
           ) => {
+            const key = `${id}-${index}`;
             return (
-              <Link href={`/quests/${id}`} key={id}>
+              <Link href={`/quests/${id}`} key={key}>
                 <QuestCard
                   title={name}
                   description={description}
@@ -103,7 +104,7 @@ export default function QuestsPage() {
           }
         )}
       </LoadingWrapper>
-      <div className="mt-2">
+      <div>
         <Link href="/create-quest">
           <Button size="md" align="left" disabled={isLoading}>
             <span>Create quest</span>

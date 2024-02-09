@@ -66,7 +66,7 @@ const LocationDetails = () => {
             <Header title={location.name} label="Location" />
             <div className="flex flex-col gap-4">
               <div
-                className="flex bg-slate-200 rounded"
+                className="flex bg-slate-200 rounded bg-center bg-cover"
                 style={{
                   width: `${pageWidth - 32}px`,
                   height: `${pageWidth - 32}px`,

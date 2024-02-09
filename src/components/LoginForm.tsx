@@ -15,6 +15,7 @@ import Link from "next/link";
 import { Button } from "./Button";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import toast from "react-hot-toast";
+import useSettings from "@/hooks/useSettings";
 
 enum DisplayState {
   INPUT_EMAIL = "INPUT_EMAIL",
@@ -32,6 +33,7 @@ export default function LoginForm({
   onSuccessfulLogin,
   onFailedLogin,
 }: LoginFormProps) {
+  const { pageHeight } = useSettings();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -275,7 +277,12 @@ export default function LoginForm({
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div
+      className="flex flex-col"
+      style={{
+        height: `${pageHeight}px`,
+      }}
+    >
       {StatusStepComponent[displayState]}
     </div>
   );

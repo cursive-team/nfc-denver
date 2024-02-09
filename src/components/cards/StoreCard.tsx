@@ -31,7 +31,7 @@ const StoreCard = ({
           </span>
           <h2 className="text-sm text-gray-12">{itemName}</h2>
         </div>
-        <PointCard color="white" point={pointsRequired} />
+        <PointCard className="self-start" point={pointsRequired} />
       </div>
     </div>
   );

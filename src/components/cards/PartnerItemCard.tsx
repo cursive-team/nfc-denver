@@ -37,39 +37,47 @@ type PointLabelVariants = Classed.VariantProps<typeof PointCardLabel>;
 
 interface PointCardProps extends PointCardVariants, PointLabelVariants {
   label?: string;
-  point: number;
+  partner?: string;
+  image?: string;
+  item?: string;
   onClick?: () => void;
   className?: string;
 }
 
-const PointCard = ({
+const PartnerItemCard = ({
   label,
-  point = 0,
   onClick,
   variant,
   size,
   color,
+  image,
+  partner = "Partner",
+  item = "Item",
   ...props
 }: PointCardProps) => {
   return (
-    <div className="flex gap-1">
+    <div className="flex items-center gap-1">
       {label && (
         <PointCardLabel color={color} size={size}>
           {label}
         </PointCardLabel>
       )}
-      <PointCardComponent
+      <div
         onClick={() => {
           onClick?.();
         }}
-        variant={variant}
+        className="flex gap-[6px] items-center p-1 rounded border border-[#2E2E2E] bg-gray-100/10"
         {...props}
       >
-        {`${point} BUIDL`}
-      </PointCardComponent>
+        <div className="w-5 h-5 bg-slate-200 rounded-[2px]"></div>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-10">{partner}</span>
+          <span className="text-xs text-gray-100">{item}</span>
+        </div>
+      </div>
     </div>
   );
 };
 
-PointCard.displayName = "PointCard";
-export { PointCard };
+PartnerItemCard.displayName = "PartnerItemCard";
+export { PartnerItemCard };

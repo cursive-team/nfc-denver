@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { Icons } from "./Icons";
 import { cn } from "@/lib/client/utils";
 import { usePathname } from "next/navigation";
@@ -15,20 +14,16 @@ interface RouterItem {
 const TabItem = ({ label, href, icon, isActive }: RouterItem) => {
   const Icon: any = icon;
 
+  const textColor = isActive ? "text-white" : "text-gray-10";
+
   return (
     <Link href={href}>
-      <div className="flex flex-col text-center items-center justify-center gap-2">
-        <Icon
-          size={24}
-          className={cn(
-            "duration-200",
-            isActive ? "text-white" : "text-gray-10"
-          )}
-        />
+      <div className="flex flex-col text-center items-center justify-center gap-1">
+        <Icon size={24} className={cn("duration-200", textColor)} />
         <span
           className={cn(
-            "duration-200 delay-100 text-sm font-light mt-auto",
-            isActive ? "text-white" : "text-gray-10"
+            "duration-200 delay-100 text-sm font-light mt-auto leading-5",
+            textColor
           )}
         >
           {label}
@@ -39,14 +34,7 @@ const TabItem = ({ label, href, icon, isActive }: RouterItem) => {
 };
 
 const AppFooter = () => {
-  const router = useRouter();
-  const [_activeRoute, setActiveRoute] = useState<string>("/");
-
   const pathname = usePathname();
-
-  useEffect(() => {
-    setActiveRoute(router.route);
-  }, [router]);
 
   const routerItems: RouterItem[] = [
     {
@@ -71,9 +59,14 @@ const AppFooter = () => {
       id="footer"
       className="sticky border-t border-t-shark-700 w-full bottom-0 mt-4"
     >
-      <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-4 pb-3 xs:py-4">
+      <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-[17px] pb-[13px]">
         {routerItems?.map((route, index) => {
-          const isActive = pathname === route.href;
+          const pathParts = route.href.split("/").filter(Boolean);
+          const isHome = pathname === "/" && route.href === "/";
+
+          // is home or the first part of the path matches the first part of the href
+          const isActive = isHome || pathParts[0] === pathname.split("/")[1];
+
           return <TabItem key={index} {...route} isActive={isActive} />;
         })}
       </div>

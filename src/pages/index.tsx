@@ -21,6 +21,7 @@ import { PointCard } from "@/components/cards/PointCard";
 import { SnapshotModal } from "@/components/modals/SnapshotModal";
 import Image from "next/image";
 import { Button } from "@/components/Button";
+import { formatDate } from "@/lib/shared/utils";
 
 interface ContactCardProps {
   name: string;
@@ -42,11 +43,15 @@ const ContactCard = ({ name, userId, date }: ContactCardProps) => {
 const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
   return (
     <Card.Base className="flex items-center justify-between p-3">
-      <Card.Title className="leading-none">{name}</Card.Title>
-      <Card.Description>{date}</Card.Description>
+      <div className="flex items-center gap-2">
+        <Card.Title className="leading-none">{name}</Card.Title>
+        <Card.Description>{date}</Card.Description>
+      </div>
       <div>
         <Link href={`/users/${userId}/share`}>
-          <Button size="tiny">Share Back</Button>
+          <Button variant="secondary" size="sm">
+            Tap Back
+          </Button>
         </Link>
       </div>
     </Card.Base>
@@ -238,7 +243,7 @@ export default function Social() {
                           type={activity.type}
                           name={activity.name}
                           id={activity.id}
-                          date={new Date(activity.ts).toLocaleTimeString()}
+                          date={formatDate(activity.ts)}
                         />
                       );
                     })}
@@ -259,15 +264,14 @@ export default function Social() {
             )}
             {contactUsersList.length !== 0 &&
               groupedContactUsers.map((users, index) => {
+                const groupLetter = users[0].name[0].toUpperCase();
+
                 return (
-                  <ListLayout
-                    key={index}
-                    label={users[0].name[0].toUpperCase()}
-                  >
+                  <ListLayout key={index} label={groupLetter}>
                     <div className="flex flex-col gap-1">
                       {users.map((user, index) => {
                         const { name, outTs } = user;
-                        const date = new Date(outTs!).toLocaleString();
+                        const date = outTs ? formatDate(outTs) : "-";
 
                         return (
                           <ContactCard
@@ -287,22 +291,19 @@ export default function Social() {
       },
       {
         label: "Pending",
-        badge:
-          sortedPendingUserList.length === 0
-            ? undefined
-            : sortedPendingUserList.length,
+        badge: sortedPendingUserList.length > 0,
         children: (
           <div className="flex flex-col gap-5">
             {sortedPendingUserList.length === 0 && (
               <div className="flex justify-center items-center h-40">
-                <span className="text-gray-10">No pending contacts</span>
+                <span className="text-gray-10">No pending taps</span>
               </div>
             )}
             {sortedPendingUserList.length !== 0 && (
               <div className="flex flex-col gap-1">
                 {sortedPendingUserList.map((user, index) => {
                   const { name, inTs } = user;
-                  const date = new Date(inTs!).toLocaleString();
+                  const date = inTs ? formatDate(inTs) : "-";
 
                   return (
                     <PendingContactCard
@@ -383,18 +384,11 @@ export default function Social() {
                 <PointCard point={buidlBalance} />
               </div>
               <span className="text-sm font-light text-gray-10">
-                {numConnections === 1
-                  ? `${numConnections} Connection`
-                  : `${numConnections} Connections`}
+                {numConnections === 1 ? `1 tap` : `${numConnections} taps`}
               </span>
             </div>
             <Link href="/leaderboard">
-              <Card.Base className="flex items-center justify-center p-2 bg-gray-200">
-                <span className="text-white text-sm">View leaderboard</span>
-                <div className="ml-auto">
-                  <Icons.arrowRight />
-                </div>
-              </Card.Base>
+              <Button size="sm">View leaderboard</Button>
             </Link>
           </div>
         </div>

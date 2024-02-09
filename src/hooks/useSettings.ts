@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
 export default function useSettings() {
-  const [pageWidth, setPageHeight] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
+  const [pageHeight, setPageHeight] = useState(0);
 
   useEffect(() => {
-    setPageHeight(window?.innerWidth);
+    setPageWidth(window?.innerWidth);
+    setPageHeight(window?.innerHeight);
   }, []);
 
-  return { pageWidth };
+  return { pageWidth, pageHeight };
 }

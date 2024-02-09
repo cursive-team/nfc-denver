@@ -4,13 +4,15 @@ import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useGetLeaderboard } from "@/hooks/useLeaderboard";
 import { getAuthToken } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-const TableWrapper = classed.div("grid grid-cols-[25px_200px_1fr] gap-4");
+const TableWrapper = classed.div(
+  "grid grid-cols-[25px_200px_1fr] items-center gap-4"
+);
 const TableHeaderLabel = classed.div(
   "text-gray-900 text-xs font-light uppercase"
 );
-const DisplayName = classed.span("text-gray-12 text-sm");
+const DisplayName = classed.span("text-gray-12 text-sm leading-5");
 const Point = classed.span("text-gray-900 text-sm");
 const PositionCard = classed.div(
   "duration-200 w-6 h-6 text-white text-xs flex items-center justify-center rounded-full",
@@ -30,6 +32,33 @@ export default function LeaderBoard() {
   const authToken = useMemo(getAuthToken, []);
   const { isLoading, data: leaderboard = [] } = useGetLeaderboard(authToken);
 
+  const [currentUserRank, setCurrentUserRank] = useState<number | undefined>();
+
+  useEffect(() => {
+    if (leaderboard) {
+      let rank = 0;
+      let prevConnections: Number | undefined;
+      let skip = 1;
+
+      for (let i = 0; i < leaderboard.length; i++) {
+        const { connections, isCurrentUser } = leaderboard[i];
+
+        if (i === 0 || connections !== prevConnections) {
+          prevConnections = connections;
+          rank += skip;
+          skip = 1;
+        } else {
+          skip++;
+        }
+
+        if (isCurrentUser) {
+          setCurrentUserRank(rank);
+          break;
+        }
+      }
+    }
+  }, [leaderboard]);
+
   const getLeaderboardData = () => {
     let rank = 0;
     let prevConnections: Number | undefined;
@@ -43,22 +72,32 @@ export default function LeaderBoard() {
       } else {
         skip++;
       }
-      const active = isCurrentUser;
 
       return (
         <TableWrapper key={index}>
-          <PositionCard active={active}>{rank}</PositionCard>
+          <PositionCard active={isCurrentUser}>{rank}</PositionCard>
           <DisplayName>{name}</DisplayName>
           <Point className="text-right">{connections}</Point>
         </TableWrapper>
       );
     });
   };
+
   return (
     <div>
-      <AppBackHeader />
+      <AppBackHeader
+        actions={
+          !isLoading &&
+          currentUserRank && (
+            <div className="flex gap-0.5 text-sm">
+              <span className="text-gray-900">Your rank:</span>
+              <span className="text-gray-12">{currentUserRank}</span>
+            </div>
+          )
+        }
+      />
       <div className="flex flex-col gap-6 pb-6">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4">
           <TableWrapper>
             <TableHeaderLabel className="text-center">#</TableHeaderLabel>
             <TableHeaderLabel>Display name</TableHeaderLabel>

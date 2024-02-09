@@ -19,6 +19,10 @@ import { AppBackHeader } from "@/components/AppHeader";
 import toast from "react-hot-toast";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Checkbox } from "@/components/Checkbox";
+import {
+  InputWrapper,
+  InputDescription as Description,
+} from "@/components/input/InputWrapper";
 
 const SharePage = () => {
   const router = useRouter();
@@ -188,22 +192,22 @@ const SharePage = () => {
       <FormStepLayout
         className="!pt-0"
         title={
-          <span className="text-base text-gray-12">{`Connect with ${user.name}`}</span>
+          <span className="text-base text-gray-12 !pb-1">{`Share with ${user.name}`}</span>
         }
         onSubmit={handleConnect}
       >
+        <Description>
+          {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
+        This is done by sharing a private stamp that can be used to ZK prove they met you. `}
+        </Description>
         <div className="flex flex-col gap-4">
-          <Input
-            type="longtext"
-            label="Save a private note"
-            value={privateNote}
-            onChange={(event) => {
-              setPrivateNote(event.target.value);
-            }}
-          />
           <div className="flex flex-col gap-3">
-            <span className="text-sm text-gray-12">{`Choose which social usernames to share with ${user.name}`}</span>
-            <div className="grid grid-cols-2 gap-2">
+            <InputWrapper
+              size="sm"
+              label={`Choose socials to share`}
+              className="grid grid-cols-2 gap-2"
+              spacing
+            >
               <Checkbox
                 id="twitter"
                 label="X"
@@ -220,16 +224,29 @@ const SharePage = () => {
                 type="button"
                 onChange={setShareTelegram}
               />
-            </div>
+            </InputWrapper>
           </div>
-          <span className="text-gray-11 text-xs">
-            {`By connecting, you will let ${user.name} satisfy any quests that require
-            meeting you in person. This works by sharing a unique digital
-            signature from a personal private key.`}
-          </span>
         </div>
+        <Input
+          type="longtext"
+          label="Private note"
+          placeholder="e.g Met on Saturday"
+          textSize="sm"
+          description={
+            <>
+              <span className="block">
+                {`Use to help remember your interaction with ${user.name}.`}
+              </span>
+              <span className="block">Only you will see this.</span>
+            </>
+          }
+          value={privateNote}
+          onChange={(event) => {
+            setPrivateNote(event.target.value);
+          }}
+        />
         <Button loading={loading} type="submit">
-          Connect
+          Share
         </Button>
       </FormStepLayout>
     </div>
