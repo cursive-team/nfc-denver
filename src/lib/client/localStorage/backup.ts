@@ -12,10 +12,17 @@ export const loadBackup = (
 ): { profile: Profile; keys: Keys } => {
   const { profile, keys } = JSON.parse(backup);
 
+  // TODO: temporary fix for missing allowsAnalytics
+  if (!profile?.allowsAnalytics) {
+    profile.allowsAnalytics = false;
+  }
+
   let validatedProfile: Profile;
   try {
+    console.log(profile);
     validatedProfile = profileSchema.validateSync(profile);
   } catch (e) {
+    console.log(e);
     throw new Error("Invalid profile.");
   }
 

@@ -196,7 +196,9 @@ export default function Tap() {
         onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
       />
     );
-  } else if (pendingLocationTapResponse) {
+  }
+
+  if (pendingLocationTapResponse) {
     return (
       <LoginForm
         onSuccessfulLogin={() => processLocationTap(pendingLocationTapResponse)}

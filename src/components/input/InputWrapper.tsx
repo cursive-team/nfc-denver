@@ -18,7 +18,11 @@ const InputDescription = classed.div(
   "text-gray-11 font-light text-xs leading-4"
 );
 
-const InputSpacing = classed.div("flex flex-col", {
+const InputError = classed.div(
+  "absolute text-[#D40018] font-light text-xs leading-4 -bottom-5"
+);
+
+const InputSpacing = classed.div("relative flex flex-col", {
   variants: {
     spacing: {
       true: "gap-[11px]",
@@ -39,6 +43,7 @@ export interface InputWrapperProps
     InputDescriptionVariants,
     InputSpacingVariants {
   label?: string;
+  error?: string;
   description?: ReactNode;
   children: ReactNode;
 }
@@ -47,6 +52,7 @@ const InputWrapper = ({
   label,
   children,
   description,
+  error, // error message to display
   size,
   spacing, // spacing of label from input
   className = "",
@@ -57,7 +63,11 @@ const InputWrapper = ({
         {label && <InputLabel size={size}>{label}</InputLabel>}
         <div className={className}>{children}</div>
       </InputSpacing>
-      {description && <InputDescription>{description}</InputDescription>}
+      {error ? (
+        <InputError>{error}</InputError>
+      ) : (
+        <>{description && <InputDescription>{description}</InputDescription>}</>
+      )}
     </InputSpacing>
   );
 };

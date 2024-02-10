@@ -6,24 +6,36 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import toast from "react-hot-toast";
-import { useRegisterLocation } from "@/hooks/useRegisterLocation";
+import { useForm } from "react-hook-form";
+import {
+  RegisterLocationSchema,
+  RegisterLocationType,
+} from "@/lib/schema/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { InputWrapper } from "@/components/input/InputWrapper";
+import { useMutation } from "@tanstack/react-query";
 
 export default function RegisterLocation() {
   const router = useRouter();
-  const [cmac, setCmac] = useState<string>("");
   const [image, setImage] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [sponsor, setSponsor] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const registerLocationMutation = useRegisterLocation();
+  const cmac = router.query.cmac as string;
 
-  useEffect(() => {
-    if (router.query.cmac) {
-      setCmac(router.query.cmac as string);
-    }
-  }, [router.query.cmac]);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitted },
+  } = useForm<RegisterLocationType>({
+    resolver: zodResolver(RegisterLocationSchema),
+    defaultValues: {
+      cmac, // default from query
+      name: "",
+      description: "",
+      sponsor: "",
+    },
+  });
 
   const handleTakePhoto = () => {
     if (fileInputRef.current) {
@@ -40,128 +52,125 @@ export default function RegisterLocation() {
       reader.readAsDataURL(event.target.files[0]);
     }
   };
+  const imageFile: any = fileInputRef.current?.files?.[0];
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
+  const getImageUrlMutation = useMutation({
+    mutationKey: ["imageBlob"],
+    mutationFn: async ({
+      imageFile,
+      cmac,
+    }: {
+      imageFile: File;
+      cmac: string;
+    }) => {
+      const newBlob = await upload(imageFile.name, imageFile, {
+        access: "public",
+        handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
+      });
+      return newBlob.url;
+    },
+  });
 
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setDescription(event.target.value);
-  };
-
-  const handleSponsorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSponsor(event.target.value);
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!cmac) {
-      toast.error("Error processing tap. Please tap card again!");
-      return;
-    }
-
-    if (!name || !description || !sponsor) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    const imageFile = fileInputRef.current?.files?.[0];
+  const onSubmit = async (formValues: RegisterLocationType) => {
     if (!imageFile) {
       toast.error("Please select an image.");
       return;
     }
 
-    const newBlob = await upload(imageFile.name, imageFile, {
-      access: "public",
-      handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
-    });
+    await getImageUrlMutation.mutateAsync(
+      { imageFile, cmac },
+      {
+        onSuccess: async (imageUrl: string) => {
+          const locationData: RegisterLocationType = {
+            ...formValues,
+            imageUrl,
+          };
 
-    if (name.length > 64) {
-      toast.error("Location name must be less than 64 characters.");
-      return;
-    }
-    if (description.length > 256) {
-      toast.error("Description must be less than 256 characters.");
-      return;
-    }
-    if (sponsor.length > 32) {
-      toast.error("Sponsor must be less than 32 characters.");
-      return;
-    }
+          const response = await fetch("/api/register/location", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(locationData),
+          });
 
-    const locationData = {
-      cmac: cmac,
-      name: name,
-      description: description,
-      sponsor: sponsor,
-      imageUrl: newBlob.url,
-    };
+          if (!response.ok) {
+            toast.error("Error registering location. Please try again.");
+            return;
+          }
 
-    await registerLocationMutation.mutateAsync(locationData, {
-      onSuccess: (locationId) => {
-        router.push(`/locations/${locationId}`);
-      },
-    });
+          const { locationId } = await response.json();
+          router.push(`/locations/${locationId}`);
+        },
+        onError: () => {
+          toast.error("Error uploading image. Please try again.");
+        },
+      }
+    );
   };
 
   return (
     <FormStepLayout
       title="Registration"
       description="Set up a location chip"
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap"
       actions={
-        <Button loading={registerLocationMutation.isPending} type="submit">
+        <Button loading={getImageUrlMutation.isPending} type="submit">
           Submit
         </Button>
       }
     >
-      <Input
-        type="text"
-        label="Name"
-        placeholder="Name of the location"
-        value={name}
-        onChange={handleNameChange}
-        className="mb-4 text-black"
-      />
-      <Input
-        type="text"
-        label="Description"
-        placeholder="Description of location"
-        value={description}
-        onChange={handleDescriptionChange}
-        className="mb-4 text-black"
-      />
-      <Input
-        type="text"
-        label="Sponsor"
-        placeholder="Sponsor associated with location"
-        value={sponsor}
-        onChange={handleSponsorChange}
-        className="mb-4 text-black"
-      />
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleImageChange}
-        className="hidden"
-      />
-      <Button type="button" onClick={handleTakePhoto}>
-        Attach photo
-      </Button>
-      {image && (
-        <Image
-          src={image}
-          width={400}
-          height={300}
-          alt="Location"
-          className="mb-4 h-48 w-full object-cover rounded"
+      <div className="flex flex-col gap-8">
+        <input type="hidden" {...register("cmac")} />
+        <Input
+          type="text"
+          label="Name"
+          placeholder="Name of the location"
+          error={errors.name?.message}
+          {...register("name")}
         />
-      )}
+        <Input
+          type="text"
+          label="Description"
+          placeholder="Description of location"
+          error={errors.description?.message}
+          {...register("description")}
+        />
+        <Input
+          type="text"
+          label="Sponsor"
+          placeholder="Sponsor associated with location"
+          error={errors.sponsor?.message}
+          {...register("sponsor")}
+        />
+        <div className="relative">
+          <InputWrapper
+            error={!imageFile && isSubmitted ? "Please select an image." : ""}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </InputWrapper>
+        </div>
+        <Button type="button" onClick={handleTakePhoto}>
+          Attach photo
+        </Button>
+        {image && (
+          <Image
+            src={image}
+            width={400}
+            height={300}
+            alt="Location"
+            className="mb-4 h-48 w-full object-cover"
+          />
+        )}
+      </div>
     </FormStepLayout>
   );
 }

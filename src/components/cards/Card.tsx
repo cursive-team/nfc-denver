@@ -37,7 +37,7 @@ const CardProgress = ({ style }: HTMLAttributes<HTMLDivElement>) => {
     setTimeout(() => {
       setDelayStyle({ ...style });
     }, 100);
-  }, []);
+  }, [style]);
 
   return (
     <div className="absolute bottom-0 right-0 left-0 h-1">

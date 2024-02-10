@@ -22,10 +22,15 @@ interface AppHeaderContentProps {
 
 interface AppBackHeaderProps {
   redirectTo?: string; // redirect to this page instead of back
+  onBackClick?: () => void;
   actions?: ReactNode;
 }
 
-export const AppBackHeader = ({ redirectTo, actions }: AppBackHeaderProps) => {
+export const AppBackHeader = ({
+  redirectTo,
+  onBackClick,
+  actions,
+}: AppBackHeaderProps) => {
   const router = useRouter();
 
   return (
@@ -34,10 +39,14 @@ export const AppBackHeader = ({ redirectTo, actions }: AppBackHeaderProps) => {
         type="button"
         className="flex items-center gap-1"
         onClick={() => {
-          if (redirectTo) {
-            router.push(redirectTo);
+          if (typeof onBackClick === "function") {
+            onBackClick?.();
           } else {
-            router.back();
+            if (redirectTo) {
+              router.push(redirectTo);
+            } else {
+              router.back();
+            }
           }
         }}
       >
