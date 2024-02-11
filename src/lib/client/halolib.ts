@@ -22,9 +22,7 @@ export const getHaLoArgs = (
   // the following constructs the preimage of the hash used for the signature
   const msgNonce = parseInt(rnd?.substring(0, 8), 16);
   const msgRand = rnd.substring(8);
-  const signatureMessage = getCounterMessage(msgNonce, msgRand).toString(
-    "utf-8"
-  );
+  const signatureMessage = getCounterMessage(msgNonce, msgRand);
 
   return {
     signaturePublicKey: strippedPkN,

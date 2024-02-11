@@ -135,7 +135,7 @@ export default async function handler(
     },
   });
   if (location) {
-    const message = uuidv4();
+    const message = uuidv4().replace(/-/g, ""); // Message should be a hex string
     const signature = await generateLocationSignature(location.id, message);
     const locationTapResponse: LocationTapResponse = {
       id: location.id.toString(),
