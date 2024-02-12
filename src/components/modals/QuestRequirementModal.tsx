@@ -199,30 +199,16 @@ const LocationDetail = ({
 }: LocationDetailProps) => {
   if (locations.length === 0) return null;
 
-  const [mainLocation] = locations ?? [];
-
-  const isSingleLocation = locations?.length === 1;
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
-        {isSingleLocation ? (
-          <SingleLocation
-            title={title!}
-            location={mainLocation}
-            numSigsRequired={numSigsRequired}
-            locationPubKeysCollected={locationPubKeysCollected}
-            completed={completed}
-          />
-        ) : (
-          <LocationList
-            title={title!}
-            numSigsRequired={numSigsRequired}
-            locations={locations}
-            completed={completed}
-            locationPubKeysCollected={locationPubKeysCollected}
-          />
-        )}
+        <LocationList
+          title={title!}
+          numSigsRequired={numSigsRequired}
+          locations={locations}
+          completed={completed}
+          locationPubKeysCollected={locationPubKeysCollected}
+        />
       </div>
     </div>
   );
