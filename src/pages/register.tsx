@@ -355,6 +355,7 @@ export default function Register() {
             month: "long",
             day: "numeric",
           })}
+          className="pt-4"
           onSubmit={handleEmailSubmit}
         >
           <Input
@@ -378,6 +379,7 @@ export default function Register() {
         <FormStepLayout
           title={`We've just sent you a six digit code to ${email}`}
           description="February 23rd"
+          className="pt-4"
           onSubmit={handleCodeSubmit}
         >
           <Input
@@ -399,6 +401,7 @@ export default function Register() {
           title="Social settings"
           description="1/2"
           onSubmit={handleSocialSubmit}
+          className="pt-4"
           header={
             <div className="flex flex-col gap-4">
               <span className="text-sm text-gray-11 font-light">
@@ -457,6 +460,7 @@ export default function Register() {
           onSubmit={handleCustodySubmit}
           description="2/2"
           title="Ownership & analytics consent"
+          className="pt-4"
           header={
             <fieldset className="flex flex-col gap-6">
               <span className="text-gray-11 text-sm">
@@ -503,6 +507,7 @@ export default function Register() {
       )}
       {displayState === DisplayState.INPUT_PASSWORD && (
         <FormStepLayout
+          className="pt-4"
           title={
             <div className="flex flex-col gap-2">
               <button
