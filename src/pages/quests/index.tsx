@@ -8,7 +8,7 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 import { QuestTagMapping } from "@/shared/constants";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   getUsers,
   getLocationSignatures,
@@ -18,8 +18,10 @@ import {
 } from "@/lib/client/localStorage";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 import { QuestWithRequirements } from "@/types";
+import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
 
 export default function QuestsPage() {
+  const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
   const { isLoading, data: quests = [] } = useFetchQuests();
   // Compute users and locations that user has signatures for
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
@@ -60,6 +62,14 @@ export default function QuestsPage() {
     );
   }, [quests, userPublicKeys, locationPublicKeys]);
 
+  const pinnedQuest = quests.filter((quest) =>
+    pinnedQuests.current.has(quest.id)
+  );
+
+  const notPinnedQuest = quests.filter(
+    (quest) => !pinnedQuests.current.has(quest.id)
+  );
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -77,7 +87,10 @@ export default function QuestsPage() {
         fallback={<Placeholder.List items={3} />}
         noResultsLabel="No quests found"
       >
-        {quests?.map(
+        {[
+          ...pinnedQuest, // show pinned quests first
+          ...notPinnedQuest, // remaining quests except pinned
+        ]?.map(
           (
             {
               id,
@@ -89,6 +102,7 @@ export default function QuestsPage() {
             index
           ) => {
             const key = `${id}-${index}`;
+
             return (
               <Link href={`/quests/${id}`} key={key}>
                 <QuestCard
@@ -98,6 +112,7 @@ export default function QuestsPage() {
                   userRequirements={userRequirements}
                   locationRequirements={locationRequirements}
                   isCompleted={completedQuestIds.includes(id.toString())}
+                  isPinned={pinnedQuests.current.has(id)}
                 />
               </Link>
             );

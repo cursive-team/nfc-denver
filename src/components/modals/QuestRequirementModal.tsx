@@ -13,6 +13,7 @@ import {
   LocationSignature,
   getLocationSignature,
 } from "@/lib/client/localStorage";
+import { ListWrapper } from "../wrappers/ListWrapper";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -42,23 +43,39 @@ type LocationDetailProps = HeaderProps & {
   numSigsRequired: number;
 };
 
-const LocationDetail = ({
+interface SingleLocationProps
+  extends Pick<
+    LocationDetailProps,
+    "locationPubKeysCollected" | "numSigsRequired"
+  > {
+  location: LocationRequirementPreview;
+  title?: string;
+  completed?: boolean;
+}
+
+interface LocationListProps
+  extends Pick<
+    LocationDetailProps,
+    "locationPubKeysCollected" | "numSigsRequired"
+  > {
+  locations: LocationRequirementPreview[];
+  completed?: boolean;
+}
+
+const SingleLocation = ({
+  location,
   title,
   completed,
-  locations,
-  locationPubKeysCollected,
-  numSigsRequired,
-}: LocationDetailProps) => {
+}: SingleLocationProps) => {
   const { pageWidth } = useSettings();
+  const imageWidth = pageWidth - 38;
 
-  if (locations.length === 0) return null;
-
-  const [mainLocation] = locations ?? [];
-
-  const imageWidth = pageWidth - 48;
+  const signature: LocationSignature | undefined = getLocationSignature(
+    location.id.toString()
+  );
 
   return (
-    <div className="flex flex-col gap-8">
+    <>
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
         <div
@@ -66,29 +83,112 @@ const LocationDetail = ({
           style={{
             width: `${imageWidth}px`,
             height: `${imageWidth}px`,
-            backgroundImage: `url(${mainLocation.imageUrl})`,
+            backgroundImage: `url(${location.imageUrl})`,
           }}
         ></div>
-        {locations?.map((location: LocationRequirementPreview) => {
-          const signature: LocationSignature | undefined = getLocationSignature(
-            location.id.toString()
-          );
 
-          return (
-            <div key={location.id} className="flex gap-6">
-              <div className="flex flex-col">
-                <Label>Location</Label>
-                <Description>{location.name}</Description>
-              </div>
-              {signature !== undefined && (
-                <div className="flex flex-col">
-                  <Label>Visited On</Label>
-                  <Description>{`${signature?.ts}`}</Description>
-                </div>
-              )}
+        <div key={location.id} className="flex gap-6">
+          <div className="flex flex-col">
+            <Label>Location</Label>
+            <Description>{location.name}</Description>
+          </div>
+          {signature !== undefined && (
+            <div className="flex flex-col">
+              <Label>Visited On</Label>
+              <Description>{`${signature?.ts}`}</Description>
             </div>
-          );
-        })}
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+const LocationList = ({
+  locations,
+  locationPubKeysCollected = [],
+  completed,
+  numSigsRequired,
+}: LocationListProps) => {
+  const totalCollected = locations.reduce((sum, location) => {
+    const collected = locationPubKeysCollected?.includes(
+      location.signaturePublicKey
+    );
+    return sum + (collected ? 1 : 0);
+  }, 0);
+
+  return (
+    <>
+      <Header
+        title={`Visit ${numSigsRequired} of ${locations?.length} participating locations`}
+        label="Requirement"
+        completed={completed}
+      />
+      <ListWrapper title={`${totalCollected}/${locations.length} collected`}>
+        <div>
+          {locations?.map((location: LocationRequirementPreview) => {
+            const collected = locationPubKeysCollected?.includes(
+              location.signaturePublicKey
+            );
+
+            return (
+              <div
+                key={location.id}
+                className="flex justify-between border-b w-full border-gray-300 last-of-type:border-none first-of-type:pt-0 py-1"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex justify-center items-center bg-cover bg-center bg-[#677363] h-6 w-6 rounded"
+                    style={{
+                      backgroundImage: location?.imageUrl
+                        ? `url(${location.imageUrl})`
+                        : undefined,
+                    }}
+                  />
+                  <Card.Title>{location.name}</Card.Title>
+                </div>
+                {collected && <Icons.checkedCircle />}
+              </div>
+            );
+          })}
+        </div>
+      </ListWrapper>
+    </>
+  );
+};
+
+const LocationDetail = ({
+  title,
+  completed,
+  locations,
+  locationPubKeysCollected,
+  numSigsRequired,
+}: LocationDetailProps) => {
+  if (locations.length === 0) return null;
+
+  const [mainLocation] = locations ?? [];
+
+  const isSingleLocation = locations?.length === 1;
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        {isSingleLocation ? (
+          <SingleLocation
+            title={title!}
+            location={mainLocation}
+            numSigsRequired={numSigsRequired}
+            locationPubKeysCollected={locationPubKeysCollected}
+            completed={completed}
+          />
+        ) : (
+          <LocationList
+            numSigsRequired={numSigsRequired}
+            locations={locations}
+            completed={completed}
+            locationPubKeysCollected={locationPubKeysCollected}
+          />
+        )}
       </div>
     </div>
   );
