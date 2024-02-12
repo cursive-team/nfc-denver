@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { object, string } from "yup";
-import { ErrorResponse } from "../../types";
+import { ErrorResponse } from "@/types";
 import {
   ChipType,
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
-} from "../../lib/server/dev";
+} from "@/lib/server/dev";
 import { sign } from "@/lib/shared/signature";
 import { v4 as uuidv4 } from "uuid";
 
@@ -135,7 +135,7 @@ export default async function handler(
     },
   });
   if (location) {
-    const message = uuidv4();
+    const message = uuidv4().replace(/-/g, ""); // Message should be a hex string
     const signature = await generateLocationSignature(location.id, message);
     const locationTapResponse: LocationTapResponse = {
       id: location.id.toString(),

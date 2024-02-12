@@ -23,6 +23,7 @@ import {
   InputWrapper,
   InputDescription as Description,
 } from "@/components/input/InputWrapper";
+import { v4 as uuidv4 } from "uuid";
 
 const SharePage = () => {
   const router = useRouter();
@@ -103,7 +104,7 @@ const SharePage = () => {
 
     // ----- SEND MESSAGE TO OTHER USER -----
     // This messages sends contact information to the other user
-    const dataToSign = user.encPk; // For now, we just sign the other user's encryption public key
+    const dataToSign = uuidv4().replace(/-/g, ""); // For now, we just sign a random uuid as a hex string
     const signature = sign(signaturePrivateKey, dataToSign);
     const recipientPublicKey = user.encPk;
     const encryptedMessage = await encryptInboundTapMessage({

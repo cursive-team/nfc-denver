@@ -5,7 +5,7 @@ import {
   PersonTapResponse,
   TapResponseCode,
   tapResponseSchema,
-} from "./api/tap";
+} from "./api/tap/cmac";
 import LoginForm from "@/components/LoginForm";
 import {
   getAuthToken,
@@ -18,6 +18,8 @@ import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
+import { getHaLoArgs } from "@/lib/client/halolib";
+import { sigCardTapResponseSchema } from "./api/tap/sig_card";
 
 export default function Tap() {
   const router = useRouter();
@@ -112,20 +114,12 @@ export default function Tap() {
   );
 
   useEffect(() => {
-    const cmac = router.query.cmac as string;
-
-    if (!cmac) {
-      toast.error("No CMAC provided!");
-      router.push("/");
-      return;
-    }
-
     const handlePersonRegistration = (cmac: string) => {
       router.push(`/register?cmac=${cmac}`);
     };
 
     const handleLocationRegistration = (cmac: string) => {
-      router.push(`/register-location?cmac=${cmac}`);
+      router.push(`/register_location?cmac=${cmac}`);
     };
 
     const handlePersonTap = async (person: PersonTapResponse) => {
@@ -146,48 +140,102 @@ export default function Tap() {
       }
     };
 
-    fetch(`/api/tap?cmac=${cmac}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
+    // ----- HANDLE CMAC TAP -----
+    const cmac = router.query.cmac as string;
+    if (cmac) {
+      fetch(`/api/tap/cmac?cmac=${cmac}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
-      .then(async (data) => {
-        const tapResponse = tapResponseSchema.validateSync(data);
-        switch (tapResponse.code) {
-          case TapResponseCode.CMAC_INVALID:
-            throw new Error("CMAC invalid!");
-          case TapResponseCode.PERSON_NOT_REGISTERED:
-            handlePersonRegistration(cmac);
-            break;
-          case TapResponseCode.LOCATION_NOT_REGISTERED:
-            handleLocationRegistration(cmac);
-            break;
-          case TapResponseCode.VALID_PERSON:
-            if (!tapResponse.person) {
-              throw new Error("Person is null!");
-            }
-            await handlePersonTap(tapResponse.person);
-            break;
-          case TapResponseCode.VALID_LOCATION:
-            if (!tapResponse.location) {
-              throw new Error("Location is null!");
-            }
-            await handleLocationTap(tapResponse.location);
-            break;
-          default:
-            throw new Error("Invalid tap response code!");
-        }
+        .then((response) => {
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(async (data) => {
+          const tapResponse = tapResponseSchema.validateSync(data);
+          switch (tapResponse.code) {
+            case TapResponseCode.CMAC_INVALID:
+              throw new Error("CMAC invalid!");
+            case TapResponseCode.PERSON_NOT_REGISTERED:
+              handlePersonRegistration(cmac);
+              break;
+            case TapResponseCode.LOCATION_NOT_REGISTERED:
+              handleLocationRegistration(cmac);
+              break;
+            case TapResponseCode.VALID_PERSON:
+              if (!tapResponse.person) {
+                throw new Error("Person is null!");
+              }
+              await handlePersonTap(tapResponse.person);
+              break;
+            case TapResponseCode.VALID_LOCATION:
+              if (!tapResponse.location) {
+                throw new Error("Location is null!");
+              }
+              await handleLocationTap(tapResponse.location);
+              break;
+            default:
+              throw new Error("Invalid tap response code!");
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Error! Please refresh and try again.");
+        });
+    } else {
+      // ----- HANDLE CARD GENERATED SIGNATURE TAP -----
+      if (!location.hash) {
+        toast.error("Unable to process cmac or signature from tap.");
+        router.push("/");
+        return;
+      }
+
+      const urlParams = new URLSearchParams(location.hash.slice(1));
+      const rawLocationSignature = getHaLoArgs(urlParams);
+      if (!rawLocationSignature) {
+        toast.error("Unable to process cmac or signature from tap.");
+        router.push("/");
+        return;
+      }
+      const { signaturePublicKey, signatureMessage, signature } =
+        rawLocationSignature;
+
+      fetch(`/api/tap/sig_card?signaturePublicKey=${signaturePublicKey}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Error! Please refresh and try again.");
-      });
+        .then((response) => {
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(async (data) => {
+          const sigCardTapResponse =
+            sigCardTapResponseSchema.validateSync(data);
+          if (!sigCardTapResponse.registered) {
+            throw new Error("This location card is not registered!");
+          } else {
+            if (!sigCardTapResponse.locationInfo) {
+              throw new Error("Unable to retrieve location!");
+            }
+            const tapResponse: LocationTapResponse = {
+              ...sigCardTapResponse.locationInfo,
+              signatureMessage,
+              signature,
+            };
+            handleLocationTap(tapResponse);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Error! Please refresh and try again.");
+        });
+    }
   }, [router, processPersonTap, processLocationTap]);
 
   if (pendingPersonTapResponse) {
