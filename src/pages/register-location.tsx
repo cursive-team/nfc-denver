@@ -114,7 +114,7 @@ export default function RegisterLocation() {
       title="Registration"
       description="Set up a location chip"
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap"
+      className="flex flex-col gap pt-4"
       actions={
         <Button loading={getImageUrlMutation.isPending} type="submit">
           Submit
