@@ -45,8 +45,8 @@ export const filterArrayByValue = <T>(
 ) => {
   return items.filter((item: T) => {
     if (key && value) {
-      const keyOfTime = key?.toString().toLowerCase() as keyof T;
-      return item?.[keyOfTime] === value;
+      const keyofItem = key?.toString().toLowerCase() as keyof T;
+      return item?.[keyofItem] === value;
     }
     return true;
   });

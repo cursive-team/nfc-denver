@@ -18,7 +18,6 @@ import {
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 import { QuestWithRequirements } from "@/types";
 import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
-import { filterArrayByValue } from "@/lib/shared/utils";
 
 export default function QuestsPage() {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
@@ -28,18 +27,6 @@ export default function QuestsPage() {
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] =
     useState<QuestTagMappingType>("ALL");
-
-  const KeyFilterMapping: Record<QuestTagMappingType, any> = {
-    IN_PROGRESS: "isCompleted",
-    COMPLETED: "isCompleted",
-    ALL: undefined,
-  };
-
-  const questFilteredItems = filterArrayByValue(
-    quests ?? [],
-    KeyFilterMapping?.[selectedOption] as any,
-    selectedOption === "ALL" ? true : selectedOption === "IN_PROGRESS"
-  );
 
   useEffect(() => {
     const users = getUsers();
@@ -56,8 +43,28 @@ export default function QuestsPage() {
     setLocationPublicKeys(validLocationPublicKeys);
   }, []);
 
+  const displayQuests: QuestListItem[] = useMemo(() => {
+    const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
+    const completedQuests = quests.filter((quest) => quest.isCompleted);
+    const questFilteredItems =
+      selectedOption === "IN_PROGRESS"
+        ? inProgressQuests
+        : selectedOption === "COMPLETED"
+        ? completedQuests
+        : quests;
+
+    const pinnedQuest = questFilteredItems.filter((quest) =>
+      pinnedQuests.current.has(quest.id)
+    );
+    const notPinnedQuest = questFilteredItems.filter(
+      (quest) => !pinnedQuests.current.has(quest.id)
+    );
+
+    return [...pinnedQuest, ...notPinnedQuest];
+  }, [quests, selectedOption, pinnedQuests]);
+
   const numRequirementsSatisfied: number[] = useMemo(() => {
-    return quests?.map(
+    return displayQuests.map(
       ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
         return computeNumRequirementsSatisfied({
           userPublicKeys,
@@ -67,15 +74,7 @@ export default function QuestsPage() {
         });
       }
     );
-  }, [quests, userPublicKeys, locationPublicKeys]);
-
-  const pinnedQuest = questFilteredItems.filter((quest) =>
-    pinnedQuests.current.has(quest.id)
-  );
-
-  const notPinnedQuest = questFilteredItems.filter(
-    (quest) => !pinnedQuests.current.has(quest.id)
-  );
+  }, [displayQuests, userPublicKeys, locationPublicKeys]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -94,10 +93,7 @@ export default function QuestsPage() {
         fallback={<Placeholder.List items={3} />}
         noResultsLabel="No quests found"
       >
-        {[
-          ...pinnedQuest, // show pinned quests first
-          ...notPinnedQuest, // remaining quests except pinned
-        ]?.map(
+        {displayQuests.map(
           (
             {
               id,
