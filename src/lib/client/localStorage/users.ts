@@ -1,5 +1,5 @@
 import { hashPublicKeyToUUID } from "@/lib/client/utils";
-import { PersonTapResponse } from "@/pages/api/tap";
+import { PersonTapResponse } from "@/pages/api/tap/cmac";
 import {
   deleteFromLocalStorage,
   getFromLocalStorage,
