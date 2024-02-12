@@ -1,15 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAuthToken } from "@/lib/client/localStorage";
+import { getAllQuestCompleted, getAuthToken } from "@/lib/client/localStorage";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { QuestWithRequirements } from "@/types";
 
+export interface QuestListItem extends QuestWithRequirements {
+  isCompleted?: boolean;
+}
+
 export const useFetchQuests = () => {
   const router = useRouter();
 
+  const questCompleted = getAllQuestCompleted();
+  const completedQuestIds: string[] = Object.keys(questCompleted);
+
   return useQuery({
     queryKey: ["quests"],
-    queryFn: async (): Promise<QuestWithRequirements[]> => {
+    queryFn: async (): Promise<QuestListItem[]> => {
       const authToken = getAuthToken();
       if (!authToken || authToken.expiresAt < new Date()) {
         toast.error("You must be logged in to connect");
@@ -23,8 +30,15 @@ export const useFetchQuests = () => {
         throw new Error("Network response was not ok");
       }
 
-      const quests = response.json() as Promise<QuestWithRequirements[]>;
-      return quests;
+      const quests = await response.json();
+      return quests.map((quest: QuestWithRequirements) => {
+        const isCompleted = completedQuestIds?.includes(quest.id.toString());
+
+        return {
+          ...quest,
+          isCompleted,
+        };
+      });
     },
   });
 };

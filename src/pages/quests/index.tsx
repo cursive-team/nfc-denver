@@ -4,9 +4,9 @@ import { Icons } from "@/components/Icons";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
-import { useFetchQuests } from "@/hooks/useFetchQuests";
+import { QuestListItem, useFetchQuests } from "@/hooks/useFetchQuests";
 
-import { QuestTagMapping } from "@/shared/constants";
+import { QuestTagMapping, QuestTagMappingType } from "@/shared/constants";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -14,11 +14,11 @@ import {
   getLocationSignatures,
   User,
   LocationSignature,
-  getAllQuestCompleted,
 } from "@/lib/client/localStorage";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 import { QuestWithRequirements } from "@/types";
 import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
+import { filterArrayByValue } from "@/lib/shared/utils";
 
 export default function QuestsPage() {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
@@ -26,13 +26,20 @@ export default function QuestsPage() {
   // Compute users and locations that user has signatures for
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
-  const [completedQuestIds, setCompletedQuestIds] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState("ALL");
+  const [selectedOption, setSelectedOption] =
+    useState<QuestTagMappingType>("ALL");
 
-  useEffect(() => {
-    const questCompleted = getAllQuestCompleted();
-    setCompletedQuestIds(Object.keys(questCompleted));
-  }, []);
+  const KeyFilterMapping: Record<QuestTagMappingType, any> = {
+    IN_PROGRESS: "isCompleted",
+    COMPLETED: "isCompleted",
+    ALL: undefined,
+  };
+
+  const questFilteredItems = filterArrayByValue(
+    quests ?? [],
+    KeyFilterMapping?.[selectedOption] as any,
+    selectedOption === "ALL" ? true : selectedOption === "IN_PROGRESS"
+  );
 
   useEffect(() => {
     const users = getUsers();
@@ -50,7 +57,7 @@ export default function QuestsPage() {
   }, []);
 
   const numRequirementsSatisfied: number[] = useMemo(() => {
-    return quests.map(
+    return quests?.map(
       ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
         return computeNumRequirementsSatisfied({
           userPublicKeys,
@@ -62,11 +69,11 @@ export default function QuestsPage() {
     );
   }, [quests, userPublicKeys, locationPublicKeys]);
 
-  const pinnedQuest = quests.filter((quest) =>
+  const pinnedQuest = questFilteredItems.filter((quest) =>
     pinnedQuests.current.has(quest.id)
   );
 
-  const notPinnedQuest = quests.filter(
+  const notPinnedQuest = questFilteredItems.filter(
     (quest) => !pinnedQuests.current.has(quest.id)
   );
 
@@ -98,7 +105,8 @@ export default function QuestsPage() {
               description,
               userRequirements,
               locationRequirements,
-            }: QuestWithRequirements,
+              isCompleted = false,
+            }: QuestListItem,
             index
           ) => {
             const key = `${id}-${index}`;
@@ -111,7 +119,7 @@ export default function QuestsPage() {
                   completedSigs={numRequirementsSatisfied[index]}
                   userRequirements={userRequirements}
                   locationRequirements={locationRequirements}
-                  isCompleted={completedQuestIds.includes(id.toString())}
+                  isCompleted={isCompleted}
                   isPinned={pinnedQuests.current.has(id)}
                 />
               </Link>
