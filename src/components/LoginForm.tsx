@@ -23,7 +23,6 @@ export default function LoginForm({ onSuccessfulLogin }: LoginFormProps) {
   const [displayState, setDisplayState] = useState(DisplayState.INPUT_EMAIL);
 
   const onSuccessfulLoginHandler = () => {
-    console.log("onSuccessfulLoginHandler");
     onSuccessfulLogin?.();
   };
 
