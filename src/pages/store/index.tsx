@@ -4,15 +4,29 @@ import { StoreModalItem } from "@/components/modals/StoreItemModal";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useFetchStore } from "@/hooks/useStore";
-import { StoreSortMapping } from "@/shared/constants";
-import React, { useEffect, useState } from "react";
+import { filterArrayByValue } from "@/lib/shared/utils";
+import { StoreSortMapping, StoreSortMappingType } from "@/shared/constants";
+import React, { useState } from "react";
 
 export default function StorePage() {
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [storeItem, setStoreItem] = useState<any | null>(null);
-  const [selectedOption, setSelectedOption] = useState("ASC");
+  const [selectedOption, setSelectedOption] =
+    useState<StoreSortMappingType>("ALL");
 
   const { isLoading, data: storeItems } = useFetchStore();
+
+  const KeyFilterMapping: Record<StoreSortMappingType, any> = {
+    UNLOCKED: "unlocked",
+    REDEEMED: "redeemed",
+    ALL: undefined,
+  };
+
+  const storeFilteredItems = filterArrayByValue(
+    storeItems ?? [],
+    KeyFilterMapping?.[selectedOption] as any,
+    true // only show unlocked or redeemed items
+  );
 
   return (
     <>
@@ -38,9 +52,9 @@ export default function StorePage() {
           isLoading={isLoading}
           fallback={<Placeholder.List items={10} />}
         >
-          {storeItems?.map((storeItem, index) => (
+          {storeFilteredItems?.map((storeItem, index) => (
             <StoreCard
-              key={index}
+              key={`${storeItem.id}-${index}`}
               partnerName={storeItem.partner}
               itemName={storeItem.itemName}
               itemId={storeItem.id}

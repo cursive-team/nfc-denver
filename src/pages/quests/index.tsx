@@ -4,33 +4,29 @@ import { Icons } from "@/components/Icons";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
-import { useFetchQuests } from "@/hooks/useFetchQuests";
+import { QuestListItem, useFetchQuests } from "@/hooks/useFetchQuests";
 
-import { QuestTagMapping } from "@/shared/constants";
+import { QuestTagMapping, QuestTagMappingType } from "@/shared/constants";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   getUsers,
   getLocationSignatures,
   User,
   LocationSignature,
-  getAllQuestCompleted,
 } from "@/lib/client/localStorage";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 import { QuestWithRequirements } from "@/types";
+import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
 
 export default function QuestsPage() {
+  const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
   const { isLoading, data: quests = [] } = useFetchQuests();
   // Compute users and locations that user has signatures for
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
-  const [completedQuestIds, setCompletedQuestIds] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState("ALL");
-
-  useEffect(() => {
-    const questCompleted = getAllQuestCompleted();
-    setCompletedQuestIds(Object.keys(questCompleted));
-  }, []);
+  const [selectedOption, setSelectedOption] =
+    useState<QuestTagMappingType>("ALL");
 
   useEffect(() => {
     const users = getUsers();
@@ -47,8 +43,28 @@ export default function QuestsPage() {
     setLocationPublicKeys(validLocationPublicKeys);
   }, []);
 
+  const displayQuests: QuestListItem[] = useMemo(() => {
+    const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
+    const completedQuests = quests.filter((quest) => quest.isCompleted);
+    const questFilteredItems =
+      selectedOption === "IN_PROGRESS"
+        ? inProgressQuests
+        : selectedOption === "COMPLETED"
+        ? completedQuests
+        : quests;
+
+    const pinnedQuest = questFilteredItems.filter((quest) =>
+      pinnedQuests.current.has(quest.id)
+    );
+    const notPinnedQuest = questFilteredItems.filter(
+      (quest) => !pinnedQuests.current.has(quest.id)
+    );
+
+    return [...pinnedQuest, ...notPinnedQuest];
+  }, [quests, selectedOption, pinnedQuests]);
+
   const numRequirementsSatisfied: number[] = useMemo(() => {
-    return quests.map(
+    return displayQuests.map(
       ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
         return computeNumRequirementsSatisfied({
           userPublicKeys,
@@ -58,7 +74,7 @@ export default function QuestsPage() {
         });
       }
     );
-  }, [quests, userPublicKeys, locationPublicKeys]);
+  }, [displayQuests, userPublicKeys, locationPublicKeys]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -77,7 +93,7 @@ export default function QuestsPage() {
         fallback={<Placeholder.List items={3} />}
         noResultsLabel="No quests found"
       >
-        {quests?.map(
+        {displayQuests.map(
           (
             {
               id,
@@ -85,10 +101,12 @@ export default function QuestsPage() {
               description,
               userRequirements,
               locationRequirements,
-            }: QuestWithRequirements,
+              isCompleted = false,
+            }: QuestListItem,
             index
           ) => {
             const key = `${id}-${index}`;
+
             return (
               <Link href={`/quests/${id}`} key={key}>
                 <QuestCard
@@ -97,7 +115,8 @@ export default function QuestsPage() {
                   completedSigs={numRequirementsSatisfied[index]}
                   userRequirements={userRequirements}
                   locationRequirements={locationRequirements}
-                  isCompleted={completedQuestIds.includes(id.toString())}
+                  isCompleted={isCompleted}
+                  isPinned={pinnedQuests.current.has(id)}
                 />
               </Link>
             );

@@ -1,15 +1,15 @@
 import Image from "next/image";
 import { Modal, ModalProps } from "./Modal";
 import { ListLayout } from "@/layouts/ListLayout";
-import { useFetchStore, useRedeemStoreItem } from "@/hooks/useStore";
+import { useRedeemStoreItem } from "@/hooks/useStore";
 import { LoadingWrapper } from "../wrappers/LoadingWrapper";
 import { Placeholder } from "../placeholders/Placeholder";
-import { StoreCard } from "../cards/StoreCard";
 import { useFetchQuests } from "@/hooks/useFetchQuests";
 import Link from "next/link";
 import { QuestCard } from "../cards/QuestCard";
 import { useState } from "react";
 import { Button } from "../Button";
+import { getAllQuestCompleted } from "@/lib/client/localStorage";
 
 interface StoreModalItemProps extends ModalProps {
   storeItem: any;
@@ -21,15 +21,19 @@ const StoreModalItem = ({
   onClose,
   storeItem,
 }: StoreModalItemProps) => {
+  const questCompleted = getAllQuestCompleted();
+  const completedQuestIds: string[] = Object.keys(questCompleted);
   const [isItemRedeemed, setIsItemRedeemed] = useState(false);
-  const { isLoading: isLoadingStoreItems, data: relatedItems } =
-    useFetchStore();
+
   const { isLoading: isLoadingQuest, data: relatedQuests } = useFetchQuests();
   const redeemStoreItemMutation = useRedeemStoreItem();
 
   const onRedeemItem = async () => {
     await redeemStoreItemMutation.mutateAsync(storeItem.id);
   };
+
+  const inProgressRelatedQuests =
+    relatedQuests?.filter((quest) => !quest?.isCompleted) ?? [];
 
   return (
     <Modal
@@ -76,43 +80,29 @@ const StoreModalItem = ({
             isLoading={isLoadingQuest}
             fallback={<Placeholder.List items={2} />}
           >
-            {relatedQuests?.map(
-              ({
-                id,
-                name,
-                description,
-                userRequirements,
-                locationRequirements,
-              }: any) => (
-                <Link href={`/quests/${id}`} key={id}>
-                  <QuestCard
-                    title={name}
-                    description={description}
-                    completedSigs={1}
-                    userRequirements={userRequirements}
-                    locationRequirements={locationRequirements}
-                    isCompleted={false}
-                  />
-                </Link>
-              )
-            )}
-          </LoadingWrapper>
-        </ListLayout>
-        <ListLayout label="Related items">
-          <LoadingWrapper
-            className="grid grid-cols-2 gap-x-3 gap-y-4"
-            isLoading={isLoadingStoreItems}
-            fallback={<Placeholder.List items={2} />}
-          >
-            {relatedItems?.slice(0, 4)?.map((storeItem, index) => (
-              <StoreCard
-                key={index}
-                itemId={storeItem.id}
-                partnerName={storeItem.partner}
-                itemName={storeItem.itemName}
-                pointsRequired={storeItem.points}
-              />
-            ))}
+            {inProgressRelatedQuests?.length > 0 &&
+              inProgressRelatedQuests?.map(
+                ({
+                  id,
+                  name,
+                  description,
+                  userRequirements,
+                  locationRequirements,
+                }: any) => {
+                  return (
+                    <Link href={`/quests/${id}`} key={id}>
+                      <QuestCard
+                        title={name}
+                        description={description}
+                        completedSigs={1}
+                        userRequirements={userRequirements}
+                        locationRequirements={locationRequirements}
+                        isCompleted={false}
+                      />
+                    </Link>
+                  );
+                }
+              )}
           </LoadingWrapper>
         </ListLayout>
       </div>

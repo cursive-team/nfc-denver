@@ -23,6 +23,7 @@ import Image from "next/image";
 import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
+import { Spinner } from "@/components/Spinner";
 
 interface ContactCardProps {
   name: string;
@@ -160,6 +161,7 @@ export default function Social() {
   const [buidlBalance, setBuidlBalance] = useState<number>(0);
   const [numConnections, setNumConnections] = useState<number>(0);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
+  const [isLoading, setLoading] = useState(false);
 
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
@@ -325,6 +327,7 @@ export default function Social() {
 
   useEffect(() => {
     const updateSocialInfo = async () => {
+      setLoading(true);
       const EXAMPLE_BUIDL_BALANCE = 199;
 
       const profileData = getProfile();
@@ -336,6 +339,7 @@ export default function Social() {
         !authToken ||
         authToken.expiresAt < new Date()
       ) {
+        setLoading(false);
         router.push("/login");
         return;
       }
@@ -366,15 +370,21 @@ export default function Social() {
         Object.values(users).filter((user) => user.outTs).length
       );
       setTabsItems(computeTabsItems(users, activities));
+      setLoading(false);
     };
 
     updateSocialInfo();
   }, [router]);
 
-  if (!profile || !tabsItems) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="my-auto mx-auto">
+        <Spinner />
+      </div>
+    );
   }
 
+  if (!profile || !tabsItems) return null;
   return (
     <>
       <SnapshotModal

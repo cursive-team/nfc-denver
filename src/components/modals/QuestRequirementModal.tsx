@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Modal, ModalProps } from "./Modal";
 import {
   LocationRequirementPreview,
@@ -13,6 +13,7 @@ import {
   LocationSignature,
   getLocationSignature,
 } from "@/lib/client/localStorage";
+import { ListWrapper } from "../wrappers/ListWrapper";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -42,6 +43,153 @@ type LocationDetailProps = HeaderProps & {
   numSigsRequired: number;
 };
 
+interface SingleLocationProps
+  extends Pick<
+    LocationDetailProps,
+    "locationPubKeysCollected" | "numSigsRequired"
+  > {
+  title: string;
+  location: LocationRequirementPreview;
+  completed?: boolean;
+}
+
+interface LocationListProps
+  extends Pick<
+    LocationDetailProps,
+    "locationPubKeysCollected" | "numSigsRequired"
+  > {
+  title: string;
+  locations: LocationRequirementPreview[];
+  completed?: boolean;
+}
+
+const SingleLocation = ({
+  location,
+  title,
+  completed,
+}: SingleLocationProps) => {
+  const { pageWidth } = useSettings();
+  const imageWidth = pageWidth - 38;
+
+  const signature: LocationSignature | undefined = getLocationSignature(
+    location.id.toString()
+  );
+
+  return (
+    <>
+      <Header title={title} label="Requirement" />
+      <div className="flex flex-col gap-4 mt-2">
+        <div
+          className="bg-slate-200 rounded bg-cover bg-center bg-no-repeat object-cover overflow-hidden mx-auto"
+          style={{
+            width: `${imageWidth}px`,
+            height: `${imageWidth}px`,
+            backgroundImage: `url(${location.imageUrl})`,
+          }}
+        ></div>
+
+        <div key={location.id} className="flex gap-6">
+          <div className="flex flex-col">
+            <Label>Location</Label>
+            <Description>{location.name}</Description>
+          </div>
+          {signature !== undefined && (
+            <div className="flex flex-col">
+              <Label>Visited On</Label>
+              <Description>{`${signature?.ts}`}</Description>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+const LocationList = ({
+  title,
+  locations,
+  locationPubKeysCollected,
+  completed,
+  numSigsRequired,
+}: LocationListProps) => {
+  const [selectedLocationId, setSelectedLocationId] = useState<number>();
+
+  const totalCollected = locations.reduce((sum, location) => {
+    const collected = locationPubKeysCollected?.includes(
+      location.signaturePublicKey
+    );
+    return sum + (collected ? 1 : 0);
+  }, 0);
+
+  const handleCloseSingleLocationModal = () => {
+    setSelectedLocationId(undefined);
+  };
+
+  if (selectedLocationId !== undefined) {
+    const location = locations[selectedLocationId];
+    const locationCompleted = locationPubKeysCollected.includes(
+      location.signaturePublicKey
+    );
+
+    return (
+      <Modal
+        isOpen={true}
+        setIsOpen={() => {}}
+        onClose={handleCloseSingleLocationModal}
+        withBackButton
+      >
+        <SingleLocation
+          title={title}
+          location={location}
+          locationPubKeysCollected={locationPubKeysCollected}
+          completed={locationCompleted}
+          numSigsRequired={numSigsRequired}
+        />
+      </Modal>
+    );
+  }
+
+  return (
+    <>
+      <Header title={title} label="Requirement" completed={completed} />
+      <ListWrapper
+        title={`${totalCollected} location(s) visited out of ${numSigsRequired} required`}
+      >
+        <div>
+          {locations.map(
+            (location: LocationRequirementPreview, index: number) => {
+              const collected = locationPubKeysCollected?.includes(
+                location.signaturePublicKey
+              );
+
+              return (
+                <div
+                  key={location.id}
+                  onClick={() => setSelectedLocationId(index)}
+                  className="flex justify-between border-b w-full border-gray-300 last-of-type:border-none first-of-type:pt-0 py-1"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex justify-center items-center bg-cover bg-center bg-[#677363] h-6 w-6 rounded"
+                      style={{
+                        backgroundImage: location?.imageUrl
+                          ? `url(${location.imageUrl})`
+                          : undefined,
+                      }}
+                    />
+                    <Card.Title>{location.name}</Card.Title>
+                  </div>
+                  {collected && <Icons.checkedCircle />}
+                </div>
+              );
+            }
+          )}
+        </div>
+      </ListWrapper>
+    </>
+  );
+};
+
 const LocationDetail = ({
   title,
   completed,
@@ -49,46 +197,18 @@ const LocationDetail = ({
   locationPubKeysCollected,
   numSigsRequired,
 }: LocationDetailProps) => {
-  const { pageWidth } = useSettings();
-
   if (locations.length === 0) return null;
-
-  const [mainLocation] = locations ?? [];
-
-  const imageWidth = pageWidth - 48;
 
   return (
     <div className="flex flex-col gap-8">
-      <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
-        <div
-          className="bg-slate-200 rounded bg-cover bg-center bg-no-repeat object-cover overflow-hidden mx-auto"
-          style={{
-            width: `${imageWidth}px`,
-            height: `${imageWidth}px`,
-            backgroundImage: `url(${mainLocation.imageUrl})`,
-          }}
-        ></div>
-        {locations?.map((location: LocationRequirementPreview) => {
-          const signature: LocationSignature | undefined = getLocationSignature(
-            location.id.toString()
-          );
-
-          return (
-            <div key={location.id} className="flex gap-6">
-              <div className="flex flex-col">
-                <Label>Location</Label>
-                <Description>{location.name}</Description>
-              </div>
-              {signature !== undefined && (
-                <div className="flex flex-col">
-                  <Label>Visited On</Label>
-                  <Description>{`${signature?.ts}`}</Description>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        <LocationList
+          title={title!}
+          numSigsRequired={numSigsRequired}
+          locations={locations}
+          completed={completed}
+          locationPubKeysCollected={locationPubKeysCollected}
+        />
       </div>
     </div>
   );
@@ -117,7 +237,7 @@ const UserDetail = ({
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
-        <Label>{`${numSigsCollected} collected out of ${numSigsRequired} required`}</Label>
+        <Label>{`${numSigsCollected} person(s) met out of ${numSigsRequired} required`}</Label>
         <div>
           {users.map(({ displayName, signaturePublicKey }, index) => {
             const collected = userPubKeysCollected.includes(signaturePublicKey);

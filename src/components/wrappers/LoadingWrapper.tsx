@@ -11,7 +11,7 @@ interface LoadingWrapper {
   noResultsLabel?: string;
 }
 
-const NoItemLabel = classed.span("text-lg text-gray-12");
+const NoItemLabel = classed.span("text-sm text-gray-12 py-4");
 
 const LoadingWrapper = ({
   isLoading,

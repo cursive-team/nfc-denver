@@ -12,6 +12,7 @@ type QuestCardProps = {
   locationRequirements?: LocationRequirement[];
   completedSigs?: number; // number of completed signatures
   isCompleted: boolean; // whether the quest is completed
+  isPinned?: boolean;
 };
 
 const CircleCard = classed.div(
@@ -87,6 +88,7 @@ const QuestCard = ({
   userRequirements = [],
   completedSigs,
   isCompleted,
+  isPinned,
 }: QuestCardProps) => {
   const numSigsRequired =
     userRequirements?.length + locationRequirements?.length;
@@ -98,10 +100,20 @@ const QuestCard = ({
   return (
     <Card.Base className="flex flex-col gap-4 p-3">
       <div className="flex flex-col gap-2">
-        <Card.Title>{title}</Card.Title>
+        <div className="flex items-center justify-between">
+          <Card.Title>{title}</Card.Title>
+          {isPinned ? (
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-11">Pinned</span>
+              <Icons.pin />
+            </div>
+          ) : (
+            (isCompleted && <Icons.checkedCircle />) || null
+          )}
+        </div>
         <Card.Description>{description}</Card.Description>
       </div>
-      <div className="flex  gap-4 items-center justify-between">
+      <div className="flex gap-4 items-center justify-between">
         <QuestRequirementIcons
           userRequirements={userRequirements}
           locationRequirements={locationRequirements}
