@@ -21,7 +21,7 @@ export default function Explore() {
   };
 
   return (
-    <FormStepLayout title="Tap your card" onSubmit={onTap}>
+    <FormStepLayout className="pt-4" title="Tap your card" onSubmit={onTap}>
       <Input
         type="text"
         name="cardId"
