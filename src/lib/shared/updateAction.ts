@@ -1,5 +1,5 @@
 // helper to update state from actions
-export default function updateAction(state: any, payload: any) {
+export default function updateStateFromAction(state: any, payload: any) {
   return {
     ...state,
     ...payload,

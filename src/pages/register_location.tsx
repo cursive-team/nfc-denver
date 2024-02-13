@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { upload } from "@vercel/blob/client";
 import Image from "next/image";
@@ -11,9 +11,9 @@ import {
   RegisterLocationSchema,
   RegisterLocationType,
 } from "@/lib/schema/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { InputWrapper } from "@/components/input/InputWrapper";
 import { useMutation } from "@tanstack/react-query";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 export default function RegisterLocation() {
   const router = useRouter();
@@ -25,10 +25,9 @@ export default function RegisterLocation() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitted },
   } = useForm<RegisterLocationType>({
-    resolver: zodResolver(RegisterLocationSchema),
+    resolver: yupResolver(RegisterLocationSchema),
     defaultValues: {
       cmac, // default from query
       name: "",

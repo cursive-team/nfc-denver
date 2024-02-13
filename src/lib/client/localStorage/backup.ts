@@ -14,10 +14,8 @@ export const loadBackup = (
 
   let validatedProfile: Profile;
   try {
-    console.log(profile);
     validatedProfile = profileSchema.validateSync(profile);
   } catch (e) {
-    console.log(e);
     throw new Error("Invalid profile.");
   }
 

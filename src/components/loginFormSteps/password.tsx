@@ -6,27 +6,24 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { hashPassword } from "@/lib/client/utils";
 import { LoginSchema } from "@/lib/schema/schema";
 import { decryptBackupString } from "@/lib/shared/backup";
-import updateAction from "@/lib/shared/updateAction";
-import { zodResolver } from "@hookform/resolvers/zod";
+import updateStateFromAction from "@/lib/shared/updateAction";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import z from "zod";
 import { LoginFormStepProps } from ".";
+import { InferType } from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-const LoginCodeSchema = LoginSchema.pick({
-  password: true,
-  confirmPassword: true,
-});
+const LoginCodeSchema = LoginSchema.pick(["password"]);
 
-type LoginFormProps = z.infer<typeof LoginCodeSchema>;
+type LoginFormProps = InferType<typeof LoginCodeSchema>;
 
 const LoginStepPassword = ({
   onBack,
   onSuccessfulLogin,
 }: LoginFormStepProps) => {
-  const { getState } = useStateMachine({ updateAction });
+  const { getState } = useStateMachine({ updateStateFromAction });
   const { completeLogin } = useCompleteLogin({
     onSuccessfulLogin,
   });
@@ -36,7 +33,7 @@ const LoginStepPassword = ({
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormProps>({
-    resolver: zodResolver(LoginCodeSchema),
+    resolver: yupResolver(LoginCodeSchema),
     defaultValues: {
       password: getState()?.login?.password,
     },

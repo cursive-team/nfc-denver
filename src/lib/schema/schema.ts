@@ -1,41 +1,38 @@
-import z from "zod";
+import { object, string, date, InferType } from "yup";
 
-export const LoginSchema = z.object({
-  email: z.string().email("Invalid email address."),
-  password: z.string().min(1, "This field is required."),
-  code: z
-    .string()
+export const LoginSchema = object({
+  email: string()
+    .email("Invalid email address.")
+    .required("This field is required."),
+  password: string().required("This field is required."),
+  code: string()
     .min(6, "Code must be 6 characters.")
-    .max(6, "Code must be 6 characters."),
-  iv: z.string(),
-  passwordSalt: z.string(),
-  passwordHash: z.string(),
-  authToken: z
-    .object({
-      value: z.string(),
-      expiresAt: z.date(),
-    })
-    .optional(),
-  encryptedData: z.string(),
-  authenticationTag: z.string(),
+    .max(6, "Code must be 6 characters.")
+    .required("This field is required."),
+  iv: string().default(""),
+  passwordSalt: string().default(""),
+  passwordHash: string().default(""),
+  authToken: object({
+    value: string(),
+    expiresAt: date(),
+  }).optional(),
+  encryptedData: string().default(""),
+  authenticationTag: string().default(""),
 });
 
-export const RegisterLocationSchema = z.object({
-  cmac: z.string().min(1, "This field is required.").optional(),
-  name: z
-    .string()
-    .min(1, "This field is required.")
-    .max(64, "Location name must be less than 64 characters."),
-  description: z
-    .string()
-    .min(1, "This field is required.")
-    .max(256, "Description must be less than 256 characters."),
-  sponsor: z
-    .string()
-    .min(1, "This field is required.")
-    .max(32, "Sponsor must be less than 32 characters."),
-  imageUrl: z.string().optional(),
+export const RegisterLocationSchema = object({
+  cmac: string().min(1, "This field is required.").optional(),
+  name: string()
+    .max(64, "Location name must be less than 64 characters.")
+    .required(),
+  description: string()
+    .max(256, "Description must be less than 256 characters.")
+    .required(),
+  sponsor: string()
+    .max(32, "Sponsor must be less than 32 characters.")
+    .required(),
+  imageUrl: string().optional(),
 });
 
-export type RegisterLocationType = z.infer<typeof RegisterLocationSchema>;
-export type LoginType = z.infer<typeof LoginSchema>;
+export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
+export type LoginType = InferType<typeof LoginSchema>;

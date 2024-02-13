@@ -8,10 +8,9 @@ import toast from "react-hot-toast";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { useRouter } from "next/router";
 import { useStateMachine } from "little-state-machine";
-import updateAction from "@/lib/shared/updateAction";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 interface CompleteLoginProps {
-  onSuccessfulLogin?: () => void;
   backup: string;
   token?: AuthToken;
 }
@@ -23,15 +22,11 @@ export const useCompleteLogin = ({
 }) => {
   const router = useRouter();
 
-  const { getState } = useStateMachine({ updateAction });
+  const { getState } = useStateMachine({ updateStateFromAction });
   // This function is called once a backup is loaded
   // It fetches the user's jubSignal messages, populates localStorage,
   // saves the auth token, and calls the onSuccessfulLogin callback
-  const completeLogin = async ({
-    backup,
-    token,
-    onSuccessfulLogin,
-  }: CompleteLoginProps) => {
+  const completeLogin = async ({ backup, token }: CompleteLoginProps) => {
     const savedAuthToken: AuthToken = getState()?.login?.authToken as AuthToken;
 
     const authToken = savedAuthToken || token;
@@ -42,7 +37,6 @@ export const useCompleteLogin = ({
       return;
     }
 
-    //setDisplayState(DisplayState.LOGGING_IN);
     // Populate localStorage with auth and backup data to load messages
     saveAuthToken(authToken!);
     loadBackup(backup);
@@ -56,7 +50,6 @@ export const useCompleteLogin = ({
     }
 
     // Login is successful
-    onSuccessfulLogin?.();
     onSuccessfulLoginHandler?.();
     router.push("/"); // redirect to home page when login is successful
   };

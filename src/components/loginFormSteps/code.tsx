@@ -2,35 +2,35 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { LoginSchema } from "@/lib/schema/schema";
-import updateAction from "@/lib/shared/updateAction";
-import { zodResolver } from "@hookform/resolvers/zod";
+import updateStateFromAction from "@/lib/shared/updateAction";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import z from "zod";
 import { AppBackHeader } from "@/components/AppHeader";
 import { useCompleteLogin } from "@/hooks/useCompleteLogin";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";
 import { LoginFormStepProps } from ".";
 import { APP_CONFIG } from "@/shared/constants";
+import { InferType } from "yup";
 
-const LoginCodeSchema = LoginSchema.pick({ code: true });
-type LoginFormProps = z.infer<typeof LoginCodeSchema>;
+const LoginCodeSchema = LoginSchema.pick(["code"]);
+type LoginFormProps = InferType<typeof LoginCodeSchema>;
 
 const LoginStepCode = ({
   onSuccess,
   onBack,
   onSuccessfulLogin,
 }: LoginFormStepProps) => {
-  const { actions, getState } = useStateMachine({ updateAction });
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormProps>({
-    resolver: zodResolver(LoginCodeSchema),
+    resolver: yupResolver(LoginCodeSchema),
     defaultValues: {
       code: getState()?.login?.code,
     },
@@ -84,7 +84,7 @@ const LoginStepCode = ({
         const authToken = { value, expiresAt: new Date(expiresAt) };
 
         // Save auth token state for case where user needs to input password
-        actions.updateAction({
+        actions.updateStateFromAction({
           login: {
             ...getState().login,
             authToken,
@@ -97,7 +97,7 @@ const LoginStepCode = ({
             encryptedBackupDataSchema.validateSync(data.backup);
 
           // User must confirm password to decrypt data
-          actions.updateAction({
+          actions.updateStateFromAction({
             login: {
               ...getState().login,
               code,

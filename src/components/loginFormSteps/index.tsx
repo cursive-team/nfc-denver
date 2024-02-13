@@ -1,6 +1,5 @@
 import { FormStepLayout } from "@/layouts/FormStepLayout";
-import updateAction from "@/lib/shared/updateAction";
-import { zodResolver } from "@hookform/resolvers/zod";
+import updateStateFromAction from "@/lib/shared/updateAction";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import Link from "next/link";
@@ -9,10 +8,11 @@ import toast from "react-hot-toast";
 import { Button } from "../Button";
 import { Input } from "../Input";
 import { LoginSchema } from "@/lib/schema/schema";
-import z from "zod";
+import { InferType } from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-const LoginEmailSchema = LoginSchema.pick({ email: true });
-type LoginFormProps = z.infer<typeof LoginEmailSchema>;
+const LoginEmailSchema = LoginSchema.pick(["email"]);
+type LoginFormProps = InferType<typeof LoginEmailSchema>;
 
 export interface LoginFormStepProps {
   onSuccessfulLogin?: () => void;
@@ -21,14 +21,14 @@ export interface LoginFormStepProps {
 }
 
 const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
-  const { actions, getState } = useStateMachine({ updateAction });
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormProps>({
-    resolver: zodResolver(LoginEmailSchema),
+    resolver: yupResolver(LoginEmailSchema),
     defaultValues: {
       email: getState()?.login?.email,
     },
@@ -37,7 +37,7 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
   const loginMutation = useMutation({
     mutationKey: ["login"],
     mutationFn: async ({ email }: LoginFormProps) => {
-      actions.updateAction({ login: { email } });
+      actions.updateStateFromAction({ login: { email } });
       const response = await fetch("/api/login/get_code", {
         method: "POST",
         headers: {
