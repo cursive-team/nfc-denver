@@ -6,6 +6,7 @@ export * from "./locationTap";
 export * from "./questCompleted";
 
 export enum JUB_SIGNAL_MESSAGE_TYPE {
+  REGISTERED = "R", // A message you send to yourself indicating you are registered
   OUTBOUND_TAP = "OT", // A message you send to yourself indicating you tapped someone else
   INBOUND_TAP = "IT", // A message you send to someone else indicating you tapped them
   LOCATION_TAP = "LT", // A message you send to yourself indicating you tapped a location

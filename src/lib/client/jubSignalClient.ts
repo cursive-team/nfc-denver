@@ -28,6 +28,7 @@ import {
   saveUsers,
 } from "./localStorage";
 import { hashPublicKeyToUUID } from "./utils";
+import { registeredMessageSchema } from "./jubSignal/registered";
 
 export type LoadMessagesRequest = {
   forceRefresh: boolean;
@@ -178,6 +179,52 @@ const processEncryptedMessages = async (args: {
     const { metadata, type, data } = decryptedMessage;
 
     switch (type) {
+      case JUB_SIGNAL_MESSAGE_TYPE.REGISTERED:
+        try {
+          if (metadata.fromPublicKey !== recipientPublicKey) {
+            throw new Error(
+              "Invalid message: location tap messages must be sent from self"
+            );
+          }
+
+          const { pk, msg, sig } = await registeredMessageSchema.validate(data);
+          const userId = await hashPublicKeyToUUID(recipientPublicKey);
+          const user = users[userId];
+          if (user) {
+            user.name = metadata.fromDisplayName;
+            user.encPk = metadata.fromPublicKey;
+            user.sigPk = pk;
+            user.msg = msg;
+            user.sig = sig;
+            user.inTs = metadata.timestamp.toISOString();
+
+            users[userId] = user;
+          } else {
+            users[userId] = {
+              name: metadata.fromDisplayName,
+              encPk: metadata.fromPublicKey,
+              sigPk: pk,
+              msg,
+              sig,
+              inTs: metadata.timestamp.toISOString(),
+            };
+          }
+
+          const activity = {
+            type: JUB_SIGNAL_MESSAGE_TYPE.REGISTERED,
+            name: metadata.fromDisplayName,
+            id: userId,
+            ts: metadata.timestamp.toISOString(),
+          };
+          activities.push(activity);
+        } catch (error) {
+          console.error(
+            "Invalid registered message received from server: ",
+            message
+          );
+        } finally {
+          break;
+        }
       case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:
         try {
           if (metadata.fromPublicKey !== recipientPublicKey) {
