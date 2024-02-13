@@ -10,6 +10,8 @@ export const useFetchStore = () => {
         partner: `Partner ${i + 1}`,
         itemName: `Item ${i + 1}`,
         points: i * 100,
+        unlocked: i % 2 === 0, // TODO: to implement
+        redeemed: i % 3 === 0, // TODO: to implement
       }));
     },
   });

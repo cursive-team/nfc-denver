@@ -38,6 +38,20 @@ export const formatDate = (date: string, formatReplace?: string): string => {
   return isToday ? `Today, ${formattedDate}` : formattedDate;
 };
 
+export const filterArrayByValue = <T>(
+  items: T[],
+  key?: keyof T,
+  value?: unknown
+) => {
+  return items.filter((item: T) => {
+    if (key && value) {
+      const keyofItem = key?.toString().toLowerCase() as keyof T;
+      return item?.[keyofItem] === value;
+    }
+    return true;
+  });
+};
+
 export const displayNameRegex = /^[a-zA-Z0-9]{1,20}$/;
 
 export const twitterUsernameRegex = /^@[a-zA-Z0-9_]{1,15}$/;

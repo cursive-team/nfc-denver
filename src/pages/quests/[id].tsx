@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
-import { PointCard } from "@/components/cards/PointCard";
 import { QuestRequirementCard } from "@/components/cards/QuestRequirementCard";
 import { classed } from "@tw-classed/react";
 import { useParams } from "next/navigation";
@@ -30,6 +29,11 @@ import {
   computeNumRequirementsSatisfied,
 } from "@/lib/client/quests";
 import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
+import {
+  getPinnedQuest,
+  togglePinQuestById,
+} from "@/lib/client/localStorage/questPinned";
+import toast from "react-hot-toast";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -39,7 +43,21 @@ interface QuestDetailProps {
 const Label = classed.span("text-xs text-gray-10 font-light");
 
 const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
+  const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
   const { name: title, description, buidlReward } = quest ?? {};
+  const [isQuestPinned, setIsQuestPinned] = useState(
+    pinnedQuests.current.has(quest?.id ?? 0)
+  );
+
+  const onQuestPin = () => {
+    if (!quest?.id) return;
+    const pinned = togglePinQuestById(quest.id);
+    const isPinned = pinned.has(quest.id);
+    setIsQuestPinned(isPinned);
+    toast.success(isPinned ? "Quest pinned" : "Quest unpinned", {
+      duration: 2000,
+    });
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -50,11 +68,14 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
         </div>
         <button
           type="button"
-          className="flex gap-2 items-center disabled:opacity-50"
+          className="flex gap-2 items-center disabled:opacity-50 outline-none focus:outline-none"
           disabled={loading}
+          onClick={onQuestPin}
         >
-          <span className="text-gray-11 text-xs font-light">Pin</span>
-          <Icons.pin />
+          <span className="text-gray-11 text-xs font-light">
+            {isQuestPinned ? "Unpin" : "Pin"}
+          </span>
+          {isQuestPinned ? <Icons.unpin /> : <Icons.pin />}
         </button>
       </div>
       <div className="flex flex-col gap-4">
