@@ -70,22 +70,17 @@ export default function Tap() {
       });
 
       // Send location tap as encrypted jubSignal message to self
+      // Simultaneously update location signature and activity feed in local storage
       try {
-        const response = await fetch("/api/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: encryptedMessage,
-            recipientPublicKey,
-            token: authToken.value,
-          }),
+        await loadMessages({
+          forceRefresh: false,
+          messageRequests: [
+            {
+              encryptedMessage,
+              recipientPublicKey,
+            },
+          ],
         });
-
-        if (!response.ok) {
-          throw new Error("Error sending message");
-        }
       } catch (error) {
         console.error(
           "Error sending encrypted location tap to server: ",
@@ -96,16 +91,6 @@ export default function Tap() {
         );
         router.push("/");
         return;
-      }
-
-      // Update location signature and activity feed in local storage
-      try {
-        await loadMessages({ forceRefresh: false });
-      } catch (error) {
-        console.error("Error loading messages after tapping location");
-        toast.error(
-          "An error occured while adding this event to your activity feed."
-        );
       }
 
       router.push("/locations/" + location.id);

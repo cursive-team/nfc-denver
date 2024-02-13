@@ -1,3 +1,4 @@
+import { MessageRequest } from "@/pages/api/messages";
 import {
   JUB_SIGNAL_MESSAGE_TYPE,
   PlaintextMessage,
@@ -28,14 +29,18 @@ import {
 } from "./localStorage";
 import { hashPublicKeyToUUID } from "./utils";
 
+export type LoadMessagesRequest = {
+  forceRefresh: boolean;
+  messageRequests?: MessageRequest[];
+};
 // Loads messages from the server and updates the local storage
+// Optionally sends a new message before fetching messages
 // Uses the lastMessageFetchTimestamp from the session to determine the start date for the fetch
 // If forceRefresh is true, fetches all messages from the server
 export const loadMessages = async ({
   forceRefresh,
-}: {
-  forceRefresh: boolean;
-}): Promise<void> => {
+  messageRequests,
+}: LoadMessagesRequest): Promise<void> => {
   const session = getSession();
   if (!session || session.authToken.expiresAt < new Date()) {
     console.error("Invalid session while trying to load messages");
@@ -50,25 +55,41 @@ export const loadMessages = async ({
   }
 
   // Fetch jubSignal messages from server
+  // Send a new message if requested
   const previousMessageFetchTime = session.lastMessageFetchTimestamp;
-  const newMessageFetchTime = new Date();
-  const urlStartFilter =
-    previousMessageFetchTime && !forceRefresh
-      ? `&startDate=${encodeURIComponent(
-          previousMessageFetchTime.toISOString()
-        )}`
-      : "";
-  const url =
-    `/api/messages?token=${encodeURIComponent(
-      session.authToken.value
-    )}&endDate=${encodeURIComponent(newMessageFetchTime.toISOString())}` +
-    urlStartFilter;
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  let response;
+  if (messageRequests) {
+    response = await fetch("/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: session.authToken.value,
+        messageRequests,
+        shouldFetchMessages: true,
+        startDate: previousMessageFetchTime
+          ? previousMessageFetchTime.toISOString()
+          : undefined,
+      }),
+    });
+  } else {
+    const urlStartFilter =
+      previousMessageFetchTime && !forceRefresh
+        ? `&startDate=${encodeURIComponent(
+            previousMessageFetchTime.toISOString()
+          )}`
+        : "";
+    const url =
+      `/api/messages?token=${encodeURIComponent(session.authToken.value)}` +
+      urlStartFilter;
+    response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 
   if (!response.ok) {
     console.error("Error fetching jubSignal messages from server");
@@ -77,7 +98,15 @@ export const loadMessages = async ({
 
   // Decrypt messages and update localStorage with decrypted messages
   // Start with empty users, location signatures, quest completed, activities if forceRefresh is true
-  const messages = await response.json();
+  const { messages, mostRecentMessageTimestamp } = await response.json();
+  if (
+    !Array.isArray(messages) ||
+    typeof mostRecentMessageTimestamp !== "string" ||
+    isNaN(Date.parse(mostRecentMessageTimestamp))
+  ) {
+    console.error("Invalid messages received from server");
+    throw new Error("Invalid messages received from server");
+  }
   const existingUsers = forceRefresh ? {} : getUsers();
   const existingLocationSignatures = forceRefresh
     ? {}
@@ -102,7 +131,7 @@ export const loadMessages = async ({
   saveActivities(newActivities);
 
   // Update the session
-  session.lastMessageFetchTimestamp = newMessageFetchTime;
+  session.lastMessageFetchTimestamp = new Date(mostRecentMessageTimestamp);
   saveSession(session);
 };
 
