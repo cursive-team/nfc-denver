@@ -53,6 +53,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const [confirmPassword, setConfirmPassword] = useState<string>();
   const [cachedPasswordSalt, setCachedPasswordSalt] = useState<string>();
   const [cachedPasswordHash, setCachedPasswordHash] = useState<string>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const authToken = getAuthToken();
@@ -76,6 +77,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   }, [router, handleSignout]);
 
   const updateProfile = async () => {
+    setLoading(true);
     const authToken = getAuthToken();
     if (!authToken || authToken.expiresAt < new Date()) {
       handleSignout();
@@ -169,7 +171,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       return;
     }
 
-    saveProfile({
+    const profile = {
       displayName,
       email: previousProfile.email,
       encryptionPublicKey: previousProfile.encryptionPublicKey,
@@ -183,7 +185,8 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       farcasterUsername:
         farcasterUsername === "@" ? undefined : farcasterUsername.slice(1),
       bio: bio === "" ? undefined : bio,
-    });
+    };
+    saveProfile(profile);
 
     // Create new backup
     let backupData = createBackup();
@@ -226,6 +229,9 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       return;
     }
 
+    setPreviousProfile(profile);
+    setLoading(false);
+    toast.success("Profile updated successfully!");
     setDisplayState(ProfileDisplayState.VIEW);
   };
 
@@ -494,7 +500,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
         <FormStepLayout
           actions={
             <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={handleSaveEdit}>
+              <Button loading={loading} size="sm" onClick={handleSaveEdit}>
                 Save
               </Button>
               <Button size="sm" onClick={handleCancelEdit}>
@@ -570,7 +576,11 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     case ProfileDisplayState.INPUT_PASSWORD:
       return (
         <FormStepLayout
-          title="Enter Password"
+          title={
+            <div className="flex flex-col gap-2 mb-2">
+              <span>Enter password</span>
+            </div>
+          }
           description="Enter your master password to save your new profile"
           onSubmit={handleSubmitInputPassword}
         >
@@ -581,20 +591,26 @@ const Profile = ({ handleSignout }: ProfileProps) => {
             onChange={handleInputPasswordChange}
             required
           />
-          <Button type="submit">Confirm</Button>
+          <Button loading={loading} type="submit">
+            Confirm
+          </Button>
         </FormStepLayout>
       );
     case ProfileDisplayState.CHOOSE_PASSWORD:
       return (
         <FormStepLayout
           title={
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mb-2">
               <span>Choose a master password</span>
             </div>
           }
           actions={
             <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={handleSubmitPassword}>
+              <Button
+                loading={loading}
+                size="sm"
+                onClick={handleSubmitPassword}
+              >
                 Update Profile
               </Button>
               <Button size="sm" onClick={handleCancelPassword}>
