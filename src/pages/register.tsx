@@ -127,7 +127,7 @@ export default function Register() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, cmac }),
     })
       .then((response) => {
         if (response.ok) {

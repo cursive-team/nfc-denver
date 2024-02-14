@@ -6,6 +6,7 @@ import {
   ChipType,
   getChipIdFromIykCmac,
   getChipTypeFromChipId,
+  verifyEmailForChipId,
 } from "@/lib/server/dev";
 import {
   AuthTokenResponse,
@@ -87,6 +88,11 @@ export default async function handler(
   });
   if (existingUser) {
     return res.status(400).json({ error: "Card already registered" });
+  }
+
+  const emailMatchesChipId = verifyEmailForChipId(chipId, email);
+  if (!emailMatchesChipId) {
+    return res.status(400).json({ error: "Email does not match cmac" });
   }
 
   // Verify the signin code is valid
