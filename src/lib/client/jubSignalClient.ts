@@ -183,7 +183,7 @@ const processEncryptedMessages = async (args: {
         try {
           if (metadata.fromPublicKey !== recipientPublicKey) {
             throw new Error(
-              "Invalid message: location tap messages must be sent from self"
+              "Invalid message: registration messages must be sent from self"
             );
           }
 

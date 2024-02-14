@@ -77,7 +77,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
               <Icons.person />
             </div>
             <Card.Title>
-              <div>{"Registered on Buidl Quest"}</div>
+              <div>{"Registered for BUIDLQuest!"}</div>
             </Card.Title>
           </div>
           <Card.Description>{date}</Card.Description>
