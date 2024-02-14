@@ -35,6 +35,7 @@ model LocationKey {
   id                  Int      @id @default(autoincrement())
   locationId          Int      @unique
   signaturePrivateKey String
+  numPreviousTaps     Int      @default(0)
   createdAt           DateTime @default(now())
   location            Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
