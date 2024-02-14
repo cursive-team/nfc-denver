@@ -256,22 +256,17 @@ const CompleteQuestModal = ({
     });
 
     // Send quest completed info as encrypted jubSignal message to self
+    // Simultaneously refresh activity feed
     try {
-      const response = await fetch("/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: encryptedMessage,
-          recipientPublicKey,
-          token: authToken.value,
-        }),
+      await loadMessages({
+        forceRefresh: false,
+        messageRequests: [
+          {
+            encryptedMessage,
+            recipientPublicKey,
+          },
+        ],
       });
-
-      if (!response.ok) {
-        throw new Error("Error sending message");
-      }
     } catch (error) {
       console.error(
         "Error sending encrypted quest completed info to server: ",
@@ -282,16 +277,6 @@ const CompleteQuestModal = ({
       );
       setDisplayState(CompleteQuestDisplayState.INITIAL);
       return;
-    }
-
-    // Update activity feed in local storage
-    try {
-      await loadMessages({ forceRefresh: false });
-    } catch (error) {
-      console.error("Error loading messages after completing quest");
-      toast.error(
-        "An error occured while adding this event to your activity feed."
-      );
     }
 
     setSerializedProof(serializedProof);

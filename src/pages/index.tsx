@@ -69,6 +69,20 @@ interface ActivityFeedProps {
 
 const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
   switch (type) {
+    case JUB_SIGNAL_MESSAGE_TYPE.REGISTERED:
+      return (
+        <div className="flex justify-between py-1">
+          <div className="flex items-center gap-2">
+            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+              <Icons.person />
+            </div>
+            <Card.Title>
+              <div>{"Registered for BUIDLQuest!"}</div>
+            </Card.Title>
+          </div>
+          <Card.Description>{date}</Card.Description>
+        </div>
+      );
     case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:
       return (
         <Link href={`/users/${id}`}>
@@ -165,6 +179,7 @@ export default function Social() {
 
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
+    profileData: Profile,
     users: Record<string, User>,
     activities: Activity[]
   ): TabsProps["items"] => {
@@ -216,7 +231,10 @@ export default function Social() {
 
     // Sort pending contacts by timestamp
     const pendingUsersList = usersList.filter(
-      (user) => user.inTs && !user.outTs
+      (user) =>
+        user.inTs &&
+        !user.outTs &&
+        user.encPk !== profileData.encryptionPublicKey
     );
     const sortedPendingUserList = pendingUsersList.sort(
       (a, b) => new Date(b.inTs!).getTime() - new Date(a.inTs!).getTime()
@@ -369,7 +387,7 @@ export default function Social() {
       setNumConnections(
         Object.values(users).filter((user) => user.outTs).length
       );
-      setTabsItems(computeTabsItems(users, activities));
+      setTabsItems(computeTabsItems(profileData, users, activities));
       setLoading(false);
     };
 

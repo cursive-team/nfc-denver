@@ -5,6 +5,7 @@ import {
   getAuthToken,
   getKeys,
   getProfile,
+  getUsers,
   User,
 } from "@/lib/client/localStorage";
 import {
@@ -24,6 +25,7 @@ import {
   InputDescription as Description,
 } from "@/components/input/InputWrapper";
 import { v4 as uuidv4 } from "uuid";
+import { MessageRequest } from "@/pages/api/messages";
 
 const SharePage = () => {
   const router = useRouter();
@@ -118,32 +120,10 @@ const SharePage = () => {
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey,
     });
-
-    try {
-      const response = await fetch("/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: encryptedMessage,
-          recipientPublicKey,
-          token: authToken.value,
-        }),
-      });
-      setLoading(false);
-      if (!response.ok) {
-        const { error } = await response.json();
-        console.error("Error sharing information: ", error);
-        throw new Error("Failed to share information");
-      }
-    } catch (error) {
-      toast.error(
-        "An error occurred while sending the message. Please try again."
-      );
-      setLoading(false);
-      return;
-    }
+    const otherUserMessageRequest: MessageRequest = {
+      encryptedMessage,
+      recipientPublicKey,
+    };
 
     // ----- SEND MESSAGE TO SELF -----
     // This message records the outbound interaction and saves the private note
@@ -155,39 +135,26 @@ const SharePage = () => {
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey: selfPublicKey,
     });
+    const selfMessageRequest: MessageRequest = {
+      encryptedMessage: selfEncryptedMessage,
+      recipientPublicKey: selfPublicKey,
+    };
 
+    // Send both messages and update activity feed
     try {
-      const response = await fetch("/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: selfEncryptedMessage,
-          recipientPublicKey: selfPublicKey,
-          token: authToken.value,
-        }),
+      await loadMessages({
+        forceRefresh: false,
+        messageRequests: [otherUserMessageRequest, selfMessageRequest],
       });
-
-      if (!response.ok) {
-        const { error } = await response.json();
-        console.error("Error sharing information: ", error);
-        throw new Error("Failed to share information");
-      }
+      toast.success(`Successfully shared information with ${user.name}!`);
+      setLoading(false);
     } catch (error) {
+      console.error("Error sending encrypted tap to server: ", error);
       toast.error(
         "An error occurred while sending the message. Please try again."
       );
+      setLoading(false);
       return;
-    }
-
-    // Updates local storage and activity feed
-    try {
-      await loadMessages({ forceRefresh: false });
-      toast.success(`Successfully shared information with ${user.name}!`);
-    } catch (error) {
-      console.error("Error loading messages after sharing information");
-      toast.error("An error occurred while updating your activity feed.");
     }
 
     router.push(`/users/${id}`);

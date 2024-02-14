@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { v4 as uuidv4 } from "uuid";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
-import { generateSignatureKeyPair } from "@/lib/shared/signature";
+import { generateSignatureKeyPair, sign } from "@/lib/shared/signature";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import {
   createBackup,
@@ -28,6 +29,8 @@ import { Spinner } from "@/components/Spinner";
 import { Radio } from "@/components/Radio";
 import { Checkbox } from "@/components/Checkbox";
 import { Icons } from "@/components/Icons";
+import { loadMessages } from "@/lib/client/jubSignalClient";
+import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -331,6 +334,33 @@ export default function Register() {
     if (!backupResponse.ok) {
       console.error(`HTTP error! status: ${backupResponse.status}`);
       toast.error("Error storing backup! Please try again.");
+      return;
+    }
+
+    // Send a jubSignal message to self to store the signature
+    const dataToSign = uuidv4().replace(/-/g, ""); // For now, we just sign a random uuid as a hex string
+    const signature = sign(signingKey, dataToSign);
+    const recipientPublicKey = publicKey;
+    const encryptedMessage = await encryptRegisteredMessage({
+      signaturePublicKey: verifyingKey,
+      signatureMessage: dataToSign,
+      signature,
+      senderPrivateKey: privateKey,
+      recipientPublicKey,
+    });
+    try {
+      await loadMessages({
+        forceRefresh: false,
+        messageRequests: [
+          {
+            encryptedMessage,
+            recipientPublicKey,
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Error sending registration tap to server: ", error);
+      toast.error("An error occured while registering.");
       return;
     }
 
