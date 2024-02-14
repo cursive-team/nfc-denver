@@ -443,7 +443,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
             <Input label="Email" value={email} disabled />
           </div>
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-3">
               <span className="text-gray-12 text-sm font-light">
                 Privacy settings
               </span>
@@ -518,7 +518,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
             <Input label="Email" value={email} disabled />
           </div>
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-3">
               <span className="text-gray-12 text-sm font-light">
                 Privacy settings
               </span>
