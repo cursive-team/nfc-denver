@@ -291,10 +291,12 @@ export default function Register() {
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
       allowsAnalytics,
-      twitterUsername: twitterUsername === "@" ? undefined : twitterUsername,
-      telegramUsername: telegramUsername === "@" ? undefined : telegramUsername,
+      twitterUsername:
+        twitterUsername === "@" ? undefined : twitterUsername.slice(1),
+      telegramUsername:
+        telegramUsername === "@" ? undefined : telegramUsername.slice(1),
       farcasterUsername:
-        farcasterUsername === "@" ? undefined : farcasterUsername,
+        farcasterUsername === "@" ? undefined : farcasterUsername.slice(1),
       bio: bio === "" ? undefined : bio,
     });
     saveAuthToken({
@@ -338,7 +340,7 @@ export default function Register() {
 
   const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (password !== confirmPassword) {
+    if (!password || password !== confirmPassword) {
       toast.error("Passwords do not match!");
       return;
     }

@@ -7,6 +7,7 @@ import { Button } from "./Button";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "./Input";
+import Profile from "./Profile";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -71,48 +72,7 @@ const AppHeaderContent = ({
   const MenuItems: { label: string; children: ReactNode }[] = [
     {
       label: "Profile & settings",
-      children: (
-        <>
-          <FormStepLayout
-            actions={
-              <div className="flex flex-col gap-2">
-                <Button size="sm">Save</Button>
-                <Button size="sm" onClick={handleSignout}>
-                  Logout
-                </Button>
-              </div>
-            }
-          >
-            <div className="flex flex-col gap-6">
-              <Input label="Display name" />
-              <Input label="Email" />
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <span className="text-gray-12 text-sm font-light">
-                  Privacy settings
-                </span>
-                <span className="text-gray-11 text-sm font-light">
-                  This can be changed at any time
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <span className="text-gray-12 text-sm font-light">
-                  Social settings
-                </span>
-                <span className="text-gray-11 text-sm font-light">
-                  You can change this each time you make a new connection
-                </span>
-              </div>
-              <Input label="X (Optional)" />
-              <Input label="Telegram (Optional)" />
-              <Input label="ETH address (Optional)" />
-            </div>
-          </FormStepLayout>
-        </>
-      ),
+      children: <Profile handleSignout={handleSignout} />,
     },
     {
       label: "Information & FAQ's",
