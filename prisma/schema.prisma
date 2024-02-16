@@ -19,7 +19,7 @@ model User {
   encryptionPublicKey       String
   signaturePublicKey        String
   wantsServerCustody        Boolean
-  allowsAnalytics           Boolean            
+  allowsAnalytics           Boolean
   passwordSalt              String?
   passwordHash              String?
   createdAt                 DateTime           @default(now())
@@ -104,6 +104,7 @@ model Quest {
   userRequirements     UserRequirement[]
   locationRequirements LocationRequirement[]
   proofs               QuestProof[]          @relation("QuestForProof")
+  requiredForItems     Item[]                @relation("ItemQuestRequirements")
 }
 
 model UserRequirement {
@@ -150,4 +151,16 @@ model QuestProof {
   createdAt       DateTime @default(now())
   quest           Quest    @relation(name: "QuestForProof", fields: [questId], references: [id])
   user            User     @relation(name: "QuestProofUser", fields: [userId], references: [id])
+}
+
+model Item {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  sponsor             String
+  description         String
+  imageUrl            String
+  buidlCost           Int
+  questRequirementIds Int[]
+  createdAt           DateTime @default(now())
+  questRequirements   Quest[]  @relation("ItemQuestRequirements")
 }

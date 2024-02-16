@@ -51,3 +51,11 @@ export const verifyEmailForChipId = (
 ): boolean => {
   return true;
 };
+
+/**
+ * Given a userId, return if the user is allowed to have admin privileges
+ * TEMPORARY: RETURN TRUE
+ */
+export const isUserAdmin = (userId: number): boolean => {
+  return true;
+};
