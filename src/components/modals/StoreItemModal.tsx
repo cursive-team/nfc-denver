@@ -1,3 +1,4 @@
+import QRCode from "react-qr-code";
 import { Modal, ModalProps } from "./Modal";
 import { ListLayout } from "@/layouts/ListLayout";
 import { useRedeemStoreItem } from "@/hooks/useStore";
@@ -7,6 +8,12 @@ import { useState } from "react";
 import { Button } from "../Button";
 import { getAllQuestCompleted } from "@/lib/client/localStorage";
 import { ItemWithCompletion, QuestWithRequirements } from "@/types";
+import toast from "react-hot-toast";
+import { classed } from "@tw-classed/react";
+
+const QRCodeWrapper = classed.div(
+  "bg-white rounded-[8px] w-full max-w-[156px]"
+);
 
 interface StoreModalItemProps extends ModalProps {
   storeItem: ItemWithCompletion;
@@ -20,11 +27,17 @@ const StoreModalItem = ({
 }: StoreModalItemProps) => {
   const questCompleted = getAllQuestCompleted();
   const completedQuestIds: string[] = Object.keys(questCompleted);
-  const [isItemRedeemed, setIsItemRedeemed] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>();
 
   const redeemStoreItemMutation = useRedeemStoreItem();
   const onRedeemItem = async () => {
-    await redeemStoreItemMutation.mutateAsync(storeItem.id);
+    try {
+      const qrCodeId = await redeemStoreItemMutation.mutateAsync(storeItem.id);
+      setQrCodeUrl(`${window.location.origin}/qr/${qrCodeId}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to redeem item, please try again.");
+    }
   };
 
   const questRequirements = storeItem.questRequirements;
@@ -55,7 +68,17 @@ const StoreModalItem = ({
               <h2 className="text-sm text-gray-12">{storeItem.name}</h2>
             </div>
           </div>
-          {!isItemRedeemed && (
+          {qrCodeUrl && (
+            <QRCodeWrapper>
+              <QRCode
+                size={156}
+                className="ml-auto p-4 h-auto w-full max-w-full"
+                value={qrCodeUrl}
+                viewBox={`0 0 156 156`}
+              />
+            </QRCodeWrapper>
+          )}
+          {!qrCodeUrl && (
             <Button
               loading={redeemStoreItemMutation.isPending}
               onClick={onRedeemItem}

@@ -61,7 +61,7 @@ export const isUserAdmin = (userId: number): boolean => {
 };
 
 export const getBuidlBalance = async (userId: number): Promise<number> => {
-  return 0;
+  return 1000;
 };
 
 export const addBuidlBalance = async (

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { ErrorResponse } from "@/types";
 import { verifyAuthToken } from "@/lib/server/auth";
-import { getBuidlBalance, subtractBuidlBalance } from "@/lib/server/dev";
+import { getBuidlBalance } from "@/lib/server/dev";
 
 export default async function handler(
   req: NextApiRequest,
