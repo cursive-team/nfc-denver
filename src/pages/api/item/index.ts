@@ -1,6 +1,8 @@
 import { verifyAuthToken } from "@/lib/server/auth";
+import { itemWithRequirementsSelector } from "@/lib/server/database";
 import { isUserAdmin } from "@/lib/server/dev";
 import prisma from "@/lib/server/prisma";
+import { ItemWithRequirements } from "@/types";
 import { NextApiRequest, NextApiResponse } from "next";
 import { array, number, object, string } from "yup";
 
@@ -30,7 +32,24 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "POST") {
+  if (req.method === "GET") {
+    const { token } = req.query;
+
+    if (typeof token !== "string") {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    const userId = await verifyAuthToken(token);
+    if (!userId) {
+      return res.status(400).json({ error: "Invalid token" });
+    }
+
+    const items: ItemWithRequirements[] = await prisma.item.findMany(
+      itemWithRequirementsSelector
+    );
+
+    return res.status(200).json(items);
+  } else if (req.method === "POST") {
     try {
       const {
         token,
@@ -70,7 +89,7 @@ export default async function handler(
       return res.status(500).json({ error: "Internal Server Error" });
     }
   } else {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", ["GET", "POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

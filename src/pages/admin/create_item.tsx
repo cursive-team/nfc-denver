@@ -122,7 +122,7 @@ export default function CreateItem() {
           const { itemId } = await response.json();
           setLoading(false);
           toast.success("Item created successfully!");
-          router.push(`/items/${itemId}`);
+          router.push(`/items`);
         },
         onError: () => {
           toast.error("Error uploading image. Please try again.");
