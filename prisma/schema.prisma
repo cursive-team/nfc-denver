@@ -29,6 +29,7 @@ model User {
   sentBenchmarkMessages     BenchmarkMessage[] @relation("BenchmarkMessageSender")
   receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
   questProofs               QuestProof[]       @relation("QuestProofUser")
+  qrCodes                   QrCode[]           @relation("QrCodeUser")
 }
 
 model LocationKey {
@@ -151,6 +152,8 @@ model QuestProof {
   createdAt       DateTime @default(now())
   quest           Quest    @relation(name: "QuestForProof", fields: [questId], references: [id])
   user            User     @relation(name: "QuestProofUser", fields: [userId], references: [id])
+
+  @@unique([questId, userId])
 }
 
 model Item {
@@ -163,4 +166,17 @@ model Item {
   questRequirementIds Int[]
   createdAt           DateTime @default(now())
   questRequirements   Quest[]  @relation("ItemQuestRequirements")
+  qrCodes             QrCode[] @relation("QrCodeItem")
+}
+
+model QrCode {
+  id        String   @id @default(uuid())
+  itemId    Int
+  userId    Int
+  redeemed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  item      Item     @relation(name: "QrCodeItem", fields: [itemId], references: [id])
+  user      User     @relation(name: "QrCodeUser", fields: [userId], references: [id])
+
+  @@unique([itemId, userId])
 }

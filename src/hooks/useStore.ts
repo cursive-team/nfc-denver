@@ -40,10 +40,32 @@ export const useFetchStore = () => {
 };
 
 export const useRedeemStoreItem = () => {
+  const router = useRouter();
+
   return useMutation({
     mutationKey: ["redeemStoreItem"],
-    mutationFn: async (itemId: number) => {
-      // TODO: replace with actual API call
+    mutationFn: async (itemId: number): Promise<string> => {
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        toast.error("You must be logged in to connect");
+        router.push("/login");
+        return "";
+      }
+
+      const response = await fetch(`/api/item/redeem`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemId, token: authToken.value }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const { qrCodeId } = await response.json();
+      return qrCodeId;
     },
   });
 };

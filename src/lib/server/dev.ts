@@ -59,3 +59,21 @@ export const verifyEmailForChipId = (
 export const isUserAdmin = (userId: number): boolean => {
   return true;
 };
+
+export const getBuidlBalance = async (userId: number): Promise<number> => {
+  return 0;
+};
+
+export const addBuidlBalance = async (
+  userId: number,
+  amount: number
+): Promise<boolean> => {
+  return true;
+};
+
+export const subtractBuidlBalance = async (
+  userId: number,
+  amount: number
+): Promise<boolean> => {
+  return true;
+};

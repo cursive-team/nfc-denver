@@ -4,6 +4,7 @@ import { verifyAuthToken } from "@/lib/server/auth"; // hypothetical function fo
 import { ErrorResponse } from "@/types";
 import { getQuestById } from "@/lib/server/database";
 import { verifyProofForQuest } from "@/lib/server/proving";
+import { addBuidlBalance } from "@/lib/server/dev";
 
 type SubmitQuestProofRequest = {
   questId: string;
@@ -60,6 +61,14 @@ export default async function submitProofHandler(
         serializedProof,
       },
     });
+
+    // Add buidl to the user's balance
+    const success = await addBuidlBalance(userId, quest.buidlReward);
+    if (!success) {
+      console.error(
+        `Failed to add buidl balance for quest ${quest.id} to user ${userId}`
+      );
+    }
 
     res.status(200).json({ verified: true, proofId: proof.id });
   } else {

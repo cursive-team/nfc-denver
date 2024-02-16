@@ -9,7 +9,7 @@ export const ITEM_REDEEMED_STORAGE_KEY = "itemRedeemed";
 export type ItemRedeemed = {
   id: string; // Item id
   name: string; // Item name
-  pfId: string; // Id of qr code for item redemption
+  qrId: string; // Id of qr code for item redemption
   ts: string; // Timestamp as ISO string
 };
 
