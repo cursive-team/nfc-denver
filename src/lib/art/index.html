@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Art Blocks project</title>
+    <meta charset="utf-8" />
+    <script id="random-snippet">
+      // On change of window.params call window.render()
+      window.params = {
+        fill: true,
+        stroke: false,
+        abstract: false,
+        upToPubKey: 650,
+      };
+
+      // Set artwork dimensions
+      window.artworkWidth = 1000;
+      window.artworkHeight = 1000;
+
+      // Mock data
+      const generateHash = (random = Math.random) => {
+        let hash = "";
+        for (var i = 0; i < 130; i++)
+          hash += Math.floor(random() * 16).toString(16);
+
+        return hash;
+      };
+
+      const urlParams = new URLSearchParams(location.search);
+      window.myPubKey = urlParams.get("myPubKey") || generateHash();
+
+      window.signatures = Array.from({ length: 100 }, (_) => ({
+        pubKey: generateHash(),
+        timestamp: Date.now(),
+      }));
+
+      console.log(window.myPubKey);
+    </script>
+
+    <!-- <script type="module">
+      // Add UI
+      import GUI from "https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm";
+
+      const gui = new GUI();
+
+      gui.add(window.params, "fill");
+      gui.add(window.params, "stroke");
+      gui.add(window.params, "abstract");
+      gui.add(window.params, "upToPubKey", 1, window.signatures.length, 1);
+
+      gui.onChange((_) => {
+        window.render();
+      });
+    </script> -->
+
+    <style type="text/css">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .artwork-webgl {
+        background: #000;
+        padding: 0;
+        margin: auto;
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas class="artwork-webgl" id="artwork-webgl"></canvas>
+    <!-- WEBPACK will inject the bundle.js here -->
+    <script defer src="./bundle.js"></script>
+  </body>
+</html>
