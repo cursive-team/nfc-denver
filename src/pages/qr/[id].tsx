@@ -1,27 +1,51 @@
 import { useRouter } from "next/router";
 import { Button } from "@/components/Button";
 import { AppBackHeader } from "@/components/AppHeader";
+import { Header } from "@/components/modals/QuestRequirementModal";
+import useSettings from "@/hooks/useSettings";
+import { classed } from "@tw-classed/react";
+
+const Label = classed.span("text-xs text-gray-10 font-light");
+const Description = classed.span("text-gray-12 text-sm font-light");
 
 const QRPage = () => {
+  const { pageWidth } = useSettings();
   const router = useRouter();
   const { id } = router.query;
 
+  const handleRedeem = () => {
+    alert(`Button with ID: ${id} clicked!`);
+
+    // verify user is actually a store employee before nullifying
+  };
+
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-center">
-        Item Redemption Console
-      </h1>
-      <p className="text-center text-gray-500">
-        Click here to redeem an item for this user. Once this is clicked, the QR
-        code will be invalidated and can no longer be used to redeem this item.
-      </p>
-      <div className="flex flex-col items-center min-h-screen p-4 m-0 gap-4">
-        <Button onClick={() => alert(`Button with ID: ${id} clicked!`)}>
-          Click Me
-        </Button>
+      <AppBackHeader redirectTo="/" />
+      <div className="flex flex-col gap-4">
+        <Header title="Item name" />
+        <div className="flex flex-col gap-4">
+          <div
+            className="flex bg-slate-200 rounded bg-center bg-cover"
+            style={{
+              width: `${pageWidth - 32}px`,
+              height: `${pageWidth - 32}px`,
+              backgroundImage: `url(https://picsum.photos/200/200)`,
+            }}
+          />
+          <div className="flex flex-col">
+            <Label>User</Label>
+            <Description>Name of the user</Description>
+          </div>
+          <Button onClick={handleRedeem}>Redeem QR & nullify proof</Button>
+        </div>
       </div>
     </div>
   );
+};
+
+QRPage.getInitialProps = () => {
+  return { showFooter: false, showHeader: false };
 };
 
 export default QRPage;
