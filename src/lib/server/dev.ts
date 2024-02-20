@@ -39,3 +39,15 @@ export const getChipTypeFromChipId = (chipId: string): ChipType | undefined => {
 
   return parsedChipId < 50 ? ChipType.PERSON : ChipType.LOCATION;
 };
+
+/**
+ * Given a chipId and email, check that the email is associated with the chipId
+ * Returns boolean indicating match
+ * TEMPORARY: ALWAYS RETURNS TRUE
+ */
+export const verifyEmailForChipId = (
+  chipId: string,
+  email: string
+): boolean => {
+  return true;
+};

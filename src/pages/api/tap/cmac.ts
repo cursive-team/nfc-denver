@@ -8,7 +8,8 @@ import {
   getChipTypeFromChipId,
 } from "@/lib/server/dev";
 import { sign } from "@/lib/shared/signature";
-import { v4 as uuidv4 } from "uuid";
+import { getCounterMessage } from "babyjubjub-ecdsa";
+const crypto = require("crypto");
 
 export enum TapResponseCode {
   CMAC_INVALID = "CMAC_INVALID",
@@ -64,23 +65,39 @@ export const tapResponseSchema = object({
 
 /**
  * Returns a signature for a given location
+ * Mirrors Arx card signature generation
+ * First 4 bytes of message are an incrementing counter
+ * Remaining 28 bytes are random
  * @param locationId The id of the location for which to generate a signature
- * @param message The message to sign
  */
 export const generateLocationSignature = async (
-  locationId: number,
-  message: string
-): Promise<string> => {
-  const key = await prisma.locationKey.findUnique({
+  locationId: number
+): Promise<{ message: string; signature: string }> => {
+  const locationKey = await prisma.locationKey.findUnique({
     where: {
       locationId,
     },
   });
-  if (!key) {
+  if (!locationKey) {
     throw new Error("Location key not found");
   }
 
-  return sign(key.signaturePrivateKey, message);
+  const { signaturePrivateKey, numPreviousTaps } = locationKey;
+  const msgNonce = numPreviousTaps + 1; // Incrementing counter
+  const randomBytes = crypto.randomBytes(28); // 28 random bytes
+  const message = getCounterMessage(msgNonce, randomBytes.toString("hex"));
+  const signature = sign(signaturePrivateKey, message);
+
+  await prisma.locationKey.update({
+    where: {
+      locationId,
+    },
+    data: {
+      numPreviousTaps: numPreviousTaps + 1,
+    },
+  });
+
+  return { message, signature };
 };
 
 /**
@@ -135,8 +152,7 @@ export default async function handler(
     },
   });
   if (location) {
-    const message = uuidv4().replace(/-/g, ""); // Message should be a hex string
-    const signature = await generateLocationSignature(location.id, message);
+    const { message, signature } = await generateLocationSignature(location.id);
     const locationTapResponse: LocationTapResponse = {
       id: location.id.toString(),
       name: location.name,

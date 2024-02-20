@@ -13,8 +13,8 @@ import { AppBackHeader } from "@/components/AppHeader";
 import toast from "react-hot-toast";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { LocationDetailPlaceholder } from "@/components/placeholders/LocationDetailPlaceholder";
+import { getNonceFromCounterMessage } from "@/lib/client/libhalo";
 
-// TODO: Create shared component for this
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
 
@@ -62,7 +62,6 @@ const LocationDetails = () => {
       >
         {location && (
           <>
-            {/* TODO: Create shared component for Header */}
             <Header title={location.name} label="Location" />
             <div className="flex flex-col gap-4">
               <div
@@ -84,6 +83,15 @@ const LocationDetails = () => {
                     <Description>{`${signature.ts}`}</Description>
                   </div>
                 )}
+                {signature !== undefined &&
+                  getNonceFromCounterMessage(signature.msg) !== undefined && (
+                    <div className="flex flex-col">
+                      <Label>Visitor No.</Label>
+                      <Description>{`${getNonceFromCounterMessage(
+                        signature.msg
+                      )}`}</Description>
+                    </div>
+                  )}
               </div>
             </div>
           </>
