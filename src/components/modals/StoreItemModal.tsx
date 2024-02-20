@@ -128,7 +128,7 @@ const StoreModalItem = ({
         </div>
         {questRequirements.length !== 0 && (
           <ListLayout label="Complete the following quests to redeem">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               {questRequirements.map(
                 (
                   {
