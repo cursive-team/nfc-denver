@@ -1,6 +1,5 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import type { NextApiResponse, NextApiRequest } from "next";
-import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { isUserAdmin } from "@/lib/server/dev";
 

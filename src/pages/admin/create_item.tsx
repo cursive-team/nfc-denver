@@ -72,24 +72,26 @@ export default function CreateItem() {
 
     setLoading(true);
 
-    // Validate quest requirement ids
-    const response = await fetch("/api/item/validate_requirements", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ questReqIds }),
-    });
-    if (!response.ok) {
-      toast.error("Invalid quest requirement ids. Please try again.");
-      setLoading(false);
-      return;
-    }
-    const { valid } = await response.json();
-    if (!valid) {
-      toast.error("Invalid quest requirement ids. Please try again.");
-      setLoading(false);
-      return;
+    if (questReqIds.length !== 0) {
+      // Validate quest requirement ids
+      const response = await fetch("/api/item/validate_requirements", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ questReqIds }),
+      });
+      if (!response.ok) {
+        toast.error("Invalid quest requirement ids. Please try again.");
+        setLoading(false);
+        return;
+      }
+      const { valid } = await response.json();
+      if (!valid) {
+        toast.error("Invalid quest requirement ids. Please try again.");
+        setLoading(false);
+        return;
+      }
     }
 
     await getImageUrlMutation.mutateAsync(
@@ -122,7 +124,7 @@ export default function CreateItem() {
           const { itemId } = await response.json();
           setLoading(false);
           toast.success("Item created successfully!");
-          router.push(`/items`);
+          router.push(`/store`);
         },
         onError: () => {
           toast.error("Error uploading image. Please try again.");
@@ -134,7 +136,6 @@ export default function CreateItem() {
   return (
     <FormStepLayout
       title="Create item"
-      description="Create a new item"
       onSubmit={handleItemCreation}
       actions={
         <div className="flex flex-col gap-4">
@@ -184,13 +185,16 @@ export default function CreateItem() {
         required
       />
       <Input
-        label="Quest Requirement Ids"
-        placeholder="Enter quest requirement ids, comma separated"
+        label="Required Quest IDs"
+        placeholder="Comma separated IDs"
         type="text"
         name="reqIds"
         value={questReqIds.join(",")}
-        onChange={(event) => setQuestReqIds(event.target.value.split(","))}
-        required
+        onChange={(event) =>
+          setQuestReqIds(
+            event.target.value === "" ? [] : event.target.value.split(",")
+          )
+        }
       />
       <div className="relative">
         <InputWrapper error={!imageFile ? "Please select an image." : ""}>
