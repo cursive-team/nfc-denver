@@ -129,6 +129,11 @@ const EncryptionBenchmarkPage = () => {
         }
 
         const { numMessagesReceived } = await response.json();
+        // console.log(
+        //   `Processed messages ${i}-${
+        //     i + batchSize
+        //   }, size ${numMessagesReceived}`
+        // );
         totalNumMessages += numMessagesReceived;
       }
 
@@ -236,6 +241,12 @@ const EncryptionBenchmarkPage = () => {
       {displayState === DisplayState.ENCRYPTION && (
         <FormStepLayout
           title="Encryption benchmark"
+          description="This benchmark will encrypted a bunch of messages and send them to the server. 
+          The subsequent page will time decryption of these messages.
+          Number of Messages = how many messages to encrypt. 
+          Message Length = length of each message to encrypt. 
+          Number of Batches = how many backend requests to separate encrypted messages into. Each batch must have total size <1 MB.
+          "
           onSubmit={handleBeginBenchmark}
           actions={
             <div className="flex flex-col gap-4">
@@ -248,15 +259,9 @@ const EncryptionBenchmarkPage = () => {
             </div>
           }
         >
-          <span className="text-light text-xs text-gray-11 font-normal leading-4 mt-2">
-            This benchmark will encrypted a bunch of messages and send them to
-            the server. The subsequent page will time decryption of these
-            messages. They must be broken into batches to go under the 1MB
-            Vercel limit.
-          </span>
-
           <Input
-            label="Number of messages"
+            label="Number of Messages"
+            placeholder="Number of messages to use in the benchmark"
             type="number"
             name="numMessages"
             value={numMessages}
@@ -264,7 +269,8 @@ const EncryptionBenchmarkPage = () => {
             required
           />
           <Input
-            label="Message length"
+            label="Message Length"
+            placeholder="Length of messages to use in the benchmark"
             type="number"
             name="messageLength"
             value={messageLength}
@@ -272,7 +278,7 @@ const EncryptionBenchmarkPage = () => {
             required
           />
           <Input
-            label="Number of batches"
+            label="Number of Batches"
             placeholder="Number of API requests to batch messages into (each batch must be <1 MB)"
             type="number"
             name="numBatches"

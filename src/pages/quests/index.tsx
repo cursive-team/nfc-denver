@@ -124,7 +124,7 @@ export default function QuestsPage() {
         )}
       </LoadingWrapper>
       <div>
-        <Link href="/create_quest">
+        <Link href="/create-quest">
           <Button size="md" align="left" disabled={isLoading}>
             <span>Create quest</span>
             <div className="ml-auto">
