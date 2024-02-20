@@ -1,20 +1,21 @@
 import { Button } from "@/components/Button";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
 
 const RequestsBenchmark = () => {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-center">Request Benchmark</h1>
-      <p className="text-center text-gray-500">
-        This benchmark will be implemented soonTM.
-      </p>
-      <Link href="/bench">
-        <div className="flex flex-col items-center min-h-screen p-4 m-4 gap-4">
-          <Button className="mb-4 px-6 py-3">Back</Button>
-        </div>
-      </Link>
-    </div>
+    <FormStepLayout title="Requests benchmark" description="TODO">
+      <div className="flex flex-col gap-4">
+        <Link href="/admin/bench" className="link text-center">
+          Back
+        </Link>
+      </div>
+    </FormStepLayout>
   );
+};
+
+RequestsBenchmark.getInitialProps = () => {
+  return { showFooter: false, showHeader: true };
 };
 
 export default RequestsBenchmark;

@@ -235,6 +235,7 @@ const EncryptionBenchmarkPage = () => {
     <>
       {displayState === DisplayState.ENCRYPTION && (
         <FormStepLayout
+          description=""
           title="Encryption benchmark"
           onSubmit={handleBeginBenchmark}
           actions={
@@ -242,19 +243,18 @@ const EncryptionBenchmarkPage = () => {
               <Button loading={isBenchmarking} type="submit">
                 Confirm
               </Button>
-              <Link href="/bench" className="link text-center mb-16">
-                <Button>Back</Button>
+              <Link href="/admin/bench" className="link text-center">
+                Back
               </Link>
             </div>
           }
         >
-          <span className="text-light text-xs text-gray-11 font-normal leading-4 mt-2">
+          <span className="text-light text-xs text-gray-11 font-normal leading-4">
             This benchmark will encrypted a bunch of messages and send them to
             the server. The subsequent page will time decryption of these
             messages. They must be broken into batches to go under the 1MB
             Vercel limit.
           </span>
-
           <Input
             label="Number of messages"
             type="number"
@@ -303,14 +303,18 @@ const EncryptionBenchmarkPage = () => {
             <Button onClick={handleResetBenchmark}>
               Try Another Encryption
             </Button>
-            <Link href="/bench" className="link text-center">
-              <Button>Back to Benches</Button>
+            <Link href="/admin/bench" className="link text-center">
+              Back
             </Link>
           </div>
         </div>
       )}
     </>
   );
+};
+
+EncryptionBenchmarkPage.getInitialProps = () => {
+  return { showFooter: false, showHeader: true };
 };
 
 export default EncryptionBenchmarkPage;

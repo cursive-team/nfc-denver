@@ -4,22 +4,29 @@ import Link from "next/link";
 
 const BenchmarkPage = () => {
   return (
-    <FormStepLayout title="Benchmarks" description="Timing different features">
-      <div className="flex flex-col gap-4">
-        <Link href="/admin/bench/encryption">
-          <Button>Encryption</Button>
-        </Link>
-
-        <Link href="/admin/bench/requests">
-          <Button>Requests</Button>
-        </Link>
-
-        <Link href="/admin/bench/local_storage">
-          <Button>Local Storage</Button>
-        </Link>
-      </div>
+    <FormStepLayout
+      title="Benchmarks"
+      description="Timing different features"
+      actions={
+        <div className="flex flex-col gap-4">
+          <Link href="/admin/bench/encryption">
+            <Button>Encryption</Button>
+          </Link>
+          <Button disabled={true}>Local Storage</Button>
+          <Button disabled={true}>Requests</Button>
+          <Link href="/admin" className="link text-center">
+            Back
+          </Link>
+        </div>
+      }
+    >
+      <></>
     </FormStepLayout>
   );
+};
+
+BenchmarkPage.getInitialProps = () => {
+  return { showFooter: false, showHeader: true };
 };
 
 export default BenchmarkPage;
