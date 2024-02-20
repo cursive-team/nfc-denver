@@ -5,14 +5,16 @@ interface StoreCardProps extends HTMLAttributes<HTMLDivElement> {
   partnerName: string;
   itemName: string;
   itemId: number;
-  pointsRequired?: number;
+  pointsRequired: number;
+  imageUrl: string;
 }
 
 const StoreCard = ({
   partnerName,
   itemName,
   itemId,
-  pointsRequired = 0,
+  pointsRequired,
+  imageUrl,
   ...props
 }: StoreCardProps) => {
   return (
@@ -21,7 +23,7 @@ const StoreCard = ({
         <img
           className="object-cover w-full min-h-[174px] bg-slate-200 "
           alt={`${partnerName} store item`}
-          src={`https://picsum.photos/id/${itemId}/300/300`}
+          src={imageUrl}
         />
       </div>
       <div className="flex flex-col gap-0.5">

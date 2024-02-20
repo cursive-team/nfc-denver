@@ -1,27 +1,71 @@
+import { getAllItemRedeemed, getAuthToken } from "@/lib/client/localStorage";
+import { ItemWithCompletion, ItemWithRequirements } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 export const useFetchStore = () => {
+  const router = useRouter();
+
+  const itemRedeemed = getAllItemRedeemed();
+  const redeemedItemIds: string[] = Object.keys(itemRedeemed);
+
   return useQuery({
     queryKey: ["store"],
-    queryFn: async () => {
-      // TODO: replace with actual API call
-      return Array.from({ length: 10 }).map((_, i) => ({
-        id: i * 10, // makes picsum image better
-        partner: `Partner ${i + 1}`,
-        itemName: `Item ${i + 1}`,
-        points: i * 100,
-        unlocked: i % 2 === 0, // TODO: to implement
-        redeemed: i % 3 === 0, // TODO: to implement
-      }));
+    queryFn: async (): Promise<ItemWithCompletion[]> => {
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        toast.error("You must be logged in to connect");
+        router.push("/login");
+        return [];
+      }
+
+      const response = await fetch(`/api/item?token=${authToken.value}`);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const items = await response.json();
+      return items.map((item: ItemWithRequirements) => {
+        const isCompleted = redeemedItemIds?.includes(item.id.toString());
+
+        return {
+          ...item,
+          isCompleted,
+        };
+      });
     },
   });
 };
 
 export const useRedeemStoreItem = () => {
+  const router = useRouter();
+
   return useMutation({
     mutationKey: ["redeemStoreItem"],
-    mutationFn: async (itemId: number) => {
-      // TODO: replace with actual API call
+    mutationFn: async (itemId: number): Promise<string> => {
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        toast.error("You must be logged in to connect");
+        router.push("/login");
+        return "";
+      }
+
+      const response = await fetch(`/api/item/redeem`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemId, token: authToken.value }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const { qrCodeId } = await response.json();
+      return qrCodeId;
     },
   });
 };

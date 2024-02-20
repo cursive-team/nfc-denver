@@ -237,7 +237,7 @@ const UserDetail = ({
     <div className="flex flex-col gap-8">
       <Header title={title} label="Requirement" completed={completed} />
       <div className="flex flex-col gap-4">
-        <Label>{`${numSigsCollected} person(s) met out of ${numSigsRequired} required`}</Label>
+        <Label>{`${numSigsCollected} met out of ${numSigsRequired} required`}</Label>
         <div>
           {users.map(({ displayName, signaturePublicKey }, index) => {
             const collected = userPubKeysCollected.includes(signaturePublicKey);

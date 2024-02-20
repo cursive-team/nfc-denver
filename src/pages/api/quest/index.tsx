@@ -4,6 +4,7 @@ import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { ErrorResponse, QuestWithRequirements } from "@/types";
 import { getServerRandomNullifierRandomness } from "@/lib/server/proving";
+import { isUserAdmin } from "@/lib/server/dev";
 
 export type QuestRequirementRequest = {
   name: string;
@@ -64,6 +65,11 @@ export default async function handler(
     const userId = await verifyAuthToken(token);
     if (!userId) {
       res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    if (!isUserAdmin(userId)) {
+      res.status(403).json({ error: "Unauthorized" });
       return;
     }
 

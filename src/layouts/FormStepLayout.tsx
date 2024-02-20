@@ -24,7 +24,7 @@ const FormStepLayout = ({
   return (
     <form {...props} className={`flex flex-col w-full grow focus ${className}`}>
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 mb-4">
           {description && (
             <span className="text-light text-xs text-gray-11 font-normal leading-4">
               {description}

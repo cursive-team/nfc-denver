@@ -1,30 +1,25 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import type { NextApiResponse, NextApiRequest } from "next";
-import prisma from "@/lib/server/prisma";
-import { getChipIdFromIykCmac } from "@/lib/server/dev";
+import { verifyAuthToken } from "@/lib/server/auth";
+import { isUserAdmin } from "@/lib/server/dev";
 
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse
 ) {
-  const { cmac } = request.query;
+  const { token } = request.query;
 
-  if (typeof cmac !== "string") {
+  if (typeof token !== "string") {
     return response.status(400).json({ error: "Invalid input parameters" });
   }
 
-  const { chipId } = getChipIdFromIykCmac(cmac);
-  if (!chipId) {
-    return response.status(400).json({ error: "Invalid cmac" });
+  const userId = await verifyAuthToken(token);
+  if (!userId) {
+    return response.status(401).json({ error: "Invalid or expired token" });
   }
 
-  const existingLocation = await prisma.location.findUnique({
-    where: {
-      chipId,
-    },
-  });
-  if (existingLocation) {
-    return response.status(400).json({ error: "Location already registered" });
+  if (!isUserAdmin(userId)) {
+    return response.status(403).json({ error: "Unauthorized" });
   }
 
   const body = request.body as HandleUploadBody;
@@ -37,12 +32,12 @@ export default async function handler(
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
           tokenPayload: JSON.stringify({
-            chipId,
+            userId,
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("location image upload completed", tokenPayload);
+        console.log("item image upload completed", tokenPayload);
       },
     });
 
