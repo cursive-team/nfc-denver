@@ -273,7 +273,6 @@ const EncryptionBenchmarkPage = () => {
           />
           <Input
             label="Number of batches"
-            placeholder="Number of API requests to batch messages into (each batch must be <1 MB)"
             type="number"
             name="numBatches"
             className="mb-20"
