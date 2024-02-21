@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import {
   LocationRequirement,
   QuestRequirementType,
-  QuestWithRequirements,
+  QuestWithRequirementsAndItems,
   UserRequirement,
 } from "@/types";
 import { Button } from "@/components/Button";
@@ -34,17 +34,23 @@ import {
   togglePinQuestById,
 } from "@/lib/client/localStorage/questPinned";
 import toast from "react-hot-toast";
+import { PointCard } from "@/components/cards/PointCard";
 
 interface QuestDetailProps {
   loading?: boolean;
-  quest: Partial<QuestWithRequirements> | null;
+  quest: Partial<QuestWithRequirementsAndItems> | null;
 }
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 
 const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
-  const { name: title, description, buidlReward } = quest ?? {};
+  const {
+    name: title,
+    description,
+    buidlReward,
+    requiredForItems,
+  } = quest ?? {};
   const [isQuestPinned, setIsQuestPinned] = useState(
     pinnedQuests.current.has(quest?.id ?? 0)
   );
@@ -80,7 +86,19 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
-        {buidlReward && <PartnerItemCard label="Reward" />}
+        {/* <div className="flex flex-row items-center gap-4">
+          <Label>Reward(s)</Label>
+          {buidlReward && <PointCard className="center" point={buidlReward} />}
+          {requiredForItems &&
+            requiredForItems.map((item, index) => (
+              <PartnerItemCard
+                key={index}
+                partner={item.sponsor}
+                item={item.name}
+                image={item.imageUrl}
+              />
+            ))}
+        </div> */}
       </div>
     </div>
   );

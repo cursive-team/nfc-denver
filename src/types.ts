@@ -44,6 +44,15 @@ export type LocationRequirement = {
   locations: LocationRequirementPreview[];
 };
 
+export type ItemPreview = {
+  id: number;
+  name: string;
+  imageUrl: string;
+  sponsor: string;
+  description: string;
+  buidlCost: number;
+};
+
 export type QuestWithRequirements = Quest & {
   userRequirements: UserRequirement[];
   locationRequirements: LocationRequirement[];
@@ -51,6 +60,10 @@ export type QuestWithRequirements = Quest & {
 
 export type QuestWithCompletion = QuestWithRequirements & {
   isCompleted?: boolean;
+};
+
+export type QuestWithRequirementsAndItems = QuestWithRequirements & {
+  requiredForItems: ItemPreview[];
 };
 
 export type QuestProof = {
