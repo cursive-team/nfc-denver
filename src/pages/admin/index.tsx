@@ -12,10 +12,10 @@ const AdminPage = () => {
           <Link href="/admin/register">
             <Button>Register new user</Button>
           </Link>
-          <Link href="/admin/tap_person">
+          <Link href="/admin/person">
             <Button>Tap person</Button>
           </Link>
-          <Link href="/admin/tap_location">
+          <Link href="/admin/location">
             <Button>Tap location</Button>
           </Link>
           <Link href="/admin/create_quest">
