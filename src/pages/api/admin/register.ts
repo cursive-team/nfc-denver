@@ -7,9 +7,8 @@ export default async function handler(
   res: NextApiResponse<{ chipId: string } | ErrorResponse>
 ) {
   if (req.method === "GET") {
-    let attempts = 0;
-    while (attempts < 1000) {
-      const randomId = Math.floor(Math.random() * 1000).toString();
+    while (true) {
+      const randomId = Math.floor(Math.random() * 10000).toString();
       const existingUser = await prisma.user.findUnique({
         where: { chipId: randomId },
       });
@@ -17,13 +16,7 @@ export default async function handler(
       if (!existingUser) {
         return res.status(200).json({ chipId: randomId });
       }
-
-      attempts++;
     }
-
-    return res
-      .status(500)
-      .json({ error: "Unable to generate a unique chipId" });
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).json({ error: `Method ${req.method} Not Allowed` });

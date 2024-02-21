@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
 import { AdminLocationInfo } from "../api/admin/locations";
+import { AppBackHeader } from "@/components/AppHeader";
 
 const AdminTapLocationPage = () => {
   const router = useRouter();
@@ -28,33 +29,36 @@ const AdminTapLocationPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-8">
-      <Header
-        title="Mock Tapping a Location Card"
-        label="Click on the location you want to tap"
-      />
-      <div className="flex flex-col gap-4">
-        <div>
-          {locations.map(({ id, name, chipId }, index) => {
-            return (
-              <div
-                key={index}
-                onClick={() => handleTapLocation(chipId)}
-                className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                    <Icons.home size={12} />
+    <div>
+      <div className="flex flex-col gap-8">
+        <Header title="Mock tap a location" />
+        <div className="flex flex-col gap-4">
+          <div>
+            {locations.map(({ id, name, chipId }, index) => {
+              return (
+                <div
+                  key={index}
+                  onClick={() => handleTapLocation(chipId)}
+                  className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                      <Icons.home size={12} />
+                    </div>
+                    <Card.Title>{name}</Card.Title>
                   </div>
-                  <Card.Title>{name}</Card.Title>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+AdminTapLocationPage.getInitialProps = () => {
+  return { showFooter: false, showHeader: true };
 };
 
 export default AdminTapLocationPage;

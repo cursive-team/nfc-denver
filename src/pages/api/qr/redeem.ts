@@ -24,7 +24,7 @@ export default async function handler(
       return res.status(401).json({ error: "Invalid token" });
     }
     if (!isUserAdmin(userId)) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ error: "You are not an admin" });
     }
 
     if (typeof id !== "string") {

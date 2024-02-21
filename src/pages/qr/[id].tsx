@@ -1,23 +1,25 @@
 import { useRouter } from "next/router";
 import { Button } from "@/components/Button";
 import { AppBackHeader } from "@/components/AppHeader";
-import { Header } from "@/components/modals/QuestRequirementModal";
-import { classed } from "@tw-classed/react";
 import toast from "react-hot-toast";
 import { QRCodeResponseType } from "../api/qr";
 import { useEffect, useState } from "react";
-import { getAuthToken, getKeys, getProfile } from "@/lib/client/localStorage";
+import { getAuthToken, getKeys } from "@/lib/client/localStorage";
 import { encryptItemRedeemedMessage } from "@/lib/client/jubSignal";
 import { MessageRequest } from "../api/messages";
-
-const Label = classed.span("text-xs text-gray-10 font-light");
-const Description = classed.span("text-gray-12 text-sm font-light");
+import { Spinner } from "@/components/Spinner";
 
 enum QRPageDisplayState {
   DISPLAY,
   SUCCESS,
   FAILURE,
 }
+
+const QRPageDisplayStateText: Record<QRPageDisplayState, string> = {
+  [QRPageDisplayState.DISPLAY]: "Redeem item & nullify QR",
+  [QRPageDisplayState.SUCCESS]: "Redemption succeeded!",
+  [QRPageDisplayState.FAILURE]: "Redemption failed.",
+};
 
 const QRPage = () => {
   const router = useRouter();
@@ -127,57 +129,19 @@ const QRPage = () => {
   };
 
   if (!qrCodeData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="my-auto mx-auto">
+        <Spinner label="Item redemption data is loading." />
+      </div>
+    );
   }
 
   const { item } = qrCodeData;
-
-  const getHeaderText = (): string => {
-    return displayState === QRPageDisplayState.DISPLAY
-      ? "Item Redemption"
-      : displayState === QRPageDisplayState.SUCCESS
-      ? "Item Redemption: SUCCESS"
-      : "Item Redemption: FAILURE";
-  };
-
-  const getBodyComponent = () => {
-    if (displayState === QRPageDisplayState.DISPLAY) {
-      return (
-        <div className="flex flex-col gap-4">
-          <Label>
-            Click the button below to redeem this item for the user.
-          </Label>
-          <Description>
-            If this proof has already been used, redemption will not succeed.
-            NOTE: You must be logged in as an admin to use this feature.
-          </Description>
-          <Button onClick={handleRedeem}>Redeem Item</Button>
-        </div>
-      );
-    } else if (displayState === QRPageDisplayState.SUCCESS) {
-      return (
-        <div className="flex flex-col gap-4">
-          <Label>Item Redemption: SUCCESS</Label>
-          <Description>
-            The item has been successfully redeemed for the user.
-          </Description>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex flex-col gap-4">
-          <Label>Item Redemption: FAILURE</Label>
-          <Description>This QR code has already been redeemed.</Description>
-        </div>
-      );
-    }
-  };
 
   return (
     <div>
       <AppBackHeader redirectTo="/" />
       <div className="flex flex-col gap-4">
-        <Header title={getHeaderText()} />
         <div className="flex flex-col gap-4 items-center">
           <img
             className="flex bg-slate-200 rounded bg-center bg-cover"
@@ -194,7 +158,12 @@ const QRPage = () => {
               <h2 className="text-sm text-gray-12">{item.name}</h2>
             </div>
           </div>
-          {getBodyComponent()}
+          <Button
+            disabled={displayState !== QRPageDisplayState.DISPLAY}
+            onClick={handleRedeem}
+          >
+            {QRPageDisplayStateText[displayState]}
+          </Button>
         </div>
       </div>
     </div>

@@ -10,13 +10,13 @@ const AdminPage = () => {
       actions={
         <div className="flex flex-col gap-4">
           <Link href="/admin/register">
-            <Button>Register a New User</Button>
+            <Button>Register new user</Button>
           </Link>
           <Link href="/admin/tap_person">
-            <Button>Tap Person</Button>
+            <Button>Tap person</Button>
           </Link>
           <Link href="/admin/tap_location">
-            <Button>Tap Location</Button>
+            <Button>Tap location</Button>
           </Link>
           <Link href="/admin/create_quest">
             <Button>Create quest</Button>
