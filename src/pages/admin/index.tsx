@@ -1,7 +1,6 @@
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
-import { Form } from "react-hook-form";
 
 const AdminPage = () => {
   return (
@@ -10,6 +9,15 @@ const AdminPage = () => {
       description="Gated by admin permissions"
       actions={
         <div className="flex flex-col gap-4">
+          <Link href="/admin/register">
+            <Button>Register a New User</Button>
+          </Link>
+          <Link href="/admin/tap_person">
+            <Button>Tap Person</Button>
+          </Link>
+          <Link href="/admin/tap_location">
+            <Button>Tap Location</Button>
+          </Link>
           <Link href="/admin/create_quest">
             <Button>Create quest</Button>
           </Link>

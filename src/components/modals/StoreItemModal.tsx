@@ -121,8 +121,9 @@ const StoreModalItem = ({
             <Button
               loading={redeemStoreItemMutation.isPending}
               onClick={onRedeemItem}
+              disabled={storeItem.isCompleted}
             >
-              Redeem
+              {storeItem.isCompleted ? "Item Redeemed" : "Redeem"}
             </Button>
           )}
         </div>

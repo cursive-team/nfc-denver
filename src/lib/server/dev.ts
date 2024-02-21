@@ -12,8 +12,8 @@ export const getChipIdFromIykCmac = (
     return { chipId: undefined, isValid: false };
   }
 
-  // TEMPORARY: CHIPS ARE ONLY VALID WITH IDS FROM 0-99
-  const chipIdExists = chipId >= 0 && chipId < 100;
+  // TEMPORARY: CHIPS ARE ONLY VALID WITH IDS FROM 0-1999
+  const chipIdExists = chipId >= 0 && chipId < 2000;
   return { chipId: chipIdExists ? cmac : undefined, isValid: true };
 };
 
@@ -25,7 +25,7 @@ export enum ChipType {
 /**
  * Given a chipId, returns whether the chip is a person or location card
  * Returns undefined if the chipId is invalid
- * TEMPORARY: PERSON CARDS HAVE CHIP IDS < 50, LOCATION CARDS HAVE CHIP IDS >= 50
+ * TEMPORARY: PERSON CARDS HAVE CHIP IDS < 1000, LOCATION CARDS HAVE CHIP IDS >= 50
  */
 export const getChipTypeFromChipId = (chipId: string): ChipType | undefined => {
   const parsedChipId = parseInt(chipId);
@@ -33,11 +33,11 @@ export const getChipTypeFromChipId = (chipId: string): ChipType | undefined => {
     return undefined;
   }
 
-  if (parsedChipId < 0 || parsedChipId >= 100) {
+  if (parsedChipId < 0 || parsedChipId >= 2000) {
     return undefined;
   }
 
-  return parsedChipId < 50 ? ChipType.PERSON : ChipType.LOCATION;
+  return parsedChipId < 1000 ? ChipType.PERSON : ChipType.LOCATION;
 };
 
 /**
