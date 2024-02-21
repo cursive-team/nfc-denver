@@ -1,9 +1,9 @@
 import prisma from "@/lib/server/prisma";
-import { QuestWithRequirements } from "@/types";
+import { QuestWithRequirementsAndItems } from "@/types";
 
 export const getQuestById = async (
   id: number
-): Promise<QuestWithRequirements | null> => {
+): Promise<QuestWithRequirementsAndItems | null> => {
   return await prisma.quest.findUnique({
     where: { id },
     include: {
@@ -34,6 +34,16 @@ export const getQuestById = async (
               signaturePublicKey: true,
             },
           },
+        },
+      },
+      requiredForItems: {
+        select: {
+          id: true,
+          name: true,
+          sponsor: true,
+          description: true,
+          imageUrl: true,
+          buidlCost: true,
         },
       },
     },

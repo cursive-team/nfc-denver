@@ -5,16 +5,19 @@ import {
   decryptMessage,
   encryptedMessageSchema,
   inboundTapMessageSchema,
+  itemRedeemedMessageSchema,
   locationTapMessageSchema,
   outboundTapMessageSchema,
   questCompletedMessageSchema,
 } from "./jubSignal";
 import {
   Activity,
+  ItemRedeemed,
   LocationSignature,
   QuestCompleted,
   User,
   getActivities,
+  getAllItemRedeemed,
   getAllQuestCompleted,
   getKeys,
   getLocationSignatures,
@@ -22,6 +25,7 @@ import {
   getSession,
   getUsers,
   saveActivities,
+  saveAllItemRedeemed,
   saveAllQuestCompleted,
   saveLocationSignatures,
   saveSession,
@@ -113,22 +117,30 @@ export const loadMessages = async ({
     ? {}
     : getLocationSignatures();
   const existingQuestCompleted = forceRefresh ? {} : getAllQuestCompleted();
+  const existingItemRedeemed = forceRefresh ? {} : getAllItemRedeemed();
   const existingActivities = forceRefresh ? [] : getActivities();
-  const { newUsers, newLocationSignatures, newQuestCompleted, newActivities } =
-    await processEncryptedMessages({
-      messages,
-      recipientPrivateKey: keys.encryptionPrivateKey,
-      recipientPublicKey: profile.encryptionPublicKey,
-      existingUsers,
-      existingLocationSignatures,
-      existingQuestCompleted,
-      existingActivities,
-    });
+  const {
+    newUsers,
+    newLocationSignatures,
+    newQuestCompleted,
+    newItemRedeemed,
+    newActivities,
+  } = await processEncryptedMessages({
+    messages,
+    recipientPrivateKey: keys.encryptionPrivateKey,
+    recipientPublicKey: profile.encryptionPublicKey,
+    existingUsers,
+    existingLocationSignatures,
+    existingQuestCompleted,
+    existingItemRedeemed,
+    existingActivities,
+  });
 
   // Save users, location signatures, activities to localStorage
   saveUsers(newUsers);
   saveLocationSignatures(newLocationSignatures);
   saveAllQuestCompleted(newQuestCompleted);
+  saveAllItemRedeemed(newItemRedeemed);
   saveActivities(newActivities);
 
   // Update the session
@@ -144,11 +156,13 @@ const processEncryptedMessages = async (args: {
   existingUsers: Record<string, User>;
   existingLocationSignatures: Record<string, LocationSignature>;
   existingQuestCompleted: Record<string, QuestCompleted>;
+  existingItemRedeemed: Record<string, ItemRedeemed>;
   existingActivities: Activity[];
 }): Promise<{
   newUsers: Record<string, User>;
   newLocationSignatures: Record<string, LocationSignature>;
   newQuestCompleted: Record<string, QuestCompleted>;
+  newItemRedeemed: Record<string, ItemRedeemed>;
   newActivities: Activity[];
 }> => {
   const {
@@ -158,6 +172,7 @@ const processEncryptedMessages = async (args: {
     existingUsers: users,
     existingLocationSignatures: locationSignatures,
     existingQuestCompleted: questCompleted,
+    existingItemRedeemed: itemRedeemed,
     existingActivities: activities,
   } = args;
 
@@ -408,6 +423,43 @@ const processEncryptedMessages = async (args: {
         } finally {
           break;
         }
+      case JUB_SIGNAL_MESSAGE_TYPE.ITEM_REDEEMED:
+        try {
+          const { id, name, qrId } = await itemRedeemedMessageSchema.validate(
+            data
+          );
+          const item = itemRedeemed[id];
+          if (item) {
+            item.id = id;
+            item.name = name;
+            item.qrId = qrId;
+            item.ts = metadata.timestamp.toISOString();
+
+            itemRedeemed[id] = item;
+          } else {
+            itemRedeemed[id] = {
+              id,
+              name,
+              qrId,
+              ts: metadata.timestamp.toISOString(),
+            };
+          }
+
+          const activity = {
+            type: JUB_SIGNAL_MESSAGE_TYPE.ITEM_REDEEMED,
+            name,
+            id,
+            ts: metadata.timestamp.toISOString(),
+          };
+          activities.push(activity);
+        } catch (error) {
+          console.error(
+            "Invalid item redeemed message received from server: ",
+            message
+          );
+        } finally {
+          break;
+        }
       default:
         console.error("Received invalid message type");
     }
@@ -419,6 +471,7 @@ const processEncryptedMessages = async (args: {
     newUsers: users,
     newLocationSignatures: locationSignatures,
     newQuestCompleted: questCompleted,
+    newItemRedeemed: itemRedeemed,
     newActivities: activities,
   };
 };

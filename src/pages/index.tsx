@@ -163,6 +163,22 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           </div>
         </Link>
       );
+    case JUB_SIGNAL_MESSAGE_TYPE.ITEM_REDEEMED:
+      return (
+        <div className="flex justify-between py-1">
+          <div className="flex items-center gap-2">
+            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+              <Icons.store />
+            </div>
+            <Card.Title>
+              <div>
+                {"Redeemed "} <u>{name}</u>
+              </div>
+            </Card.Title>
+          </div>
+          <Card.Description>{date}</Card.Description>
+        </div>
+      );
     default:
       return null;
   }
