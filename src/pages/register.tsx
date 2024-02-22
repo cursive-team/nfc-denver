@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/Checkbox";
 import { Icons } from "@/components/Icons";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
+import { AppBackHeader } from "@/components/AppHeader";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -408,178 +409,189 @@ export default function Register() {
         </FormStepLayout>
       )}
       {displayState === DisplayState.INPUT_CODE && (
-        <FormStepLayout
-          title={`We've just sent you a six digit code to ${email}`}
-          description="February 23rd"
-          className="pt-4"
-          onSubmit={handleCodeSubmit}
-        >
-          <Input
-            type="text"
-            name="code"
-            value={code}
-            label="6-digit code"
-            placeholder="Confirm your 6-digit code"
-            onChange={handleCodeChange}
-            required
+        <div className="flex flex-col grow">
+          <AppBackHeader
+            label="Email"
+            onBackClick={() => setDisplayState(DisplayState.INPUT_EMAIL)}
           />
-          <Button loading={loading} type="submit">
-            Continue
-          </Button>
-        </FormStepLayout>
+          <FormStepLayout
+            title={`We've just sent you a six digit code to ${email}`}
+            description="February 23rd"
+            className="pt-4 grow"
+            onSubmit={handleCodeSubmit}
+          >
+            <Input
+              type="text"
+              name="code"
+              value={code}
+              label="6-digit code"
+              placeholder="Confirm your 6-digit code"
+              onChange={handleCodeChange}
+              required
+            />
+            <Button loading={loading} type="submit">
+              Continue
+            </Button>
+          </FormStepLayout>
+        </div>
       )}
       {displayState === DisplayState.INPUT_SOCIAL && (
-        <FormStepLayout
-          title="Social settings"
-          description="1/2"
-          onSubmit={handleSocialSubmit}
-          className="pt-4"
-          header={
-            <div className="flex flex-col gap-4">
-              <span className="text-sm text-gray-11 font-light">
-                You can choose which social channels to share each time you tap
-                someone else. You can change these at any time in the app.
-              </span>
-              <Input
-                type="text"
-                name="displayName"
-                label="Display name"
-                placeholder="Choose a display name"
-                value={displayName}
-                onChange={handleDisplayNameChange}
-                required
-              />
-              <Input
-                type="text"
-                name="twitterUsername"
-                label="X (Optional)"
-                placeholder="twitter.com/username"
-                value={twitterUsername}
-                onChange={handleTwitterUsernameChange}
-              />
-              <Input
-                type="text"
-                name="telegramUsername"
-                label="Telegram (Optional)"
-                placeholder="Telegram username"
-                value={telegramUsername}
-                onChange={handleTelegramUsernameChange}
-              />
-              <Input
-                type="text"
-                name="farcasterUsername"
-                label="Farcaster (Optional)"
-                placeholder="Farcaster username"
-                value={farcasterUsername}
-                onChange={handleFarcasterUsernameChange}
-              />
-              <Input
-                type="text"
-                name="bio"
-                label="Bio (Optional)"
-                placeholder="Notes about yourself"
-                value={bio}
-                onChange={handleBioChange}
-              />
-            </div>
-          }
-        >
-          <Button type="submit">Create account</Button>
-        </FormStepLayout>
+        <div className="flex flex-col grow">
+          <AppBackHeader
+            label="Email"
+            // no need to get back to code, redirect to email input
+            onBackClick={() => setDisplayState(DisplayState.INPUT_EMAIL)}
+          />
+          <FormStepLayout
+            title="Social settings"
+            description="1/2"
+            onSubmit={handleSocialSubmit}
+            className="pt-4"
+            header={
+              <div className="flex flex-col gap-4">
+                <span className="text-sm text-gray-11 font-light">
+                  You can choose which social channels to share each time you
+                  tap someone else. You can change these at any time in the app.
+                </span>
+                <Input
+                  type="text"
+                  name="displayName"
+                  label="Display name"
+                  placeholder="Choose a display name"
+                  value={displayName}
+                  onChange={handleDisplayNameChange}
+                  required
+                />
+                <Input
+                  type="text"
+                  name="twitterUsername"
+                  label="X (Optional)"
+                  placeholder="twitter.com/username"
+                  value={twitterUsername}
+                  onChange={handleTwitterUsernameChange}
+                />
+                <Input
+                  type="text"
+                  name="telegramUsername"
+                  label="Telegram (Optional)"
+                  placeholder="Telegram username"
+                  value={telegramUsername}
+                  onChange={handleTelegramUsernameChange}
+                />
+                <Input
+                  type="text"
+                  name="farcasterUsername"
+                  label="Farcaster (Optional)"
+                  placeholder="Farcaster username"
+                  value={farcasterUsername}
+                  onChange={handleFarcasterUsernameChange}
+                />
+                <Input
+                  type="text"
+                  name="bio"
+                  label="Bio (Optional)"
+                  placeholder="Notes about yourself"
+                  value={bio}
+                  onChange={handleBioChange}
+                />
+              </div>
+            }
+          >
+            <Button type="submit">Create account</Button>
+          </FormStepLayout>
+        </div>
       )}
       {displayState === DisplayState.CHOOSE_CUSTODY && (
-        <FormStepLayout
-          onSubmit={handleCustodySubmit}
-          description="2/2"
-          title="Ownership & analytics consent"
-          className="pt-4"
-          header={
-            <fieldset className="flex flex-col gap-6">
-              <span className="text-gray-11 text-sm">
-                IYK has partnerned with Cursive to integrate ZK tech into this
-                experience to enable full data ownership and portability. Choose
-                if you want to enable it.
-              </span>
-              <Radio
-                id="selfCustody"
-                name="custody"
-                value="self"
-                label="Self custody"
-                description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
-                checked={!wantsServerCustody}
-                onChange={() => setWantsServerCustody(false)}
-              />
-              <Radio
-                id="serverCustody"
-                type="radio"
-                name="custody"
-                value="server"
-                label="Server custody"
-                description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
-                checked={wantsServerCustody}
-                onChange={() => setWantsServerCustody(true)}
-              />
-              <span className="text-gray-11 text-sm">
-                If we have your consent, Cursive will use client-side
-                performance analytics to determine how to improve the app. This
-                will never include any identifying information.
-              </span>
-              <Checkbox
-                id="allowAnalytics"
-                label="I consent to sharing analytics data"
-                checked={allowsAnalytics}
-                onChange={setAllowAnalytics}
-                disabled={false}
-              />
-            </fieldset>
-          }
-        >
-          <Button type="submit">Continue</Button>
-        </FormStepLayout>
+        <div className="flex flex-col grow">
+          <AppBackHeader
+            label="Social settings"
+            onBackClick={() => setDisplayState(DisplayState.INPUT_SOCIAL)}
+          />
+          <FormStepLayout
+            onSubmit={handleCustodySubmit}
+            description="2/2"
+            title="Ownership & analytics consent"
+            className="pt-4"
+            header={
+              <fieldset className="flex flex-col gap-6">
+                <span className="text-gray-11 text-sm">
+                  IYK has partnerned with Cursive to integrate ZK tech into this
+                  experience to enable full data ownership and portability.
+                  Choose if you want to enable it.
+                </span>
+                <Radio
+                  id="selfCustody"
+                  name="custody"
+                  value="self"
+                  label="Self custody"
+                  description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
+                  checked={!wantsServerCustody}
+                  onChange={() => setWantsServerCustody(false)}
+                />
+                <Radio
+                  id="serverCustody"
+                  type="radio"
+                  name="custody"
+                  value="server"
+                  label="Server custody"
+                  description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
+                  checked={wantsServerCustody}
+                  onChange={() => setWantsServerCustody(true)}
+                />
+                <span className="text-gray-11 text-sm">
+                  If we have your consent, Cursive will use client-side
+                  performance analytics to determine how to improve the app.
+                  This will never include any identifying information.
+                </span>
+                <Checkbox
+                  id="allowAnalytics"
+                  label="I consent to sharing analytics data"
+                  checked={allowsAnalytics}
+                  onChange={setAllowAnalytics}
+                  disabled={false}
+                />
+              </fieldset>
+            }
+          >
+            <Button type="submit">Continue</Button>
+          </FormStepLayout>
+        </div>
       )}
       {displayState === DisplayState.INPUT_PASSWORD && (
-        <FormStepLayout
-          className="pt-4"
-          title={
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  setDisplayState(DisplayState.CHOOSE_CUSTODY);
-                }}
-                type="button"
-                className="flex gap-2 items-center"
-              >
-                <Icons.arrowLeft />
-                <span className="text-xs text-gray-11">Choose custody</span>
-              </button>
-              <span>Master password</span>
-            </div>
-          }
-          onSubmit={handleCreateSelfCustodyAccount}
-        >
-          <Input
-            type="password"
-            name="password"
-            label="Master password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
+        <div className="flex flex-col grow">
+          <AppBackHeader
+            label="Choose custody"
+            onBackClick={() => setDisplayState(DisplayState.CHOOSE_CUSTODY)}
           />
-          <Input
-            type="password"
-            name="confirmPassword"
-            label="Confirm master password"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            required
-          />
-          <span className="text-gray-11 text-sm">
-            This master password is used to encrypt a backup of your interaction
-            data on our server. You are responsible for saving this password
-            and/or manually backing up your data from the app.
-          </span>
-          <Button type="submit">Create account</Button>
-        </FormStepLayout>
+          <FormStepLayout
+            className="pt-4"
+            title={<span>Master password</span>}
+            onSubmit={handleCreateSelfCustodyAccount}
+          >
+            <Input
+              type="password"
+              name="password"
+              label="Master password"
+              value={password}
+              onChange={handlePasswordChange}
+              required
+            />
+            <Input
+              type="password"
+              name="confirmPassword"
+              label="Confirm master password"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              required
+            />
+            <span className="text-gray-11 text-sm">
+              This master password is used to encrypt a backup of your
+              interaction data on our server. You are responsible for saving
+              this password and/or manually backing up your data from the app.
+            </span>
+            <Button type="submit">Create account</Button>
+          </FormStepLayout>
+        </div>
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
         <div className="my-auto mx-auto">

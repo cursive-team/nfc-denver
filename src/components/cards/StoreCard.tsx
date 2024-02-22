@@ -21,7 +21,7 @@ const StoreCard = ({
     <div className="flex flex-col gap-2" {...props}>
       <div className="rounded-[2px] overflow-hidden">
         <img
-          className="object-cover w-full min-h-[174px] bg-slate-200 "
+          className="object-cover w-full h-[174px] bg-slate-200 bg-center"
           alt={`${partnerName} store item`}
           src={imageUrl}
         />
