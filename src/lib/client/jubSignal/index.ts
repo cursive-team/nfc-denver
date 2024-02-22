@@ -1,9 +1,11 @@
 import { object, string, date } from "yup";
 import { decrypt, encrypt } from "../encryption";
+export * from "./registered";
 export * from "./outboundTap";
 export * from "./inboundTap";
 export * from "./locationTap";
 export * from "./questCompleted";
+export * from "./itemRedeemed";
 
 export enum JUB_SIGNAL_MESSAGE_TYPE {
   REGISTERED = "R", // A message you send to yourself indicating you are registered
@@ -11,6 +13,7 @@ export enum JUB_SIGNAL_MESSAGE_TYPE {
   INBOUND_TAP = "IT", // A message you send to someone else indicating you tapped them
   LOCATION_TAP = "LT", // A message you send to yourself indicating you tapped a location
   QUEST_COMPLETED = "QC", // A message you send to yourself indicating you completed a quest
+  ITEM_REDEEMED = "IR", // A message sent to you indicating you redeemed an item
 }
 
 export type MessageContents = {

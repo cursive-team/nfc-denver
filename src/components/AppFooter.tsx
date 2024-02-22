@@ -65,7 +65,9 @@ const AppFooter = () => {
           const isHome = pathname === "/" && route.href === "/";
 
           // is home or the first part of the path matches the first part of the href
-          const isActive = isHome || pathParts[0] === pathname.split("/")[1];
+          const isActive =
+            isHome ||
+            (pathname !== null && pathParts[0] === pathname.split("/")[1]);
 
           return <TabItem key={index} {...route} isActive={isActive} />;
         })}

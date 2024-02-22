@@ -42,7 +42,7 @@ export default async function handler(
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("blob upload completed", tokenPayload);
+        console.log("location image upload completed", tokenPayload);
       },
     });
 

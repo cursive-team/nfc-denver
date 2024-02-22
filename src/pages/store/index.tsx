@@ -6,11 +6,12 @@ import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useFetchStore } from "@/hooks/useStore";
 import { filterArrayByValue } from "@/lib/shared/utils";
 import { StoreSortMapping, StoreSortMappingType } from "@/shared/constants";
+import { ItemWithCompletion } from "@/types";
 import React, { useState } from "react";
 
 export default function StorePage() {
   const [itemModalOpen, setItemModalOpen] = useState(false);
-  const [storeItem, setStoreItem] = useState<any | null>(null);
+  const [storeItem, setStoreItem] = useState<ItemWithCompletion>();
   const [selectedOption, setSelectedOption] =
     useState<StoreSortMappingType>("ALL");
 
@@ -30,15 +31,17 @@ export default function StorePage() {
 
   return (
     <>
-      <StoreModalItem
-        isOpen={itemModalOpen}
-        setIsOpen={setItemModalOpen}
-        storeItem={storeItem}
-        onClose={() => {
-          setItemModalOpen(false);
-          setStoreItem(null); // reset selected store item
-        }}
-      />
+      {storeItem && (
+        <StoreModalItem
+          isOpen={itemModalOpen}
+          setIsOpen={setItemModalOpen}
+          storeItem={storeItem}
+          onClose={() => {
+            setItemModalOpen(false);
+            setStoreItem(undefined); // reset selected store item
+          }}
+        />
+      )}
       <div className="flex flex-col gap-4">
         <Filters
           label="Sort"
@@ -55,10 +58,11 @@ export default function StorePage() {
           {storeFilteredItems?.map((storeItem, index) => (
             <StoreCard
               key={`${storeItem.id}-${index}`}
-              partnerName={storeItem.partner}
-              itemName={storeItem.itemName}
+              partnerName={storeItem.sponsor}
+              itemName={storeItem.name}
               itemId={storeItem.id}
-              pointsRequired={storeItem.points}
+              pointsRequired={storeItem.buidlCost}
+              imageUrl={storeItem.imageUrl}
               onClick={() => {
                 setStoreItem(storeItem);
                 setItemModalOpen(true);

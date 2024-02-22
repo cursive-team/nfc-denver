@@ -4,7 +4,7 @@ import { Icons } from "@/components/Icons";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
-import { QuestListItem, useFetchQuests } from "@/hooks/useFetchQuests";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 import { QuestTagMapping, QuestTagMappingType } from "@/shared/constants";
 import Link from "next/link";
@@ -16,7 +16,7 @@ import {
   LocationSignature,
 } from "@/lib/client/localStorage";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
-import { QuestWithRequirements } from "@/types";
+import { QuestWithCompletion, QuestWithRequirements } from "@/types";
 import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
 
 export default function QuestsPage() {
@@ -43,7 +43,7 @@ export default function QuestsPage() {
     setLocationPublicKeys(validLocationPublicKeys);
   }, []);
 
-  const displayQuests: QuestListItem[] = useMemo(() => {
+  const displayQuests: QuestWithCompletion[] = useMemo(() => {
     const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
     const completedQuests = quests.filter((quest) => quest.isCompleted);
     const questFilteredItems =
@@ -102,7 +102,7 @@ export default function QuestsPage() {
               userRequirements,
               locationRequirements,
               isCompleted = false,
-            }: QuestListItem,
+            }: QuestWithCompletion,
             index
           ) => {
             const key = `${id}-${index}`;
@@ -123,16 +123,6 @@ export default function QuestsPage() {
           }
         )}
       </LoadingWrapper>
-      <div>
-        <Link href="/create-quest">
-          <Button size="md" align="left" disabled={isLoading}>
-            <span>Create quest</span>
-            <div className="ml-auto">
-              <Icons.arrowRight />
-            </div>
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }

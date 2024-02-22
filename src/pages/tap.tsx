@@ -18,7 +18,7 @@ import { encryptLocationTapMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/Spinner";
-import { getHaLoArgs } from "@/lib/client/halolib";
+import { getHaLoArgs } from "@/lib/client/libhalo";
 import { sigCardTapResponseSchema } from "./api/tap/sig_card";
 
 export default function Tap() {
