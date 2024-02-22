@@ -24,6 +24,8 @@ const createAccountSchema = object({
   allowsAnalytics: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
+  fhePublicKeyShare: string().required(),
+  relinKeyPublicRound1: string().required(),
   passwordSalt: string().optional(),
   passwordHash: string().optional(),
 });
@@ -60,6 +62,8 @@ export default async function handler(
     allowsAnalytics,
     encryptionPublicKey,
     signaturePublicKey,
+    fhePublicKeyShare,
+    relinKeyPublicRound1,
     passwordSalt,
     passwordHash,
   } = validatedData;
@@ -111,6 +115,8 @@ export default async function handler(
       allowsAnalytics,
       encryptionPublicKey,
       signaturePublicKey,
+      fhePublicKeyShare,
+      relinKeyPublicRound1,
       passwordSalt,
       passwordHash,
     },

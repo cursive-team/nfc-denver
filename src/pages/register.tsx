@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/Checkbox";
 import { Icons } from "@/components/Icons";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
+import { generatePSIKeys } from "@/lib/client/psi";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -240,6 +241,12 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
+    const {
+      fhePublicKeyShare,
+      fhePrivateKeyShare,
+      relinKeyPublicRound1,
+      relinKeyPrivateRound1,
+    } = await generatePSIKeys();
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -261,6 +268,8 @@ export default function Register() {
         allowsAnalytics,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
+        fhePublicKeyShare,
+        relinKeyPublicRound1,
         passwordSalt,
         passwordHash,
       }),
@@ -286,6 +295,8 @@ export default function Register() {
     saveKeys({
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,
+      fhePrivateKeyShare,
+      relinKeyPrivateRound1,
     });
     saveProfile({
       displayName,

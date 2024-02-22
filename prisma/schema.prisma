@@ -16,8 +16,12 @@ model User {
   chipId                    String             @unique
   email                     String             @unique
   displayName               String
+
   encryptionPublicKey       String
   signaturePublicKey        String
+  fhePublicKeyShare         String
+  relinKeyPublicRound1      String
+
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
   passwordSalt              String?
