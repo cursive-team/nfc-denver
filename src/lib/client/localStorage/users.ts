@@ -21,6 +21,11 @@ export type User = {
   sig?: string; // User's signature
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
+  pkId?: string; // User's public key index for FHE
+  fPkS?: string; // User's FHE public key share
+  rlPkr1?: string; // User's relin public key round 1
+  srlSkr2?: string; // Self relin key share with this user for round 2
+  ds?: string; // Self decryption shares for this user
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -49,6 +54,9 @@ export const updateUserFromTap = async (
       ...user,
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
+      pkId: userUpdate.id,
+      fPkS: userUpdate.fhePublicKeyShare,
+      rlPkr1: userUpdate.relinKeyPublicRound1,
     };
 
     users[userId] = updatedUser;
@@ -56,6 +64,9 @@ export const updateUserFromTap = async (
     const newUser = {
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
+      pkId: userUpdate.id,
+      fPkS: userUpdate.fhePublicKeyShare,
+      rlPkr1: userUpdate.relinKeyPublicRound1,
     };
 
     users[userId] = newUser;

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { classed } from "@tw-classed/react";
 import { labelStartWith, removeLabelStartWith } from "@/lib/shared/utils";
 import { InputWrapper } from "@/components/input/InputWrapper";
+import { Input } from "@/components/Input";
 
 const Label = classed.span("text-sm text-gray-12");
 
@@ -36,6 +37,7 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [user, setUser] = useState<User>();
+  const [privateNote, setPrivateNote] = useState("");
 
   useEffect(() => {
     if (typeof id === "string") {
@@ -121,6 +123,24 @@ const UserProfilePage = () => {
             </span>
           </InputWrapper>
         )}
+        <Input
+          type="longtext"
+          label="Private note"
+          placeholder="e.g Met on Saturday"
+          textSize="sm"
+          description={
+            <>
+              <span className="block">
+                {`Use to help remember your interaction with ${user.name}.`}
+              </span>
+              <span className="block">Only you will see this.</span>
+            </>
+          }
+          value={privateNote}
+          onChange={(event) => {
+            setPrivateNote(event.target.value);
+          }}
+        />
         {user?.note && (
           <InputWrapper
             className="flex flex-col gap-2"

@@ -9,7 +9,7 @@ import init, {
   state2_bindgen,
   state3_bindgen,
   state4_bindgen,
-} from "@/lib/mp_psi"; // Import your MP-PSI function
+} from "@/lib/mp_psi";
 
 enum DisplayState {
   MPPSI,
@@ -134,7 +134,7 @@ const MPPSIBenchmarkPage = () => {
     <>
       {displayState === DisplayState.MPPSI && (
         <FormStepLayout
-          title="2P-PSI benchmark"
+          title="Gaussian MP-PSI benchmark"
           onSubmit={handleBeginBenchmark}
           actions={
             <div className="flex flex-col gap-4">
@@ -165,7 +165,7 @@ const MPPSIBenchmarkPage = () => {
       )}
       {displayState === DisplayState.RESULTS && (
         <FormStepLayout
-          title="2P-PSI benchmark results"
+          title="MP-PSI benchmark results"
           actions={
             <div className="flex flex-col gap-4">
               <Button onClick={() => setDisplayState(DisplayState.MPPSI)}>
@@ -178,7 +178,7 @@ const MPPSIBenchmarkPage = () => {
           }
         >
           <div className="flex flex-col gap-2">
-            <p>{`2P-PSI Time: ${mppsiTime}ms`}</p>
+            <p>{`MP-PSI Time: ${mppsiTime}ms`}</p>
             {stateTimes.map((time, index) => (
               <p key={index}>{`State${index} Time: ${time}ms`}</p>
             ))}
