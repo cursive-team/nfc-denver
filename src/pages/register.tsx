@@ -69,7 +69,9 @@ export default function Register() {
   }, [router.query.cmac]);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+    // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
+    const emailCleaned = event.target.value.trim().toLowerCase();
+    setEmail(emailCleaned);
   };
 
   const handleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {

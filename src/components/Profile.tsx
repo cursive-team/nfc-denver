@@ -67,7 +67,8 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     }
     setPreviousProfile(profile);
     setDisplayName(profile.displayName);
-    setEmail(profile.email);
+    // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
+    setEmail(profile.email.trim().toLowerCase());
     setWantsServerCustody(profile.wantsServerCustody);
     setAllowsAnalytics(profile.allowsAnalytics);
     setTwitterUsername("@" + (profile.twitterUsername || ""));
@@ -173,7 +174,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
 
     const profile = {
       displayName,
-      email: previousProfile.email,
+      email: previousProfile.email.trim().toLowerCase(),
       encryptionPublicKey: previousProfile.encryptionPublicKey,
       signaturePublicKey: previousProfile.signaturePublicKey,
       wantsServerCustody,
