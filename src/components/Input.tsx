@@ -59,7 +59,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <InputComponent
               ref={ref}
               {...props}
-              type="text"
               placeholder={placeholder}
               variant={variant}
               hasIcon={!!icon}

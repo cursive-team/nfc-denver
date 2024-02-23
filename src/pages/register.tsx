@@ -455,7 +455,6 @@ export default function Register() {
                 </span>
                 <Input
                   type="text"
-                  name="displayName"
                   label="Display name"
                   placeholder="Choose a display name"
                   value={displayName}
