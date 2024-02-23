@@ -14,7 +14,7 @@ import {
   getUsers,
 } from "@/lib/client/localStorage";
 import { ItemWithCompletion, QuestWithRequirements } from "@/types";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { classed } from "@tw-classed/react";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 

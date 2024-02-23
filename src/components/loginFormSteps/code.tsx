@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { AppBackHeader } from "@/components/AppHeader";
 import { useCompleteLogin } from "@/hooks/useCompleteLogin";
 import { encryptedBackupDataSchema } from "@/pages/api/backup";

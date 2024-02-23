@@ -19,7 +19,7 @@ const OnlyMobileBanner = () => {
           <div className="flex items-center gap-4 mx-auto">
             <Icons.iyk size={80} />
             <Icons.x size={12} />
-            <Icons.jubmoji size={72} />
+            <Icons.cursive size={80} />
           </div>
           <span className="text-[36px] font-giorgio text-center">
             {APP_CONFIG.APP_NAME}

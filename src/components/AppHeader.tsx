@@ -25,12 +25,14 @@ interface AppBackHeaderProps {
   redirectTo?: string; // redirect to this page instead of back
   onBackClick?: () => void;
   actions?: ReactNode;
+  label?: string;
 }
 
 export const AppBackHeader = ({
   redirectTo,
   onBackClick,
   actions,
+  label,
 }: AppBackHeaderProps) => {
   const router = useRouter();
 
@@ -52,7 +54,7 @@ export const AppBackHeader = ({
         }}
       >
         <Icons.arrowLeft />
-        <span className="text-gray-11 text-sm">Back</span>
+        <span className="text-gray-11 text-sm">{label || "Back"}</span>
       </button>
       {actions}
     </div>
@@ -105,7 +107,11 @@ const AppHeaderContent = ({
               <Subtitle>
                 GitHub:{" "}
                 <u>
-                  <a href="https://github.com/nfc-denver/nfc-denver">
+                  <a
+                    href="https://github.com/nfc-denver/nfc-denver"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
                     github.com/nfc-denver/nfc-denver
                   </a>
                 </u>
@@ -193,7 +199,7 @@ const AppHeader = () => {
           <button type="button" className="flex gap-2 items-center">
             <Icons.iyk />
             <Icons.x />
-            <Icons.jubmoji />
+            <Icons.cursive />
           </button>
         </Link>
       )}

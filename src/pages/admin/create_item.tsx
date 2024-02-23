@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getAuthToken } from "@/lib/client/localStorage";
 import router from "next/router";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { InputWrapper } from "@/components/input/InputWrapper";
 

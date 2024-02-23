@@ -10,7 +10,7 @@ import { classed } from "@tw-classed/react";
 import { Header } from "@/components/modals/QuestRequirementModal";
 import useSettings from "@/hooks/useSettings";
 import { AppBackHeader } from "@/components/AppHeader";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { LocationDetailPlaceholder } from "@/components/placeholders/LocationDetailPlaceholder";
 import { getNonceFromCounterMessage } from "@/lib/client/libhalo";

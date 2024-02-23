@@ -58,13 +58,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
             <InputComponent
               ref={ref}
-              type="text"
-              autoComplete="off"
+              {...props}
               placeholder={placeholder}
               variant={variant}
               hasIcon={!!icon}
               hasError={!!error}
-              {...props}
+              autoComplete="off"
             />
           </div>
         </label>

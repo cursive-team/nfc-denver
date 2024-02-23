@@ -12,7 +12,7 @@ const TableWrapper = classed.div(
 const TableHeaderLabel = classed.div(
   "text-gray-900 text-xs font-light uppercase"
 );
-const DisplayName = classed.span("text-gray-12 text-sm leading-5");
+const DisplayName = classed.span("text-gray-12 text-sm leading-5 font-light");
 const Point = classed.span("text-gray-900 text-sm");
 const PositionCard = classed.div(
   "duration-200 w-6 h-6 text-white text-xs flex items-center justify-center rounded-full",
@@ -76,7 +76,10 @@ export default function LeaderBoard() {
       return (
         <TableWrapper key={index}>
           <PositionCard active={isCurrentUser}>{rank}</PositionCard>
-          <DisplayName>{name}</DisplayName>
+          <DisplayName className=" font-re">
+            {name}{" "}
+            {isCurrentUser && <span className="text-gray-10">(you)</span>}
+          </DisplayName>
           <Point className="text-right">{connections}</Point>
         </TableWrapper>
       );

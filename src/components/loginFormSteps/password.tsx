@@ -10,7 +10,7 @@ import updateStateFromAction from "@/lib/shared/updateAction";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { LoginFormStepProps } from ".";
 import { InferType } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";

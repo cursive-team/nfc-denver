@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Input } from "@/components/Input";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { BenchmarkMessage } from "@prisma/client";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 enum DisplayState {
   ENCRYPTION,
