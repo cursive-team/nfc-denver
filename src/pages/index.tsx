@@ -4,7 +4,7 @@ import { TabsProps, Tabs } from "@/components/Tabs";
 import { Card } from "@/components/cards/Card";
 import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   Activity,
@@ -24,6 +24,7 @@ import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Spinner } from "@/components/Spinner";
+import { classed } from "@tw-classed/react";
 
 interface ContactCardProps {
   name: string;
@@ -52,7 +53,7 @@ const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
       <div>
         <Link href={`/users/${userId}/share`}>
           <Button variant="secondary" size="sm">
-            Tap Back
+            Share info
           </Button>
         </Link>
       </div>
@@ -67,117 +68,104 @@ interface ActivityFeedProps {
   date: string;
 }
 
+const FeedContainer = classed.div("flex items-center justify-between py-1");
+
+interface FeedContentProps {
+  title: React.ReactNode;
+  description: string;
+  icon: React.ReactNode;
+}
+const FeedContent = ({ title, description, icon }: FeedContentProps) => {
+  return (
+    <div className="flex items-center justify-between py-1">
+      <div className="flex items-center gap-2">
+        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+          {icon}
+        </div>
+        <Card.Title>{title}</Card.Title>
+      </div>
+      <Card.Description>{description}</Card.Description>
+    </div>
+  );
+};
+
 const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
   switch (type) {
     case JUB_SIGNAL_MESSAGE_TYPE.REGISTERED:
       return (
-        <div className="flex justify-between py-1">
-          <div className="flex items-center gap-2">
-            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-              <Icons.person />
-            </div>
-            <Card.Title>
-              <div>{"Registered for BUIDLQuest!"}</div>
-            </Card.Title>
-          </div>
-          <Card.Description>{date}</Card.Description>
-        </div>
+        <FeedContent
+          title="Registered for BUIDLQuest!"
+          description={date}
+          icon={<Icons.person />}
+        />
       );
     case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:
       return (
         <Link href={`/users/${id}`}>
-          <div className="flex justify-between py-1">
-            <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.person />
-              </div>
-              <Card.Title>
-                {
-                  <div>
-                    {"Connected with"} <u>{name}</u>
-                  </div>
-                }
-              </Card.Title>
-            </div>
-            <Card.Description>{date}</Card.Description>
-          </div>
+          <FeedContent
+            title={
+              <>
+                {"Connected with"} <u>{name}</u>
+              </>
+            }
+            icon={<Icons.person />}
+            description={date}
+          />
         </Link>
       );
     case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
       return (
         <Link href={`/users/${id}`}>
-          <div className="flex justify-between py-1">
-            <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.person />
-              </div>
-              <Card.Title>
-                {
-                  <div>
-                    <u>{name}</u> {"connected with you"}
-                  </div>
-                }
-              </Card.Title>
-            </div>
-            <Card.Description>{date}</Card.Description>
-          </div>
+          <FeedContent
+            title={
+              <>
+                <u>{name}</u> {"connected with you"}
+              </>
+            }
+            icon={<Icons.person />}
+            description={date}
+          />
         </Link>
       );
     case JUB_SIGNAL_MESSAGE_TYPE.LOCATION_TAP:
       return (
         <Link href={`/locations/${id}`}>
-          <div className="flex justify-between py-1">
-            <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.home />
-              </div>
-              <Card.Title>
-                {
-                  <div>
-                    {"Visited"} <u>{name}</u>
-                  </div>
-                }
-              </Card.Title>
-            </div>
-            <Card.Description>{date}</Card.Description>
-          </div>
+          <FeedContent
+            title={
+              <>
+                {"Visited"} <u>{name}</u>
+              </>
+            }
+            icon={<Icons.home className="h-3" />}
+            description={date}
+          />
         </Link>
       );
     case JUB_SIGNAL_MESSAGE_TYPE.QUEST_COMPLETED:
       return (
         <Link href={`/quests/${id}`}>
-          <div className="flex justify-between py-1">
-            <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                <Icons.quest />
-              </div>
-              <Card.Title>
-                {
-                  <div>
-                    {"Completed "} <u>{name}</u>
-                  </div>
-                }
-              </Card.Title>
-            </div>
-            <Card.Description>{date}</Card.Description>
-          </div>
+          <FeedContent
+            icon={<Icons.quest />}
+            title={
+              <>
+                {"Completed "} <u>{name}</u>
+              </>
+            }
+            description={date}
+          />
         </Link>
       );
     case JUB_SIGNAL_MESSAGE_TYPE.ITEM_REDEEMED:
       return (
-        <div className="flex justify-between py-1">
-          <div className="flex items-center gap-2">
-            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-              <Icons.store />
-            </div>
-            <Card.Title>
-              <div>
-                {"Redeemed "} <u>{name}</u>
-              </div>
-            </Card.Title>
-          </div>
-          <Card.Description>{date}</Card.Description>
-        </div>
+        <FeedContent
+          title={
+            <>
+              {"Redeemed "} <u>{name}</u>
+            </>
+          }
+          description={date}
+          icon={<Icons.store />}
+        />
       );
     default:
       return null;

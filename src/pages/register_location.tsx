@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import {
   RegisterLocationSchema,

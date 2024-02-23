@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { getAuthToken } from "@/lib/client/localStorage";
 import router from "next/router";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 enum DisplayState {
   CREATE_QUEST_FORM,

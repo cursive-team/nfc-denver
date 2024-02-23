@@ -33,7 +33,7 @@ import {
   getPinnedQuest,
   togglePinQuestById,
 } from "@/lib/client/localStorage/questPinned";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { PointCard } from "@/components/cards/PointCard";
 
 interface QuestDetailProps {

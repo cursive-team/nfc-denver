@@ -65,7 +65,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               hasIcon={!!icon}
               hasError={!!error}
               autoComplete="off"
-              name={props?.name?.concat("SearchInput")}
             />
           </div>
         </label>

@@ -17,7 +17,7 @@ import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
 import { AppBackHeader } from "@/components/AppHeader";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Checkbox } from "@/components/Checkbox";
 import {

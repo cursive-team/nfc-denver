@@ -2,7 +2,7 @@ import { getAllItemRedeemed, getAuthToken } from "@/lib/client/localStorage";
 import { ItemWithCompletion, ItemWithRequirements } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export const useFetchStore = () => {
   const router = useRouter();

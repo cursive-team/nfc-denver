@@ -17,7 +17,7 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import Link from "next/link";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import {
   displayNameRegex,
   farcasterUsernameRegex,
@@ -46,7 +46,7 @@ export default function Register() {
   const router = useRouter();
 
   const [displayState, setDisplayState] = useState<DisplayState>(
-    DisplayState.INPUT_EMAIL
+    DisplayState.INPUT_SOCIAL
   );
   const [cmac, setCmac] = useState<string>("");
   const [email, setEmail] = useState<string>("");
