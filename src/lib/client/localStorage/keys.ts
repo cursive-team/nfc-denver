@@ -11,14 +11,18 @@ export type Keys = {
   encryptionPrivateKey: string;
   signaturePrivateKey: string;
   fhePrivateKeyShare: string;
+  fhePublicKeyShare: string;
   relinKeyPrivateRound1: string;
+  relinKeyPublicRound1: string;
 };
 
 export const keysSchema = object({
   encryptionPrivateKey: string().required(),
   signaturePrivateKey: string().required(),
   fhePrivateKeyShare: string().required(),
+  fhePublicKeyShare: string().required(),
   relinKeyPrivateRound1: string().required(),
+  relinKeyPublicRound1: string().required(),
 });
 
 export const saveKeys = (keys: Keys): void => {
@@ -26,7 +30,9 @@ export const saveKeys = (keys: Keys): void => {
     encryptionPrivateKey,
     signaturePrivateKey,
     fhePrivateKeyShare,
+    fhePublicKeyShare,
     relinKeyPrivateRound1,
+    relinKeyPublicRound1,
   } = keys;
   const currentKeys = getFromLocalStorage(KEYS_STORAGE_KEY);
   if (currentKeys) {
@@ -35,6 +41,8 @@ export const saveKeys = (keys: Keys): void => {
     parsedKeys.signaturePrivateKey = signaturePrivateKey;
     parsedKeys.fhePrivateKeyShare = fhePrivateKeyShare;
     parsedKeys.relinKeyPrivateRound1 = relinKeyPrivateRound1;
+    parsedKeys.fhePublicKeyShare = fhePublicKeyShare;
+    parsedKeys.relinKeyPublicRound1 = relinKeyPublicRound1;
     saveToLocalStorage(KEYS_STORAGE_KEY, JSON.stringify(parsedKeys));
     return;
   } else {

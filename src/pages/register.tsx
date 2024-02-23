@@ -296,7 +296,9 @@ export default function Register() {
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,
       fhePrivateKeyShare,
+      fhePublicKeyShare,
       relinKeyPrivateRound1,
+      relinKeyPublicRound1,
     });
     saveProfile({
       displayName,

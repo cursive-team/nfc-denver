@@ -10,11 +10,24 @@ import init, {
   state3_bindgen,
   state4_bindgen,
 } from "@/lib/mp_psi";
+import {
+  generateCipherTextRelinKeyRound2,
+  generatePSIKeys,
+  generateRealDecryptionShares,
+} from "@/lib/client/psi";
 
 enum DisplayState {
   MPPSI,
   RESULTS,
 }
+
+const stateDescriptions = [
+  "A generates encryption + r1 relinearization key",
+  "B generates ciphertext + r2 relinearization key",
+  "A computes PSI using FHE + partial decryption",
+  "B computes PSI using FHE + full decryption",
+  "A computes full decryption",
+];
 
 const MPPSIBenchmarkPage = () => {
   const [displayState, setDisplayState] = useState<DisplayState>(
@@ -52,6 +65,94 @@ const MPPSIBenchmarkPage = () => {
     console.log(bitVector0, bitVector1);
 
     return bitVector0.map((element, index) => element * bitVector1[index]);
+  };
+
+  const testInternalFunctions = async () => {
+    await init();
+
+    const {
+      fhePublicKeyShare: fhePublicKeyShareA,
+      fhePrivateKeyShare: fhePrivateKeyShareA,
+      relinKeyPublicRound1: relinKeyPublicRound1A,
+      relinKeyPrivateRound1: relinKeyPrivateRound1A,
+    } = await generatePSIKeys();
+    const {
+      fhePublicKeyShare: fhePublicKeyShareB,
+      fhePrivateKeyShare: fhePrivateKeyShareB,
+      relinKeyPublicRound1: relinKeyPublicRound1B,
+      relinKeyPrivateRound1: relinKeyPrivateRound1B,
+    } = await generatePSIKeys();
+
+    const bitVectorA = randomBitVector(hammingWeight, bitVectorSize);
+    const bitVectorB = randomBitVector(hammingWeight, bitVectorSize);
+
+    const cipherTextRelinKeyRound2A = await generateCipherTextRelinKeyRound2(
+      bitVectorA,
+      fhePrivateKeyShareA,
+      relinKeyPrivateRound1A,
+      fhePublicKeyShareA,
+      relinKeyPublicRound1A,
+      fhePublicKeyShareB,
+      relinKeyPublicRound1B
+    );
+
+    const cipherTextRelinKeyRound2B = await generateCipherTextRelinKeyRound2(
+      bitVectorB,
+      fhePrivateKeyShareB,
+      relinKeyPrivateRound1B,
+      fhePublicKeyShareB,
+      relinKeyPublicRound1B,
+      fhePublicKeyShareA,
+      relinKeyPublicRound1A
+    );
+
+    const realDecryptionSharesA = await generateRealDecryptionShares(
+      fhePrivateKeyShareA,
+      cipherTextRelinKeyRound2A.cipherText,
+      cipherTextRelinKeyRound2A.rlkAgg,
+      cipherTextRelinKeyRound2A.relinKeyRound2,
+      cipherTextRelinKeyRound2A.bogusDecryptionShares,
+      cipherTextRelinKeyRound2B.cipherText,
+      cipherTextRelinKeyRound2B.relinKeyRound2
+    );
+
+    const realDecryptionSharesB = await generateRealDecryptionShares(
+      fhePrivateKeyShareB,
+      cipherTextRelinKeyRound2B.cipherText,
+      cipherTextRelinKeyRound2B.rlkAgg,
+      cipherTextRelinKeyRound2B.relinKeyRound2,
+      cipherTextRelinKeyRound2B.bogusDecryptionShares,
+      cipherTextRelinKeyRound2A.cipherText,
+      cipherTextRelinKeyRound2A.relinKeyRound2
+    );
+
+    const psi_output_a = state4_bindgen(
+      cipherTextRelinKeyRound2A.cipherText,
+      realDecryptionSharesB.realDecryptionShares
+    );
+
+    const psi_output_b = state4_bindgen(
+      cipherTextRelinKeyRound2B.cipherText,
+      realDecryptionSharesA.realDecryptionShares
+    );
+
+    const expected_psi_output = plainPsi(bitVectorA, bitVectorB);
+    let overlap = 0;
+    let overallPsiMatch = true;
+    for (let i = 0; i < bitVectorSize; i++) {
+      const sum = [
+        psi_output_a[i],
+        psi_output_b[i],
+        expected_psi_output[i],
+      ].reduce((a, b) => a + b, 0);
+      if (sum !== 0 && sum !== 3) {
+        overallPsiMatch = false;
+        break;
+      } else if (sum === 3) {
+        overlap++;
+      }
+    }
+    console.log(overallPsiMatch);
   };
 
   const handleBeginBenchmark = async (event: React.FormEvent) => {
@@ -133,57 +234,79 @@ const MPPSIBenchmarkPage = () => {
   return (
     <>
       {displayState === DisplayState.MPPSI && (
-        <FormStepLayout
-          title="Gaussian MP-PSI benchmark"
-          onSubmit={handleBeginBenchmark}
-          actions={
-            <div className="flex flex-col gap-4">
-              <Button type="submit">Confirm</Button>
-              <Link href="/bench">
-                <Button>Back</Button>
-              </Link>
-            </div>
-          }
-        >
-          <Input
-            label="Hamming weight"
-            type="number"
-            name="hammingWeight"
-            value={hammingWeight}
-            onChange={(event) => setHammingWeight(parseInt(event.target.value))}
-            required
-          />
-          <Input
-            label="Bitvector size"
-            type="number"
-            name="bitVectorSize"
-            value={bitVectorSize}
-            onChange={(event) => setBitVectorSize(parseInt(event.target.value))}
-            required
-          />
-        </FormStepLayout>
+        <>
+          <FormStepLayout
+            title="Gaussian MP-PSI benchmark"
+            onSubmit={handleBeginBenchmark}
+            actions={
+              <div className="flex flex-col gap-4">
+                <Button type="submit">Confirm</Button>
+                <Link href="/admin/bench">
+                  <Button>Back</Button>
+                </Link>
+              </div>
+            }
+          >
+            <Input
+              label="Hamming weight"
+              type="number"
+              name="hammingWeight"
+              value={hammingWeight}
+              onChange={(event) =>
+                setHammingWeight(parseInt(event.target.value))
+              }
+              required
+            />
+            <Input
+              label="Bitvector size"
+              type="number"
+              name="bitVectorSize"
+              value={bitVectorSize}
+              onChange={(event) =>
+                setBitVectorSize(parseInt(event.target.value))
+              }
+              required
+            />
+          </FormStepLayout>
+          {/* <Button onClick={testInternalFunctions}>
+            Test internal functions
+          </Button> */}
+        </>
       )}
       {displayState === DisplayState.RESULTS && (
         <FormStepLayout
-          title="MP-PSI benchmark results"
+          title="2P-PSI benchmark results"
           actions={
             <div className="flex flex-col gap-4">
               <Button onClick={() => setDisplayState(DisplayState.MPPSI)}>
                 Try another benchmark
               </Button>
-              <Link href="/bench">
+              <Link href="/admin/bench">
                 <Button>Back to benches</Button>
               </Link>
             </div>
           }
         >
           <div className="flex flex-col gap-2">
-            <p>{`MP-PSI Time: ${mppsiTime}ms`}</p>
+            <p>
+              <u>{`Operation breakdown`}</u>
+            </p>
             {stateTimes.map((time, index) => (
-              <p key={index}>{`State${index} Time: ${time}ms`}</p>
+              <p key={index} style={{ fontSize: "0.75em" }}>
+                {`${stateDescriptions[index]} in `} <b>{`${time}ms`}</b>
+              </p>
             ))}
-            <p>{`PSI output is correct: ${psiMatch ? "Yes" : "No"}`}</p>
-            <p>{`Total Overlap: ${totalOverlap}`}</p>
+
+            <p>
+              <u>Total Time</u>
+              {`: ${mppsiTime}ms`}
+            </p>
+            <p>
+              <u>PSI output is correct</u> {`: ${psiMatch ? "Yes" : "No"}`}
+            </p>
+            <p>
+              <u>Total Overlap</u> {`: ${totalOverlap}`}
+            </p>
           </div>
         </FormStepLayout>
       )}
