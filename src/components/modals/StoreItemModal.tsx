@@ -107,8 +107,6 @@ const StoreModalItem = ({
                   }: QuestWithRequirements,
                   index: number
                 ) => {
-                  const isCompleted = completedQuestIds.includes(id.toString());
-                  if (isCompleted) return null; // no need to show completed quests
                   return (
                     <Link href={`/quests/${id}`} key={id}>
                       <QuestCard
