@@ -121,7 +121,9 @@ const QuestCard = ({
         {isCompleted ? (
           <Card.Description>{"Quest Complete"}</Card.Description>
         ) : (
-          <Card.Description>{`${completedSigs}/${numSigsRequired} completed`}</Card.Description>
+          <Card.Description>{`${
+            completedSigs || 0
+          }/${numSigsRequired} completed`}</Card.Description>
         )}
       </div>
       <Card.Progress
