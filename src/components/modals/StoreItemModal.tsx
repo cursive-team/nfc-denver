@@ -4,19 +4,13 @@ import { ListLayout } from "@/layouts/ListLayout";
 import { useRedeemStoreItem } from "@/hooks/useStore";
 import Link from "next/link";
 import { QuestCard } from "../cards/QuestCard";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "../Button";
-import {
-  LocationSignature,
-  User,
-  getAllQuestCompleted,
-  getLocationSignatures,
-  getUsers,
-} from "@/lib/client/localStorage";
+import { getAllQuestCompleted } from "@/lib/client/localStorage";
 import { ItemWithCompletion, QuestWithRequirements } from "@/types";
 import { toast } from "sonner";
 import { classed } from "@tw-classed/react";
-import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
+import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 
 const QRCodeWrapper = classed.div(
   "bg-white rounded-[8px] w-full max-w-[156px]"
@@ -36,38 +30,6 @@ const StoreModalItem = ({
   const completedQuestIds: string[] = Object.keys(questCompleted);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>();
 
-  // Compute users and locations that user has signatures for
-  const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
-  const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
-
-  useEffect(() => {
-    const users = getUsers();
-    const locationSignatures = getLocationSignatures();
-
-    const validUserPublicKeys = Object.values(users)
-      .filter((user: User) => user.sig)
-      .map((user: User) => user.sigPk!);
-    setUserPublicKeys(validUserPublicKeys);
-
-    const validLocationPublicKeys = Object.values(locationSignatures).map(
-      (location: LocationSignature) => location.pk
-    );
-    setLocationPublicKeys(validLocationPublicKeys);
-  }, []);
-
-  const numRequirementsSatisfied: number[] = useMemo(() => {
-    return storeItem.questRequirements.map(
-      ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
-        return computeNumRequirementsSatisfied({
-          userPublicKeys,
-          locationPublicKeys,
-          userRequirements,
-          locationRequirements,
-        });
-      }
-    );
-  }, [storeItem.questRequirements, userPublicKeys, locationPublicKeys]);
-
   const redeemStoreItemMutation = useRedeemStoreItem();
   const onRedeemItem = async () => {
     try {
@@ -80,6 +42,10 @@ const StoreModalItem = ({
   };
 
   const questRequirements = storeItem.questRequirements;
+
+  const { numRequirementsSatisfied } = useQuestRequirements(
+    storeItem.questRequirements ?? []
+  );
 
   return (
     <Modal

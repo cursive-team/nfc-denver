@@ -93,7 +93,7 @@ export default function Tap() {
         return;
       }
 
-      router.push("/locations/" + location.id);
+      router.push(`/locations/${location.id}?tap=true`);
     },
     [router]
   );

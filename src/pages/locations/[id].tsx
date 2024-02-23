@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { ErrorResponse } from "@/types";
-import { Location } from "@prisma/client";
+import { ErrorResponse, LocationWithQuests } from "@/types";
 import {
   LocationSignature,
   getLocationSignature,
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { LocationDetailPlaceholder } from "@/components/placeholders/LocationDetailPlaceholder";
 import { getNonceFromCounterMessage } from "@/lib/client/libhalo";
+import { LocationTapModal } from "@/components/modals/LocationTapModal";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -22,7 +22,8 @@ const LocationDetails = () => {
   const { pageWidth } = useSettings();
   const router = useRouter();
   const { id } = router.query;
-  const [location, setLocation] = useState<Location>();
+  const [openTapModal, setOpenTapModal] = useState(false);
+  const [location, setLocation] = useState<LocationWithQuests>();
   const [signature, setSignature] = useState<LocationSignature>();
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const LocationDetails = () => {
             toast.error("An error occurred. Please try again.");
             router.push("/");
           } else {
-            const data: Location = await response.json();
+            const data: LocationWithQuests = await response.json();
             setLocation(data);
           }
         } catch (err) {
@@ -46,6 +47,11 @@ const LocationDetails = () => {
 
         const locationSignature = getLocationSignature(id);
         setSignature(locationSignature);
+
+        const tap = router.query.tap;
+        if (tap === "true") {
+          setOpenTapModal(true);
+        }
       }
     };
 
@@ -60,6 +66,14 @@ const LocationDetails = () => {
         fallback={<LocationDetailPlaceholder />}
         className="flex flex-col gap-6"
       >
+        {location && (
+          <LocationTapModal
+            location={location}
+            signatureMessage={signature?.msg}
+            isOpen={openTapModal}
+            setIsOpen={(isOpen) => setOpenTapModal(isOpen)}
+          />
+        )}
         {location && (
           <>
             <Header title={location.name} label="Location" />

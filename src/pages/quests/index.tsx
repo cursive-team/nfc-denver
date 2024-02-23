@@ -1,6 +1,4 @@
-import { Button } from "@/components/Button";
 import { Filters } from "@/components/Filters";
-import { Icons } from "@/components/Icons";
 import { Placeholder } from "@/components/placeholders/Placeholder";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
@@ -8,40 +6,17 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 
 import { QuestTagMapping, QuestTagMappingType } from "@/shared/constants";
 import Link from "next/link";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  getUsers,
-  getLocationSignatures,
-  User,
-  LocationSignature,
-} from "@/lib/client/localStorage";
-import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
-import { QuestWithCompletion, QuestWithRequirements } from "@/types";
+import React, { useMemo, useRef, useState } from "react";
+
+import { QuestWithCompletion } from "@/types";
 import { getPinnedQuest } from "@/lib/client/localStorage/questPinned";
+import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 
 export default function QuestsPage() {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
   const { isLoading, data: quests = [] } = useFetchQuests();
-  // Compute users and locations that user has signatures for
-  const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
-  const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] =
     useState<QuestTagMappingType>("ALL");
-
-  useEffect(() => {
-    const users = getUsers();
-    const locationSignatures = getLocationSignatures();
-
-    const validUserPublicKeys = Object.values(users)
-      .filter((user: User) => user.sig)
-      .map((user: User) => user.sigPk!);
-    setUserPublicKeys(validUserPublicKeys);
-
-    const validLocationPublicKeys = Object.values(locationSignatures).map(
-      (location: LocationSignature) => location.pk
-    );
-    setLocationPublicKeys(validLocationPublicKeys);
-  }, []);
 
   const displayQuests: QuestWithCompletion[] = useMemo(() => {
     const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
@@ -63,18 +38,7 @@ export default function QuestsPage() {
     return [...pinnedQuest, ...notPinnedQuest];
   }, [quests, selectedOption, pinnedQuests]);
 
-  const numRequirementsSatisfied: number[] = useMemo(() => {
-    return displayQuests.map(
-      ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
-        return computeNumRequirementsSatisfied({
-          userPublicKeys,
-          locationPublicKeys,
-          userRequirements,
-          locationRequirements,
-        });
-      }
-    );
-  }, [displayQuests, userPublicKeys, locationPublicKeys]);
+  const { numRequirementsSatisfied } = useQuestRequirements(displayQuests);
 
   return (
     <div className="flex flex-col gap-2">
