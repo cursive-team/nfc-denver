@@ -86,8 +86,13 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
       <Button type="submit" loading={loginMutation.isPending}>
         Send Code
       </Button>
-      <Link href="/register" className="link text-center">
-        I am not registered
+      <Link
+        href="https://pse-team.notion.site/pse-team/BUIDLQuest-One-Pager-e9ea7aba9bae483c8bc54d7b825019c1#b4b47ee6171b4626893daf5ff23ef2a0"
+        className="link text-center"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        I have not registered
       </Link>
     </FormStepLayout>
   );

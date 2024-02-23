@@ -180,8 +180,8 @@ export default function Register() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error:", error);
-        toast.error(error.message);
+        console.error("Error: ", error);
+        toast.error("Invalid email code");
         setLoading(false);
       });
   };
@@ -190,7 +190,7 @@ export default function Register() {
     event.preventDefault();
     if (!displayNameRegex.test(displayName)) {
       toast.error(
-        "Display name must be alphanumeric and less than 20 characters."
+        "Display name must consist of letters and numbers only, < 20 chars."
       );
       return;
     }
@@ -404,7 +404,7 @@ export default function Register() {
             Continue
           </Button>
           <Link href="/login" className="link text-center">
-            I have already registered
+            I already have an account
           </Link>
         </FormStepLayout>
       )}
@@ -416,7 +416,10 @@ export default function Register() {
           />
           <FormStepLayout
             title={`We've just sent you a six digit code to ${email}`}
-            description="February 23rd"
+            description={new Date().toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+            })}
             className="pt-4 grow"
             onSubmit={handleCodeSubmit}
           >
@@ -496,7 +499,7 @@ export default function Register() {
               </div>
             }
           >
-            <Button type="submit">Create account</Button>
+            <Button type="submit">Next: Data Custody</Button>
           </FormStepLayout>
         </div>
       )}
@@ -552,7 +555,9 @@ export default function Register() {
               </fieldset>
             }
           >
-            <Button type="submit">Continue</Button>
+            <Button type="submit">
+              {wantsServerCustody ? "Create Account" : "Next: Choose Password"}
+            </Button>
           </FormStepLayout>
         </div>
       )}
@@ -588,7 +593,7 @@ export default function Register() {
               interaction data on our server. You are responsible for saving
               this password and/or manually backing up your data from the app.
             </span>
-            <Button type="submit">Create account</Button>
+            <Button type="submit">Create Account</Button>
           </FormStepLayout>
         </div>
       )}

@@ -53,7 +53,7 @@ const PendingContactCard = ({ name, userId, date }: ContactCardProps) => {
       <div>
         <Link href={`/users/${userId}/share`}>
           <Button variant="secondary" size="sm">
-            Share info
+            Share back
           </Button>
         </Link>
       </div>
