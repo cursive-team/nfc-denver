@@ -46,7 +46,7 @@ export default function Register() {
   const router = useRouter();
 
   const [displayState, setDisplayState] = useState<DisplayState>(
-    DisplayState.INPUT_SOCIAL
+    DisplayState.INPUT_EMAIL
   );
   const [cmac, setCmac] = useState<string>("");
   const [email, setEmail] = useState<string>("");
