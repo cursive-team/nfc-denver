@@ -25,6 +25,8 @@ import {
 } from "@/components/input/InputWrapper";
 import { v4 as uuidv4 } from "uuid";
 import { MessageRequest } from "@/pages/api/messages";
+import { generateSelfBitVector } from "@/lib/client/psi";
+import init, { round1_js } from "@/lib/mp_psi/mp_psi";
 
 const SharePage = () => {
   const router = useRouter();
@@ -106,7 +108,23 @@ const SharePage = () => {
       return;
     }
 
-    if (shareOverlap) {
+    const userMessageRound1 = user.mr1;
+    if (shareOverlap && !userMessageRound1) {
+      toast.error("User does not have their PSI parameters set up");
+    } else if (shareOverlap && userMessageRound1) {
+      const selfBitVector = generateSelfBitVector();
+
+      await init();
+      const round1_output = round1_js(
+        {
+          psi_keys: JSON.parse(psiPrivateKeys),
+          message_round1: JSON.parse(psiPublicKeys),
+        },
+        JSON.parse(userMessageRound1),
+        selfBitVector
+      );
+
+      console.log(round1_output);
     }
 
     // ----- SEND MESSAGE TO OTHER USER -----
