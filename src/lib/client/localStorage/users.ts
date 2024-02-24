@@ -23,6 +23,7 @@ export type User = {
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
   mr1?: string; // User's message for round 1
+  r1O?: string; // Round 1 output for PSI with this user
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -89,6 +90,28 @@ export const updateUserFromOutboundTap = async (
     ...user,
     note: privateNote,
     outTs: new Date().toISOString(),
+  };
+
+  users[userId] = updatedUser;
+  saveUsers(users);
+};
+
+// Save PSI round 1 output for a user
+export const saveUserRound1Output = async (
+  userEncPk: string,
+  round1Output: string
+) => {
+  const users = getUsers();
+  const userId = await hashPublicKeyToUUID(userEncPk);
+  const user = users[userId];
+
+  if (!user) {
+    return;
+  }
+
+  const updatedUser = {
+    ...user,
+    r1O: round1Output,
   };
 
   users[userId] = updatedUser;

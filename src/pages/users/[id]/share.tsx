@@ -5,7 +5,7 @@ import {
   getAuthToken,
   getKeys,
   getProfile,
-  getUsers,
+  saveUserRound1Output,
   User,
 } from "@/lib/client/localStorage";
 import {
@@ -109,13 +109,14 @@ const SharePage = () => {
     }
 
     const userMessageRound1 = user.mr1;
+    let messageRound2 = undefined;
     if (shareOverlap && !userMessageRound1) {
       toast.error("User does not have their PSI parameters set up");
     } else if (shareOverlap && userMessageRound1) {
       const selfBitVector = generateSelfBitVector();
 
       await init();
-      const round1_output = round1_js(
+      const round1Output = round1_js(
         {
           psi_keys: JSON.parse(psiPrivateKeys),
           message_round1: JSON.parse(psiPublicKeys),
@@ -124,7 +125,8 @@ const SharePage = () => {
         selfBitVector
       );
 
-      console.log(round1_output);
+      saveUserRound1Output(user.encPk, JSON.stringify(round1Output));
+      messageRound2 = JSON.stringify(round1Output.message_round2);
     }
 
     // ----- SEND MESSAGE TO OTHER USER -----
@@ -142,6 +144,8 @@ const SharePage = () => {
       signature,
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey,
+      messageRound2,
+      pkId: user.pkId,
     });
     const otherUserMessageRequest: MessageRequest = {
       encryptedMessage,

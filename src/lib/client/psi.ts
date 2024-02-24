@@ -19,7 +19,8 @@ export const generateSelfBitVector = (): Uint32Array => {
   // 0-19999 reserved for users
   for (let id in users) {
     let user = users[id];
-    if (user.pkId) {
+    // don't include yourself in PSI
+    if (user.pkId && user.pkId !== "0") {
       let index = parseInt(user.pkId);
       if (index < bitVector.length) {
         bitVector[index] = 1;
