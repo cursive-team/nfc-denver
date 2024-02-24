@@ -53,7 +53,13 @@ export default function StorePage() {
         <LoadingWrapper
           className="grid grid-cols-2 gap-x-3 gap-y-6"
           isLoading={isLoading}
-          fallback={<Placeholder.List items={10} />}
+          fallback={
+            <>
+              {Array.from(Array(10).keys()).map((_item, index) => {
+                return <StoreCard.Placeholder key={index} />;
+              })}
+            </>
+          }
         >
           {storeFilteredItems?.map((storeItem, index) => (
             <StoreCard
