@@ -129,12 +129,9 @@ const UserProfilePage = () => {
           placeholder="e.g Met on Saturday"
           textSize="sm"
           description={
-            <>
-              <span className="block">
-                {`Use to help remember your interaction with ${user.name}.`}
-              </span>
-              <span className="block">Only you will see this.</span>
-            </>
+            <span className="block">
+              {`Use to help remember your interaction with ${user.name}. Only you will see this.`}
+            </span>
           }
           value={privateNote}
           onChange={(event) => {

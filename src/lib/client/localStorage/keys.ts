@@ -10,39 +10,31 @@ export const KEYS_STORAGE_KEY = "keys";
 export type Keys = {
   encryptionPrivateKey: string;
   signaturePrivateKey: string;
-  fhePrivateKeyShare: string;
-  fhePublicKeyShare: string;
-  relinKeyPrivateRound1: string;
-  relinKeyPublicRound1: string;
+  psiPrivateKeys: string;
+  psiPublicKeys: string;
 };
 
 export const keysSchema = object({
   encryptionPrivateKey: string().required(),
   signaturePrivateKey: string().required(),
-  fhePrivateKeyShare: string().required(),
-  fhePublicKeyShare: string().required(),
-  relinKeyPrivateRound1: string().required(),
-  relinKeyPublicRound1: string().required(),
+  psiPrivateKeys: string().required(),
+  psiPublicKeys: string().required(),
 });
 
 export const saveKeys = (keys: Keys): void => {
   const {
     encryptionPrivateKey,
     signaturePrivateKey,
-    fhePrivateKeyShare,
-    fhePublicKeyShare,
-    relinKeyPrivateRound1,
-    relinKeyPublicRound1,
+    psiPrivateKeys,
+    psiPublicKeys,
   } = keys;
   const currentKeys = getFromLocalStorage(KEYS_STORAGE_KEY);
   if (currentKeys) {
     const parsedKeys = JSON.parse(currentKeys);
     parsedKeys.encryptionPrivateKey = encryptionPrivateKey;
     parsedKeys.signaturePrivateKey = signaturePrivateKey;
-    parsedKeys.fhePrivateKeyShare = fhePrivateKeyShare;
-    parsedKeys.relinKeyPrivateRound1 = relinKeyPrivateRound1;
-    parsedKeys.fhePublicKeyShare = fhePublicKeyShare;
-    parsedKeys.relinKeyPublicRound1 = relinKeyPublicRound1;
+    parsedKeys.psiPrivateKeys = psiPrivateKeys;
+    parsedKeys.psiPublicKeys = psiPublicKeys;
     saveToLocalStorage(KEYS_STORAGE_KEY, JSON.stringify(parsedKeys));
     return;
   } else {

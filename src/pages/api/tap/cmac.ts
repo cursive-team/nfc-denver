@@ -23,16 +23,14 @@ export type PersonTapResponse = {
   id: string;
   displayName: string;
   encryptionPublicKey: string;
-  fhePublicKeyShare: string;
-  relinKeyPublicRound1: string;
+  psiRound1Message: string;
 };
 
 export const personTapResponseSchema = object({
   id: string().required(),
   displayName: string().required(),
   encryptionPublicKey: string().required(),
-  fhePublicKeyShare: string().required(),
-  relinKeyPublicRound1: string().required(),
+  psiRound1Message: string().required(),
 });
 
 export type LocationTapResponse = {
@@ -146,8 +144,7 @@ export default async function handler(
       id: user.id.toString(),
       displayName: user.displayName,
       encryptionPublicKey: user.encryptionPublicKey,
-      fhePublicKeyShare: user.fhePublicKeyShare,
-      relinKeyPublicRound1: user.relinKeyPublicRound1,
+      psiRound1Message: user.psiRound1Message,
     };
     return res
       .status(200)

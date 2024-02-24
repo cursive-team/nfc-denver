@@ -13,7 +13,7 @@ const BenchmarkPage = () => {
             <Button>Encryption</Button>
           </Link>
           <Link href="/admin/bench/psi">
-            <Button>Gaussian MP-PSI</Button>
+            <Button>Gauss MP-PSI</Button>
           </Link>
           <Button disabled={true}>Local Storage</Button>
           <Button disabled={true}>Requests</Button>

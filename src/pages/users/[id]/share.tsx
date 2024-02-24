@@ -96,8 +96,8 @@ const SharePage = () => {
     const {
       encryptionPrivateKey,
       signaturePrivateKey,
-      fhePrivateKeyShare,
-      relinKeyPrivateRound1,
+      psiPrivateKeys,
+      psiPublicKeys,
     } = keys;
 
     const profile = getProfile();

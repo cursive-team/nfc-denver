@@ -28,7 +28,6 @@ import {
 import { Spinner } from "@/components/Spinner";
 import { Radio } from "@/components/Radio";
 import { Checkbox } from "@/components/Checkbox";
-import { Icons } from "@/components/Icons";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 import { generatePSIKeys } from "@/lib/client/psi";
@@ -242,12 +241,7 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
-    const {
-      fhePublicKeyShare,
-      fhePrivateKeyShare,
-      relinKeyPublicRound1,
-      relinKeyPrivateRound1,
-    } = await generatePSIKeys();
+    const { psiPrivateKeys, psiPublicKeys } = await generatePSIKeys();
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -269,8 +263,7 @@ export default function Register() {
         allowsAnalytics,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
-        fhePublicKeyShare,
-        relinKeyPublicRound1,
+        psiRound1Message: JSON.stringify(psiPublicKeys),
         passwordSalt,
         passwordHash,
       }),
@@ -296,10 +289,8 @@ export default function Register() {
     saveKeys({
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,
-      fhePrivateKeyShare,
-      fhePublicKeyShare,
-      relinKeyPrivateRound1,
-      relinKeyPublicRound1,
+      psiPrivateKeys: JSON.stringify(psiPrivateKeys),
+      psiPublicKeys: JSON.stringify(psiPublicKeys),
     });
     saveProfile({
       displayName,

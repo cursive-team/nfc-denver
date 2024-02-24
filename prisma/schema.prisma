@@ -19,8 +19,7 @@ model User {
 
   encryptionPublicKey       String
   signaturePublicKey        String
-  fhePublicKeyShare         String
-  relinKeyPublicRound1      String
+  psiRound1Message          String
 
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
