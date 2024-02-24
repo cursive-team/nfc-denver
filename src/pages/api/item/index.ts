@@ -1,6 +1,6 @@
+import { isUserAdmin } from "@/lib/server/admin";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { itemWithRequirementsSelector } from "@/lib/server/database";
-import { isUserAdmin } from "@/lib/server/dev";
 import prisma from "@/lib/server/prisma";
 import { ItemWithRequirements } from "@/types";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -61,12 +61,8 @@ export default async function handler(
         imageUrl,
       } = await itemCreateRequestSchema.validate(req.body);
 
-      const userId = await verifyAuthToken(token);
-      if (!userId) {
-        return res.status(400).json({ error: "Invalid token" });
-      }
-
-      if (!isUserAdmin(userId)) {
+      const isAdmin = await isUserAdmin(token);
+      if (!isAdmin) {
         return res.status(403).json({ error: "Unauthorized" });
       }
 

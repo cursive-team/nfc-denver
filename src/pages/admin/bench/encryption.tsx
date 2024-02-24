@@ -14,6 +14,7 @@ import { Input } from "@/components/Input";
 import { generateEncryptionKeyPair } from "@/lib/client/encryption";
 import { BenchmarkMessage } from "@prisma/client";
 import { toast } from "sonner";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 
 enum DisplayState {
   ENCRYPTION,
@@ -37,6 +38,8 @@ const EncryptionBenchmarkPage = () => {
   const [decryptionRequestTime, setDecryptionRequestTime] = useState<number>();
   const [decryptionTime, setDecryptionTime] = useState<number>();
   const [totalTime, setTotalTime] = useState<number>();
+
+  useRequireAdmin();
 
   useEffect(() => {
     const authToken = getAuthToken();

@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { AdminUserInfo } from "../api/admin/users";
 import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
-import { AppBackHeader } from "@/components/AppHeader";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
+import { getAuthToken } from "@/lib/client/localStorage";
 
 const AdminTapPersonPage = () => {
   const router = useRouter();
   const [users, setUsers] = useState<AdminUserInfo[]>([]);
+
+  useRequireAdmin();
 
   const handleTapPerson = (chipId: string) => {
     router.push(`/tap?cmac=${chipId}`);
@@ -16,7 +19,13 @@ const AdminTapPersonPage = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch("/api/admin/users");
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch(`/api/admin/users?token=${authToken.value}`);
       if (!response.ok) {
         console.error("Error fetching users: ", response.statusText);
         return;
@@ -26,7 +35,7 @@ const AdminTapPersonPage = () => {
       setUsers(users);
     };
     fetchUsers();
-  }, []);
+  }, [router]);
 
   return (
     <div>

@@ -52,14 +52,6 @@ export const verifyEmailForChipId = (
   return true;
 };
 
-/**
- * Given a userId, return if the user is allowed to have admin privileges
- * TEMPORARY: RETURN TRUE
- */
-export const isUserAdmin = (userId: number): boolean => {
-  return true;
-};
-
 export const getBuidlBalance = async (userId: number): Promise<number> => {
   return 1000;
 };

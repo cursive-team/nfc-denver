@@ -24,7 +24,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<BackupResponse | EmptyResponse | ErrorResponse>
 ) {
-  // TODO: Is this endpoint needed?
   if (req.method === "GET") {
     const { authToken } = req.query;
 
@@ -47,7 +46,6 @@ export default async function handler(
     }
 
     // Get latest backup
-    // TODO: Might want to perform some logic here ensuring the backup encryption method matches the current user custody preference
     const backup = await prisma.backup.findFirst({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -97,8 +95,6 @@ export default async function handler(
     if (user.wantsServerCustody !== wantsServerCustody) {
       return res.status(400).json({ error: "Mismatch in custody preference" });
     }
-
-    // TODO: Clean up old backups while adding new ones
 
     if (wantsServerCustody) {
       // If wantsServerCustody, backup must be a string

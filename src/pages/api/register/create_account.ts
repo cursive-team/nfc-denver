@@ -72,7 +72,6 @@ export default async function handler(
   }
 
   // Validate cmac corresponds to an unregistered person chip
-  // TODO: Do we need to check if chip matches email?
   const { chipId } = getChipIdFromIykCmac(cmac);
   if (chipId === undefined) {
     return res.status(400).json({ error: "Invalid cmac" });

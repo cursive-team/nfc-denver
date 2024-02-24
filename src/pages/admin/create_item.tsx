@@ -10,6 +10,7 @@ import router from "next/router";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { InputWrapper } from "@/components/input/InputWrapper";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 
 export default function CreateItem() {
   const [itemName, setItemName] = useState<string>("");
@@ -20,6 +21,8 @@ export default function CreateItem() {
   const [loading, setLoading] = useState<boolean>(false);
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useRequireAdmin();
 
   const handleTakePhoto = () => {
     if (fileInputRef.current) {
