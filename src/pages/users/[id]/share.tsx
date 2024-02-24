@@ -135,6 +135,7 @@ const SharePage = () => {
     const selfPublicKey = profile.encryptionPublicKey;
     const selfEncryptedMessage = await encryptOutboundTapMessage({
       displayName: user.name,
+      pkId: user.pkId,
       encryptionPublicKey: user.encPk,
       privateNote: undefined,
       senderPrivateKey: encryptionPrivateKey,

@@ -11,6 +11,8 @@ export const USERS_STORAGE_KEY = "users";
 export type User = {
   name: string; // User's display name
   encPk: string; // User's encryption public key
+  pkId: string; // User's public key index for FHE
+  mr1: string; // User's message for round 1
   x?: string; // User's Twitter username
   tg?: string; // User's Telegram username
   fc?: string; // User's Farcaster username
@@ -21,8 +23,6 @@ export type User = {
   sig?: string; // User's signature
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
-  pkId?: string; // User's public key index for FHE
-  mr1?: string; // User's message for round 1
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
