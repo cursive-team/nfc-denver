@@ -4,7 +4,7 @@ import {
   loadBackup,
   saveAuthToken,
 } from "@/lib/client/localStorage";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { useRouter } from "next/router";
 import { useStateMachine } from "little-state-machine";

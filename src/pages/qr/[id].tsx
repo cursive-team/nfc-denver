@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { Button } from "@/components/Button";
 import { AppBackHeader } from "@/components/AppHeader";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { QRCodeResponseType } from "../api/qr";
 import { useEffect, useState } from "react";
 import { getAuthToken, getKeys } from "@/lib/client/localStorage";

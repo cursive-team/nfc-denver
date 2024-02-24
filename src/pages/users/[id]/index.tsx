@@ -157,7 +157,7 @@ const UserProfilePage = () => {
 };
 
 UserProfilePage.getInitialProps = () => {
-  return { fullPage: true };
+  return { showHeader: false, showFooter: true };
 };
 
 export default UserProfilePage;

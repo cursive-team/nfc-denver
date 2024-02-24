@@ -1,7 +1,7 @@
 import { hashPassword } from "@/lib/client/utils";
 import { decryptBackupString } from "@/lib/shared/backup";
 import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 interface SubmitLoginCode {
   email: string;

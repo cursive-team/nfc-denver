@@ -10,7 +10,7 @@ import {
 import { StateMachineProvider } from "little-state-machine";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { toast, Toaster } from "sonner";
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -48,6 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </div>
         </OnlyMobileLayout>
         <Toaster
+          position="top-center"
           toastOptions={{
             duration: 5000,
           }}

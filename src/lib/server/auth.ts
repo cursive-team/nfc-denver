@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import prisma from "@/lib/server/prisma";
-import sgMail from "@sendgrid/mail";
 import { object, string, boolean } from "yup";
 
 export const MAX_SIGNIN_CODE_GUESS_ATTEMPTS = 5;
@@ -33,22 +32,33 @@ export const generateAndSendSigninCode = async (
   });
   const signinCode = signinCodeEntry.value;
 
-  try {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-    const msg = {
-      to: email,
-      from: process.env.SENDGRID_SENDER_EMAIL!,
-      subject: "Your Signin Code",
-      text: `Your one-time signin code is: ${signinCode}. It will expire in 30 minutes.`,
-      html: `<strong>Your one-time signin code is: ${signinCode}</strong>. It will expire in 30 minutes.`,
-    };
+  const response = await fetch(
+    "https://platform.iyk.app/api/admin/eth-denver-login-email",
+    {
+      method: "POST",
+      headers: {
+        "x-cursive-secret": process.env.IYK_EMAIL_API_SECRET!,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recipient: email,
+        code: signinCode,
+      }),
+    }
+  );
 
-    await sgMail.send(msg);
-    return true;
-  } catch (error) {
-    console.error("Error sending email", error);
+  if (!response.ok) {
+    console.error(`Error sending email to user ${email}: `, response);
     return false;
   }
+
+  const { success } = await response.json();
+  if (!success) {
+    console.error("Failed to send email to user ${email}: ", response);
+    return false;
+  }
+
+  return true;
 };
 
 export type AuthTokenResponse = {

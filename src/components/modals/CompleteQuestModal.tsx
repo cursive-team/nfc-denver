@@ -14,7 +14,7 @@ import {
   generateProofForQuest,
 } from "@/lib/client/proving";
 import { getAuthToken, getKeys, getProfile } from "@/lib/client/localStorage";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { encryptQuestCompletedMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";

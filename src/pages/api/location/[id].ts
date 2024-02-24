@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
-import { ErrorResponse } from "@/types";
+import { ErrorResponse, LocationWithQuests } from "@/types";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<any | ErrorResponse>
+  res: NextApiResponse<LocationWithQuests | ErrorResponse>
 ) {
   if (req.method === "GET") {
     const { id } = req.query;
@@ -13,11 +13,19 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid input parameters" });
     }
 
-    const location = await prisma.location.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });
+    const location: LocationWithQuests | null =
+      await prisma.location.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+        include: {
+          questRequirements: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
 
     if (!location) {
       return res.status(404).json({ error: "Location not found" });

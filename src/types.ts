@@ -1,4 +1,4 @@
-import { Item, Quest } from "@prisma/client";
+import { Item, Location, Quest } from "@prisma/client";
 import { MembershipProof } from "babyjubjub-ecdsa";
 
 export type EmptyResponse = {};
@@ -77,4 +77,10 @@ export type ItemWithRequirements = Item & {
 
 export type ItemWithCompletion = ItemWithRequirements & {
   isCompleted?: boolean;
+};
+
+export type LocationWithQuests = Location & {
+  questRequirements: {
+    id: number;
+  }[];
 };

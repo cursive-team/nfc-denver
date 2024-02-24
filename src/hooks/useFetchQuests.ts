@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllQuestCompleted, getAuthToken } from "@/lib/client/localStorage";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { QuestWithCompletion, QuestWithRequirements } from "@/types";
 
