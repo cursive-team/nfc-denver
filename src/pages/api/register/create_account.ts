@@ -29,9 +29,14 @@ const createAccountSchema = object({
   passwordHash: string().optional(),
 });
 
+type RegisterResponse = {
+  authTokenResponse: AuthTokenResponse;
+  pkId: string;
+};
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<AuthTokenResponse | ErrorResponse>
+  res: NextApiResponse<RegisterResponse | ErrorResponse>
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -121,5 +126,7 @@ export default async function handler(
 
   const authTokenResponse = await generateAuthToken(user.id);
 
-  return res.status(200).json(authTokenResponse);
+  return res
+    .status(200)
+    .json({ authTokenResponse: authTokenResponse, pkId: user.id.toString() });
 }

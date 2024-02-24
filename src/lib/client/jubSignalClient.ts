@@ -248,15 +248,15 @@ const processEncryptedMessages = async (args: {
             );
           }
 
-          const { name, pk, note } = await outboundTapMessageSchema.validate(
-            data
-          );
+          const { name, pk, note, pkId } =
+            await outboundTapMessageSchema.validate(data);
           const userId = await hashPublicKeyToUUID(pk);
           const user = users[userId];
           if (user) {
             user.name = name;
             user.encPk = pk;
             user.note = note;
+            user.pkId = pkId;
             user.outTs = metadata.timestamp.toISOString();
 
             users[userId] = user;
@@ -264,6 +264,7 @@ const processEncryptedMessages = async (args: {
             users[userId] = {
               name,
               encPk: pk,
+              pkId,
               note,
               outTs: metadata.timestamp.toISOString(),
             };

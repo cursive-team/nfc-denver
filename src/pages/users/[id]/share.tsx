@@ -15,7 +15,6 @@ import {
 import { sign } from "@/lib/shared/signature";
 import { Button } from "@/components/Button";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
-import { Input } from "@/components/Input";
 import { AppBackHeader } from "@/components/AppHeader";
 import { toast } from "sonner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
