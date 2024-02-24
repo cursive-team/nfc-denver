@@ -36,6 +36,7 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
+import { set } from "react-hook-form";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -201,7 +202,7 @@ export default function QuestById() {
   }, []);
 
   const { numRequirementsSatisfied: requirementsSatisfied } =
-    useQuestRequirements([quest as any]);
+    useQuestRequirements([quest!]);
 
   const numRequirementsSatisfied = requirementsSatisfied[0] ?? 0;
 
