@@ -24,6 +24,10 @@ export type User = {
   inTs?: string; // Time of last inbound tap as ISO string
   mr1?: string; // User's message for round 1
   r1O?: string; // Round 1 output for PSI with this user
+  mr2?: string; // User's message for round 2
+  r2O?: string; // Round 2 output for PSI with this user
+  mr3?: string; // User's message for round 3
+  oI?: string; // User's PSI overlap indices
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -112,6 +116,72 @@ export const saveUserRound1Output = async (
   const updatedUser = {
     ...user,
     r1O: round1Output,
+  };
+
+  users[userId] = updatedUser;
+  saveUsers(users);
+};
+
+export const saveUserRound2Output = async (
+  userId: string,
+  round2Output: string
+) => {
+  const users = getUsers();
+  const user = users[userId];
+
+  if (!user) {
+    return;
+  }
+
+  const updatedUser = {
+    ...user,
+    r2O: round2Output,
+  };
+
+  users[userId] = updatedUser;
+  saveUsers(users);
+};
+
+export const saveUserRound3Message = async (
+  userId: string,
+  messageRound3: string
+) => {
+  const users = getUsers();
+  const user = users[userId];
+
+  if (!user) {
+    return;
+  }
+
+  const updatedUser = {
+    ...user,
+    mr3: messageRound3,
+  };
+
+  users[userId] = updatedUser;
+  saveUsers(users);
+};
+
+export const saveUserPSI = async (
+  userId: string,
+  overlapIndices: string
+): Promise<void> => {
+  const users = getUsers();
+  const user = users[userId];
+
+  if (!user) {
+    return;
+  }
+
+  // delete all other data to save space
+  const updatedUser = {
+    ...user,
+    mr1: undefined,
+    r1O: undefined,
+    mr2: undefined,
+    r2O: undefined,
+    mr3: undefined,
+    oI: overlapIndices,
   };
 
   users[userId] = updatedUser;

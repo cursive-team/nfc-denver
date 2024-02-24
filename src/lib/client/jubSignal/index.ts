@@ -6,6 +6,7 @@ export * from "./inboundTap";
 export * from "./locationTap";
 export * from "./questCompleted";
 export * from "./itemRedeemed";
+export * from "./decryptionShares";
 
 export enum JUB_SIGNAL_MESSAGE_TYPE {
   REGISTERED = "R", // A message you send to yourself indicating you are registered
@@ -14,6 +15,7 @@ export enum JUB_SIGNAL_MESSAGE_TYPE {
   LOCATION_TAP = "LT", // A message you send to yourself indicating you tapped a location
   QUEST_COMPLETED = "QC", // A message you send to yourself indicating you completed a quest
   ITEM_REDEEMED = "IR", // A message sent to you indicating you redeemed an item
+  DECRYPTION_SHARES = "DS", // A message sent to containing decryption shares for PSI
 }
 
 export type MessageContents = {
