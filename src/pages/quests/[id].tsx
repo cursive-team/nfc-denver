@@ -25,7 +25,10 @@ import {
   getQuestCompleted,
   getUsers,
 } from "@/lib/client/localStorage";
-import { computeNumRequirementSignatures } from "@/lib/client/quests";
+import {
+  computeNumRequirementSignatures,
+  computeNumRequirementsSatisfied,
+} from "@/lib/client/quests";
 import {
   getPinnedQuest,
   togglePinQuestById,
@@ -36,7 +39,6 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
-import { set } from "react-hook-form";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -201,10 +203,16 @@ export default function QuestById() {
     setLocationPublicKeys(validLocationPublicKeys);
   }, []);
 
-  const { numRequirementsSatisfied: requirementsSatisfied } =
-    useQuestRequirements([quest!]);
+  const numRequirementsSatisfied: number = useMemo(() => {
+    if (!quest) return 0;
 
-  const numRequirementsSatisfied = requirementsSatisfied[0] ?? 0;
+    return computeNumRequirementsSatisfied({
+      userPublicKeys,
+      locationPublicKeys,
+      userRequirements: quest.userRequirements,
+      locationRequirements: quest.locationRequirements,
+    });
+  }, [quest, userPublicKeys, locationPublicKeys]);
 
   const numUserRequirementSignatures: number[] = useMemo(() => {
     if (!quest) return [];

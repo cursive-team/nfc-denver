@@ -55,7 +55,9 @@ const UserProfilePage = () => {
       <AppBackHeader redirectTo="/" />
       {alreadyConnected && (
         <div className="flex items-start justify-center py-28">
-          <span className="text-xl text-gray-12">You already shared!</span>
+          <span className="text-xl text-gray-12">
+            You have already connected with this user!
+          </span>
         </div>
       )}
       <div className="flex flex-col gap-6">
