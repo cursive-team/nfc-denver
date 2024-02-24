@@ -20,6 +20,7 @@ const config: Config = {
         8: "24px",
       },
       colors: {
+        skeleton: "#1b1b1b",
         candy: {
           DEFAULT: "#8C00A3",
           200: "#580067",

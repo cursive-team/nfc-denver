@@ -37,6 +37,8 @@ const UserProfilePage = () => {
   const { id } = router.query;
   const [user, setUser] = useState<User>();
 
+  const alreadyConnected = router?.query?.alreadyConnected === "true";
+
   useEffect(() => {
     if (typeof id === "string") {
       const fetchedUser = fetchUserByUUID(id);
@@ -51,6 +53,13 @@ const UserProfilePage = () => {
   return (
     <div>
       <AppBackHeader redirectTo="/" />
+      {alreadyConnected && (
+        <div className="flex items-start justify-center py-28">
+          <span className="text-xl text-gray-12">
+            You have already connected with this user!
+          </span>
+        </div>
+      )}
       <div className="flex flex-col gap-6">
         <div className="flex gap-6 items-center">
           <div className="h-32 w-32 rounded bg-slate-200"></div>

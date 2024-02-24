@@ -1,5 +1,6 @@
 import { HTMLAttributes } from "react";
 import { PointCard } from "./PointCard";
+import { Placeholder } from "../placeholders/Placeholder";
 
 interface StoreCardProps extends HTMLAttributes<HTMLDivElement> {
   partnerName: string;
@@ -8,6 +9,19 @@ interface StoreCardProps extends HTMLAttributes<HTMLDivElement> {
   pointsRequired: number;
   imageUrl: string;
 }
+
+const StoreCardPlaceholder = () => (
+  <div className="flex flex-col gap-2">
+    <Placeholder.Card className="h-[174px]" />
+    <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-1">
+        <Placeholder.Line size="xs" className="!w-8" />
+        <Placeholder.Line size="xs" className="!w-10" />
+      </div>
+      <Placeholder.Line size="xs" className="!w-6" />
+    </div>
+  </div>
+);
 
 const StoreCard = ({
   partnerName,
@@ -40,4 +54,6 @@ const StoreCard = ({
 };
 
 StoreCard.displayName = "StoreCard";
+StoreCard.Placeholder = StoreCardPlaceholder;
+
 export { StoreCard };

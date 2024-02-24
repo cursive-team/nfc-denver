@@ -38,12 +38,16 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
     mutationKey: ["login"],
     mutationFn: async ({ email }: LoginFormProps) => {
       actions.updateStateFromAction({ login: { email } });
+
+      // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
+      const emailClean = email.trim().toLowerCase();
+
       const response = await fetch("/api/login/get_code", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailClean }),
       });
 
       if (!response.ok) {

@@ -69,7 +69,9 @@ export default function Register() {
   }, [router.query.cmac]);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+    // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
+    const emailCleaned = event.target.value.trim().toLowerCase();
+    setEmail(emailCleaned);
   };
 
   const handleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +81,8 @@ export default function Register() {
   const handleDisplayNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setDisplayName(event.target.value);
+    const displayNameCleaned = event.target.value.trim(); // remove trailing spaces
+    setDisplayName(displayNameCleaned);
   };
 
   const handleTwitterUsernameChange = (
