@@ -9,23 +9,95 @@ import { getNonceFromCounterMessage } from "@/lib/client/libhalo";
 import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
+import { Button } from "../Button";
+import { LocationSignature, getAuthToken } from "@/lib/client/localStorage";
+import { toast } from "sonner";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { Spinner } from "../Spinner";
+
+enum MintDisplayState {
+  DISPLAY,
+  LOADING,
+  SUCCESS,
+}
 
 interface LocationTapModalProps extends ModalProps {
   location: LocationWithQuests;
-  signatureMessage: string | undefined;
+  signature: LocationSignature | undefined;
 }
 
 const LocationTapModal = ({
   location,
-  signatureMessage,
+  signature,
   isOpen,
   setIsOpen,
 }: LocationTapModalProps) => {
+  const router = useRouter();
   const { isPending: isLoadingQuests, data: quests = [] } = useFetchQuests();
   const { numRequirementsSatisfied } = useQuestRequirements(quests);
   const locationQuestRequirementIds = location.questRequirements.map(
     (quest) => quest.id
   );
+  const [mintDisplayState, setMintDisplayState] = useState<MintDisplayState>(
+    MintDisplayState.DISPLAY
+  );
+
+  const handleEmailMint = async () => {
+    const authToken = getAuthToken();
+    if (!authToken || authToken.expiresAt < new Date()) {
+      toast.error("You must be logged in to mint an NFT.");
+      router.push("/login");
+      return;
+    }
+
+    if (!signature) {
+      toast.error("You must have a signature to mint an NFT.");
+      return;
+    }
+
+    setMintDisplayState(MintDisplayState.LOADING);
+
+    const response = await fetch("/api/location/mint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: authToken.value,
+        locationId: location.id,
+        signature: signature.sig,
+        message: signature.msg,
+      }),
+    });
+
+    if (response.ok) {
+      toast.success(
+        "Mint successful! Check your email in a few seconds for a special NFT."
+      );
+      setMintDisplayState(MintDisplayState.SUCCESS);
+    } else {
+      toast.error("Error minting NFT. Please try again later.");
+      setMintDisplayState(MintDisplayState.DISPLAY);
+    }
+  };
+
+  const getMintDisplayState = () => {
+    if (mintDisplayState === MintDisplayState.DISPLAY) {
+      return (
+        <Button onClick={handleEmailMint} className="w-24 h-8 mt-4">
+          Mint an NFT to your email
+        </Button>
+      );
+    } else if (mintDisplayState === MintDisplayState.LOADING) {
+      return <Spinner label="Minting your NFT..." />;
+    } else {
+      return (
+        <div className="text-gray-11">Check your email for a special NFT!</div>
+      );
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
       <div className="flex flex-col min-h-[60vh]">
@@ -46,15 +118,17 @@ const LocationTapModal = ({
               <span className=" text-gray-11">You have visited</span>
               <span className=" text-gray-12">{`${location.name}`}</span>
             </div>
-            {signatureMessage &&
-              getNonceFromCounterMessage(signatureMessage) && (
-                <div className="flex gap-0.5 text-xs font-light">
-                  <span className=" text-gray-11">You are visitor no.</span>
-                  <span className=" text-gray-12">{`${getNonceFromCounterMessage(
-                    signatureMessage
-                  )}`}</span>
-                </div>
-              )}
+            {signature?.msg && getNonceFromCounterMessage(signature.msg) && (
+              <div className="flex gap-0.5 text-xs font-light">
+                <span className=" text-gray-11">You are visitor no.</span>
+                <span className=" text-gray-12">{`${getNonceFromCounterMessage(
+                  signature.msg
+                )}`}</span>
+              </div>
+            )}
+            {location.displayEmailWalletLink &&
+              signature &&
+              getMintDisplayState()}
             {location.description.length > 0 && (
               <span className="text-gray-11 text-center">
                 {location.description}

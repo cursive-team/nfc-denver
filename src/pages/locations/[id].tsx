@@ -69,7 +69,7 @@ const LocationDetails = () => {
         {location && (
           <LocationTapModal
             location={location}
-            signatureMessage={signature?.msg}
+            signature={signature}
             isOpen={openTapModal}
             setIsOpen={(isOpen) => setOpenTapModal(isOpen)}
           />
