@@ -40,7 +40,8 @@ const LoginStepCode = ({
     onSuccessfulLogin,
   });
 
-  const email = getState()?.login?.email;
+  // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
+  const email = getState()?.login?.email?.trim().toLowerCase();
 
   const verifyCodeMutation = useMutation({
     mutationKey: ["verifyCode"],

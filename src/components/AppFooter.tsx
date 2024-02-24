@@ -9,9 +9,10 @@ interface RouterItem {
   href: string;
   icon: string;
   isActive?: boolean;
+  iconSize?: number;
 }
 
-const TabItem = ({ label, href, icon, isActive }: RouterItem) => {
+const TabItem = ({ label, href, icon, isActive, iconSize }: RouterItem) => {
   const Icon: any = icon;
 
   const textColor = isActive ? "text-white" : "text-gray-10";
@@ -19,7 +20,7 @@ const TabItem = ({ label, href, icon, isActive }: RouterItem) => {
   return (
     <Link href={href}>
       <div className="flex flex-col text-center items-center justify-center gap-1">
-        <Icon size={24} className={cn("duration-200", textColor)} />
+        <Icon size={iconSize || 24} className={cn("duration-200", textColor)} />
         <span
           className={cn(
             "duration-200 delay-100 text-sm font-light mt-auto leading-5",
@@ -46,6 +47,7 @@ const AppFooter = () => {
       label: "Quests",
       href: "/quests",
       icon: Icons.quest,
+      iconSize: 16,
     },
     {
       label: "Store",
@@ -57,7 +59,7 @@ const AppFooter = () => {
   return (
     <footer
       id="footer"
-      className="sticky border-t border-t-shark-700 w-full bottom-0 mt-4"
+      className="fixed border-t border-t-shark-700 w-full bottom-0 mt-4 z-[50]"
     >
       <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-[17px] pb-[13px]">
         {routerItems?.map((route, index) => {

@@ -30,7 +30,10 @@ body {
   font-family: "RegolaPro", sans-serif;
   text-rendering: geometricPrecision;
   font-feature-settings: "calt" off;
+  -webkit-overflow-scrolling: touch;
 }
+
+
 
 @layer utilities {
   .text-balance {
@@ -45,5 +48,12 @@ body {
 @supports (-webkit-touch-callout: none) {
   .h-screen {
     height: -webkit-fill-available;
+  }
+}
+
+
+.sticky {
+  > * {
+    -webkit-transform: translateZ(0);
   }
 }

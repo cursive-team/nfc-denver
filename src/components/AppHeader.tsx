@@ -3,10 +3,7 @@ import { classed } from "@tw-classed/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
-import { Button } from "./Button";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
-import { FormStepLayout } from "@/layouts/FormStepLayout";
-import { Input } from "./Input";
 import Profile from "./Profile";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");

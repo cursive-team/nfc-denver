@@ -79,7 +79,7 @@ const FeedContent = ({ title, description, icon }: FeedContentProps) => {
   return (
     <div className="flex items-center justify-between py-1">
       <div className="flex items-center gap-2">
-        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+        <div className="flex justify-center items-center h-6 w-6 rounded-full bg-[#323232]">
           {icon}
         </div>
         <Card.Title>{title}</Card.Title>
@@ -136,7 +136,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
                 {"Visited"} <u>{name}</u>
               </>
             }
-            icon={<Icons.home className="h-3" />}
+            icon={<Icons.location className="h-3" />}
             description={date}
           />
         </Link>
@@ -145,7 +145,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
       return (
         <Link href={`/quests/${id}`}>
           <FeedContent
-            icon={<Icons.quest />}
+            icon={<Icons.quest className="#CDE3C9" />}
             title={
               <>
                 {"Completed "} <u>{name}</u>

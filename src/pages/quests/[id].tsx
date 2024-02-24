@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import {
   LocationRequirement,
   QuestRequirementType,
+  QuestWithRequirements,
   QuestWithRequirementsAndItems,
   UserRequirement,
 } from "@/types";
@@ -28,13 +29,16 @@ import {
   computeNumRequirementSignatures,
   computeNumRequirementsSatisfied,
 } from "@/lib/client/quests";
-import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
 import {
   getPinnedQuest,
   togglePinQuestById,
 } from "@/lib/client/localStorage/questPinned";
 import { toast } from "sonner";
-import { PointCard } from "@/components/cards/PointCard";
+import { ListLayout } from "@/layouts/ListLayout";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
+import { QuestCard } from "@/components/cards/QuestCard";
+import { useQuestRequirements } from "@/hooks/useQuestRequirements";
+import Link from "next/link";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -104,20 +108,76 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   );
 };
 
+const QuestCompleted = ({ quest }: { quest: QuestWithRequirements }) => {
+  const { isLoading, data: quests = [] } = useFetchQuests();
+
+  const moreQuests = quests
+    .filter((q) => q.id !== quest.id) // ignore current quest
+    .filter((q) => !q.isCompleted); // ignore completed quests
+
+  const { numRequirementsSatisfied } = useQuestRequirements(moreQuests);
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex flex-col items-center gap-6 py-16">
+        <div className=" bg-slate-200 w-10 h-10 rounded-full"></div>
+        <div className="flex flex-col text-center">
+          <span className=" text-gray-10 text-xs">{quest.name}</span>
+          <span className=" text-xl text-gray-12">Quest completed</span>
+        </div>
+      </div>
+      <ListLayout label="More quests">
+        <LoadingWrapper
+          className="flex flex-col gap-2"
+          isLoading={isLoading}
+          fallback={<Placeholder.List items={3} />}
+          noResultsLabel="No quests found"
+        >
+          {moreQuests.map(
+            (
+              {
+                id,
+                name,
+                description,
+                userRequirements,
+                locationRequirements,
+                isCompleted = false,
+              },
+              index
+            ) => {
+              return (
+                <Link key={index} href={`/quests/${id}`}>
+                  <QuestCard
+                    title={name}
+                    description={description}
+                    completedSigs={numRequirementsSatisfied[index]}
+                    userRequirements={userRequirements}
+                    locationRequirements={locationRequirements}
+                    isCompleted={isCompleted}
+                  />
+                </Link>
+              );
+            }
+          )}
+        </LoadingWrapper>
+      </ListLayout>
+    </div>
+  );
+};
+
 export default function QuestById() {
   const params = useParams();
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
   const [completeQuestModal, setCompleteQuestModal] = useState(false);
   const { id: questId } = params;
-  const {
-    isLoading,
-    isPending,
-    data: quest = null,
-  } = useFetchQuestById(questId as string);
+  const { isLoading, data: quest = null } = useFetchQuestById(
+    questId as string
+  );
   const [existingProofId, setExistingProofId] = useState<string>();
 
   useEffect(() => {
+    setExistingProofId(undefined); // Clear existing proof id when quest changes
     if (quest) {
       // Check if the user has already submitted a proof for this quest
       // (i.e. the quest is already completed)
@@ -126,7 +186,7 @@ export default function QuestById() {
         setExistingProofId(questCompleted.pfId);
       }
     }
-  }, [quest]);
+  }, [quest, questId]);
 
   useEffect(() => {
     const users = getUsers();
@@ -182,7 +242,7 @@ export default function QuestById() {
     (quest?.userRequirements?.length ?? 0) +
     (quest?.locationRequirements?.length ?? 0);
 
-  const isQuestComplete = existingProofId !== undefined;
+  const isQuestComplete = existingProofId !== undefined && !isLoading;
 
   return (
     <div>
@@ -207,76 +267,82 @@ export default function QuestById() {
           }
         >
           {quest ? (
-            <>
-              <QuestDetail quest={quest} />
-              <ListWrapper
-                title="Requirements"
-                label={
-                  <div className="flex gap-2 items-center">
-                    {isQuestComplete && (
-                      <>
-                        <Label>{"Quest Complete"}</Label>
-                        <Icons.checkedCircle />
-                      </>
-                    )}
-                    {!isQuestComplete && (
-                      <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
-                    )}
-                    {quest &&
-                      numRequirementsSatisfied === numRequirementsTotal &&
-                      !isQuestComplete && (
-                        <Button
-                          onClick={() => {
-                            setCompleteQuestModal(true);
-                          }}
-                          size="tiny"
-                        >
-                          Complete quest
-                        </Button>
+            isQuestComplete ? (
+              <QuestCompleted quest={quest} />
+            ) : (
+              <>
+                <QuestDetail quest={quest} />
+                <ListWrapper
+                  title="Requirements"
+                  label={
+                    <div className="flex gap-2 items-center">
+                      {isQuestComplete && (
+                        <>
+                          <Label>{"Quest Complete"}</Label>
+                          <Icons.checkedCircle />
+                        </>
                       )}
-                  </div>
-                }
-              >
-                <>
-                  {quest &&
-                    quest.userRequirements.map(
-                      (
-                        { name, numSigsRequired, users }: any,
-                        index: number
-                      ) => (
-                        <QuestRequirementCard
-                          key={index}
-                          title={name}
-                          numSigsCollected={numUserRequirementSignatures[index]}
-                          numSigsRequired={numSigsRequired}
-                          questRequirementType={QuestRequirementType.USER}
-                          users={users}
-                          userPubKeysCollected={userPublicKeys}
-                        />
-                      )
-                    )}
-                  {quest &&
-                    quest.locationRequirements.map(
-                      (
-                        { name, numSigsRequired, locations }: any,
-                        index: number
-                      ) => (
-                        <QuestRequirementCard
-                          key={index}
-                          title={name}
-                          numSigsCollected={
-                            numLocationRequirementSignatures[index]
-                          }
-                          numSigsRequired={numSigsRequired}
-                          questRequirementType={QuestRequirementType.LOCATION}
-                          locations={locations}
-                          locationPubKeysCollected={locationPublicKeys}
-                        />
-                      )
-                    )}
-                </>
-              </ListWrapper>
-            </>
+                      {!isQuestComplete && (
+                        <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
+                      )}
+                      {quest &&
+                        numRequirementsSatisfied === numRequirementsTotal &&
+                        !isQuestComplete && (
+                          <Button
+                            onClick={() => {
+                              setCompleteQuestModal(true);
+                            }}
+                            size="tiny"
+                          >
+                            Complete quest
+                          </Button>
+                        )}
+                    </div>
+                  }
+                >
+                  <>
+                    {quest &&
+                      quest.userRequirements.map(
+                        (
+                          { name, numSigsRequired, users }: any,
+                          index: number
+                        ) => (
+                          <QuestRequirementCard
+                            key={index}
+                            title={name}
+                            numSigsCollected={
+                              numUserRequirementSignatures[index]
+                            }
+                            numSigsRequired={numSigsRequired}
+                            questRequirementType={QuestRequirementType.USER}
+                            users={users}
+                            userPubKeysCollected={userPublicKeys}
+                          />
+                        )
+                      )}
+                    {quest &&
+                      quest.locationRequirements.map(
+                        (
+                          { name, numSigsRequired, locations }: any,
+                          index: number
+                        ) => (
+                          <QuestRequirementCard
+                            key={index}
+                            title={name}
+                            numSigsCollected={
+                              numLocationRequirementSignatures[index]
+                            }
+                            numSigsRequired={numSigsRequired}
+                            questRequirementType={QuestRequirementType.LOCATION}
+                            locations={locations}
+                            locationPubKeysCollected={locationPublicKeys}
+                          />
+                        )
+                      )}
+                  </>
+                </ListWrapper>
+              </>
+            )
           ) : (
             <span className="flex justify-center items-center text-center grow min-h-[80vh]">
               Unable to load this quest.

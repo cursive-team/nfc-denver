@@ -58,8 +58,7 @@ const SharePage = () => {
         }
 
         if (fetchedUser.outTs) {
-          toast.error("You have already connected with this user");
-          router.push("/users/" + id);
+          router.push(`/users/${id}?alreadyConnected=true`);
           return;
         }
 
