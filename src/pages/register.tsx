@@ -81,7 +81,8 @@ export default function Register() {
   const handleDisplayNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setDisplayName(event.target.value);
+    const displayNameCleaned = event.target.value.trim(); // remove trailing spaces
+    setDisplayName(displayNameCleaned);
   };
 
   const handleTwitterUsernameChange = (

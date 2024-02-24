@@ -59,7 +59,7 @@ const AppFooter = () => {
   return (
     <footer
       id="footer"
-      className="fixed border-t border-t-shark-700 w-full bottom-0 mt-4"
+      className="fixed border-t border-t-shark-700 w-full bottom-0 mt-4 z-[50]"
     >
       <div className="bg-gray-200 md:container grid grid-cols-3 bottom-0 pt-[17px] pb-[13px]">
         {routerItems?.map((route, index) => {

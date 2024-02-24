@@ -8,7 +8,7 @@ import { QuestWithCompletion, QuestWithRequirements } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
 
-export function useQuestRequirements(quests: QuestWithCompletion[] = []) {
+export function useQuestRequirements(quests: QuestWithCompletion[] | null) {
   // Compute users and locations that user has signatures for
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
@@ -29,16 +29,18 @@ export function useQuestRequirements(quests: QuestWithCompletion[] = []) {
   }, []);
 
   const numRequirementsSatisfied: number[] = useMemo(() => {
-    return quests?.map(
-      ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
-        return computeNumRequirementsSatisfied({
-          userPublicKeys,
-          locationPublicKeys,
-          userRequirements,
-          locationRequirements,
-        });
-      }
-    );
+    return (quests ?? [])
+      .filter(Boolean) // Remove any null or undefined quests
+      ?.map(
+        ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
+          return computeNumRequirementsSatisfied({
+            userPublicKeys,
+            locationPublicKeys,
+            userRequirements,
+            locationRequirements,
+          });
+        }
+      );
   }, [quests, userPublicKeys, locationPublicKeys]);
 
   return {
