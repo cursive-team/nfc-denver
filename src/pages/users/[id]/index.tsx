@@ -1,6 +1,11 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { fetchUserByUUID, User } from "@/lib/client/localStorage";
+import {
+  fetchUserByUUID,
+  getKeys,
+  getProfile,
+  User,
+} from "@/lib/client/localStorage";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
@@ -9,6 +14,13 @@ import { classed } from "@tw-classed/react";
 import { labelStartWith, removeLabelStartWith } from "@/lib/shared/utils";
 import { InputWrapper } from "@/components/input/InputWrapper";
 import { Input } from "@/components/Input";
+import { Button } from "@/components/Button";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
+import { encryptOutboundTapMessage } from "@/lib/client/jubSignal";
+import { toast } from "sonner";
+import { MessageRequest } from "@/pages/api/messages";
+import { Spinner } from "@/components/Spinner";
+import { loadMessages } from "@/lib/client/jubSignalClient";
 
 const Label = classed.span("text-sm text-gray-12");
 
@@ -36,7 +48,9 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [user, setUser] = useState<User>();
-  const [privateNote, setPrivateNote] = useState("");
+  const [privateNote, setPrivateNote] = useState<string>("");
+  const [viewNote, setViewNote] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const alreadyConnected = router?.query?.alreadyConnected === "true";
 
@@ -44,11 +58,98 @@ const UserProfilePage = () => {
     if (typeof id === "string") {
       const fetchedUser = fetchUserByUUID(id);
       setUser(fetchedUser);
+      if (fetchedUser) setPrivateNote(fetchedUser.note || "");
     }
   }, [id]);
 
   if (!user) {
-    return <div>User not found</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner label="Loading user..." />
+      </div>
+    );
+  }
+
+  if (viewNote) {
+    const handleSaveNote = async () => {
+      setLoading(true);
+
+      const keys = getKeys();
+      if (!keys) {
+        console.error("Cannot find user keys");
+        toast.error("You must be logged in to connect");
+        router.push("/login");
+        return;
+      }
+
+      const profile = getProfile();
+      if (!profile) {
+        console.error("Cannot find user profile");
+        toast.error("You must be logged in to connect");
+        router.push("/login");
+        return;
+      }
+
+      const selfPublicKey = profile.encryptionPublicKey;
+      const selfEncryptedMessage = await encryptOutboundTapMessage({
+        displayName: user.name,
+        pkId: user.pkId,
+        encryptionPublicKey: user.encPk,
+        privateNote,
+        senderPrivateKey: keys.encryptionPrivateKey,
+        recipientPublicKey: selfPublicKey,
+      });
+      const selfMessageRequest: MessageRequest = {
+        encryptedMessage: selfEncryptedMessage,
+        recipientPublicKey: selfPublicKey,
+      };
+      try {
+        await loadMessages({
+          forceRefresh: false,
+          messageRequests: [selfMessageRequest],
+        });
+        toast.success(`Successfully saved private note!`);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error sending encrypted tap to server: ", error);
+        toast.error("An error occurred while saving note. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      setViewNote(false);
+      setLoading(false);
+    };
+
+    return (
+      <div>
+        <AppBackHeader onBackClick={() => setViewNote(false)} />
+        <FormStepLayout
+          title={
+            <span className="text-base text-gray-12">{`Private note for ${user.name}`}</span>
+          }
+        >
+          <Input
+            type="longtext"
+            placeholder="e.g Met on Saturday"
+            textSize="xs"
+            value={privateNote}
+            description={`Use to help remember your interaction.`}
+            onChange={(event) => {
+              setPrivateNote(event.target.value);
+            }}
+          />
+          <Button
+            loading={loading}
+            disabled={privateNote === (user.note || "")}
+            size="sm"
+            onClick={handleSaveNote}
+          >
+            Save
+          </Button>
+        </FormStepLayout>
+      </div>
+    );
   }
 
   return (
@@ -64,23 +165,29 @@ const UserProfilePage = () => {
       <div className="flex flex-col gap-6">
         <div className="flex gap-6 items-center">
           <div className="h-32 w-32 rounded bg-slate-200"></div>
-          <div className="flex flex-col gap-1">
-            <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>
-            <div className="flex items-center gap-1">
-              <Icons.checkedCircle />
-              <span className="text-sm font-light text-white">
-                {user.outTs ? (
-                  <Label>{`You shared on ${new Date(user.outTs).toLocaleString(
-                    undefined,
-                    {
-                      dateStyle: "medium",
-                    }
-                  )}`}</Label>
-                ) : (
-                  <Label>{`You have not yet connected with ${user.name}.`}</Label>
-                )}
-              </span>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1 mt-2">
+              <h2 className="text-xl font-gray-12 font-light">{user.name}</h2>
+              <div className="flex items-center gap-1">
+                <Icons.checkedCircle />
+                <span className="text-sm font-light text-gray-10">
+                  {user.outTs ? (
+                    <Label>{`Shared on ${new Date(user.outTs).toLocaleString(
+                      undefined,
+                      {
+                        dateStyle: "medium",
+                      }
+                    )}`}</Label>
+                  ) : (
+                    <Label>{`Not yet connected.`}</Label>
+                  )}
+                </span>
+              </div>
             </div>
+
+            <Button size="sm" onClick={() => setViewNote(true)}>
+              {user && user.note ? "View private note" : "Set private note"}
+            </Button>
           </div>
         </div>
         {!user.inTs && (
@@ -128,31 +235,6 @@ const UserProfilePage = () => {
           <InputWrapper className="flex flex-col gap-2" label={`Bio`}>
             <span className="text-gray-11 text-[14px] mt-1 left-5">
               {user.bio}
-            </span>
-          </InputWrapper>
-        )}
-        <Input
-          type="longtext"
-          label="Private note"
-          placeholder="e.g Met on Saturday"
-          textSize="sm"
-          description={
-            <span className="block">
-              {`Use to help remember your interaction with ${user.name}. Only you will see this.`}
-            </span>
-          }
-          value={privateNote}
-          onChange={(event) => {
-            setPrivateNote(event.target.value);
-          }}
-        />
-        {user?.note && (
-          <InputWrapper
-            className="flex flex-col gap-2"
-            label="Your private note"
-          >
-            <span className="text-gray-11 text-[14px] mt-1 left-5">
-              {user?.note}
             </span>
           </InputWrapper>
         )}
