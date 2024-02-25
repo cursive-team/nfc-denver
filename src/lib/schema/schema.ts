@@ -1,4 +1,4 @@
-import { object, string, date, InferType } from "yup";
+import { object, string, date, InferType, boolean } from "yup";
 
 export const LoginSchema = object({
   email: string()
@@ -32,6 +32,7 @@ export const RegisterLocationSchema = object({
     .max(32, "Sponsor must be less than 32 characters.")
     .required(),
   imageUrl: string().optional(),
+  emailWallet: boolean().required(),
 });
 
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;

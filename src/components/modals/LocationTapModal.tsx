@@ -14,7 +14,7 @@ import { LocationSignature, getAuthToken } from "@/lib/client/localStorage";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { Spinner } from "../Spinner";
+import Linkify from "react-linkify";
 
 enum MintDisplayState {
   DISPLAY,
@@ -85,15 +85,21 @@ const LocationTapModal = ({
   const getMintDisplayState = () => {
     if (mintDisplayState === MintDisplayState.DISPLAY) {
       return (
-        <Button onClick={handleEmailMint} className="w-24 h-8 mt-4">
+        <Button onClick={handleEmailMint} className="w-full h-8 mt-4">
           Mint an NFT to your email
         </Button>
       );
     } else if (mintDisplayState === MintDisplayState.LOADING) {
-      return <Spinner label="Minting your NFT..." />;
+      return (
+        <Button loading className="w-full h-8 mt-4">
+          Minting NFT...
+        </Button>
+      );
     } else {
       return (
-        <div className="text-gray-11">Check your email for a special NFT!</div>
+        <div className="text-md text-center text-gray-11">
+          Check your email for a special NFT!
+        </div>
       );
     }
   };
@@ -110,30 +116,41 @@ const LocationTapModal = ({
               alt="home image"
             />
           </div>
-          <div className="flex flex-col gap-[10px] items-center mx-6">
-            <span className=" text-xl tracking-[-0.2px] font-light text-gray-12">
+          <div className="flex flex-col gap-2 items-center mx-6">
+            <span className="text-xl tracking-[-0.2px] font-light text-gray-12">
               Success!
             </span>
-            <div className="flex gap-0.5 text-xs font-light">
-              <span className=" text-gray-11">You have visited</span>
-              <span className=" text-gray-12">{`${location.name}`}</span>
-            </div>
             {signature?.msg && getNonceFromCounterMessage(signature.msg) && (
               <div className="flex gap-0.5 text-xs font-light">
-                <span className=" text-gray-11">You are visitor no.</span>
-                <span className=" text-gray-12">{`${getNonceFromCounterMessage(
+                <span className=" text-gray-11">{`You are visitor #${getNonceFromCounterMessage(
                   signature.msg
-                )}`}</span>
+                )} to`}</span>
+                <span className=" text-gray-12">{` ${location.name}`}</span>
               </div>
             )}
+            {location.description.length > 0 && (
+              <span className="text-xs text-gray-11 text-center">
+                <Linkify
+                  componentDecorator={(decoratedHref, decoratedText, key) => (
+                    <a
+                      target="_blank"
+                      href={decoratedHref}
+                      key={key}
+                      style={{ textDecoration: "underline" }}
+                    >
+                      {decoratedText}
+                    </a>
+                  )}
+                >
+                  {location.description}
+                </Linkify>
+              </span>
+            )}
+          </div>
+          <div className="w-full mt-2 px-2">
             {location.displayEmailWalletLink &&
               signature &&
               getMintDisplayState()}
-            {location.description.length > 0 && (
-              <span className="text-gray-11 text-center">
-                {location.description}
-              </span>
-            )}
           </div>
         </div>
         {locationQuestRequirementIds.length !== 0 && (
