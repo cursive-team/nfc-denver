@@ -9,23 +9,101 @@ import { getNonceFromCounterMessage } from "@/lib/client/libhalo";
 import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
+import { Button } from "../Button";
+import { LocationSignature, getAuthToken } from "@/lib/client/localStorage";
+import { toast } from "sonner";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import Linkify from "react-linkify";
+
+enum MintDisplayState {
+  DISPLAY,
+  LOADING,
+  SUCCESS,
+}
 
 interface LocationTapModalProps extends ModalProps {
   location: LocationWithQuests;
-  signatureMessage: string | undefined;
+  signature: LocationSignature | undefined;
 }
 
 const LocationTapModal = ({
   location,
-  signatureMessage,
+  signature,
   isOpen,
   setIsOpen,
 }: LocationTapModalProps) => {
+  const router = useRouter();
   const { isPending: isLoadingQuests, data: quests = [] } = useFetchQuests();
   const { numRequirementsSatisfied } = useQuestRequirements(quests);
   const locationQuestRequirementIds = location.questRequirements.map(
     (quest) => quest.id
   );
+  const [mintDisplayState, setMintDisplayState] = useState<MintDisplayState>(
+    MintDisplayState.DISPLAY
+  );
+
+  const handleEmailMint = async () => {
+    const authToken = getAuthToken();
+    if (!authToken || authToken.expiresAt < new Date()) {
+      toast.error("You must be logged in to mint an NFT.");
+      router.push("/login");
+      return;
+    }
+
+    if (!signature) {
+      toast.error("You must have a signature to mint an NFT.");
+      return;
+    }
+
+    setMintDisplayState(MintDisplayState.LOADING);
+
+    const response = await fetch("/api/location/mint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: authToken.value,
+        locationId: location.id,
+        signature: signature.sig,
+        message: signature.msg,
+      }),
+    });
+
+    if (response.ok) {
+      toast.success(
+        "Mint successful! Check your email in a few seconds for a special NFT."
+      );
+      setMintDisplayState(MintDisplayState.SUCCESS);
+    } else {
+      toast.error("Error minting NFT. Please try again later.");
+      setMintDisplayState(MintDisplayState.DISPLAY);
+    }
+  };
+
+  const getMintDisplayState = () => {
+    if (mintDisplayState === MintDisplayState.DISPLAY) {
+      return (
+        <Button onClick={handleEmailMint} className="w-full h-8 mt-4">
+          Mint an NFT to your email
+        </Button>
+      );
+    } else if (mintDisplayState === MintDisplayState.LOADING) {
+      return (
+        <Button loading className="w-full h-8 mt-4">
+          Minting NFT...
+        </Button>
+      );
+    } else {
+      return (
+        <div className="text-md text-center text-gray-11">
+          Check your email for a special NFT!
+        </div>
+      );
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
       <div className="flex flex-col min-h-[60vh]">
@@ -38,28 +116,41 @@ const LocationTapModal = ({
               alt="home image"
             />
           </div>
-          <div className="flex flex-col gap-[10px] items-center mx-6">
-            <span className=" text-xl tracking-[-0.2px] font-light text-gray-12">
+          <div className="flex flex-col gap-2 items-center mx-6">
+            <span className="text-xl tracking-[-0.2px] font-light text-gray-12">
               Success!
             </span>
-            <div className="flex gap-0.5 text-xs font-light">
-              <span className=" text-gray-11">You have visited</span>
-              <span className=" text-gray-12">{`${location.name}`}</span>
-            </div>
-            {signatureMessage &&
-              getNonceFromCounterMessage(signatureMessage) && (
-                <div className="flex gap-0.5 text-xs font-light">
-                  <span className=" text-gray-11">You are visitor no.</span>
-                  <span className=" text-gray-12">{`${getNonceFromCounterMessage(
-                    signatureMessage
-                  )}`}</span>
-                </div>
-              )}
+            {signature?.msg && getNonceFromCounterMessage(signature.msg) && (
+              <div className="flex gap-0.5 text-xs font-light">
+                <span className=" text-gray-11">{`You are visitor #${getNonceFromCounterMessage(
+                  signature.msg
+                )} to`}</span>
+                <span className=" text-gray-12">{` ${location.name}`}</span>
+              </div>
+            )}
             {location.description.length > 0 && (
-              <span className="text-gray-11 text-center">
-                {location.description}
+              <span className="text-xs text-gray-11 text-center">
+                <Linkify
+                  componentDecorator={(decoratedHref, decoratedText, key) => (
+                    <a
+                      target="_blank"
+                      href={decoratedHref}
+                      key={key}
+                      style={{ textDecoration: "underline" }}
+                    >
+                      {decoratedText}
+                    </a>
+                  )}
+                >
+                  {location.description}
+                </Linkify>
               </span>
             )}
+          </div>
+          <div className="w-full mt-2 px-2">
+            {location.displayEmailWalletLink &&
+              signature &&
+              getMintDisplayState()}
           </div>
         </div>
         {locationQuestRequirementIds.length !== 0 && (

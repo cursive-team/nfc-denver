@@ -42,16 +42,17 @@ model LocationKey {
 }
 
 model Location {
-  id                  Int                   @id @default(autoincrement())
-  chipId              String                @unique
-  signaturePublicKey  String
-  name                String
-  description         String
-  sponsor             String
-  imageUrl            String
-  createdAt           DateTime              @default(now())
-  signaturePrivateKey LocationKey?          @relation
-  questRequirements   LocationRequirement[] @relation("LocationQuestRequirements")
+  id                     Int                   @id @default(autoincrement())
+  chipId                 String                @unique
+  signaturePublicKey     String
+  name                   String
+  description            String
+  sponsor                String
+  imageUrl               String
+  displayEmailWalletLink Boolean               @default(false)
+  createdAt              DateTime              @default(now())
+  signaturePrivateKey    LocationKey?          @relation
+  questRequirements      LocationRequirement[] @relation("LocationQuestRequirements")
 }
 
 model SigninCode {
@@ -179,4 +180,12 @@ model QrCode {
   user      User     @relation(name: "QrCodeUser", fields: [userId], references: [id])
 
   @@unique([itemId, userId])
+}
+
+model EmailWalletMint {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  locationId Int
+  sigHash    String
+  createdAt  DateTime @default(now())
 }

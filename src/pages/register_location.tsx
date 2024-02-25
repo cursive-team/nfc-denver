@@ -14,6 +14,7 @@ import {
 import { InputWrapper } from "@/components/input/InputWrapper";
 import { useMutation } from "@tanstack/react-query";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Checkbox } from "@/components/Checkbox";
 
 export default function RegisterLocation() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function RegisterLocation() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitted },
   } = useForm<RegisterLocationType>({
     resolver: yupResolver(RegisterLocationSchema),
@@ -33,8 +36,11 @@ export default function RegisterLocation() {
       name: "",
       description: "",
       sponsor: "",
+      emailWallet: false,
     },
   });
+
+  const emailWallet = watch("emailWallet", false);
 
   const handleTakePhoto = () => {
     if (fileInputRef.current) {
@@ -142,6 +148,15 @@ export default function RegisterLocation() {
           placeholder="Sponsor associated with location"
           error={errors.sponsor?.message}
           {...register("sponsor")}
+        />
+        <Checkbox
+          id="emailWallet"
+          label="Enable experimental emailwallet.org minting"
+          checked={emailWallet}
+          onChange={(enabled) => {
+            setValue("emailWallet", enabled);
+          }}
+          disabled={false}
         />
         <div className="relative">
           <InputWrapper

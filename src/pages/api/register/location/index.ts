@@ -14,7 +14,8 @@ export default async function handler(
   res: NextApiResponse<LocationRegistrationResponse | ErrorResponse>
 ) {
   if (req.method === "POST") {
-    const { cmac, name, description, sponsor, imageUrl } = req.body;
+    const { cmac, name, description, sponsor, imageUrl, emailWallet } =
+      req.body;
 
     if (
       typeof cmac !== "string" ||
@@ -59,6 +60,7 @@ export default async function handler(
         sponsor,
         imageUrl,
         signaturePublicKey: verifyingKey,
+        displayEmailWalletLink: emailWallet,
       },
     });
 
