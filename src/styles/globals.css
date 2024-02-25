@@ -33,8 +33,6 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -51,9 +49,6 @@ body {
   }
 }
 
-
-.sticky {
-  > * {
-    -webkit-transform: translateZ(0);
-  }
+.sticky > * {
+  -webkit-transform: translateZ(0);
 }
