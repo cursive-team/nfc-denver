@@ -118,8 +118,6 @@ export default async function handler(
     const { token, messageRequests, shouldFetchMessages, startDate, endDate } =
       validatedData;
 
-    // TODO: Should we require a cmac/iykRef to be passed in? Only if user is sending to someone else
-
     const senderUserId = await verifyAuthToken(token);
     if (!senderUserId) {
       res.status(401).json({ error: "Invalid or expired token" });

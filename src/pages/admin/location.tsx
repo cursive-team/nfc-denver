@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
 import { AdminLocationInfo } from "../api/admin/locations";
-import { AppBackHeader } from "@/components/AppHeader";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
+import { getAuthToken } from "@/lib/client/localStorage";
 
 const AdminTapLocationPage = () => {
   const router = useRouter();
   const [locations, setLocations] = useState<AdminLocationInfo[]>([]);
+
+  useRequireAdmin();
 
   const handleTapLocation = (chipId: string) => {
     router.push(`/tap?cmac=${chipId}`);
@@ -16,7 +19,15 @@ const AdminTapLocationPage = () => {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      const response = await fetch("/api/admin/locations");
+      const authToken = getAuthToken();
+      if (!authToken || authToken.expiresAt < new Date()) {
+        router.push("/login");
+        return;
+      }
+
+      const response = await fetch(
+        `/api/admin/locations?token=${authToken.value}`
+      );
       if (!response.ok) {
         console.error("Error fetching locations: ", response.statusText);
         return;
@@ -26,7 +37,7 @@ const AdminTapLocationPage = () => {
       setLocations(locations);
     };
     fetchLocations();
-  }, []);
+  }, [router]);
 
   return (
     <div>

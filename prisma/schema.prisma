@@ -30,6 +30,15 @@ model User {
   receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
   questProofs               QuestProof[]       @relation("QuestProofUser")
   qrCodes                   QrCode[]           @relation("QrCodeUser")
+  admin                     Admin?
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  isSuperAdmin Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model LocationKey {

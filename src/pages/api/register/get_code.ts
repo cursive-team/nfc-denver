@@ -34,7 +34,6 @@ export default async function handler(
     },
   });
   if (user) {
-    // TODO: Propagate this error to the client
     console.error("Email already registered");
     return res.status(400).json({ error: "Email already registered" });
   }

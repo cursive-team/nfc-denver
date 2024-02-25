@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { ErrorResponse } from "@/types";
-import { verifyAuthToken } from "@/lib/server/auth";
-import { isUserAdmin } from "@/lib/server/dev";
+import { isUserAdmin } from "@/lib/server/admin";
 
 export type QRCodeRedemptionType = {
   success: boolean;
@@ -19,11 +18,8 @@ export default async function handler(
     }
 
     // User must be admin to redeem a QR code
-    const userId = await verifyAuthToken(token);
-    if (!userId) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-    if (!isUserAdmin(userId)) {
+    const isAdmin = await isUserAdmin(token);
+    if (!isAdmin) {
       return res.status(403).json({ error: "You are not an admin" });
     }
 

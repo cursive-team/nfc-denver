@@ -1,8 +1,11 @@
 import { Button } from "@/components/Button";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
 
 const AdminPage = () => {
+  useRequireAdmin();
+
   return (
     <FormStepLayout
       title="Admin"
@@ -11,6 +14,9 @@ const AdminPage = () => {
         <div className="flex flex-col gap-4">
           <Link href="/admin/register">
             <Button>Register new user</Button>
+          </Link>
+          <Link href="/admin/tap">
+            <Button>Tap any card</Button>
           </Link>
           <Link href="/admin/person">
             <Button>Tap person</Button>
@@ -23,6 +29,9 @@ const AdminPage = () => {
           </Link>
           <Link href="/admin/create_item">
             <Button>Create item</Button>
+          </Link>
+          <Link href="/admin/new_admin">
+            <Button>Create new admin</Button>
           </Link>
           <Link href="/admin/bench">
             <Button>Benchmarks</Button>

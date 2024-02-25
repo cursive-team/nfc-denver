@@ -4,7 +4,7 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 
-export default function Explore() {
+export default function AdminTap() {
   const router = useRouter();
   const [cardId, setCardId] = useState<string>("");
 
@@ -34,6 +34,6 @@ export default function Explore() {
   );
 }
 
-Explore.getInitialProps = () => {
+AdminTap.getInitialProps = () => {
   return { fullPage: true };
 };
