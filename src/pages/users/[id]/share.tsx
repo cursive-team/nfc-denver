@@ -112,6 +112,8 @@ const SharePage = () => {
     let messageRound2 = undefined;
     if (shareOverlap && !userMessageRound1) {
       toast.error("User does not have their PSI parameters set up");
+      setLoading(false);
+      return;
     } else if (shareOverlap && userMessageRound1) {
       const selfBitVector = generateSelfBitVector();
 
@@ -145,7 +147,7 @@ const SharePage = () => {
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey,
       messageRound2,
-      pkId: user.pkId,
+      pkId: profile.pkId,
     });
     const otherUserMessageRequest: MessageRequest = {
       encryptedMessage,

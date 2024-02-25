@@ -47,6 +47,7 @@ export const getUsers = (): Record<string, User> => {
 export const updateUserFromTap = async (
   userUpdate: PersonTapResponse
 ): Promise<string> => {
+  console.log(userUpdate);
   const users = getUsers();
   const userId = await hashPublicKeyToUUID(userUpdate.encryptionPublicKey);
   const user = users[userId];
