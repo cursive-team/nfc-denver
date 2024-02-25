@@ -4,6 +4,7 @@ import {
   fetchUserByUUID,
   getKeys,
   getProfile,
+  getUsers,
   User,
 } from "@/lib/client/localStorage";
 import { AppBackHeader } from "@/components/AppHeader";
@@ -21,8 +22,16 @@ import { toast } from "sonner";
 import { MessageRequest } from "@/pages/api/messages";
 import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
+import { getUserPsiState, saveUserPsiState } from "@/lib/client/indexedDB/psi";
 
 const Label = classed.span("text-sm text-gray-12");
+
+enum PSIDisplayState {
+  NO_PSI,
+  WAITING,
+  OTHER_NO_OPT_IN,
+  OVERLAP,
+}
 
 interface LinkCardProps {
   label?: string;
@@ -51,15 +60,60 @@ const UserProfilePage = () => {
   const [privateNote, setPrivateNote] = useState<string>("");
   const [viewNote, setViewNote] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [psiState, setPsiState] = useState<PSIDisplayState>(
+    PSIDisplayState.NO_PSI
+  );
+  const [userOverlap, setUserOverlap] = useState<
+    { userId: string; name: string }[]
+  >([]);
+  const [locationOverlap, setLocationOverlap] = useState<number[]>([]);
 
   const alreadyConnected = router?.query?.alreadyConnected === "true";
 
   useEffect(() => {
-    if (typeof id === "string") {
-      const fetchedUser = fetchUserByUUID(id);
-      setUser(fetchedUser);
-      if (fetchedUser) setPrivateNote(fetchedUser.note || "");
+    async function fetchUserData() {
+      if (typeof id === "string") {
+        const fetchedUser = fetchUserByUUID(id);
+        setUser(fetchedUser);
+        if (fetchedUser) {
+          setPrivateNote(fetchedUser.note || "");
+
+          const userPsiState = await getUserPsiState(id);
+          if (userPsiState) {
+            setPsiState(PSIDisplayState.WAITING);
+            if (userPsiState.r1O && fetchedUser.inTs && !userPsiState.mr2) {
+              setPsiState(PSIDisplayState.OTHER_NO_OPT_IN);
+              await saveUserPsiState(id, {
+                r1O: "",
+              });
+            }
+            if (userPsiState.oI) {
+              setPsiState(PSIDisplayState.OVERLAP);
+              const users = getUsers();
+              const overlap = JSON.parse(userPsiState.oI);
+              let locationOverlapIds = [];
+              let userOverlapIds = [];
+              for (let i = 0; i < overlap.length; i++) {
+                if (overlap[i] > 20000) {
+                  locationOverlapIds.push(overlap[i] - 20000);
+                  continue;
+                }
+                for (const userId in users) {
+                  if (parseInt(users[userId].pkId) === overlap[i]) {
+                    console.log(users[userId]);
+                    userOverlapIds.push({ userId, name: users[userId].name });
+                  }
+                }
+              }
+              setUserOverlap(userOverlapIds);
+              setLocationOverlap(locationOverlapIds);
+            }
+          }
+        }
+      }
     }
+
+    fetchUserData();
   }, [id]);
 
   if (!user) {
@@ -237,6 +291,60 @@ const UserProfilePage = () => {
               {user.bio}
             </span>
           </InputWrapper>
+        )}
+        {psiState === PSIDisplayState.WAITING && (
+          <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
+            <InputWrapper
+              className="flex flex-col gap-2"
+              label="Overlap pending"
+            >
+              <span className="text-gray-11 text-[14px] left-5 mt-1">
+                If {user.name} taps you back and opts-into sharing overlap, it
+                will appear here.
+              </span>
+            </InputWrapper>
+          </div>
+        )}
+        {psiState === PSIDisplayState.OVERLAP && (
+          <>
+            <InputWrapper label="People overlap">
+              <div className="mt-2" />
+              {userOverlap.map(({ userId, name }, index) => {
+                return (
+                  <div
+                    onClick={() => router.push(`/users/${userId}`)}
+                    key={index}
+                  >
+                    <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                      <div className="flex items-center gap-2">
+                        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                          <Icons.person size={12} />
+                        </div>
+                        <Card.Title>{name}</Card.Title>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </InputWrapper>
+            <InputWrapper label="Location overlap">
+              <div className="mt-2" />
+              {locationOverlap.map((id, index) => {
+                return (
+                  <Link href={`/locations/${id}`} key={index}>
+                    <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                      <div className="flex items-center gap-2">
+                        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                          <Icons.person size={12} />
+                        </div>
+                        <Card.Title>Location</Card.Title>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </InputWrapper>
+          </>
         )}
       </div>
     </div>
