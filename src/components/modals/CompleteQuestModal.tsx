@@ -384,12 +384,11 @@ const CompleteQuestModal = ({
                 <span className="text-xl text-gray-12">
                   {"Completed: " + quest.name}
                 </span>
-                <span className="text-xs text-gray-10">
-                  {`Proof: ${serializedProof}`}
-                </span>
-                <span className="text-xs text-gray-10 mt-4">
-                  {`Proof ID: ${proofId}`}
-                </span>
+                {quest.buidlReward > 0 && (
+                  <span className="text-xs text-gray-10 mt-4">
+                    {`You've received ${quest.buidlReward} BUIDL!`}
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-1 self-center">

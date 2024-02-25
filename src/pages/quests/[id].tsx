@@ -165,11 +165,11 @@ export default function QuestById() {
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
   const [completeQuestModal, setCompleteQuestModal] = useState(false);
+  const [existingProofId, setExistingProofId] = useState<string>();
   const { id: questId } = params;
   const { isLoading, data: quest = null } = useFetchQuestById(
     questId as string
   );
-  const [existingProofId, setExistingProofId] = useState<string>();
 
   useEffect(() => {
     const users = getUsers();
@@ -184,7 +184,9 @@ export default function QuestById() {
       (location: LocationSignature) => location.pk
     );
     setLocationPublicKeys(validLocationPublicKeys);
+  }, []);
 
+  useEffect(() => {
     // Clear existing completion data when quest changes
     setCompleteQuestModal(false);
     setExistingProofId(undefined);
@@ -209,7 +211,7 @@ export default function QuestById() {
         }
       }
     }
-  }, [quest, questId, userPublicKeys, locationPublicKeys]);
+  }, [quest, userPublicKeys, locationPublicKeys]);
 
   const numRequirementsSatisfied: number = useMemo(() => {
     if (!quest) return 0;

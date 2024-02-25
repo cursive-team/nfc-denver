@@ -65,7 +65,7 @@ export const itemWithRequirementsSelector = {
     isSoldOut: true,
     createdAt: true,
     quest: {
-      include: {
+      select: {
         id: true,
         name: true,
         description: true,
