@@ -1,14 +1,15 @@
 import prisma from "@/lib/server/prisma";
-import { QuestWithRequirementsAndItems } from "@/types";
+import { QuestWithRequirementsAndItem } from "@/types";
 
 export const getQuestById = async (
   id: number
-): Promise<QuestWithRequirementsAndItems | null> => {
+): Promise<QuestWithRequirementsAndItem | null> => {
   return await prisma.quest.findUnique({
     where: { id },
     include: {
       userRequirements: {
         select: {
+          id: true,
           name: true,
           numSigsRequired: true,
           sigNullifierRandomness: true,
@@ -23,6 +24,7 @@ export const getQuestById = async (
       },
       locationRequirements: {
         select: {
+          id: true,
           name: true,
           numSigsRequired: true,
           sigNullifierRandomness: true,
@@ -36,7 +38,7 @@ export const getQuestById = async (
           },
         },
       },
-      requiredForItems: {
+      item: {
         select: {
           id: true,
           name: true,
@@ -44,6 +46,7 @@ export const getQuestById = async (
           description: true,
           imageUrl: true,
           buidlCost: true,
+          isSoldOut: true,
         },
       },
     },
@@ -58,12 +61,23 @@ export const itemWithRequirementsSelector = {
     description: true,
     imageUrl: true,
     buidlCost: true,
-    questRequirementIds: true,
+    questId: true,
+    isSoldOut: true,
     createdAt: true,
-    questRequirements: {
+    quest: {
       include: {
+        id: true,
+        name: true,
+        description: true,
+        sponsor: true,
+        imageUrl: true,
+        summonId: true,
+        buidlReward: true,
+        itemId: true,
+        createdAt: true,
         userRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,
@@ -78,6 +92,7 @@ export const itemWithRequirementsSelector = {
         },
         locationRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,

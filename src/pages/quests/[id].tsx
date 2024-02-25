@@ -8,7 +8,7 @@ import {
   LocationRequirement,
   QuestRequirementType,
   QuestWithRequirements,
-  QuestWithRequirementsAndItems,
+  QuestWithRequirementsAndItem,
   UserRequirement,
 } from "@/types";
 import { Button } from "@/components/Button";
@@ -39,22 +39,19 @@ import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { QuestCard } from "@/components/cards/QuestCard";
 import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
+import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
+import { PointCard } from "@/components/cards/PointCard";
 
 interface QuestDetailProps {
   loading?: boolean;
-  quest: Partial<QuestWithRequirementsAndItems> | null;
+  quest: QuestWithRequirementsAndItem | null;
 }
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 
 const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
-  const {
-    name: title,
-    description,
-    buidlReward,
-    requiredForItems,
-  } = quest ?? {};
+  const { name: title, description, buidlReward, item } = quest ?? {};
   const [isQuestPinned, setIsQuestPinned] = useState(
     pinnedQuests.current.has(quest?.id ?? 0)
   );
@@ -90,19 +87,17 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
-        {/* <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row items-center gap-4">
           <Label>Reward(s)</Label>
           {buidlReward && <PointCard className="center" point={buidlReward} />}
-          {requiredForItems &&
-            requiredForItems.map((item, index) => (
-              <PartnerItemCard
-                key={index}
-                partner={item.sponsor}
-                item={item.name}
-                image={item.imageUrl}
-              />
-            ))}
-        </div> */}
+          {item && (
+            <PartnerItemCard
+              partner={item.sponsor}
+              item={item.name}
+              image={item.imageUrl}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -177,18 +172,6 @@ export default function QuestById() {
   const [existingProofId, setExistingProofId] = useState<string>();
 
   useEffect(() => {
-    setExistingProofId(undefined); // Clear existing proof id when quest changes
-    if (quest) {
-      // Check if the user has already submitted a proof for this quest
-      // (i.e. the quest is already completed)
-      const questCompleted = getQuestCompleted(quest.id.toString());
-      if (questCompleted) {
-        setExistingProofId(questCompleted.pfId);
-      }
-    }
-  }, [quest, questId]);
-
-  useEffect(() => {
     const users = getUsers();
     const locationSignatures = getLocationSignatures();
 
@@ -201,7 +184,32 @@ export default function QuestById() {
       (location: LocationSignature) => location.pk
     );
     setLocationPublicKeys(validLocationPublicKeys);
-  }, []);
+
+    // Clear existing completion data when quest changes
+    setCompleteQuestModal(false);
+    setExistingProofId(undefined);
+    if (quest) {
+      // Check if the user has finished quest requirements
+      const numRequirementsSatisfied = computeNumRequirementsSatisfied({
+        userPublicKeys,
+        locationPublicKeys,
+        userRequirements: quest.userRequirements,
+        locationRequirements: quest.locationRequirements,
+      });
+      if (
+        numRequirementsSatisfied ===
+        quest.userRequirements.length + quest.locationRequirements.length
+      ) {
+        setCompleteQuestModal(true);
+        // Check if the user has already submitted a proof for this quest
+        // (i.e. the quest is already completed)
+        const questCompleted = getQuestCompleted(quest.id.toString());
+        if (questCompleted) {
+          setExistingProofId(questCompleted.pfId);
+        }
+      }
+    }
+  }, [quest, questId, userPublicKeys, locationPublicKeys]);
 
   const numRequirementsSatisfied: number = useMemo(() => {
     if (!quest) return 0;
@@ -252,7 +260,7 @@ export default function QuestById() {
           isOpen={completeQuestModal}
           setIsOpen={setCompleteQuestModal}
           quest={quest}
-          // existingProofId={existingProofId}
+          existingProofId={existingProofId}
         />
       )}
       {

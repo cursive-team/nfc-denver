@@ -17,7 +17,7 @@ export default function CreateItem() {
   const [itemSponsor, setItemSponsor] = useState<string>("");
   const [itemDescription, setItemDescription] = useState<string>("");
   const [buidlCost, setBuidlCost] = useState<number>(0);
-  const [questReqIds, setQuestReqIds] = useState<string[]>([]);
+  const [questReqId, setQuestReqId] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -75,14 +75,14 @@ export default function CreateItem() {
 
     setLoading(true);
 
-    if (questReqIds.length !== 0) {
+    if (questReqId) {
       // Validate quest requirement ids
       const response = await fetch("/api/item/validate_requirements", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ questReqIds }),
+        body: JSON.stringify({ questReqIds: [questReqId] }),
       });
       if (!response.ok) {
         toast.error("Invalid quest requirement ids. Please try again.");
@@ -107,7 +107,7 @@ export default function CreateItem() {
             sponsor: itemSponsor,
             description: itemDescription,
             buidlCost,
-            questReqIds,
+            questReqId,
             imageUrl,
           };
 
@@ -188,14 +188,14 @@ export default function CreateItem() {
         required
       />
       <Input
-        label="Required Quest IDs"
-        placeholder="Comma separated IDs"
+        label="Quest ID"
+        placeholder="Leave blank if no quest requirement"
         type="text"
-        name="reqIds"
-        value={questReqIds.join(",")}
+        name="reqId"
+        value={questReqId}
         onChange={(event) =>
-          setQuestReqIds(
-            event.target.value === "" ? [] : event.target.value.split(",")
+          setQuestReqId(
+            event.target.value === "" ? undefined : event.target.value
           )
         }
       />

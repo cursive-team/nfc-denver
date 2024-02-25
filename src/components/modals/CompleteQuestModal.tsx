@@ -1,14 +1,12 @@
 import { useState } from "react";
+import QRCode from "react-qr-code";
 import { Icons } from "../Icons";
 import { PointCard } from "../cards/PointCard";
 import { Modal, ModalProps } from "./Modal";
 import { Button } from "../Button";
 import Link from "next/link";
-import { QuestCard } from "../cards/QuestCard";
 import { classed } from "@tw-classed/react";
-import QRCode from "react-qr-code";
-import { useFetchQuests } from "@/hooks/useFetchQuests";
-import { QuestWithRequirements } from "@/types";
+import { QuestWithRequirementsAndItem } from "@/types";
 import {
   QuestProvingStateUpdate,
   generateProofForQuest,
@@ -135,17 +133,15 @@ const RedeemItem = ({ questName }: { questName: string }) => {
   );
 };
 
-interface QuestDetailProps {
-  quest: QuestWithRequirements;
+interface CompleteQuestModalProps extends ModalProps {
+  quest: QuestWithRequirementsAndItem;
+  existingProofId?: string;
 }
-
-interface CompleteQuestModalProps extends QuestDetailProps, ModalProps {}
 
 enum CompleteQuestDisplayState {
   INITIAL,
   PROVING,
   COMPLETED,
-  QR_CODE,
 }
 
 type QuestProvingState = {
@@ -159,6 +155,7 @@ const CompleteQuestModal = ({
   quest,
   isOpen,
   setIsOpen,
+  existingProofId,
 }: CompleteQuestModalProps) => {
   const router = useRouter();
   const [displayState, setDisplayState] = useState<CompleteQuestDisplayState>(
@@ -171,7 +168,7 @@ const CompleteQuestModal = ({
     currentRequirementNumSigsProven: 0,
   });
   const [serializedProof, setSerializedProof] = useState<string>();
-  const [proofId, setProofId] = useState<string>();
+  const [proofId, setProofId] = useState<string | undefined>(existingProofId);
 
   const handleCompleteQuest = async () => {
     const authToken = getAuthToken();
@@ -290,6 +287,50 @@ const CompleteQuestModal = ({
   };
 
   const getModalContent = (): JSX.Element => {
+    if (proofId && quest.item) {
+      const qrCodeData = `${window.location.origin}/qr/${proofId}`;
+      const { name, sponsor, imageUrl, isSoldOut } = quest.item;
+
+      return (
+        <div className="flex flex-col gap-6 mt-8">
+          <div className="flex flex-col gap-4 items-center">
+            <div className="rounded-[2px] overflow-hidden">
+              <img
+                className="object-cover w-[174px] h-[174px]"
+                alt={`${sponsor} store item`}
+                src={imageUrl}
+                width={174}
+                height={174}
+              />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col text-center">
+                <span className="text-xs font-light text-gray-900">
+                  {sponsor}
+                </span>
+                <h2 className="text-sm text-gray-12">{name}</h2>
+                {isSoldOut && (
+                  <span className="text-xs font-light text-gray-900">
+                    Sold Out
+                  </span>
+                )}
+              </div>
+            </div>
+            {!isSoldOut && (
+              <QRCodeWrapper>
+                <QRCode
+                  size={156}
+                  className="ml-auto p-4 h-auto w-full max-w-full"
+                  value={qrCodeData}
+                  viewBox={`0 0 156 156`}
+                />
+              </QRCodeWrapper>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     switch (displayState) {
       case CompleteQuestDisplayState.INITIAL:
         return (

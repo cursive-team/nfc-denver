@@ -21,13 +21,24 @@ const QRPageDisplayStateText: Record<QRPageDisplayState, string> = {
   [QRPageDisplayState.FAILURE]: "Redemption failed.",
 };
 
+export type QRCodeData = {
+  id: string;
+  itemId: number;
+  itemName: string;
+  sponsor: string;
+  description: string;
+  buidlCost: number;
+  imageUrl: string;
+  userEncryptionPublicKey: string;
+};
+
 const QRPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [displayState, setDisplayState] = useState<QRPageDisplayState>(
     QRPageDisplayState.DISPLAY
   );
-  const [qrCodeData, setQRCodeData] = useState<QRCodeResponseType>();
+  const [qrCodeData, setQRCodeData] = useState<QRCodeData>();
 
   useEffect(() => {
     if (typeof id !== "string") {
@@ -49,7 +60,22 @@ const QRPage = () => {
       }
 
       const qrData: QRCodeResponseType = await response.json();
-      setQRCodeData(qrData);
+      const item = qrData.quest.item;
+      if (item === null) {
+        toast.error("Invalid QR code");
+        router.push("/");
+        return;
+      }
+      setQRCodeData({
+        id: qrData.id,
+        itemId: item.id,
+        itemName: item.name,
+        sponsor: item.sponsor,
+        description: item.description,
+        buidlCost: item.buidlCost,
+        imageUrl: item.imageUrl,
+        userEncryptionPublicKey: qrData.user.encryptionPublicKey,
+      });
     };
     fetchQR();
   }, [router, id]);
@@ -87,10 +113,10 @@ const QRPage = () => {
       // Send jubSignal message to user that they have redeemed an item
       try {
         const senderPrivateKey = keys.encryptionPrivateKey;
-        const recipientPublicKey = qrCodeData.user.encryptionPublicKey;
+        const recipientPublicKey = qrCodeData.userEncryptionPublicKey;
         const encryptedMessage = await encryptItemRedeemedMessage({
-          itemId: qrCodeData.item.id.toString(),
-          itemName: qrCodeData.item.name,
+          itemId: qrCodeData.itemId.toString(),
+          itemName: qrCodeData.itemName,
           qrCodeId: qrCodeData.id,
           senderPrivateKey,
           recipientPublicKey,
@@ -136,8 +162,6 @@ const QRPage = () => {
     );
   }
 
-  const { item } = qrCodeData;
-
   return (
     <div>
       <AppBackHeader redirectTo="/" />
@@ -145,17 +169,17 @@ const QRPage = () => {
         <div className="flex flex-col gap-4 items-center">
           <img
             className="flex bg-slate-200 rounded bg-center bg-cover"
-            alt={`${item.sponsor} store item`}
-            src={item.imageUrl}
+            alt={`${qrCodeData.sponsor} store item`}
+            src={qrCodeData.imageUrl}
             width={174}
             height={174}
           />
           <div className="flex flex-col gap-0.5">
             <div className="flex flex-col text-center">
               <span className="text-xs font-light text-gray-900">
-                {item.sponsor}
+                {qrCodeData.sponsor}
               </span>
-              <h2 className="text-sm text-gray-12">{item.name}</h2>
+              <h2 className="text-sm text-gray-12">{qrCodeData.itemName}</h2>
             </div>
           </div>
           <Button

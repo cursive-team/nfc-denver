@@ -1,7 +1,6 @@
 import { Filters } from "@/components/Filters";
 import { StoreCard } from "@/components/cards/StoreCard";
 import { StoreModalItem } from "@/components/modals/StoreItemModal";
-import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useFetchStore } from "@/hooks/useStore";
 import { filterArrayByValue } from "@/lib/shared/utils";
@@ -61,7 +60,7 @@ export default function StorePage() {
             </>
           }
         >
-          {storeFilteredItems?.map((storeItem, index) => (
+          {storeFilteredItems.map((storeItem, index) => (
             <StoreCard
               key={`${storeItem.id}-${index}`}
               partnerName={storeItem.sponsor}

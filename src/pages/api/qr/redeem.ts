@@ -27,19 +27,19 @@ export default async function handler(
       return res.status(400).json({ error: "ID must be a string" });
     }
 
-    const qrCode = await prisma.qrCode.findUnique({
+    const questProof = await prisma.questProof.findUnique({
       where: { id },
     });
-    if (!qrCode) {
+    if (!questProof) {
       return res.status(404).json({ error: "QR code not found" });
     }
 
-    if (qrCode.redeemed) {
+    if (questProof.redeemed) {
       return res.status(200).json({ success: false });
     }
 
     // Invalidate the qr code
-    await prisma.qrCode.update({
+    await prisma.questProof.update({
       where: { id },
       data: { redeemed: true },
     });
