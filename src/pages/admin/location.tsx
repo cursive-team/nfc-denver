@@ -14,7 +14,7 @@ const AdminTapLocationPage = () => {
   useRequireAdmin();
 
   const handleTapLocation = (chipId: string) => {
-    router.push(`/tap?cmac=${chipId}`);
+    router.push(`/tap?iykRef=${chipId}&mockRef=true`);
   };
 
   useEffect(() => {

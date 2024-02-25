@@ -1,21 +1,33 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import type { NextApiResponse, NextApiRequest } from "next";
 import prisma from "@/lib/server/prisma";
-import { getChipIdFromIykCmac } from "@/lib/server/dev";
+import {
+  ChipType,
+  getChipIdFromIykRef,
+  getChipTypeFromChipId,
+} from "@/lib/server/iyk";
 
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse
 ) {
-  const { cmac } = request.query;
+  const { iykRef, mockRef } = request.query;
 
-  if (typeof cmac !== "string") {
+  if (typeof iykRef !== "string") {
     return response.status(400).json({ error: "Invalid input parameters" });
   }
 
-  const { chipId } = getChipIdFromIykCmac(cmac);
+  const enableMockRef = mockRef === "true";
+  const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
   if (!chipId) {
-    return response.status(400).json({ error: "Invalid cmac" });
+    return response.status(400).json({ error: "Invalid iykRef" });
+  }
+
+  const chipType = await getChipTypeFromChipId(chipId, enableMockRef);
+  if (chipType !== ChipType.LOCATION) {
+    return response
+      .status(400)
+      .json({ error: "iykRef does not correspond to location chip" });
   }
 
   const existingLocation = await prisma.location.findUnique({

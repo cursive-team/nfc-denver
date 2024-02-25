@@ -99,12 +99,24 @@ export default function Tap() {
   );
 
   useEffect(() => {
-    const handlePersonRegistration = (cmac: string) => {
-      router.push(`/register?cmac=${cmac}`);
+    const getMockRefUrlParam = (mockRef: string | undefined): string => {
+      return mockRef ? `&mockRef=${mockRef}` : "";
     };
 
-    const handleLocationRegistration = (cmac: string) => {
-      router.push(`/register_location?cmac=${cmac}`);
+    const handlePersonRegistration = (
+      iykRef: string,
+      mockRef: string | undefined
+    ) => {
+      router.push(`/register?iykRef=${iykRef}${getMockRefUrlParam(mockRef)}`);
+    };
+
+    const handleLocationRegistration = (
+      iykRef: string,
+      mockRef: string | undefined
+    ) => {
+      router.push(
+        `/register_location?iykRef=${iykRef}${getMockRefUrlParam(mockRef)}`
+      );
     };
 
     const handlePersonTap = async (person: PersonTapResponse) => {
@@ -126,9 +138,10 @@ export default function Tap() {
     };
 
     // ----- HANDLE CMAC TAP -----
-    const cmac = router.query.cmac as string;
-    if (cmac) {
-      fetch(`/api/tap/cmac?cmac=${cmac}`, {
+    const iykRef = router.query.iykRef as string;
+    const mockRef = router.query.mockRef as string | undefined;
+    if (iykRef) {
+      fetch(`/api/tap/cmac?iykRef=${iykRef}${getMockRefUrlParam(mockRef)}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -145,10 +158,10 @@ export default function Tap() {
             case TapResponseCode.CMAC_INVALID:
               throw new Error("CMAC invalid!");
             case TapResponseCode.PERSON_NOT_REGISTERED:
-              handlePersonRegistration(cmac);
+              handlePersonRegistration(iykRef, mockRef);
               break;
             case TapResponseCode.LOCATION_NOT_REGISTERED:
-              handleLocationRegistration(cmac);
+              handleLocationRegistration(iykRef, mockRef);
               break;
             case TapResponseCode.VALID_PERSON:
               if (!tapResponse.person) {
@@ -173,7 +186,7 @@ export default function Tap() {
     } else {
       // ----- HANDLE CARD GENERATED SIGNATURE TAP -----
       if (!location.hash) {
-        toast.error("Unable to process cmac or signature from tap.");
+        toast.error("Unable to process tap.");
         router.push("/");
         return;
       }
@@ -181,7 +194,7 @@ export default function Tap() {
       const urlParams = new URLSearchParams(location.hash.slice(1));
       const rawLocationSignature = getHaLoArgs(urlParams);
       if (!rawLocationSignature) {
-        toast.error("Unable to process cmac or signature from tap.");
+        toast.error("Unable to process tap.");
         router.push("/");
         return;
       }

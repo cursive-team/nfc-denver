@@ -21,7 +21,8 @@ export default function RegisterLocation() {
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const cmac = router.query.cmac as string;
+  const iykRef = router.query.iykRef as string;
+  const mockRef = router.query.mockRef as string | undefined;
 
   const {
     register,
@@ -32,7 +33,8 @@ export default function RegisterLocation() {
   } = useForm<RegisterLocationType>({
     resolver: yupResolver(RegisterLocationSchema),
     defaultValues: {
-      cmac, // default from query
+      iykRef,
+      mockRef,
       name: "",
       description: "",
       sponsor: "",
@@ -63,14 +65,17 @@ export default function RegisterLocation() {
     mutationKey: ["imageBlob"],
     mutationFn: async ({
       imageFile,
-      cmac,
+      iykRef,
+      mockRef,
     }: {
       imageFile: File;
-      cmac: string;
+      iykRef: string;
+      mockRef: string | undefined;
     }) => {
+      const mockRefString = mockRef ? `&mockRef=${mockRef}` : "";
       const newBlob = await upload(imageFile.name, imageFile, {
         access: "public",
-        handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
+        handleUploadUrl: `/api/register/location/upload?iykRef=${iykRef}${mockRefString}`,
       });
       return newBlob.url;
     },
@@ -83,7 +88,7 @@ export default function RegisterLocation() {
     }
 
     await getImageUrlMutation.mutateAsync(
-      { imageFile, cmac },
+      { imageFile, iykRef, mockRef },
       {
         onSuccess: async (imageUrl: string) => {
           const locationData: RegisterLocationType = {
@@ -127,7 +132,7 @@ export default function RegisterLocation() {
       }
     >
       <div className="flex flex-col gap-8">
-        <input type="hidden" {...register("cmac")} />
+        <input type="hidden" {...register("iykRef")} />
         <Input
           type="text"
           label="Name"
