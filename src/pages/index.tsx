@@ -77,12 +77,12 @@ interface FeedContentProps {
 }
 const FeedContent = ({ title, description, icon }: FeedContentProps) => {
   return (
-    <div className="flex items-center justify-between py-1">
-      <div className="flex items-center gap-2">
+    <div className="grid grid-cols-[1fr_80px] items-center justify-between py-1 gap-4">
+      <div className="grid grid-cols-[24px_1fr] items-center gap-2">
         <div className="flex justify-center items-center h-6 w-6 rounded-full bg-[#323232]">
           {icon}
         </div>
-        <Card.Title>{title}</Card.Title>
+        <Card.Title className="break-all">{title}</Card.Title>
       </div>
       <Card.Description>{description}</Card.Description>
     </div>

@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
           >
             <div className="flex flex-col grow">
               {showHeader && !fullPage && <AppHeader />}
-              <div className="flex flex-col grow container px-4">
+              <div className="flex flex-col grow container">
                 <Component {...pageProps} />
               </div>
               {showFooter && !fullPage && <AppFooter />}

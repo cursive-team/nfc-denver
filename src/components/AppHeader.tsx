@@ -196,7 +196,7 @@ const AppHeader = () => {
           <button type="button" className="flex gap-2 items-center">
             <Icons.iyk />
             <Icons.x />
-            <Icons.cursive />
+            <Icons.cursiveFull />
           </button>
         </Link>
       )}
