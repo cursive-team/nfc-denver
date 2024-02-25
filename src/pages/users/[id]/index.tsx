@@ -4,7 +4,6 @@ import { fetchUserByUUID, User } from "@/lib/client/localStorage";
 import { AppBackHeader } from "@/components/AppHeader";
 import { Icons } from "@/components/Icons";
 import { Card } from "@/components/cards/Card";
-import { ListLayout } from "@/layouts/ListLayout";
 import Link from "next/link";
 import { classed } from "@tw-classed/react";
 import { labelStartWith, removeLabelStartWith } from "@/lib/shared/utils";

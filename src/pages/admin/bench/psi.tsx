@@ -9,6 +9,7 @@ import init, {
   round2_js,
   round3_js,
 } from "@/lib/mp_psi";
+import pako from "pako";
 
 enum DisplayState {
   MPPSI,
@@ -55,8 +56,6 @@ const MPPSIBenchmarkPage = () => {
       throw new Error("Both bit vectors must be of the same length");
     }
 
-    console.log(bitVector0, bitVector1);
-
     return bitVector0.map((element, index) => element * bitVector1[index]);
   };
 
@@ -75,6 +74,20 @@ const MPPSIBenchmarkPage = () => {
     const startState0Time = new Date();
     const gen_keys_output_a = gen_keys_js();
     const gen_keys_output_b = gen_keys_js();
+    console.log(
+      `Size of gen_keys_output_a.message_round1 (stringified): ${
+        new Blob([JSON.stringify(gen_keys_output_a.message_round1)]).size /
+        (1024 * 1024)
+      } MB`
+    );
+    console.log(
+      `Size of gen_keys_output_a.message_round1 (stringified and compressed): ${
+        new Blob([
+          pako.deflate(JSON.stringify(gen_keys_output_a.message_round1)),
+        ]).size /
+        (1024 * 1024)
+      } MB`
+    );
     const state0Time = new Date().getTime() - startState0Time.getTime();
     stateTimesTemp.push(state0Time);
 
@@ -88,6 +101,19 @@ const MPPSIBenchmarkPage = () => {
       gen_keys_output_b,
       gen_keys_output_a.message_round1,
       bit_vector_b
+    );
+    console.log(
+      `Size of round1_output_a.message_round2 (stringified): ${
+        new Blob([JSON.stringify(round1_output_a.message_round2)]).size /
+        (1024 * 1024)
+      } MB`
+    );
+    console.log(
+      `Size of round1_output_a.message_round2 (stringified and compressed): ${
+        new Blob([pako.deflate(JSON.stringify(round1_output_a.message_round2))])
+          .size /
+        (1024 * 1024)
+      } MB`
     );
     const state1Time = new Date().getTime() - startState1Time.getTime();
     stateTimesTemp.push(state1Time);
@@ -104,6 +130,19 @@ const MPPSIBenchmarkPage = () => {
       round1_output_b,
       round1_output_a.message_round2,
       false
+    );
+    console.log(
+      `Size of round2_output_a.message_round3 (stringified): ${
+        new Blob([JSON.stringify(round2_output_a.message_round3)]).size /
+        (1024 * 1024)
+      } MB`
+    );
+    console.log(
+      `Size of round2_output_a.message_round3 (stringified and compressed): ${
+        new Blob([pako.deflate(JSON.stringify(round2_output_a.message_round3))])
+          .size /
+        (1024 * 1024)
+      } MB`
     );
     const state2Time = new Date().getTime() - startState2Time.getTime();
     stateTimesTemp.push(state2Time);
