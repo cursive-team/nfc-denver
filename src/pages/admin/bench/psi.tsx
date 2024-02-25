@@ -75,6 +75,12 @@ const MPPSIBenchmarkPage = () => {
     const gen_keys_output_a = gen_keys_js();
     const gen_keys_output_b = gen_keys_js();
     console.log(
+      `Size of gen_keys_output_a (stringified): ${
+        new Blob([JSON.stringify(gen_keys_output_a.message_round1)]).size /
+        (1024 * 1024)
+      } MB`
+    );
+    console.log(
       `Size of gen_keys_output_a.message_round1 (stringified): ${
         new Blob([JSON.stringify(gen_keys_output_a.message_round1)]).size /
         (1024 * 1024)
@@ -101,6 +107,11 @@ const MPPSIBenchmarkPage = () => {
       gen_keys_output_b,
       gen_keys_output_a.message_round1,
       bit_vector_b
+    );
+    console.log(
+      `Size of round1_output_a (stringified): ${
+        new Blob([JSON.stringify(round1_output_a)]).size / (1024 * 1024)
+      } MB`
     );
     console.log(
       `Size of round1_output_a.message_round2 (stringified): ${
@@ -130,6 +141,11 @@ const MPPSIBenchmarkPage = () => {
       round1_output_b,
       round1_output_a.message_round2,
       false
+    );
+    console.log(
+      `Size of round2_output_a (stringified): ${
+        new Blob([JSON.stringify(round2_output_a)]).size / (1024 * 1024)
+      } MB`
     );
     console.log(
       `Size of round2_output_a.message_round3 (stringified): ${
