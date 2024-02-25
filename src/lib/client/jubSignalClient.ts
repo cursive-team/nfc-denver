@@ -4,7 +4,6 @@ import {
   PlaintextMessage,
   decryptMessage,
   decryptionSharesMessageSchema,
-  encryptDecryptionSharesMessage,
   encryptedMessageSchema,
   inboundTapMessageSchema,
   itemRedeemedMessageSchema,
@@ -31,14 +30,12 @@ import {
   saveAllQuestCompleted,
   saveLocationSignatures,
   saveSession,
-  saveUserPSI,
-  saveUserRound2Output,
-  saveUserRound3Message,
   saveUsers,
 } from "./localStorage";
 import { hashPublicKeyToUUID } from "./utils";
 import { registeredMessageSchema } from "./jubSignal/registered";
-import init, { round2_js, round3_js } from "@/lib/mp_psi";
+import { saveUserRound2Message, saveUserRound3Message } from "./indexedDB/psi";
+import { handleOverlapActivities, handleRound2MessageRequests } from "./psi";
 
 export type LoadMessagesRequest = {
   forceRefresh: boolean;
@@ -71,35 +68,11 @@ export const loadMessages = async ({
 
   // Check if there has been a mutual opt-in for the PSI
   // If so, send a decryption shares message
-  const users = getUsers();
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.r1O && user.mr2 && !user.r2O) {
-      await init();
-      const round2Output = round2_js(
-        {
-          psi_keys: JSON.parse(keys.psiPrivateKeys),
-          message_round1: JSON.parse(keys.psiPublicKeys),
-        },
-        JSON.parse(user.r1O),
-        JSON.parse(user.mr2),
-        parseInt(profile.pkId) > parseInt(user.pkId)
-      );
-      saveUserRound2Output(userId, JSON.stringify(round2Output));
-
-      const recipientPublicKey = user.encPk;
-      const senderPrivateKey = keys.encryptionPrivateKey;
-      const encryptedMessage = await encryptDecryptionSharesMessage(
-        round2Output.message_round3,
-        senderPrivateKey,
-        recipientPublicKey
-      );
-      messageRequests.push({
-        recipientPublicKey,
-        encryptedMessage,
-      });
-    }
-  }
+  const round2MessageRequests = await handleRound2MessageRequests(
+    keys,
+    profile.pkId
+  );
+  messageRequests = messageRequests.concat(round2MessageRequests);
 
   // Fetch jubSignal messages from server
   // Send a new message if requested
@@ -185,31 +158,10 @@ export const loadMessages = async ({
   saveAllItemRedeemed(newItemRedeemed);
 
   // Check if any PSI can be finished
-  for (const userId in newUsers) {
-    const user = newUsers[userId];
-    if (user.r2O && user.mr3 && !user.oI) {
-      const psiOutput = round3_js(JSON.parse(user.r2O), JSON.parse(user.mr3));
-      console.log("psiOutput", psiOutput);
-
-      let overlapIndices = [];
-      for (let i = 0; i < psiOutput.length; i++) {
-        if (psiOutput[i] === 1) {
-          overlapIndices.push(i);
-        }
-      }
-      saveUserPSI(userId, JSON.stringify(overlapIndices));
-      newActivities.push({
-        type: JUB_SIGNAL_MESSAGE_TYPE.DECRYPTION_SHARES,
-        name: user.name,
-        id: userId,
-        ts: new Date().toISOString(),
-      });
-    }
-  }
-
-  // Update activities
-  newActivities.reverse(); // fix chronology
-  saveActivities(newActivities);
+  const overlapAcitivities = await handleOverlapActivities();
+  const fullActivities = newActivities.concat(overlapAcitivities);
+  fullActivities.reverse(); // fix chronology
+  saveActivities(fullActivities);
 
   // Update the session
   session.lastMessageFetchTimestamp = new Date(mostRecentMessageTimestamp);
@@ -360,7 +312,7 @@ const processEncryptedMessages = async (args: {
             await decryptionSharesMessageSchema.validate(data);
 
           const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
-          saveUserRound3Message(userId, messageRound3);
+          await saveUserRound3Message(userId, messageRound3);
         } catch (error) {
           console.error(
             "Invalid decryption shares message received from server: ",
@@ -387,8 +339,6 @@ const processEncryptedMessages = async (args: {
             user.msg = msg;
             user.sig = sig;
             user.inTs = metadata.timestamp.toISOString();
-            user.mr2 = mr2;
-
             users[userId] = user;
           } else {
             users[userId] = {
@@ -403,8 +353,11 @@ const processEncryptedMessages = async (args: {
               msg,
               sig,
               inTs: metadata.timestamp.toISOString(),
-              mr2,
             };
+          }
+
+          if (mr2) {
+            await saveUserRound2Message(userId, mr2);
           }
 
           const activity = {

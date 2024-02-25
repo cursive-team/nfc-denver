@@ -5,6 +5,7 @@ import {
   getFromLocalStorage,
   saveToLocalStorage,
 } from ".";
+import { getUserPsiState, saveUserPsiState } from "../indexedDB/psi";
 
 export const USERS_STORAGE_KEY = "users";
 
@@ -22,12 +23,6 @@ export type User = {
   sig?: string; // User's signature
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
-  mr1?: string; // User's message for round 1
-  r1O?: string; // Round 1 output for PSI with this user
-  mr2?: string; // User's message for round 2
-  r2O?: string; // Round 2 output for PSI with this user
-  mr3?: string; // User's message for round 3
-  oI?: string; // User's PSI overlap indices
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -50,30 +45,41 @@ export const updateUserFromTap = async (
   console.log(userUpdate);
   const users = getUsers();
   const userId = await hashPublicKeyToUUID(userUpdate.encryptionPublicKey);
-  const user = users[userId];
 
+  const user = users[userId];
   if (user) {
     const updatedUser = {
       ...user,
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
       pkId: userUpdate.id,
-      mr1: userUpdate.psiRound1Message,
     };
-
     users[userId] = updatedUser;
   } else {
     const newUser = {
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
       pkId: userUpdate.id,
-      mr1: userUpdate.psiRound1Message,
     };
-
     users[userId] = newUser;
   }
-
   saveUsers(users);
+
+  const userPsiState = await getUserPsiState(userId);
+  if (userPsiState) {
+    const updatedUserPsiState = {
+      ...userPsiState,
+      pkId: userUpdate.id,
+      mr1: userUpdate.psiRound1Message,
+    };
+    await saveUserPsiState(userId, updatedUserPsiState);
+  } else {
+    const newUserPsiState = {
+      pkId: userUpdate.id,
+      mr1: userUpdate.psiRound1Message,
+    };
+    await saveUserPsiState(userId, newUserPsiState);
+  }
 
   return userId;
 };
@@ -95,94 +101,6 @@ export const updateUserFromOutboundTap = async (
     ...user,
     note: privateNote,
     outTs: new Date().toISOString(),
-  };
-
-  users[userId] = updatedUser;
-  saveUsers(users);
-};
-
-// Save PSI round 1 output for a user
-export const saveUserRound1Output = async (
-  userEncPk: string,
-  round1Output: string
-) => {
-  const users = getUsers();
-  const userId = await hashPublicKeyToUUID(userEncPk);
-  const user = users[userId];
-
-  if (!user) {
-    return;
-  }
-
-  const updatedUser = {
-    ...user,
-    r1O: round1Output,
-  };
-
-  users[userId] = updatedUser;
-  saveUsers(users);
-};
-
-export const saveUserRound2Output = async (
-  userId: string,
-  round2Output: string
-) => {
-  const users = getUsers();
-  const user = users[userId];
-
-  if (!user) {
-    return;
-  }
-
-  const updatedUser = {
-    ...user,
-    r2O: round2Output,
-  };
-
-  users[userId] = updatedUser;
-  saveUsers(users);
-};
-
-export const saveUserRound3Message = async (
-  userId: string,
-  messageRound3: string
-) => {
-  const users = getUsers();
-  const user = users[userId];
-
-  if (!user) {
-    return;
-  }
-
-  const updatedUser = {
-    ...user,
-    mr3: messageRound3,
-  };
-
-  users[userId] = updatedUser;
-  saveUsers(users);
-};
-
-export const saveUserPSI = async (
-  userId: string,
-  overlapIndices: string
-): Promise<void> => {
-  const users = getUsers();
-  const user = users[userId];
-
-  if (!user) {
-    return;
-  }
-
-  // delete all other data to save space
-  const updatedUser = {
-    ...user,
-    mr1: undefined,
-    r1O: undefined,
-    mr2: undefined,
-    r2O: undefined,
-    mr3: undefined,
-    oI: overlapIndices,
   };
 
   users[userId] = updatedUser;

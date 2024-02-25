@@ -5,7 +5,6 @@ import {
   getAuthToken,
   getKeys,
   getProfile,
-  saveUserRound1Output,
   User,
 } from "@/lib/client/localStorage";
 import {
@@ -27,6 +26,10 @@ import { v4 as uuidv4 } from "uuid";
 import { MessageRequest } from "@/pages/api/messages";
 import { generateSelfBitVector } from "@/lib/client/psi";
 import init, { round1_js } from "@/lib/mp_psi/mp_psi";
+import {
+  getUserPsiState,
+  saveUserRound1Output,
+} from "@/lib/client/indexedDB/psi";
 
 const SharePage = () => {
   const router = useRouter();
@@ -108,7 +111,12 @@ const SharePage = () => {
       return;
     }
 
-    const userMessageRound1 = user.mr1;
+    let userMessageRound1 = undefined;
+    if (id) {
+      const userPsiState = await getUserPsiState(id.toString());
+      if (userPsiState) userMessageRound1 = userPsiState.mr1;
+    }
+
     let messageRound2 = undefined;
     if (shareOverlap && !userMessageRound1) {
       toast.error("User does not have their PSI parameters set up");
@@ -127,7 +135,7 @@ const SharePage = () => {
         selfBitVector
       );
 
-      saveUserRound1Output(user.encPk, JSON.stringify(round1Output));
+      await saveUserRound1Output(user.encPk, JSON.stringify(round1Output));
       messageRound2 = JSON.stringify(round1Output.message_round2);
     }
 
