@@ -15,6 +15,9 @@ const AdminPage = () => {
           <Link href="/admin/register">
             <Button>Register new user</Button>
           </Link>
+          <Link href="/admin/register_sig_card">
+            <Button>Register sig card</Button>
+          </Link>
           <Link href="/admin/tap">
             <Button>Tap any card</Button>
           </Link>
@@ -32,9 +35,6 @@ const AdminPage = () => {
           </Link>
           <Link href="/admin/new_admin">
             <Button>Create new admin</Button>
-          </Link>
-          <Link href="/admin/bench">
-            <Button>Benchmarks</Button>
           </Link>
           <Link href="/" className="link text-center">
             Back to home
