@@ -131,7 +131,7 @@ const AppHeaderContent = ({
   const showBackButton = activeMenuIndex !== null;
 
   return (
-    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-screen bg-black-default">
+    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-[calc(100%-70px)] bg-black-default">
       <div className="flex h-[60px]">
         {showBackButton && (
           <button
