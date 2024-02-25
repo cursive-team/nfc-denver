@@ -62,9 +62,9 @@ export default async function handler(
       return;
     }
 
-    const isAdmin = await isUserAdmin(token);
-    if (!isAdmin) {
-      res.status(403).json({ error: "Unauthorized" });
+    const userId = await verifyAuthToken(token);
+    if (!userId) {
+      res.status(401).json({ error: "Invalid or expired token" });
       return;
     }
 
@@ -107,9 +107,9 @@ export default async function handler(
       const { token, name, description, buidlReward, requirements } =
         await questCreateRequestSchema.validate(req.body);
 
-      const senderUserId = await verifyAuthToken(token);
-      if (!senderUserId) {
-        res.status(401).json({ error: "Invalid or expired token" });
+      const isAdmin = await isUserAdmin(token);
+      if (!isAdmin) {
+        res.status(403).json({ error: "Unauthorized" });
         return;
       }
 
