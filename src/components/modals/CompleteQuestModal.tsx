@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { Icons } from "../Icons";
 import { PointCard } from "../cards/PointCard";
@@ -11,7 +11,12 @@ import {
   QuestProvingStateUpdate,
   generateProofForQuest,
 } from "@/lib/client/proving";
-import { getAuthToken, getKeys, getProfile } from "@/lib/client/localStorage";
+import {
+  getAuthToken,
+  getItemRedeemed,
+  getKeys,
+  getProfile,
+} from "@/lib/client/localStorage";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { encryptQuestCompletedMessage } from "@/lib/client/jubSignal";
@@ -167,8 +172,21 @@ const CompleteQuestModal = ({
     currentRequirementNumSigsTotal: 0,
     currentRequirementNumSigsProven: 0,
   });
-  const [serializedProof, setSerializedProof] = useState<string>();
-  const [proofId, setProofId] = useState<string | undefined>(existingProofId);
+  const [proofId, setProofId] = useState<string>();
+  const [itemRedeemed, setItemRedeemed] = useState(false);
+
+  useEffect(() => {
+    if (existingProofId) {
+      setProofId(existingProofId);
+      setDisplayState(CompleteQuestDisplayState.COMPLETED);
+      if (quest.item) {
+        const itemRedeemed = getItemRedeemed(quest.item.id.toString());
+        if (itemRedeemed) {
+          setItemRedeemed(true);
+        }
+      }
+    }
+  }, [existingProofId, quest.item]);
 
   const handleCompleteQuest = async () => {
     const authToken = getAuthToken();
@@ -276,7 +294,6 @@ const CompleteQuestModal = ({
       return;
     }
 
-    setSerializedProof(serializedProof);
     setProofId(proofId);
     setDisplayState(CompleteQuestDisplayState.COMPLETED);
   };
@@ -287,7 +304,7 @@ const CompleteQuestModal = ({
   };
 
   const getModalContent = (): JSX.Element => {
-    if (proofId && quest.item) {
+    if (proofId && quest.item && !itemRedeemed) {
       const qrCodeData = `${window.location.origin}/qr/${proofId}`;
       const { name, sponsor, imageUrl, isSoldOut } = quest.item;
 
@@ -305,13 +322,17 @@ const CompleteQuestModal = ({
             </div>
             <div className="flex flex-col gap-0.5">
               <div className="flex flex-col text-center">
-                <span className="text-xs font-light text-gray-900">
-                  {sponsor}
-                </span>
-                <h2 className="text-sm text-gray-12">{name}</h2>
-                {isSoldOut && (
+                <h2 className="text-sm text-gray-12">
+                  {"Redeemable: " + name}
+                </h2>
+                {isSoldOut ? (
                   <span className="text-xs font-light text-gray-900">
                     Sold Out
+                  </span>
+                ) : (
+                  <span className="text-xs font-light text-gray-900">
+                    Completing this quest allows you to redeem the above item.
+                    Present this QR code at the BUIDL Store to claim your item.
                   </span>
                 )}
               </div>
@@ -345,10 +366,6 @@ const CompleteQuestModal = ({
               <Button onClick={handleCompleteQuest}>
                 Generate completion ZK Proof
               </Button>
-            </div>
-            <div className="flex items-center gap-1 self-center">
-              <span className="text-sm text-gray-11">Share on</span>
-              <Icons.twitter />
             </div>
           </div>
         );

@@ -120,24 +120,26 @@ const StoreModalItem = ({
             </div>
           </div>
           {existingProofId && !storeItem.isSoldOut && (
-            <div className="flex flex-col gap-0.5 text-center">
+            <div className="flex flex-col gap-3 items-center text-center">
               <span className="text-xs font-light text-gray-900">
                 {isItemRedeemed
                   ? "You have already redeemed this item!"
                   : "Display this QR Code at the BUIDL Store to redeem your item!"}
               </span>
-              <QRCodeWrapper>
-                <QRCode
-                  size={156}
-                  className="ml-auto p-4 h-auto w-full max-w-full"
-                  value={`${window.location.origin}/qr/${existingProofId}`}
-                  viewBox={`0 0 156 156`}
-                />
-              </QRCodeWrapper>
+              {!isItemRedeemed && (
+                <QRCodeWrapper>
+                  <QRCode
+                    size={156}
+                    className="ml-auto p-4 h-auto w-full max-w-full"
+                    value={`${window.location.origin}/qr/${existingProofId}`}
+                    viewBox={`0 0 156 156`}
+                  />
+                </QRCodeWrapper>
+              )}
             </div>
           )}
         </div>
-        {quest !== null && (
+        {quest !== null && !existingProofId && (
           <ListLayout
             label={
               areQuestRequirementsSatisfied

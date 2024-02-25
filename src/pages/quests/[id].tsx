@@ -89,7 +89,9 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
         <span className=" text-gray-11 text-xs font-light">{description}</span>
         <div className="flex flex-row items-center gap-4">
           <Label>Reward(s)</Label>
-          {buidlReward && <PointCard className="center" point={buidlReward} />}
+          {buidlReward ? (
+            <PointCard className="center" point={buidlReward} />
+          ) : null}
           {item && (
             <PartnerItemCard
               partner={item.sponsor}
@@ -277,82 +279,76 @@ export default function QuestById() {
           }
         >
           {quest ? (
-            isQuestComplete ? (
-              <QuestCompleted quest={quest} />
-            ) : (
-              <>
-                <QuestDetail quest={quest} />
-                <ListWrapper
-                  title="Requirements"
-                  label={
-                    <div className="flex gap-2 items-center">
-                      {isQuestComplete && (
-                        <>
-                          <Label>{"Quest Complete"}</Label>
-                          <Icons.checkedCircle />
-                        </>
-                      )}
-                      {!isQuestComplete && (
-                        <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
-                      )}
-                      {quest &&
-                        numRequirementsSatisfied === numRequirementsTotal &&
-                        !isQuestComplete && (
-                          <Button
-                            onClick={() => {
-                              setCompleteQuestModal(true);
-                            }}
-                            size="tiny"
-                          >
-                            Complete quest
-                          </Button>
-                        )}
-                    </div>
-                  }
-                >
-                  <>
+            <>
+              <QuestDetail quest={quest} />
+              <ListWrapper
+                title="Requirements"
+                label={
+                  <div className="flex gap-2 items-center">
+                    {isQuestComplete && (
+                      <>
+                        <Label>{"Quest Complete"}</Label>
+                        <Icons.checkedCircle />
+                      </>
+                    )}
+                    {!isQuestComplete && (
+                      <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
+                    )}
                     {quest &&
-                      quest.userRequirements.map(
-                        (
-                          { name, numSigsRequired, users }: any,
-                          index: number
-                        ) => (
-                          <QuestRequirementCard
-                            key={index}
-                            title={name}
-                            numSigsCollected={
-                              numUserRequirementSignatures[index]
-                            }
-                            numSigsRequired={numSigsRequired}
-                            questRequirementType={QuestRequirementType.USER}
-                            users={users}
-                            userPubKeysCollected={userPublicKeys}
-                          />
-                        )
+                      numRequirementsSatisfied === numRequirementsTotal &&
+                      !isQuestComplete && (
+                        <Button
+                          onClick={() => {
+                            setCompleteQuestModal(true);
+                          }}
+                          size="tiny"
+                        >
+                          Complete quest
+                        </Button>
                       )}
-                    {quest &&
-                      quest.locationRequirements.map(
-                        (
-                          { name, numSigsRequired, locations }: any,
-                          index: number
-                        ) => (
-                          <QuestRequirementCard
-                            key={index}
-                            title={name}
-                            numSigsCollected={
-                              numLocationRequirementSignatures[index]
-                            }
-                            numSigsRequired={numSigsRequired}
-                            questRequirementType={QuestRequirementType.LOCATION}
-                            locations={locations}
-                            locationPubKeysCollected={locationPublicKeys}
-                          />
-                        )
-                      )}
-                  </>
-                </ListWrapper>
-              </>
-            )
+                  </div>
+                }
+              >
+                <>
+                  {quest &&
+                    quest.userRequirements.map(
+                      (
+                        { name, numSigsRequired, users }: any,
+                        index: number
+                      ) => (
+                        <QuestRequirementCard
+                          key={index}
+                          title={name}
+                          numSigsCollected={numUserRequirementSignatures[index]}
+                          numSigsRequired={numSigsRequired}
+                          questRequirementType={QuestRequirementType.USER}
+                          users={users}
+                          userPubKeysCollected={userPublicKeys}
+                        />
+                      )
+                    )}
+                  {quest &&
+                    quest.locationRequirements.map(
+                      (
+                        { name, numSigsRequired, locations }: any,
+                        index: number
+                      ) => (
+                        <QuestRequirementCard
+                          key={index}
+                          title={name}
+                          numSigsCollected={
+                            numLocationRequirementSignatures[index]
+                          }
+                          numSigsRequired={numSigsRequired}
+                          questRequirementType={QuestRequirementType.LOCATION}
+                          locations={locations}
+                          locationPubKeysCollected={locationPublicKeys}
+                        />
+                      )
+                    )}
+                </>
+              </ListWrapper>
+            </>
           ) : (
             <span className="flex justify-center items-center text-center grow min-h-[80vh]">
               Unable to load this quest.
