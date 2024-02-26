@@ -38,6 +38,7 @@ const QRPage = () => {
   const [displayState, setDisplayState] = useState<QRPageDisplayState>(
     QRPageDisplayState.DISPLAY
   );
+  const [loading, setLoading] = useState<boolean>(false);
   const [qrCodeData, setQRCodeData] = useState<QRCodeData>();
 
   useEffect(() => {
@@ -81,6 +82,7 @@ const QRPage = () => {
   }, [router, id]);
 
   const handleRedeem = async () => {
+    setLoading(true);
     if (!qrCodeData) {
       toast.error("Must have a valid QR Code to redeem!");
       return;
@@ -106,6 +108,8 @@ const QRPage = () => {
       const { error } = await response.json();
       toast.error("Error redeeming QR code");
       console.error("Error redeeming QR code: ", error);
+      setLoading(false);
+      return;
     }
 
     const { success } = await response.json();
@@ -152,6 +156,7 @@ const QRPage = () => {
       toast.error("This QR code has already been redeemed.");
       setDisplayState(QRPageDisplayState.FAILURE);
     }
+    setLoading(false);
   };
 
   if (!qrCodeData) {
@@ -183,6 +188,7 @@ const QRPage = () => {
             </div>
           </div>
           <Button
+            loading={loading}
             disabled={displayState !== QRPageDisplayState.DISPLAY}
             onClick={handleRedeem}
           >

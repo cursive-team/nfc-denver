@@ -69,11 +69,9 @@ const PartnerItemCard = ({
         className="flex gap-[6px] items-center p-1 rounded border border-[#2E2E2E] bg-gray-100/10"
         {...props}
       >
-        <div className="w-5 h-5 bg-slate-200 rounded-[2px]"></div>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-10">{partner}</span>
-          <span className="text-xs text-gray-100">{item}</span>
-        </div>
+        <img src={image} alt={item} className="w-5 h-5 rounded-[2px]" />
+        <span className="text-xs text-gray-10">{partner}</span>
+        <span className="text-xs text-gray-100">{item}</span>
       </div>
     </div>
   );
