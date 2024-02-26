@@ -157,7 +157,7 @@ const LoginStepCode = ({
           {...register("code")}
         />
         <Button type="submit" loading={verifyCodeMutation.isPending}>
-          Login
+          Next
         </Button>
       </FormStepLayout>
     </>
