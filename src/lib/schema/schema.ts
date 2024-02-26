@@ -77,7 +77,7 @@ export const ProfileSchema = object({
     })
     .trim()
     .optional(),
-  bio: string().max(200, "Bio must be less than 250 characters.").optional(),
+  bio: string().max(200, "Bio must be less than 200 characters.").optional(),
 });
 
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
