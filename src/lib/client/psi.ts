@@ -2,8 +2,6 @@ import init, { gen_keys_js, round2_js, round3_js } from "@/lib/mp_psi";
 import {
   Activity,
   Keys,
-  User,
-  getKeys,
   getLocationSignatures,
   getUsers,
 } from "./localStorage";

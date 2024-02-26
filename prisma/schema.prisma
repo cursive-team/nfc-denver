@@ -12,14 +12,14 @@ datasource db {
 }
 
 model User {
-  id                        Int                @id @default(autoincrement())
-  chipId                    String             @unique
-  email                     String             @unique
-  displayName               String
+  id          Int    @id @default(autoincrement())
+  chipId      String @unique
+  email       String @unique
+  displayName String
 
-  encryptionPublicKey       String
-  signaturePublicKey        String
-  psiRound1Message          String
+  encryptionPublicKey        String
+  signaturePublicKey         String
+  psiRound1Message           String
 
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
@@ -94,6 +94,15 @@ model Message {
   createdAt     DateTime @default(now())
   sender        User     @relation(name: "MessageSender", fields: [senderId], references: [id])
   recipient     User     @relation(name: "MessageRecipient", fields: [recipientId], references: [id])
+}
+
+model PsiMessage {
+  id             Int      @id @default(autoincrement())
+  senderId       Int
+  recipientId    Int
+  compressedData String
+  createdAt      DateTime @default(now())
+  sent           Boolean  @default(false)
 }
 
 model Quest {

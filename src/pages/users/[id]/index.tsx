@@ -105,6 +105,7 @@ const UserProfilePage = () => {
                   }
                 }
               }
+              console.log(userOverlapIds);
               setUserOverlap(userOverlapIds);
               setLocationOverlap(locationOverlapIds);
             }

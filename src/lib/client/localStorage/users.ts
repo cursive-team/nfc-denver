@@ -64,23 +64,6 @@ export const updateUserFromTap = async (
     users[userId] = newUser;
   }
   saveUsers(users);
-
-  const userPsiState = await getUserPsiState(userId);
-  if (userPsiState) {
-    const updatedUserPsiState = {
-      ...userPsiState,
-      pkId: userUpdate.id,
-      mr1: userUpdate.psiRound1Message,
-    };
-    await saveUserPsiState(userId, updatedUserPsiState);
-  } else {
-    const newUserPsiState = {
-      pkId: userUpdate.id,
-      mr1: userUpdate.psiRound1Message,
-    };
-    await saveUserPsiState(userId, newUserPsiState);
-  }
-
   return userId;
 };
 

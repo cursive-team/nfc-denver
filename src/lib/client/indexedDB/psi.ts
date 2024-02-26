@@ -5,7 +5,6 @@ export const USERS_STORAGE_KEY = "userPsiState";
 
 export type UserPSIState = {
   pkId?: string; // Public key ID
-  mr1?: string; // User's message for round 1
   r1O?: string; // Round 1 output for PSI with this user
   mr2?: string; // User's message for round 2
   r2O?: string; // Round 2 output for PSI with this user
@@ -48,7 +47,6 @@ export const saveUserRound1Output = async (
 
   const updatedUserPsiState = {
     ...userPsiState,
-    mr1: undefined,
     r1O: round1Output,
   };
   await saveUserPsiState(userId, updatedUserPsiState);

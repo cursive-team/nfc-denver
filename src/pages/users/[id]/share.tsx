@@ -111,11 +111,16 @@ const SharePage = () => {
       return;
     }
 
-    let userMessageRound1 = undefined;
-    if (id) {
-      const userPsiState = await getUserPsiState(id.toString());
-      if (userPsiState) userMessageRound1 = userPsiState.mr1;
+    const response = await fetch(`/api/psiRound1Message/${user.pkId}`);
+    if (!response.ok) {
+      console.error("Error fetching user psi round 1 message: ", response);
+      toast.error(
+        "This user does not have overlap set up. Please try sharing without the overlap."
+      );
+      setLoading(false);
+      return;
     }
+    const { psiRound1Message: userMessageRound1 } = await response.json();
 
     let messageRound2 = undefined;
     if (shareOverlap && !userMessageRound1) {
