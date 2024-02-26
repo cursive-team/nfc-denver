@@ -12,12 +12,10 @@ import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import { encryptBackupString } from "@/lib/shared/backup";
-import {
-  DEFAULT_PROFILE_VALUES,
-  ProfileForm,
-  ProfileFormProps,
-} from "./profileFormSteps";
+import { ProfileForm, ProfileFormProps } from "./profileFormSteps";
 import { useMutation } from "@tanstack/react-query";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 enum ProfileDisplayState {
   VIEW,
@@ -31,11 +29,12 @@ interface ProfileProps {
 }
 
 const Profile = ({ handleSignout }: ProfileProps) => {
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
+
   const router = useRouter();
   const [displayState, setDisplayState] = useState<ProfileDisplayState>(
     ProfileDisplayState.VIEW
   );
-  const [formValues, setFormValues] = useState<ProfileFormProps | undefined>();
   const [previousProfile, setPreviousProfile] = useState<ProfileType>();
   const [inputPassword, setInputPassword] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -49,11 +48,6 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   };
 
   const updateProfile = async () => {
-    if (!formValues) {
-      toast.error("Unexpected error occurred. Please try again.");
-      console.error("Form values not found");
-      return; // Form values not found
-    }
     const {
       wantsServerCustody,
       displayName,
@@ -62,7 +56,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       telegramUsername = "",
       farcasterUsername = "",
       bio = "",
-    } = formValues;
+    } = getState().profile;
     setLoading(true);
     const authToken = getAuthToken();
     if (!authToken || authToken.expiresAt < new Date()) {
@@ -178,15 +172,21 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   };
 
   const handleSaveEdit = async (formValues: ProfileFormProps) => {
-    setFormValues(formValues);
+    actions.updateStateFromAction({
+      profile: {
+        ...getState().profile,
+        ...formValues,
+      },
+    });
+
     if (!previousProfile) {
       console.error(
         "Could not connect to profile. Please refresh and try again."
       );
       return;
     }
+    const { wantsServerCustody } = formValues ?? false;
 
-    const { wantsServerCustody } = formValues;
     // User now wants self custody, need to set password
     if (!wantsServerCustody && previousProfile.wantsServerCustody) {
       setDisplayState(ProfileDisplayState.CHOOSE_PASSWORD);
@@ -379,14 +379,10 @@ const Profile = ({ handleSignout }: ProfileProps) => {
           }
           actions={
             <div className="flex flex-col gap-2">
-              <Button
-                loading={loading}
-                size="sm"
-                onClick={handleSubmitPassword}
-              >
+              <Button loading={loading} onClick={handleSubmitPassword}>
                 Update Profile
               </Button>
-              <Button size="sm" onClick={handleCancelPassword}>
+              <Button onClick={handleCancelPassword} disabled={loading}>
                 Back
               </Button>
             </div>

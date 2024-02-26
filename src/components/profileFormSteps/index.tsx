@@ -11,6 +11,8 @@ import router from "next/router";
 import { toast } from "sonner";
 import { Checkbox } from "../Checkbox";
 import { Radio } from "../Radio";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 export type ProfileFormProps = InferType<typeof ProfileSchema>;
 
@@ -50,6 +52,17 @@ const ProfileForm = ({
   setPreviousProfile,
   loading = false,
 }: ProfileProps) => {
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
+
+  const updateProfileState = (values: ProfileFormProps) => {
+    actions.updateStateFromAction({
+      profile: {
+        ...getState().profile,
+        ...values,
+      },
+    });
+  };
+
   const {
     register,
     watch,
@@ -90,8 +103,11 @@ const ProfileForm = ({
         bio: profile?.bio ?? previousProfile?.bio,
       };
 
+      // update the profile state
+      updateProfileState({ ...defaultFormValue });
+
       // set the previous profile
-      setPreviousProfile({ ...defaultFormValue, ...profile });
+      setPreviousProfile({ ...profile, ...defaultFormValue });
 
       return defaultFormValue;
     },
@@ -146,15 +162,22 @@ const ProfileForm = ({
       actions={
         isReadOnly ? (
           <div className="flex flex-col gap-2">
-            <Button onClick={onHandleEdit}>Edit</Button>
-            <Button onClick={onHandleSignout}>Logout</Button>
+            <Button type="button" onClick={onHandleEdit}>
+              Edit
+            </Button>
+            <Button type="button" onClick={onHandleSignout}>
+              Logout
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
             <Button
-              disabled={!formState.isDirty || loading}
-              onClick={() => {
-                trigger(); // trigger validation
+              disabled={loading}
+              onClick={async () => {
+                const isValid = await trigger();
+                if (isValid) {
+                  handleSubmit(updateProfile)();
+                }
               }}
               loading={loading}
             >

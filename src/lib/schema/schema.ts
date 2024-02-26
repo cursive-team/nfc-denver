@@ -82,3 +82,4 @@ export const ProfileSchema = object({
 
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
 export type LoginType = InferType<typeof LoginSchema>;
+export type ProfileType = InferType<typeof ProfileSchema>;
