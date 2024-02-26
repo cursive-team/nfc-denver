@@ -9,7 +9,7 @@ export type RawLocationSignature = {
 export const getHaLoArgs = (
   params: URLSearchParams
 ): RawLocationSignature | undefined => {
-  const pkN = params.get("pk1");
+  const pkN = params.get("pkN");
   const rnd = params.get("rnd");
   const rndsig = params.get("rndsig");
 
@@ -23,7 +23,7 @@ export const getHaLoArgs = (
   const signatureMessage = getCounterMessage(msgNonce, msgRand);
 
   return {
-    signaturePublicKey: pkN,
+    signaturePublicKey: pkN.substring(4),
     signatureMessage,
     signature: rndsig,
   };
