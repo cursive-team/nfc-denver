@@ -103,7 +103,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           <FeedContent
             title={
               <>
-                {"Private overlap computed with "} <u>{name}</u>
+                {"Overlap computed with "} <u>{name}</u>
               </>
             }
             icon={<Icons.cursive />}
