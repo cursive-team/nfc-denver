@@ -1,8 +1,10 @@
-import { Button } from "@/components/Button";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
 
 const LocalStorageBenchmark = () => {
+  useRequireAdmin();
+
   return (
     <FormStepLayout title="Local storage benchmark" description="TODO">
       <div className="flex flex-col gap-4">

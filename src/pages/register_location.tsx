@@ -14,27 +14,37 @@ import {
 import { InputWrapper } from "@/components/input/InputWrapper";
 import { useMutation } from "@tanstack/react-query";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Checkbox } from "@/components/Checkbox";
 
 export default function RegisterLocation() {
   const router = useRouter();
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const cmac = router.query.cmac as string;
+  const iykRef = router.query.iykRef as string | undefined;
+  const mockRef = router.query.mockRef as string | undefined;
+  const sigPk = router.query.sigPk as string | undefined;
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitted },
   } = useForm<RegisterLocationType>({
     resolver: yupResolver(RegisterLocationSchema),
     defaultValues: {
-      cmac, // default from query
+      iykRef,
+      mockRef,
+      sigPk,
       name: "",
       description: "",
       sponsor: "",
+      emailWallet: false,
     },
   });
+
+  const emailWallet = watch("emailWallet", false);
 
   const handleTakePhoto = () => {
     if (fileInputRef.current) {
@@ -57,14 +67,26 @@ export default function RegisterLocation() {
     mutationKey: ["imageBlob"],
     mutationFn: async ({
       imageFile,
-      cmac,
+      iykRef,
+      mockRef,
+      sigPk,
     }: {
       imageFile: File;
-      cmac: string;
+      iykRef?: string;
+      mockRef?: string;
+      sigPk?: string;
     }) => {
+      if (!iykRef && !sigPk) {
+        throw new Error("iykRef or sigPk must be provided");
+      }
+
+      const mockRefString = mockRef ? `&mockRef=${mockRef}` : "";
+      const uploadUrlParams = iykRef
+        ? `?iykRef=${iykRef}${mockRefString}`
+        : `?sigPk=${sigPk}`;
       const newBlob = await upload(imageFile.name, imageFile, {
         access: "public",
-        handleUploadUrl: `/api/register/location/upload?cmac=${cmac}`,
+        handleUploadUrl: `/api/register/location/upload${uploadUrlParams}`,
       });
       return newBlob.url;
     },
@@ -77,7 +99,7 @@ export default function RegisterLocation() {
     }
 
     await getImageUrlMutation.mutateAsync(
-      { imageFile, cmac },
+      { imageFile, iykRef, mockRef, sigPk },
       {
         onSuccess: async (imageUrl: string) => {
           const locationData: RegisterLocationType = {
@@ -121,7 +143,7 @@ export default function RegisterLocation() {
       }
     >
       <div className="flex flex-col gap-8">
-        <input type="hidden" {...register("cmac")} />
+        <input type="hidden" {...register("iykRef")} />
         <Input
           type="text"
           label="Name"
@@ -142,6 +164,15 @@ export default function RegisterLocation() {
           placeholder="Sponsor associated with location"
           error={errors.sponsor?.message}
           {...register("sponsor")}
+        />
+        <Checkbox
+          id="emailWallet"
+          label="Enable experimental emailwallet.org minting"
+          checked={emailWallet}
+          onChange={(enabled) => {
+            setValue("emailWallet", enabled);
+          }}
+          disabled={false}
         />
         <div className="relative">
           <InputWrapper

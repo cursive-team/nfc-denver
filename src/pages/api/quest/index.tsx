@@ -4,7 +4,7 @@ import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
 import { ErrorResponse, QuestWithRequirements } from "@/types";
 import { getServerRandomNullifierRandomness } from "@/lib/server/proving";
-import { isUserAdmin } from "@/lib/server/dev";
+import { isUserAdmin } from "@/lib/server/admin";
 
 export type QuestRequirementRequest = {
   name: string;
@@ -68,15 +68,11 @@ export default async function handler(
       return;
     }
 
-    if (!isUserAdmin(userId)) {
-      res.status(403).json({ error: "Unauthorized" });
-      return;
-    }
-
     const quests: QuestGetResponse = await prisma.quest.findMany({
       include: {
         userRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,
@@ -91,6 +87,7 @@ export default async function handler(
         },
         locationRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,
@@ -112,9 +109,9 @@ export default async function handler(
       const { token, name, description, buidlReward, requirements } =
         await questCreateRequestSchema.validate(req.body);
 
-      const senderUserId = await verifyAuthToken(token);
-      if (!senderUserId) {
-        res.status(401).json({ error: "Invalid or expired token" });
+      const isAdmin = await isUserAdmin(token);
+      if (!isAdmin) {
+        res.status(403).json({ error: "Unauthorized" });
         return;
       }
 

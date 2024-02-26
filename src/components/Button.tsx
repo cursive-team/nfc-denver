@@ -104,6 +104,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn({
           "flex-row-reverse": iconPosition === "right",
         })}
+        type="button"
         {...props}
       >
         {(loading || icon) && (

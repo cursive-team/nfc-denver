@@ -16,8 +16,6 @@ export const getHaLoArgs = (
   if (!pkN || !rnd || !rndsig) {
     return undefined;
   }
-
-  const strippedPkN = pkN.substring(4);
   // Messages using Arx cards are prepended with a string before hashing,
   // the following constructs the preimage of the hash used for the signature
   const msgNonce = parseInt(rnd?.substring(0, 8), 16);
@@ -25,7 +23,7 @@ export const getHaLoArgs = (
   const signatureMessage = getCounterMessage(msgNonce, msgRand);
 
   return {
-    signaturePublicKey: strippedPkN,
+    signaturePublicKey: pkN.substring(4),
     signatureMessage,
     signature: rndsig,
   };

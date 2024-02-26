@@ -1,8 +1,11 @@
 import { Button } from "@/components/Button";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import Link from "next/link";
 
 const BenchmarkPage = () => {
+  useRequireAdmin();
+
   return (
     <FormStepLayout
       title="Benchmarks"

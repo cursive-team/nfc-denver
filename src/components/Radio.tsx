@@ -1,11 +1,13 @@
 import { classed } from "@tw-classed/react";
 
-interface RadioProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface RadioProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
   id: string;
   label: string;
   description?: string;
   disabled?: boolean;
   checked?: boolean;
+  onChange?: (checked: boolean) => void;
 }
 
 const RadioLabelBase = classed.span("font-normal", {
@@ -52,6 +54,7 @@ const Radio = ({
   description,
   disabled,
   checked,
+  onChange,
   ...props
 }: RadioProps) => {
   return (
@@ -63,6 +66,9 @@ const Radio = ({
         name={id}
         checked={checked}
         disabled={disabled}
+        onChange={() => {
+          onChange?.(!checked);
+        }}
         {...props}
       />
       <label

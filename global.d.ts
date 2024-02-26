@@ -9,5 +9,6 @@ In this way, we can also have single file for the different steps of the login/r
 declare module "little-state-machine" {
   interface GlobalState {
     login: LoginType;
+    profile: ProfileType;
   }
 }

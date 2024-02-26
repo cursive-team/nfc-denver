@@ -25,15 +25,16 @@
 
 html,
 body {
+  padding: 0;
+  padding: 0;
   height: 100%;
-  @apply bg-black-default text-white;
+  color: #FFF;
+  background: #111 !important;
   font-family: "RegolaPro", sans-serif;
   text-rendering: geometricPrecision;
   font-feature-settings: "calt" off;
   -webkit-overflow-scrolling: touch;
 }
-
-
 
 @layer utilities {
   .text-balance {
@@ -51,9 +52,6 @@ body {
   }
 }
 
-
-.sticky {
-  > * {
-    -webkit-transform: translateZ(0);
-  }
+.sticky > * {
+  -webkit-transform: translateZ(0);
 }

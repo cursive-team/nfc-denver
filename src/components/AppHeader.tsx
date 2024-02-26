@@ -132,7 +132,7 @@ const AppHeaderContent = ({
   const showBackButton = activeMenuIndex !== null;
 
   return (
-    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-[calc(100%-70px)] bg-black-default">
+    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-[calc(100%-70px)] bg-black">
       <div className="flex h-[60px]">
         {showBackButton && (
           <button
@@ -182,9 +182,12 @@ const AppHeaderContent = ({
   );
 };
 
-const AppHeader = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+interface AppHeaderProps {
+  isMenuOpen: boolean;
+  setIsMenuOpen: (value: boolean) => void;
+}
 
+const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
   const handleSignout = async () => {
     await clearIndexedDB();
     deleteAccountFromLocalStorage();
@@ -198,7 +201,7 @@ const AppHeader = () => {
           <button type="button" className="flex gap-2 items-center">
             <Icons.iyk />
             <Icons.x />
-            <Icons.cursive />
+            <Icons.cursiveFull />
           </button>
         </Link>
       )}

@@ -4,29 +4,27 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 
-export default function Explore() {
+export default function AdminTap() {
   const router = useRouter();
-  const [cardId, setCardId] = useState<string>("");
+  const [chipId, setChipId] = useState<string>("");
 
   const onTap = (event: FormEvent) => {
     event.preventDefault();
 
-    // TEMPORARY: For testing purposes, we'll just use the card ID as the CMAC
-    const cmac = cardId;
-    router.push(`/tap?cmac=${cmac}`);
+    router.push(`/tap?iykRef=${chipId}&mockRef=true`);
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCardId(event.target.value);
+    setChipId(event.target.value);
   };
 
   return (
-    <FormStepLayout className="pt-4" title="Tap your card" onSubmit={onTap}>
+    <FormStepLayout className="pt-4" title="Tap a chip" onSubmit={onTap}>
       <Input
         type="text"
-        name="cardId"
-        value={cardId}
-        placeholder="Card ID"
+        name="chipId"
+        value={chipId}
+        placeholder="Chip ID"
         onChange={handleInputChange}
       />
       <Button type="submit">Tap</Button>
@@ -34,6 +32,6 @@ export default function Explore() {
   );
 }
 
-Explore.getInitialProps = () => {
+AdminTap.getInitialProps = () => {
   return { fullPage: true };
 };

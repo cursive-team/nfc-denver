@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface LocationDataProps {
-  cmac: string;
+  iykRef: string;
   name: string;
   description: string;
   sponsor: string;

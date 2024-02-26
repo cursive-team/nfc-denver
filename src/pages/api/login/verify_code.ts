@@ -51,7 +51,6 @@ export default async function handler(
   const authToken = await generateAuthToken(user.id);
 
   // Get latest backup
-  // TODO: Might want to perform some logic here ensuring the backup encryption method matches the current user custody preference
   const backup = await prisma.backup.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },

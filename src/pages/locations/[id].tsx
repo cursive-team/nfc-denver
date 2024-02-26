@@ -14,6 +14,7 @@ import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { LocationDetailPlaceholder } from "@/components/placeholders/LocationDetailPlaceholder";
 import { getNonceFromCounterMessage } from "@/lib/client/libhalo";
 import { LocationTapModal } from "@/components/modals/LocationTapModal";
+import Linkify from "react-linkify";
 
 const Label = classed.span("text-xs text-gray-10 font-light");
 const Description = classed.span("text-gray-12 text-sm font-light");
@@ -22,7 +23,7 @@ const LocationDetails = () => {
   const { pageWidth } = useSettings();
   const router = useRouter();
   const { id } = router.query;
-  const [openTapModal, setOpenTapModal] = useState(false);
+  const [openTapModal, setOpenTapModal] = useState<boolean>();
   const [location, setLocation] = useState<LocationWithQuests>();
   const [signature, setSignature] = useState<LocationSignature>();
 
@@ -51,6 +52,8 @@ const LocationDetails = () => {
         const tap = router.query.tap;
         if (tap === "true") {
           setOpenTapModal(true);
+        } else {
+          setOpenTapModal(false);
         }
       }
     };
@@ -62,14 +65,14 @@ const LocationDetails = () => {
     <div>
       <AppBackHeader redirectTo="/" />
       <LoadingWrapper
-        isLoading={!location}
+        isLoading={!location || openTapModal === undefined}
         fallback={<LocationDetailPlaceholder />}
         className="flex flex-col gap-6"
       >
-        {location && (
+        {location && openTapModal !== undefined && (
           <LocationTapModal
             location={location}
-            signatureMessage={signature?.msg}
+            signature={signature}
             isOpen={openTapModal}
             setIsOpen={(isOpen) => setOpenTapModal(isOpen)}
           />
@@ -89,7 +92,26 @@ const LocationDetails = () => {
               <div className="flex flex-col gap-4 jus">
                 <div className="flex flex-col">
                   <Label>Description</Label>
-                  <Description>{location.description}</Description>
+                  <Description>
+                    <Linkify
+                      componentDecorator={(
+                        decoratedHref,
+                        decoratedText,
+                        key
+                      ) => (
+                        <a
+                          target="_blank"
+                          href={decoratedHref}
+                          key={key}
+                          style={{ textDecoration: "underline" }}
+                        >
+                          {decoratedText}
+                        </a>
+                      )}
+                    >
+                      {location.description}
+                    </Linkify>
+                  </Description>
                 </div>
                 {signature !== undefined && (
                   <div className="flex flex-col">

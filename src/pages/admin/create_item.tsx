@@ -10,16 +10,19 @@ import router from "next/router";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { InputWrapper } from "@/components/input/InputWrapper";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 
 export default function CreateItem() {
   const [itemName, setItemName] = useState<string>("");
   const [itemSponsor, setItemSponsor] = useState<string>("");
   const [itemDescription, setItemDescription] = useState<string>("");
   const [buidlCost, setBuidlCost] = useState<number>(0);
-  const [questReqIds, setQuestReqIds] = useState<string[]>([]);
+  const [questReqId, setQuestReqId] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useRequireAdmin();
 
   const handleTakePhoto = () => {
     if (fileInputRef.current) {
@@ -72,14 +75,14 @@ export default function CreateItem() {
 
     setLoading(true);
 
-    if (questReqIds.length !== 0) {
+    if (questReqId) {
       // Validate quest requirement ids
       const response = await fetch("/api/item/validate_requirements", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ questReqIds }),
+        body: JSON.stringify({ questReqIds: [questReqId] }),
       });
       if (!response.ok) {
         toast.error("Invalid quest requirement ids. Please try again.");
@@ -104,7 +107,7 @@ export default function CreateItem() {
             sponsor: itemSponsor,
             description: itemDescription,
             buidlCost,
-            questReqIds,
+            questReqId,
             imageUrl,
           };
 
@@ -185,14 +188,14 @@ export default function CreateItem() {
         required
       />
       <Input
-        label="Required Quest IDs"
-        placeholder="Comma separated IDs"
+        label="Quest ID"
+        placeholder="Leave blank if no quest requirement"
         type="text"
-        name="reqIds"
-        value={questReqIds.join(",")}
+        name="reqId"
+        value={questReqId}
         onChange={(event) =>
-          setQuestReqIds(
-            event.target.value === "" ? [] : event.target.value.split(",")
+          setQuestReqId(
+            event.target.value === "" ? undefined : event.target.value
           )
         }
       />

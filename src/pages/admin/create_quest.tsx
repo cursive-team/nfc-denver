@@ -7,6 +7,7 @@ import { Icons } from "@/components/Icons";
 import { getAuthToken } from "@/lib/client/localStorage";
 import router from "next/router";
 import { toast } from "sonner";
+import useRequireAdmin from "@/hooks/useRequireAdmin";
 
 enum DisplayState {
   CREATE_QUEST_FORM,
@@ -29,6 +30,8 @@ export default function CreateQuest() {
   const [questReqs, setQuestReqs] = useState<QuestRequirement[]>([]);
   const [tempQuestReq, setTempQuestReq] = useState<QuestRequirement>();
   const [loading, setLoading] = useState<boolean>(false);
+
+  useRequireAdmin();
 
   const handleQuestCreation = async (event: React.FormEvent) => {
     event.preventDefault();

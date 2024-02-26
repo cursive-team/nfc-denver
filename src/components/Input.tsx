@@ -4,7 +4,7 @@ import { ForwardedRef, InputHTMLAttributes, forwardRef } from "react";
 import { InputWrapper, InputWrapperProps } from "./input/InputWrapper";
 
 const InputComponent = classed.input(
-  "min-h-5 py-[5px] placeholder:font-light placeholder-[#818181] leading-[20px] rounded-none w-full text-white !outline-none text-light shadow-none focus:border-b focus:ring-0 focus:outline-none focus:shadow-none focus:outline-offset-0 focus:ring-offset-0",
+  "min-h-5 py-[5px] placeholder:font-light placeholder-[#818181] leading-[20px] rounded-none w-full text-white !outline-none text-light shadow-none focus:border-b focus:ring-0 focus:outline-none focus:shadow-none focus:outline-offset-0 focus:ring-offset-0 disabled:opacity-50",
   {
     variants: {
       variant: {

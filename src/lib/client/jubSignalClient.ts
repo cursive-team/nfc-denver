@@ -373,7 +373,6 @@ const processEncryptedMessages = async (args: {
           break;
         }
       case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
-        // TODO: Can optionally validate received signature here
         try {
           const { x, tg, fc, bio, pk, msg, sig, pkId } =
             await inboundTapMessageSchema.validate(data);

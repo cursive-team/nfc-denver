@@ -2,13 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { object, string } from "yup";
 import { ErrorResponse } from "@/types";
-import {
-  ChipType,
-  getChipIdFromIykCmac,
-  getChipTypeFromChipId,
-} from "@/lib/server/dev";
 import { sign } from "@/lib/shared/signature";
 import { getCounterMessage } from "babyjubjub-ecdsa";
+import {
+  ChipType,
+  getChipIdFromIykRef,
+  getChipTypeFromChipId,
+} from "@/lib/server/iyk";
 const crypto = require("crypto");
 
 export enum TapResponseCode {
@@ -104,7 +104,7 @@ export const generateLocationSignature = async (
 
 /**
  * GET
- * Receives an iyk chip cmac
+ * Receives an iyk chip iykRef
  * Responds with person tap data, location tap data, or an error
  */
 export default async function handler(
@@ -115,18 +115,20 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  // cmac must be provided
-  const cmac = req.query.cmac;
-  if (!cmac || typeof cmac !== "string") {
+  // iykRef must be provided
+  const iykRef = req.query.iykRef;
+  if (!iykRef || typeof iykRef !== "string") {
     return res.status(400).json({ error: "Invalid code provided" });
   }
 
-  const { chipId, isValid } = getChipIdFromIykCmac(cmac);
-  // cmac must exist in iyk's lookup
+  const mockRef: boolean = req.query.mockRef === "true";
+
+  const { chipId, isValid } = await getChipIdFromIykRef(iykRef, mockRef);
+  // ref must exist in iyk's lookup
   if (chipId === undefined) {
     return res.status(400).json({ error: "Invalid code provided" });
   }
-  // cmac must not have been used before
+  // ref must not have been used before
   if (!isValid) {
     return res.status(200).json({ code: TapResponseCode.CMAC_INVALID });
   }
@@ -173,7 +175,7 @@ export default async function handler(
   }
 
   // card is not registered, return whether it is a person card or location card
-  const chipType = getChipTypeFromChipId(chipId);
+  const chipType = await getChipTypeFromChipId(chipId, mockRef);
   if (chipType === ChipType.PERSON) {
     return res
       .status(200)

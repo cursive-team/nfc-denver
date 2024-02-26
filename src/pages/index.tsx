@@ -24,7 +24,7 @@ import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Spinner } from "@/components/Spinner";
-import { classed } from "@tw-classed/react";
+import { CircleCard } from "@/components/cards/CircleCard";
 
 interface ContactCardProps {
   name: string;
@@ -68,8 +68,6 @@ interface ActivityFeedProps {
   date: string;
 }
 
-const FeedContainer = classed.div("flex items-center justify-between py-1");
-
 interface FeedContentProps {
   title: React.ReactNode;
   description: string;
@@ -77,12 +75,12 @@ interface FeedContentProps {
 }
 const FeedContent = ({ title, description, icon }: FeedContentProps) => {
   return (
-    <div className="flex items-center justify-between py-1">
-      <div className="flex items-center gap-2">
+    <div className="grid grid-cols-[1fr_80px] items-center justify-between py-1 gap-4">
+      <div className="grid grid-cols-[24px_1fr] items-center gap-2">
         <div className="flex justify-center items-center h-6 w-6 rounded-full bg-[#323232]">
           {icon}
         </div>
-        <Card.Title>{title}</Card.Title>
+        <Card.Title className="break-all">{title}</Card.Title>
       </div>
       <Card.Description>{description}</Card.Description>
     </div>
@@ -96,7 +94,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
         <FeedContent
           title="Registered for BUIDLQuest!"
           description={date}
-          icon={<Icons.person />}
+          icon={<CircleCard icon="person" />}
         />
       );
     case JUB_SIGNAL_MESSAGE_TYPE.OVERLAP_COMPUTED:
@@ -122,7 +120,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
                 {"Connected with"} <u>{name}</u>
               </>
             }
-            icon={<Icons.person />}
+            icon={<CircleCard icon="person" />}
             description={date}
           />
         </Link>
@@ -136,7 +134,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
                 <u>{name}</u> {"connected with you"}
               </>
             }
-            icon={<Icons.person />}
+            icon={<CircleCard icon="person" />}
             description={date}
           />
         </Link>
@@ -150,7 +148,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
                 {"Visited"} <u>{name}</u>
               </>
             }
-            icon={<Icons.location className="h-3" />}
+            icon={<CircleCard icon="location" />}
             description={date}
           />
         </Link>
@@ -159,7 +157,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
       return (
         <Link href={`/quests/${id}`}>
           <FeedContent
-            icon={<Icons.quest className="#CDE3C9" />}
+            icon={<CircleCard icon="proof" />}
             title={
               <>
                 {"Completed "} <u>{name}</u>
