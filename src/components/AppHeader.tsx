@@ -154,7 +154,7 @@ const AppHeaderContent = ({
   const showBackButton = activeMenuIndex !== null;
 
   return (
-    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-full bg-black">
+    <div className="fixed inset-0 w-full overflow-auto px-3 xs:px-4 z-10 h-full bg-black">
       <div className="flex h-[60px]">
         {showBackButton && (
           <button
@@ -222,7 +222,7 @@ const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
   };
 
   return (
-    <div className="flex w-full items-center p-4 bg-black-default z-50">
+    <div className="flex w-full items-center p-3 py-3 xs:p-4 bg-black z-50">
       {!isMenuOpen && (
         <Link href="/">
           <button type="button" className="flex gap-2 items-center">
