@@ -4,7 +4,8 @@ import Link from "next/link";
 const Metadata = {
   website: "buidlquest.xyz",
   title: "buidlquest.xyz",
-  description: "Checkout our cool page",
+  description:
+    "Connect with ETHDenver attendees, engage with sponsors, and unlock unique experiences by tapping NFC chips.",
   image: "/cursive.jpg",
 };
 
