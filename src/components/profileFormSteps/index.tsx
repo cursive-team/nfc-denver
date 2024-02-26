@@ -172,7 +172,7 @@ const ProfileForm = ({
         ) : (
           <div className="flex flex-col gap-2">
             <Button
-              disabled={loading}
+              disabled={!formState.isDirty || loading}
               onClick={async () => {
                 const isValid = await trigger();
                 if (isValid) {
