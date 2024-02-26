@@ -28,7 +28,7 @@ const Modal = ({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[110]" onClose={onCloseModal}>
+      <Dialog as="div" className="relative z-[100]" onClose={onCloseModal}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -38,7 +38,7 @@ const Modal = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25 z-[110]" />
+          <div className="fixed inset-0 bg-black bg-opacity-25 z-[100]" />
         </Transition.Child>
 
         <div
