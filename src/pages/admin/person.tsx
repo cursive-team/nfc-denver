@@ -14,7 +14,7 @@ const AdminTapPersonPage = () => {
   useRequireAdmin();
 
   const handleTapPerson = (chipId: string) => {
-    router.push(`/tap?cmac=${chipId}`);
+    router.push(`/tap?iykRef=${chipId}&mockRef=true`);
   };
 
   useEffect(() => {

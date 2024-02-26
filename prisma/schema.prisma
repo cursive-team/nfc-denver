@@ -211,3 +211,10 @@ model EmailWalletMint {
   sigHash    String
   createdAt  DateTime @default(now())
 }
+
+model CmacChipRegistration {
+  id             Int      @id @default(autoincrement())
+  chipId         String
+  isLocationChip Boolean
+  createdAt      DateTime @default(now())
+}

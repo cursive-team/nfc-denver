@@ -1,7 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
-import { object, string } from "yup";
+import { boolean, object, string } from "yup";
 import { ErrorResponse } from "@/types";
+import {
+  LocationTapResponse,
+  generateLocationSignature,
+  locationTapResponseSchema,
+} from "./cmac";
 
 export type LocationInfo = {
   id: string;
@@ -24,11 +29,13 @@ export const locationInfoSchema = object({
 export type SigCardTapResponse = {
   registered: boolean;
   locationInfo?: LocationInfo;
+  locationInfoWithSig?: LocationTapResponse;
 };
 
 export const sigCardTapResponseSchema = object({
-  registered: string().required(),
+  registered: boolean().required(),
   locationInfo: locationInfoSchema.optional().default(undefined),
+  locationInfoWithSig: locationTapResponseSchema.optional().default(undefined),
 });
 
 /**
@@ -50,23 +57,50 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid public key" });
   }
 
-  // if location is registered, return location data
-  const location = await prisma.location.findFirst({
-    where: {
-      signaturePublicKey,
-    },
-  });
-  if (!location) {
-    return res.status(200).json({ registered: false });
-  }
+  if (process.env.ENABLE_SIG_CARDS === "true") {
+    const location = await prisma.location.findFirst({
+      where: {
+        signaturePublicKey,
+      },
+    });
+    if (!location) {
+      return res.status(200).json({ registered: false });
+    }
 
-  const locationInfo: LocationInfo = {
-    id: location.id.toString(),
-    name: location.name,
-    description: location.description,
-    sponsor: location.sponsor,
-    imageUrl: location.imageUrl,
-    signaturePublicKey: location.signaturePublicKey,
-  };
-  return res.status(200).json({ registered: true, locationInfo });
+    const locationInfo: LocationInfo = {
+      id: location.id.toString(),
+      name: location.name,
+      description: location.description,
+      sponsor: location.sponsor,
+      imageUrl: location.imageUrl,
+      signaturePublicKey: location.signaturePublicKey,
+    };
+    return res.status(200).json({ registered: true, locationInfo });
+  } else {
+    const location = await prisma.location.findFirst({
+      where: {
+        chipId: signaturePublicKey,
+      },
+    });
+    if (!location) {
+      return res.status(200).json({ registered: false });
+    }
+
+    const { message, signature } = await generateLocationSignature(location.id);
+    const locationTapResponse: LocationTapResponse = {
+      id: location.id.toString(),
+      name: location.name,
+      description: location.description,
+      sponsor: location.sponsor,
+      imageUrl: location.imageUrl,
+      signaturePublicKey: location.signaturePublicKey,
+      signatureMessage: message,
+      signature,
+    };
+
+    return res.status(200).json({
+      registered: true,
+      locationInfoWithSig: locationTapResponse,
+    });
+  }
 }

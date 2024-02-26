@@ -3,20 +3,21 @@ import prisma from "@/lib/server/prisma";
 import { object, string, boolean } from "yup";
 import { ErrorResponse } from "@/types";
 import {
-  ChipType,
-  getChipIdFromIykCmac,
-  getChipTypeFromChipId,
-  verifyEmailForChipId,
-} from "@/lib/server/dev";
-import {
   AuthTokenResponse,
   generateAuthToken,
   verifySigninCode,
 } from "@/lib/server/auth";
 import { displayNameRegex } from "@/lib/shared/utils";
+import {
+  ChipType,
+  getChipIdFromIykRef,
+  getChipTypeFromChipId,
+  verifyEmailForChipId,
+} from "@/lib/server/iyk";
 
 const createAccountSchema = object({
-  cmac: string().required(),
+  iykRef: string().required(),
+  mockRef: string().optional().default(undefined),
   email: string().email().required(),
   code: string().required(),
   displayName: string().required(),
@@ -52,7 +53,8 @@ export default async function handler(
   }
 
   const {
-    cmac,
+    iykRef,
+    mockRef,
     email,
     code,
     displayName,
@@ -71,14 +73,15 @@ export default async function handler(
     });
   }
 
-  // Validate cmac corresponds to an unregistered person chip
-  const { chipId } = getChipIdFromIykCmac(cmac);
+  // Validate iykRef corresponds to an unregistered person chip
+  const enableMockRef = mockRef === "true";
+  const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
   if (chipId === undefined) {
-    return res.status(400).json({ error: "Invalid cmac" });
+    return res.status(400).json({ error: "Invalid iykRef" });
   }
-  const chipType = getChipTypeFromChipId(chipId);
+  const chipType = await getChipTypeFromChipId(chipId, enableMockRef);
   if (chipType !== ChipType.PERSON) {
-    return res.status(400).json({ error: "Invalid cmac" });
+    return res.status(400).json({ error: "Invalid iykRef" });
   }
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -91,7 +94,7 @@ export default async function handler(
 
   const emailMatchesChipId = verifyEmailForChipId(chipId, email);
   if (!emailMatchesChipId) {
-    return res.status(400).json({ error: "Email does not match cmac" });
+    return res.status(400).json({ error: "Email does not match iykRef" });
   }
 
   // Verify the signin code is valid

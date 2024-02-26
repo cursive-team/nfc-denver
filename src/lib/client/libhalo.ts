@@ -9,15 +9,13 @@ export type RawLocationSignature = {
 export const getHaLoArgs = (
   params: URLSearchParams
 ): RawLocationSignature | undefined => {
-  const pkN = params.get("pkN");
+  const pkN = params.get("pk1");
   const rnd = params.get("rnd");
   const rndsig = params.get("rndsig");
 
   if (!pkN || !rnd || !rndsig) {
     return undefined;
   }
-
-  const strippedPkN = pkN.substring(4);
   // Messages using Arx cards are prepended with a string before hashing,
   // the following constructs the preimage of the hash used for the signature
   const msgNonce = parseInt(rnd?.substring(0, 8), 16);
@@ -25,7 +23,7 @@ export const getHaLoArgs = (
   const signatureMessage = getCounterMessage(msgNonce, msgRand);
 
   return {
-    signaturePublicKey: strippedPkN,
+    signaturePublicKey: pkN,
     signatureMessage,
     signature: rndsig,
   };

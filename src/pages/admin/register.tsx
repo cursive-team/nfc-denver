@@ -20,8 +20,7 @@ const AdminRegisterPage = () => {
       }
 
       const { chipId } = await response.json();
-      // For now cmac is same as chipId
-      router.push(`/tap?cmac=${chipId}`);
+      router.push(`/tap?iykRef=${chipId}&mockRef=true`);
     };
 
     handleRegister();

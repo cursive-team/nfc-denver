@@ -28,7 +28,6 @@ import {
 import { Spinner } from "@/components/Spinner";
 import { Radio } from "@/components/Radio";
 import { Checkbox } from "@/components/Checkbox";
-import { Icons } from "@/components/Icons";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 import { AppBackHeader } from "@/components/AppHeader";
@@ -48,7 +47,8 @@ export default function Register() {
   const [displayState, setDisplayState] = useState<DisplayState>(
     DisplayState.INPUT_EMAIL
   );
-  const [cmac, setCmac] = useState<string>("");
+  const [iykRef, setIykRef] = useState<string>("");
+  const [mockRef, setMockRef] = useState<string>();
   const [email, setEmail] = useState<string>("");
   const [code, setCode] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
@@ -63,10 +63,13 @@ export default function Register() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (router.query.cmac) {
-      setCmac(router.query.cmac as string);
+    if (router.query.iykRef) {
+      setIykRef(router.query.iykRef as string);
     }
-  }, [router.query.cmac]);
+    if (router.query.mockRef) {
+      setMockRef(router.query.mockRef as string);
+    }
+  }, [router.query.iykRef, router.query.mockRef]);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
@@ -120,7 +123,7 @@ export default function Register() {
   const handleEmailSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!cmac) {
+    if (!iykRef) {
       toast.error("Please tap your card to link it to your account.");
       return;
     }
@@ -131,7 +134,7 @@ export default function Register() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, cmac }),
+      body: JSON.stringify({ email, iykRef, mockRef }),
     })
       .then((response) => {
         if (response.ok) {
@@ -257,7 +260,8 @@ export default function Register() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        cmac,
+        iykRef,
+        mockRef,
         email,
         code,
         displayName,

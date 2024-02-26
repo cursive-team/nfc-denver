@@ -33,9 +33,6 @@ const AdminPage = () => {
           <Link href="/admin/new_admin">
             <Button>Create new admin</Button>
           </Link>
-          <Link href="/admin/bench">
-            <Button>Benchmarks</Button>
-          </Link>
           <Link href="/" className="link text-center">
             Back to home
           </Link>
