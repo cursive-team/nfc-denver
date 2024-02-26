@@ -28,9 +28,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const displayState = getState().profileView ?? ProfileDisplayState.VIEW;
 
   const router = useRouter();
-  /*const [displayState, setDisplayState] = useState<ProfileDisplayState>(
-    ProfileDisplayState.VIEW
-  );*/
+
   const [previousProfile, setPreviousProfile] = useState<ProfileType>();
   const [inputPassword, setInputPassword] = useState<string>();
   const [password, setPassword] = useState<string>();
