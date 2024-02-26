@@ -23,9 +23,9 @@ export default function StorePage() {
     if (selectedOption === "ALL") {
       return allItems;
     } else if (selectedOption === "UNLOCKED") {
-      return allItems.filter((item) => {
+      return allItems.filter((item: any) => {
         return quests.some(
-          (quest) => quest.id === item.questId && quest.isCompleted
+          (quest) => quest.id === item?.questId && quest.isCompleted
         );
       });
     } else if (selectedOption === "REDEEMED") {
@@ -77,7 +77,7 @@ export default function StorePage() {
               itemId={storeItem.id}
               pointsRequired={storeItem.buidlCost}
               imageUrl={storeItem.imageUrl}
-              isSoldOut={storeItem.isSoldOut}
+              isSoldOut={storeItem?.isSoldOut ?? false}
               onClick={() => {
                 setStoreItem(storeItem);
                 setItemModalOpen(true);

@@ -16,6 +16,7 @@ import {
 import { ItemWithCompletion } from "@/types";
 import { classed } from "@tw-classed/react";
 import { computeNumRequirementsSatisfied } from "@/lib/client/quests";
+import { PointCard } from "../cards/PointCard";
 
 const QRCodeWrapper = classed.div(
   "bg-white rounded-[8px] w-full max-w-[156px]"
@@ -113,9 +114,7 @@ const StoreModalItem = ({
                   Sold Out
                 </span>
               ) : storeItem.buidlCost > 0 ? (
-                <span className="text-xs font-light text-gray-900">
-                  {"Cost: " + storeItem.buidlCost + " BUIDL"}
-                </span>
+                <PointCard label="Cost" point={storeItem.buidlCost} />
               ) : null}
             </div>
           </div>

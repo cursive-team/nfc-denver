@@ -52,7 +52,7 @@ const PointCard = ({
   ...props
 }: PointCardProps) => {
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-[5px]">
       {label && (
         <PointCardLabel color={color} size={size}>
           {label}

@@ -88,9 +88,12 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
         <div className="flex flex-row items-center gap-4">
-          <Label>Reward(s)</Label>
           {buidlReward ? (
-            <PointCard className="center" point={buidlReward} />
+            <PointCard
+              label="Reward(s)"
+              className="center"
+              point={buidlReward}
+            />
           ) : null}
           {item && (
             <PartnerItemCard
