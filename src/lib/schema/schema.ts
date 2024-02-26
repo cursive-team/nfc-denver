@@ -45,9 +45,12 @@ export const RegisterLocationSchema = object({
 
 export const ProfileSchema = object({
   displayName: string()
-    .matches(displayNameRegex)
-    .required("This field is required.")
-    .trim(),
+    .matches(displayNameRegex, {
+      message:
+        "Display name must consist of letters and numbers only, < 20 chars.",
+    })
+    .trim()
+    .required("This field is required."),
   email: string()
     .email("Invalid email address.")
     .required("This field is required."),
@@ -74,7 +77,7 @@ export const ProfileSchema = object({
     })
     .trim()
     .optional(),
-  bio: string().optional().max(200, "Bio must be less than 250 characters."),
+  bio: string().max(200, "Bio must be less than 250 characters.").optional(),
 });
 
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
