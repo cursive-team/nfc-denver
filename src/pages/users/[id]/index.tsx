@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   fetchUserByUUID,
   getKeys,
+  getLocationSignatures,
   getProfile,
   getUsers,
   User,
@@ -28,6 +29,7 @@ const Label = classed.span("text-sm text-gray-12");
 
 enum PSIDisplayState {
   NO_PSI,
+  ONLY_ONE_SENT,
   WAITING,
   OTHER_NO_OPT_IN,
   OVERLAP,
@@ -66,7 +68,9 @@ const UserProfilePage = () => {
   const [userOverlap, setUserOverlap] = useState<
     { userId: string; name: string }[]
   >([]);
-  const [locationOverlap, setLocationOverlap] = useState<number[]>([]);
+  const [locationOverlap, setLocationOverlap] = useState<
+    { locationId: string; name: string }[]
+  >([]);
 
   const alreadyConnected = router?.query?.alreadyConnected === "true";
 
@@ -80,34 +84,41 @@ const UserProfilePage = () => {
 
           const userPsiState = await getUserPsiState(id);
           if (userPsiState) {
-            setPsiState(PSIDisplayState.WAITING);
+            setPsiState(PSIDisplayState.ONLY_ONE_SENT);
             if (userPsiState.r1O && fetchedUser.inTs && !userPsiState.mr2) {
               setPsiState(PSIDisplayState.OTHER_NO_OPT_IN);
               await saveUserPsiState(id, {
                 r1O: "",
               });
-            }
-            if (userPsiState.oI) {
+            } else if (userPsiState.oI) {
               setPsiState(PSIDisplayState.OVERLAP);
-              const users = getUsers();
+
               const overlap = JSON.parse(userPsiState.oI);
+              const users = getUsers();
+              const locations = getLocationSignatures();
               let locationOverlapIds = [];
               let userOverlapIds = [];
+
               for (let i = 0; i < overlap.length; i++) {
                 if (overlap[i] > 20000) {
-                  locationOverlapIds.push(overlap[i] - 20000);
-                  continue;
-                }
-                for (const userId in users) {
-                  if (parseInt(users[userId].pkId) === overlap[i]) {
-                    console.log(users[userId]);
-                    userOverlapIds.push({ userId, name: users[userId].name });
+                  const locationId = (overlap[i] - 20000).toString();
+                  locationOverlapIds.push({
+                    locationId,
+                    name: locations[locationId].name,
+                  });
+                } else {
+                  for (const userId in users) {
+                    if (parseInt(users[userId].pkId) === overlap[i]) {
+                      userOverlapIds.push({ userId, name: users[userId].name });
+                    }
                   }
                 }
               }
               console.log(userOverlapIds);
               setUserOverlap(userOverlapIds);
               setLocationOverlap(locationOverlapIds);
+            } else {
+              setPsiState(PSIDisplayState.WAITING);
             }
           }
         }
@@ -249,11 +260,19 @@ const UserProfilePage = () => {
           <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
             <InputWrapper
               className="flex flex-col gap-2"
-              label="Details pending"
+              label={
+                psiState === PSIDisplayState.ONLY_ONE_SENT
+                  ? "Details and overlap pending"
+                  : "Details pending"
+              }
             >
               <span className="text-gray-11 text-[14px] left-5 mt-1">
-                If {user.name} taps you back and shares their socials, they will
-                appear here.
+                {`If ${user.name} taps you back and shares their socials ${
+                  psiState === PSIDisplayState.ONLY_ONE_SENT
+                    ? " and overlap"
+                    : ""
+                }, they will
+                appear here.`}
               </span>
             </InputWrapper>
           </div>
@@ -297,53 +316,56 @@ const UserProfilePage = () => {
           <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
             <InputWrapper
               className="flex flex-col gap-2"
-              label="Overlap pending"
+              label="Private overlap pending"
             >
               <span className="text-gray-11 text-[14px] left-5 mt-1">
-                If {user.name} taps you back and opts-into sharing overlap, it
-                will appear here.
+                Both of you have opted into overlap computation! Waiting on data
+                from {user.name}.
               </span>
             </InputWrapper>
           </div>
         )}
         {psiState === PSIDisplayState.OVERLAP && (
           <>
-            <InputWrapper label="People overlap">
-              <div className="mt-2" />
-              {userOverlap.map(({ userId, name }, index) => {
-                return (
-                  <div
-                    onClick={() => router.push(`/users/${userId}`)}
-                    key={index}
-                  >
-                    <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
-                      <div className="flex items-center gap-2">
-                        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                          <Icons.person size={12} />
+            <InputWrapper
+              label="Private overlap"
+              description="Your common taps, snapshotted at when you met!"
+            >
+              <div className="flex flex-col mt-2 gap-1">
+                {userOverlap.map(({ userId, name }, index) => {
+                  return (
+                    <div
+                      onClick={() => {
+                        window.location.href = `/users/${userId}`;
+                      }}
+                      key={index}
+                    >
+                      <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                            <Icons.person size={12} />
+                          </div>
+                          <Card.Title>{name}</Card.Title>
                         </div>
-                        <Card.Title>{name}</Card.Title>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </InputWrapper>
-            <InputWrapper label="Location overlap">
-              <div className="mt-2" />
-              {locationOverlap.map((id, index) => {
-                return (
-                  <Link href={`/locations/${id}`} key={index}>
-                    <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
-                      <div className="flex items-center gap-2">
-                        <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                          <Icons.person size={12} />
+                  );
+                })}
+                {locationOverlap.map(({ locationId, name }, index) => {
+                  return (
+                    <Link href={`/locations/${locationId}`} key={index}>
+                      <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                            <Icons.location className="h-3" />
+                          </div>
+                          <Card.Title>{name}</Card.Title>
                         </div>
-                        <Card.Title>Location</Card.Title>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
             </InputWrapper>
           </>
         )}

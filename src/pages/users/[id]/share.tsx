@@ -291,8 +291,7 @@ const SharePage = () => {
                 >
                   <u>FHE</u>
                 </a>
-                {` to discover which
-                people and locations you've both tapped without revealing
+                {` to discover a snapshot of shared contacts & locations without revealing
                 anything else!`}
               </span>
             }

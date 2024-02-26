@@ -78,12 +78,7 @@ export const handleRound2MessageRequests = async (
       continue;
     }
 
-    if (
-      userPsiState.pkId &&
-      userPsiState.r1O &&
-      userPsiState.mr2 &&
-      !userPsiState.r2O
-    ) {
+    if (userPsiState.r1O && userPsiState.mr2 && !userPsiState.r2O) {
       await init();
       const round2Output = round2_js(
         {
@@ -92,7 +87,7 @@ export const handleRound2MessageRequests = async (
         },
         JSON.parse(userPsiState.r1O),
         JSON.parse(userPsiState.mr2),
-        parseInt(selfPkId) > parseInt(userPsiState.pkId)
+        parseInt(selfPkId) > parseInt(user.pkId)
       );
       await saveUserRound2Output(userId, JSON.stringify(round2Output));
 
