@@ -1,5 +1,6 @@
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
+import { TransitionWrapper } from "@/components/Transition";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
 import "@/styles/globals.css";
 import {
@@ -19,6 +20,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageHeight, setPageHeight] = useState(0);
   const showFooter = pageProps?.showFooter ?? true;
   const showHeader = pageProps?.showHeader ?? true;
@@ -39,11 +41,18 @@ export default function App({ Component, pageProps }: AppProps) {
             }}
           >
             <div className="flex flex-col grow">
-              {showHeader && !fullPage && <AppHeader />}
-              <div className="flex flex-col grow container px-4">
+              {showHeader && !fullPage && (
+                <AppHeader
+                  isMenuOpen={isMenuOpen}
+                  setIsMenuOpen={setIsMenuOpen}
+                />
+              )}
+              <div className="flex flex-col grow container">
                 <Component {...pageProps} />
               </div>
-              {showFooter && !fullPage && <AppFooter />}
+              <TransitionWrapper.Fade show={!isMenuOpen}>
+                <>{showFooter && !fullPage && <AppFooter />}</>
+              </TransitionWrapper.Fade>
             </div>
           </div>
         </OnlyMobileLayout>

@@ -258,7 +258,7 @@ export default function QuestById() {
 
   return (
     <div>
-      <AppBackHeader redirectTo="/quests" />
+      <AppBackHeader />
       {quest && (
         <CompleteQuestModal
           isOpen={completeQuestModal}

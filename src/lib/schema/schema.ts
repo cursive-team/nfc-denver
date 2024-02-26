@@ -1,4 +1,10 @@
 import { object, string, date, InferType, boolean } from "yup";
+import {
+  displayNameRegex,
+  farcasterUsernameRegex,
+  telegramUsernameRegex,
+  twitterUsernameRegex,
+} from "../shared/utils";
 
 export const LoginSchema = object({
   email: string()
@@ -37,5 +43,43 @@ export const RegisterLocationSchema = object({
   emailWallet: boolean().required(),
 });
 
+export const ProfileSchema = object({
+  displayName: string()
+    .matches(displayNameRegex, {
+      message:
+        "Display name must consist of letters and numbers only, < 20 chars.",
+    })
+    .trim()
+    .required("This field is required."),
+  email: string()
+    .email("Invalid email address.")
+    .required("This field is required."),
+  wantsServerCustody: boolean().required(),
+  allowsAnalytics: boolean().required(),
+  twitterUsername: string()
+    .matches(twitterUsernameRegex, {
+      message: "Invalid Twitter username.",
+      excludeEmptyString: true,
+    })
+    .trim()
+    .optional(),
+  telegramUsername: string()
+    .matches(telegramUsernameRegex, {
+      message: "Invalid Telegram username.",
+      excludeEmptyString: true,
+    })
+    .trim()
+    .optional(),
+  farcasterUsername: string()
+    .matches(farcasterUsernameRegex, {
+      message: "Invalid Farcaster username.",
+      excludeEmptyString: true,
+    })
+    .trim()
+    .optional(),
+  bio: string().max(200, "Bio must be less than 200 characters.").optional(),
+});
+
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
 export type LoginType = InferType<typeof LoginSchema>;
+export type ProfileType = InferType<typeof ProfileSchema>;
