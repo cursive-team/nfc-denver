@@ -35,9 +35,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const [displayState, setDisplayState] = useState<ProfileDisplayState>(
     ProfileDisplayState.VIEW
   );
-  const [formValues, setFormValues] = useState<ProfileFormProps>(
-    DEFAULT_PROFILE_VALUES
-  );
+  const [formValues, setFormValues] = useState<ProfileFormProps | undefined>();
   const [previousProfile, setPreviousProfile] = useState<ProfileType>();
   const [inputPassword, setInputPassword] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -51,6 +49,11 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   };
 
   const updateProfile = async () => {
+    if (!formValues) {
+      toast.error("Unexpected error occurred. Please try again.");
+      console.error("Form values not found");
+      return; // Form values not found
+    }
     const {
       wantsServerCustody,
       displayName,
