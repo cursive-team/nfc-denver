@@ -1,23 +1,21 @@
 import { Html, Head, Main, NextScript } from "next/document";
-import Link from "next/link";
-
-const Metadata = {
-  website: "buidlquest.xyz",
-  title: "buidlquest.xyz",
-  description:
-    "Connect with ETHDenver attendees, engage with sponsors, and unlock unique experiences by tapping NFC chips.",
-  image: "/cursive.jpg",
-};
 
 export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <title>{Metadata.website}</title>
-        <meta name="description" content={Metadata.description} key="desc" />
-        <meta property="og:title" content={Metadata.title} />
-        <meta property="og:description" content={Metadata.description} />
-        <meta property="og:image" content={Metadata.image} />
+        <title>buidlquest.xyz</title>
+        <meta
+          name="description"
+          content="Connect with ETHDenver attendees, engage with sponsors, and unlock unique experiences by tapping NFC chips."
+          key="desc"
+        />
+        <meta property="og:title" content="buidlquest.xyz" />
+        <meta
+          property="og:description"
+          content="Connect with ETHDenver attendees, engage with sponsors, and unlock unique experiences by tapping NFC chips."
+        />
+        <meta property="og:image" content="/cursive.jpg" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
