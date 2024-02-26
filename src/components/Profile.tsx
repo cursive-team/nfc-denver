@@ -1,27 +1,23 @@
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Button } from "./Button";
 import { Input } from "./Input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Profile,
+  Profile as ProfileType,
   createBackup,
   getAuthToken,
-  getProfile,
   saveProfile,
 } from "@/lib/client/localStorage";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
-import { Radio } from "./Radio";
-import { Checkbox } from "./Checkbox";
-import {
-  displayNameRegex,
-  farcasterUsernameRegex,
-  handleNicknameChange,
-  telegramUsernameRegex,
-  twitterUsernameRegex,
-} from "@/lib/shared/utils";
 import { generateSalt, hashPassword } from "@/lib/client/utils";
 import { encryptBackupString } from "@/lib/shared/backup";
+import {
+  DEFAULT_PROFILE_VALUES,
+  ProfileForm,
+  ProfileFormProps,
+} from "./profileFormSteps";
+import { useMutation } from "@tanstack/react-query";
 
 enum ProfileDisplayState {
   VIEW,
@@ -39,15 +35,10 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const [displayState, setDisplayState] = useState<ProfileDisplayState>(
     ProfileDisplayState.VIEW
   );
-  const [previousProfile, setPreviousProfile] = useState<Profile>();
-  const [displayName, setDisplayName] = useState<string>();
-  const [email, setEmail] = useState<string>();
-  const [wantsServerCustody, setWantsServerCustody] = useState<boolean>();
-  const [allowsAnalytics, setAllowsAnalytics] = useState<boolean>();
-  const [twitterUsername, setTwitterUsername] = useState<string>("@");
-  const [telegramUsername, setTelegramUsername] = useState<string>("@");
-  const [farcasterUsername, setFarcasterUsername] = useState<string>("@");
-  const [bio, setBio] = useState<string>();
+  const [formValues, setFormValues] = useState<ProfileFormProps>(
+    DEFAULT_PROFILE_VALUES
+  );
+  const [previousProfile, setPreviousProfile] = useState<ProfileType>();
   const [inputPassword, setInputPassword] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [confirmPassword, setConfirmPassword] = useState<string>();
@@ -55,28 +46,20 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const [cachedPasswordHash, setCachedPasswordHash] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const authToken = getAuthToken();
-    const profile = getProfile();
-
-    if (!authToken || authToken.expiresAt < new Date() || !profile) {
-      handleSignout();
-      toast.error("You must be logged in to view this page");
-      router.push("/login");
-      return;
-    }
-    setPreviousProfile(profile);
-    setDisplayName(profile.displayName);
-    setEmail(profile.email);
-    setWantsServerCustody(profile.wantsServerCustody);
-    setAllowsAnalytics(profile.allowsAnalytics);
-    setTwitterUsername("@" + (profile.twitterUsername || ""));
-    setTelegramUsername("@" + (profile.telegramUsername || ""));
-    setFarcasterUsername("@" + (profile.farcasterUsername || ""));
-    setBio(profile.bio);
-  }, [router, handleSignout]);
+  const clearFormValues = () => {
+    setInputPassword("");
+  };
 
   const updateProfile = async () => {
+    const {
+      wantsServerCustody,
+      displayName,
+      allowsAnalytics,
+      twitterUsername = "",
+      telegramUsername = "",
+      farcasterUsername = "",
+      bio = "",
+    } = formValues;
     setLoading(true);
     const authToken = getAuthToken();
     if (!authToken || authToken.expiresAt < new Date()) {
@@ -90,51 +73,6 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       console.error(
         "Could not connect to profile. Please refresh and try again."
       );
-      return;
-    }
-
-    if (
-      !displayName ||
-      wantsServerCustody === undefined ||
-      allowsAnalytics === undefined
-    ) {
-      toast.error("Please fill out all required fields.");
-      return;
-    }
-
-    if (!displayNameRegex.test(displayName)) {
-      toast.error(
-        "Display name must be alphanumeric and less than 20 characters."
-      );
-      return;
-    }
-
-    if (
-      twitterUsername !== "@" &&
-      !twitterUsernameRegex.test(twitterUsername)
-    ) {
-      toast.error("Invalid Twitter username.");
-      return;
-    }
-
-    if (
-      telegramUsername !== "@" &&
-      !telegramUsernameRegex.test(telegramUsername)
-    ) {
-      toast.error("Invalid Telegram username.");
-      return;
-    }
-
-    if (
-      farcasterUsername !== "@" &&
-      !farcasterUsernameRegex.test(farcasterUsername)
-    ) {
-      toast.error("Invalid Farcaster username.");
-      return;
-    }
-
-    if (bio && bio.length > 200) {
-      toast.error("Bio must be less than 200 characters.");
       return;
     }
 
@@ -188,6 +126,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     };
     saveProfile(profile);
 
+    clearFormValues();
     // Create new backup
     let backupData = createBackup();
     if (!backupData) {
@@ -235,13 +174,8 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     setDisplayState(ProfileDisplayState.VIEW);
   };
 
-  const handleBeginEdit = (event: React.FormEvent) => {
-    event.preventDefault();
-    setDisplayState(ProfileDisplayState.EDIT);
-  };
-
-  const handleSaveEdit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSaveEdit = async (formValues: ProfileFormProps) => {
+    setFormValues(formValues);
     if (!previousProfile) {
       console.error(
         "Could not connect to profile. Please refresh and try again."
@@ -249,20 +183,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
       return;
     }
 
-    if (
-      displayName === previousProfile.displayName &&
-      wantsServerCustody === previousProfile.wantsServerCustody &&
-      allowsAnalytics === previousProfile.allowsAnalytics &&
-      twitterUsername === "@" + (previousProfile.twitterUsername || "") &&
-      telegramUsername === "@" + (previousProfile.telegramUsername || "") &&
-      farcasterUsername === "@" + (previousProfile.farcasterUsername || "") &&
-      bio === previousProfile.bio
-    ) {
-      toast.success("No changes made");
-      setDisplayState(ProfileDisplayState.VIEW);
-      return;
-    }
-
+    const { wantsServerCustody } = formValues;
     // User now wants self custody, need to set password
     if (!wantsServerCustody && previousProfile.wantsServerCustody) {
       setDisplayState(ProfileDisplayState.CHOOSE_PASSWORD);
@@ -276,24 +197,6 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     }
 
     await updateProfile();
-  };
-
-  const handleCancelEdit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!previousProfile) {
-      console.error(
-        "Could not connect to profile. Please refresh and try again."
-      );
-      return;
-    }
-
-    setDisplayName(previousProfile.displayName);
-    setEmail(previousProfile.email);
-    setTwitterUsername("@" + (previousProfile.twitterUsername || ""));
-    setTelegramUsername("@" + (previousProfile.telegramUsername || ""));
-    setFarcasterUsername("@" + (previousProfile.farcasterUsername || ""));
-    setBio(previousProfile.bio);
-    setDisplayState(ProfileDisplayState.VIEW);
   };
 
   const handleSubmitInputPassword = async (event: React.FormEvent) => {
@@ -379,34 +282,6 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     setDisplayState(ProfileDisplayState.EDIT);
   };
 
-  const handleDisplayNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setDisplayName(event.target.value);
-  };
-
-  const handleTwitterUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTwitterUsername(handleNicknameChange(event));
-  };
-
-  const handleTelegramUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTelegramUsername(handleNicknameChange(event));
-  };
-
-  const handleFarcasterUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFarcasterUsername(handleNicknameChange(event));
-  };
-
-  const handleBioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setBio(event.target.value);
-  };
-
   const handleInputPasswordChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -423,155 +298,50 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     setConfirmPassword(event.target.value);
   };
 
+  const handleSaveEditMutation = useMutation({
+    mutationKey: ["saveEdit"],
+    mutationFn: (formValues: ProfileFormProps) => handleSaveEdit(formValues),
+  });
+
   switch (displayState) {
     case ProfileDisplayState.VIEW:
       return (
-        <FormStepLayout
-          actions={
-            <div className="flex flex-col gap-2">
-              <Button size="sm" onClick={handleBeginEdit}>
-                Edit
-              </Button>
-              <Button size="sm" onClick={handleSignout}>
-                Logout
-              </Button>
-            </div>
-          }
-        >
-          <div className="flex flex-col gap-6">
-            <Input label="Display name" value={displayName} disabled />
-            <Input label="Email" value={email} disabled />
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-3">
-              <span className="text-gray-12 text-sm font-light">
-                Privacy settings
-              </span>
-              <Radio
-                id="selfCustody"
-                name="custody"
-                value="self"
-                label="Self custody"
-                description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
-                checked={!wantsServerCustody}
-                disabled
-              />
-              <Radio
-                id="serverCustody"
-                type="radio"
-                name="custody"
-                value="server"
-                label="Server custody"
-                description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
-                checked={wantsServerCustody}
-                disabled
-              />
-              <Checkbox
-                id="allowAnalytics"
-                label="I consent to sharing analytics data"
-                checked={allowsAnalytics}
-                onChange={setAllowsAnalytics}
-                disabled
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-6">
-            <Input
-              label="Twitter (Optional)"
-              value={twitterUsername}
-              disabled
-            />
-            <Input
-              label="Telegram (Optional)"
-              value={telegramUsername}
-              disabled
-            />
-            <Input
-              label="Farcaster (Optional)"
-              value={farcasterUsername}
-              disabled
-            />
-            <Input label="Bio (Optional)" value={bio} disabled />
-          </div>
-        </FormStepLayout>
+        <ProfileForm
+          isReadOnly
+          previousProfile={previousProfile}
+          setPreviousProfile={setPreviousProfile}
+          onHandleEdit={() => {
+            setDisplayState(ProfileDisplayState.EDIT);
+          }}
+          onHandleSignout={() => {
+            handleSignout();
+          }}
+          onCancelEdit={() => {}}
+          onHandleSaveEdit={() => {}}
+        />
       );
     case ProfileDisplayState.EDIT:
       return (
-        <FormStepLayout
-          actions={
-            <div className="flex flex-col gap-2">
-              <Button loading={loading} size="sm" onClick={handleSaveEdit}>
-                Save
-              </Button>
-              <Button size="sm" onClick={handleCancelEdit}>
-                Back
-              </Button>
-            </div>
-          }
-        >
-          <div className="flex flex-col gap-6">
-            <Input
-              label="Display name"
-              value={displayName}
-              onChange={handleDisplayNameChange}
-            />
-            <Input label="Email" value={email} disabled />
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-3">
-              <span className="text-gray-12 text-sm font-light">
-                Privacy settings
-              </span>
-              <Radio
-                id="selfCustody"
-                name="custody"
-                value="self"
-                label="Self custody"
-                description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
-                checked={!wantsServerCustody}
-                onChange={() => setWantsServerCustody(false)}
-              />
-              <Radio
-                id="serverCustody"
-                type="radio"
-                name="custody"
-                value="server"
-                label="Server custody"
-                description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
-                checked={wantsServerCustody}
-                onChange={() => setWantsServerCustody(true)}
-              />
-              <Checkbox
-                id="allowAnalytics"
-                label="I consent to sharing analytics data"
-                checked={allowsAnalytics}
-                onChange={setAllowsAnalytics}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-6">
-            <Input
-              label="Twitter (Optional)"
-              value={twitterUsername}
-              onChange={handleTwitterUsernameChange}
-            />
-            <Input
-              label="Telegram (Optional)"
-              value={telegramUsername}
-              onChange={handleTelegramUsernameChange}
-            />
-            <Input
-              label="Farcaster (Optional)"
-              value={farcasterUsername}
-              onChange={handleFarcasterUsernameChange}
-            />
-            <Input
-              label="Bio (Optional)"
-              value={bio}
-              onChange={handleBioChange}
-            />
-          </div>
-        </FormStepLayout>
+        <>
+          <ProfileForm
+            isReadOnly={false} // form is editable
+            previousProfile={previousProfile}
+            setPreviousProfile={setPreviousProfile}
+            onHandleEdit={() => {
+              // no implementation needed because the form is already editable
+            }}
+            onHandleSignout={() => {
+              // no implementation needed because the form is already editable
+            }}
+            onCancelEdit={() => {
+              setDisplayState(ProfileDisplayState.VIEW);
+            }}
+            onHandleSaveEdit={(formValues: ProfileFormProps) => {
+              handleSaveEditMutation.mutateAsync(formValues);
+            }}
+            loading={handleSaveEditMutation.isPending}
+          />
+        </>
       );
     case ProfileDisplayState.INPUT_PASSWORD:
       return (

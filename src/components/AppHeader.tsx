@@ -181,9 +181,11 @@ const AppHeaderContent = ({
   );
 };
 
-const AppHeader = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+interface AppHeaderProps {
+  isMenuOpen: boolean;
+  setIsMenuOpen: (value: boolean) => void;
+}
+const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
   const handleSignout = () => {
     deleteAccountFromLocalStorage();
     window.location.href = "/";

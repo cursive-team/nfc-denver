@@ -1,12 +1,19 @@
 import dayjs from "dayjs";
+
+// This function check if nickname starts with @, if not, it adds it
+export const handleNickName = (nickname?: string): string => {
+  if (!nickname) return "";
+  if (!nickname.match(/^@/)) {
+    nickname = "@" + nickname;
+  }
+  return nickname;
+};
+
 export const handleNicknameChange = (
   event: React.ChangeEvent<HTMLInputElement>
 ): string => {
   let value = event.target.value;
-  if (!value.match(/^@/)) {
-    value = "@" + value;
-  }
-  return value;
+  return handleNickName(value);
 };
 
 export const labelStartWith = (value?: string, startWith?: string): string => {
