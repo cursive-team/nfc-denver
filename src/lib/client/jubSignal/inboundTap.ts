@@ -10,7 +10,6 @@ export type InboundTapMessage = {
   pkId: string; // Public key ID
   msg: string; // Signature message
   sig: string; // Signature
-  mr2?: string; // Message for round 2 of PSI
 };
 
 export const inboundTapMessageSchema = object({
@@ -22,7 +21,6 @@ export const inboundTapMessageSchema = object({
   pkId: string().required(),
   msg: string().required(),
   sig: string().required(),
-  mr2: string().optional(),
 });
 
 export type EncryptInboundTapMessageArgs = {
@@ -36,7 +34,6 @@ export type EncryptInboundTapMessageArgs = {
   signature: string;
   senderPrivateKey: string;
   recipientPublicKey: string;
-  messageRound2?: string;
 };
 
 export async function encryptInboundTapMessage({
@@ -49,7 +46,6 @@ export async function encryptInboundTapMessage({
   signature,
   senderPrivateKey,
   recipientPublicKey,
-  messageRound2,
   pkId,
 }: EncryptInboundTapMessageArgs): Promise<string> {
   const messageData: InboundTapMessage = {
@@ -60,7 +56,6 @@ export async function encryptInboundTapMessage({
     pk: signaturePublicKey,
     msg: signatureMessage,
     sig: signature,
-    mr2: messageRound2,
     pkId,
   };
 

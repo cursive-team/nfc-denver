@@ -23,13 +23,10 @@ import {
   InputDescription as Description,
 } from "@/components/input/InputWrapper";
 import { v4 as uuidv4 } from "uuid";
-import { MessageRequest } from "@/pages/api/messages";
+import { MessageRequest, PsiMessageRequest } from "@/pages/api/messages";
 import { generateSelfBitVector } from "@/lib/client/psi";
 import init, { round1_js } from "@/lib/mp_psi/mp_psi";
-import {
-  getUserPsiState,
-  saveUserRound1Output,
-} from "@/lib/client/indexedDB/psi";
+import { saveUserRound1Output } from "@/lib/client/indexedDB/psi";
 
 const SharePage = () => {
   const router = useRouter();
@@ -122,7 +119,7 @@ const SharePage = () => {
     }
     const { psiRound1Message: userMessageRound1 } = await response.json();
 
-    let messageRound2 = undefined;
+    let psiMessageRequests: PsiMessageRequest[] = [];
     if (shareOverlap && !userMessageRound1) {
       toast.error("User does not have their PSI parameters set up");
       setLoading(false);
@@ -141,7 +138,12 @@ const SharePage = () => {
       );
 
       await saveUserRound1Output(user.encPk, JSON.stringify(round1Output));
-      messageRound2 = JSON.stringify(round1Output.message_round2);
+      psiMessageRequests.push({
+        psiRoundMessage: JSON.stringify({
+          mr2: round1Output.message_round2,
+        }),
+        recipientPublicKey: user.encPk,
+      });
     }
 
     // ----- SEND MESSAGE TO OTHER USER -----
@@ -159,7 +161,6 @@ const SharePage = () => {
       signature,
       senderPrivateKey: encryptionPrivateKey,
       recipientPublicKey,
-      messageRound2,
       pkId: profile.pkId,
     });
     const otherUserMessageRequest: MessageRequest = {
@@ -188,6 +189,7 @@ const SharePage = () => {
       await loadMessages({
         forceRefresh: false,
         messageRequests: [otherUserMessageRequest, selfMessageRequest],
+        psiMessageRequests,
       });
       toast.success(`Successfully shared information with ${user.name}!`);
       setLoading(false);

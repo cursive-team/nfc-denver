@@ -90,10 +90,10 @@ const UserProfilePage = () => {
               await saveUserPsiState(id, {
                 r1O: "",
               });
-            } else if (userPsiState.oI) {
+            } else if (fetchedUser.oI) {
               setPsiState(PSIDisplayState.OVERLAP);
 
-              const overlap = JSON.parse(userPsiState.oI);
+              const overlap = JSON.parse(fetchedUser.oI);
               const users = getUsers();
               const locations = getLocationSignatures();
               let locationOverlapIds = [];

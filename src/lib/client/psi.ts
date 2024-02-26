@@ -1,21 +1,13 @@
 import init, { gen_keys_js, round2_js, round3_js } from "@/lib/mp_psi";
-import {
-  Activity,
-  Keys,
-  getLocationSignatures,
-  getUsers,
-} from "./localStorage";
-import { MessageRequest } from "@/pages/api/messages";
+import { Keys, getLocationSignatures, getUsers } from "./localStorage";
+import { MessageRequest, PsiMessageRequest } from "@/pages/api/messages";
 import {
   getUserPsiState,
   saveUserPsiState,
   saveUserRound2Output,
   userPsiStateKeys,
 } from "./indexedDB/psi";
-import {
-  JUB_SIGNAL_MESSAGE_TYPE,
-  encryptDecryptionSharesMessage,
-} from "./jubSignal";
+import { encryptOverlapComputedMessage } from "./jubSignal";
 
 export const generatePSIKeys = async () => {
   await init();
@@ -58,15 +50,21 @@ export const generateSelfBitVector = (): Uint32Array => {
   return bitVector;
 };
 
+// Only put out 3 mr3 messages at a time (~0.6mb) to avoid
+// running into 4.5 Vercel serverless function memory limit
 export const handleRound2MessageRequests = async (
   keys: Keys,
   selfPkId: string
-): Promise<MessageRequest[]> => {
-  let messageRequests: MessageRequest[] = [];
+): Promise<PsiMessageRequest[]> => {
+  let psiMessageRequests: PsiMessageRequest[] = [];
   const users = getUsers();
   const userPsiStateValidKeys = await userPsiStateKeys();
 
   for (const userId in users) {
+    if (psiMessageRequests.length === 3) {
+      break;
+    }
+
     // don't waste time reading IndexedDB if keys are not present
     if (!userPsiStateValidKeys.includes(userId)) {
       continue;
@@ -90,28 +88,26 @@ export const handleRound2MessageRequests = async (
         parseInt(selfPkId) > parseInt(user.pkId)
       );
       await saveUserRound2Output(userId, JSON.stringify(round2Output));
-
-      const recipientPublicKey = user.encPk;
-      const senderPrivateKey = keys.encryptionPrivateKey;
-      const encryptedMessage = await encryptDecryptionSharesMessage(
-        JSON.stringify(round2Output.message_round3),
-        senderPrivateKey,
-        recipientPublicKey
-      );
-      messageRequests.push({
-        recipientPublicKey,
-        encryptedMessage,
+      psiMessageRequests.push({
+        recipientPublicKey: user.encPk,
+        psiRoundMessage: JSON.stringify({
+          mr3: round2Output.message_round3,
+        }),
       });
     }
   }
 
-  return messageRequests;
+  return psiMessageRequests;
 };
 
-export const handleOverlapActivities = async (): Promise<Activity[]> => {
-  const newActivities: Activity[] = [];
+export const handleOverlapMessageRequests = async (
+  keys: Keys,
+  selfEncPk: string
+): Promise<MessageRequest[]> => {
+  const messageRequests: MessageRequest[] = [];
   const users = getUsers();
   const userPsiStateValidKeys = await userPsiStateKeys();
+
   for (const userId in users) {
     if (!userPsiStateValidKeys.includes(userId)) {
       continue;
@@ -137,14 +133,18 @@ export const handleOverlapActivities = async (): Promise<Activity[]> => {
         }
       }
       await saveUserPsiState(userId, { oI: JSON.stringify(overlapIndices) });
-      newActivities.push({
-        type: JUB_SIGNAL_MESSAGE_TYPE.DECRYPTION_SHARES,
-        name: user.name,
-        id: userId,
-        ts: new Date().toISOString(),
+      const encryptedMessage = await encryptOverlapComputedMessage(
+        overlapIndices,
+        userId,
+        keys.encryptionPrivateKey,
+        selfEncPk
+      );
+      messageRequests.push({
+        recipientPublicKey: selfEncPk,
+        encryptedMessage,
       });
     }
   }
 
-  return newActivities;
+  return messageRequests;
 };

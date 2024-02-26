@@ -17,9 +17,9 @@ model User {
   email       String @unique
   displayName String
 
-  encryptionPublicKey        String
-  signaturePublicKey         String
-  psiRound1Message           String
+  encryptionPublicKey String
+  signaturePublicKey  String
+  psiRound1Message    String
 
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
@@ -97,12 +97,11 @@ model Message {
 }
 
 model PsiMessage {
-  id             Int      @id @default(autoincrement())
-  senderId       Int
-  recipientId    Int
-  compressedData String
-  createdAt      DateTime @default(now())
-  sent           Boolean  @default(false)
+  id              Int      @id @default(autoincrement())
+  senderEncKey    String
+  recipientEncKey String
+  data            String
+  createdAt       DateTime @default(now())
 }
 
 model Quest {

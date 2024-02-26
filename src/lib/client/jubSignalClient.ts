@@ -1,14 +1,15 @@
-import { MessageRequest } from "@/pages/api/messages";
+import { MessageRequest, PsiMessageRequest } from "@/pages/api/messages";
 import {
   JUB_SIGNAL_MESSAGE_TYPE,
   PlaintextMessage,
   decryptMessage,
-  decryptionSharesMessageSchema,
   encryptedMessageSchema,
   inboundTapMessageSchema,
   itemRedeemedMessageSchema,
   locationTapMessageSchema,
   outboundTapMessageSchema,
+  overlapComputedMessageSchema,
+  psiMessageResponseSchema,
   questCompletedMessageSchema,
 } from "./jubSignal";
 import {
@@ -35,12 +36,17 @@ import {
 import { hashPublicKeyToUUID } from "./utils";
 import { registeredMessageSchema } from "./jubSignal/registered";
 import { saveUserRound2Message, saveUserRound3Message } from "./indexedDB/psi";
-import { handleOverlapActivities, handleRound2MessageRequests } from "./psi";
+import {
+  handleOverlapMessageRequests,
+  handleRound2MessageRequests,
+} from "./psi";
 
 export type LoadMessagesRequest = {
   forceRefresh: boolean;
   messageRequests?: MessageRequest[];
+  psiMessageRequests?: PsiMessageRequest[];
 };
+
 // Loads messages from the server and updates the local storage
 // Optionally sends a new message before fetching messages
 // Uses the lastMessageFetchTimestamp from the session to determine the start date for the fetch
@@ -48,6 +54,7 @@ export type LoadMessagesRequest = {
 export const loadMessages = async ({
   forceRefresh,
   messageRequests,
+  psiMessageRequests,
 }: LoadMessagesRequest): Promise<void> => {
   const session = getSession();
   if (!session || session.authToken.expiresAt < new Date()) {
@@ -62,6 +69,9 @@ export const loadMessages = async ({
     throw new Error("Error loading profile and keys from local storage");
   }
 
+  if (!psiMessageRequests) {
+    psiMessageRequests = [];
+  }
   if (!messageRequests) {
     messageRequests = [];
   }
@@ -72,13 +82,20 @@ export const loadMessages = async ({
     keys,
     profile.pkId
   );
-  messageRequests = messageRequests.concat(round2MessageRequests);
+  psiMessageRequests = psiMessageRequests.concat(round2MessageRequests);
+
+  // Check if overlap can be computed and backed up
+  const overlapMessageRequests = await handleOverlapMessageRequests(
+    keys,
+    profile.encryptionPublicKey
+  );
+  messageRequests = messageRequests.concat(overlapMessageRequests);
 
   // Fetch jubSignal messages from server
   // Send a new message if requested
   const previousMessageFetchTime = session.lastMessageFetchTimestamp;
   let response;
-  if (messageRequests.length !== 0) {
+  if (messageRequests.length !== 0 || psiMessageRequests.length !== 0) {
     response = await fetch("/api/messages", {
       method: "POST",
       headers: {
@@ -87,6 +104,7 @@ export const loadMessages = async ({
       body: JSON.stringify({
         token: session.authToken.value,
         messageRequests,
+        psiMessageRequests,
         shouldFetchMessages: true,
         startDate: previousMessageFetchTime
           ? previousMessageFetchTime.toISOString()
@@ -118,7 +136,8 @@ export const loadMessages = async ({
 
   // Decrypt messages and update localStorage with decrypted messages
   // Start with empty users, location signatures, quest completed, activities if forceRefresh is true
-  const { messages, mostRecentMessageTimestamp } = await response.json();
+  const { messages, mostRecentMessageTimestamp, psiMessageResponse } =
+    await response.json();
   if (
     !Array.isArray(messages) ||
     typeof mostRecentMessageTimestamp !== "string" ||
@@ -127,6 +146,26 @@ export const loadMessages = async ({
     console.error("Invalid messages received from server");
     throw new Error("Invalid messages received from server");
   }
+  if (psiMessageResponse) {
+    try {
+      const { data, senderEncKey } = await psiMessageResponseSchema.validate(
+        psiMessageResponse
+      );
+      const senderUserId = await hashPublicKeyToUUID(senderEncKey);
+      const parsedData = JSON.parse(data);
+      if (parsedData.mr2) {
+        await saveUserRound2Message(senderUserId, parsedData.mr2);
+      } else if (parsedData.mr3) {
+        await saveUserRound3Message(senderUserId, parsedData.mr3);
+      }
+    } catch (error) {
+      console.error(
+        "Invalid psi response message received from server: ",
+        psiMessageResponse
+      );
+    }
+  }
+
   const existingUsers = forceRefresh ? {} : getUsers();
   const existingLocationSignatures = forceRefresh
     ? {}
@@ -156,12 +195,7 @@ export const loadMessages = async ({
   saveLocationSignatures(newLocationSignatures);
   saveAllQuestCompleted(newQuestCompleted);
   saveAllItemRedeemed(newItemRedeemed);
-
-  // Check if any PSI can be finished
-  const overlapAcitivities = await handleOverlapActivities();
-  const fullActivities = newActivities.concat(overlapAcitivities);
-  fullActivities.reverse(); // fix chronology
-  saveActivities(fullActivities);
+  saveActivities(newActivities);
 
   // Update the session
   session.lastMessageFetchTimestamp = new Date(mostRecentMessageTimestamp);
@@ -214,6 +248,30 @@ const processEncryptedMessages = async (args: {
     const { metadata, type, data } = decryptedMessage;
 
     switch (type) {
+      case JUB_SIGNAL_MESSAGE_TYPE.OVERLAP_COMPUTED:
+        try {
+          const { overlapIndices, userId } =
+            await overlapComputedMessageSchema.validate(data);
+
+          const user = users[userId];
+          if (user) {
+            user.oI = overlapIndices;
+            const activity = {
+              type: JUB_SIGNAL_MESSAGE_TYPE.OVERLAP_COMPUTED,
+              name: user.name,
+              id: userId,
+              ts: metadata.timestamp.toISOString(),
+            };
+            activities.push(activity);
+          }
+        } catch (error) {
+          console.error(
+            "Invalid overlap computed message received from server: ",
+            message
+          );
+        } finally {
+          break;
+        }
       case JUB_SIGNAL_MESSAGE_TYPE.REGISTERED:
         try {
           if (metadata.fromPublicKey !== recipientPublicKey) {
@@ -306,25 +364,10 @@ const processEncryptedMessages = async (args: {
         } finally {
           break;
         }
-      case JUB_SIGNAL_MESSAGE_TYPE.DECRYPTION_SHARES:
-        try {
-          const { messageRound3 } =
-            await decryptionSharesMessageSchema.validate(data);
-
-          const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
-          await saveUserRound3Message(userId, messageRound3);
-        } catch (error) {
-          console.error(
-            "Invalid decryption shares message received from server: ",
-            message
-          );
-        } finally {
-          break;
-        }
       case JUB_SIGNAL_MESSAGE_TYPE.INBOUND_TAP:
         // TODO: Can optionally validate received signature here
         try {
-          const { x, tg, fc, bio, pk, msg, sig, pkId, mr2 } =
+          const { x, tg, fc, bio, pk, msg, sig, pkId } =
             await inboundTapMessageSchema.validate(data);
           const userId = await hashPublicKeyToUUID(metadata.fromPublicKey);
           const user = users[userId];
@@ -354,10 +397,6 @@ const processEncryptedMessages = async (args: {
               sig,
               inTs: metadata.timestamp.toISOString(),
             };
-          }
-
-          if (mr2) {
-            await saveUserRound2Message(userId, mr2);
           }
 
           const activity = {
@@ -505,6 +544,8 @@ const processEncryptedMessages = async (args: {
         console.error("Received invalid message type");
     }
   }
+
+  activities.reverse(); // fix chronology
 
   return {
     newUsers: users,

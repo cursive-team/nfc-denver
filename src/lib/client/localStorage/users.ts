@@ -23,6 +23,7 @@ export type User = {
   sig?: string; // User's signature
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
+  oI?: string; // User's PSI overlap indices
 };
 
 export const saveUsers = (users: Record<string, User>): void => {

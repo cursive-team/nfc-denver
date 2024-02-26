@@ -99,7 +99,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
           icon={<Icons.person />}
         />
       );
-    case JUB_SIGNAL_MESSAGE_TYPE.DECRYPTION_SHARES:
+    case JUB_SIGNAL_MESSAGE_TYPE.OVERLAP_COMPUTED:
       return (
         <Link href={`/users/${id}`}>
           <FeedContent
