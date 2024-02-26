@@ -2,8 +2,7 @@ import React from "react";
 import { Card } from "./Card";
 import { LocationRequirement, UserRequirement } from "@/types";
 import { Icons } from "../Icons";
-import Image from "next/image";
-import { classed } from "@tw-classed/react";
+import { CircleCard } from "./CircleCard";
 
 type QuestCardProps = {
   title: string;
@@ -15,25 +14,14 @@ type QuestCardProps = {
   isPinned?: boolean;
 };
 
-const CircleCard = classed.div(
-  "flex border-2 -ml-[4px] border-gray-200 justify-center items-center h-6 w-6 rounded-full overflow-hidden float-none",
-  {
-    variants: {
-      color: {
-        white: "bg-white/10",
-        gray: "bg-[#677363]",
-      },
-    },
-    defaultVariants: {
-      color: "white",
-    },
-  }
-);
-
 const QuestRequirementIcons = ({
   userRequirements = [],
   locationRequirements = [],
-}: Pick<QuestCardProps, "userRequirements" | "locationRequirements">) => {
+  isCompleted = false,
+}: Pick<
+  QuestCardProps,
+  "userRequirements" | "locationRequirements" | "isCompleted"
+>) => {
   const requirementIconsLimit = 4;
 
   const overcomeRequirementLimit =
@@ -56,21 +44,12 @@ const QuestRequirementIcons = ({
             return (
               <CircleCard
                 key={index}
-                color={isPersonRequirement ? "white" : "gray"}
-              >
-                {isPersonRequirement ? (
-                  <Icons.person />
-                ) : (
-                  <Image
-                    src="/icons/home.png"
-                    height={12}
-                    width={12}
-                    alt="home image"
-                  />
-                )}
-              </CircleCard>
+                isMultiple={true}
+                icon={isPersonRequirement ? "person" : "location"}
+              />
             );
           })}
+        {isCompleted && <CircleCard isMultiple={true} icon="proof" />}
       </div>
       {overcomeRequirementLimit && (
         <span className="text-[11px] text-gray-11 font-light tracking-[0.8px]">
@@ -117,6 +96,7 @@ const QuestCard = ({
         <QuestRequirementIcons
           userRequirements={userRequirements}
           locationRequirements={locationRequirements}
+          isCompleted={isCompleted}
         />
         {isCompleted ? (
           <Card.Description>{"Quest Complete"}</Card.Description>

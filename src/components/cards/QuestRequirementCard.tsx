@@ -8,7 +8,7 @@ import {
   QuestRequirementType,
   UserRequirementPreview,
 } from "@/types";
-import Image from "next/image";
+import { CircleCard } from "./CircleCard";
 
 interface QuestRequirementCardProps {
   title: string;
@@ -64,21 +64,12 @@ const QuestRequirementCard = ({
         className="text-center flex justify-center py-4"
       >
         <div className="flex flex-col gap-2 items-center">
-          <div
-            className={cn(
-              "flex items-center  justify-center h-10 w-10 rounded-full",
-              isUserRequirement && "bg-[#677363]",
-              isLocationRequirement && "bg-gray-400"
+          <div className={cn("flex items-center justify-center")}>
+            {isUserRequirement && (
+              <CircleCard size="sm" color="white" icon="person" />
             )}
-          >
-            {isUserRequirement && <Icons.person size={16} />}
             {isLocationRequirement && (
-              <Image
-                width={18}
-                height={18}
-                alt="home icon"
-                src="/icons/home.png"
-              />
+              <CircleCard size="sm" color="white" icon="location" />
             )}
           </div>
           <div className="flex flex-col">
