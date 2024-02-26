@@ -5,6 +5,9 @@ import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import Profile from "./Profile";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
+import { ProfileDisplayState } from "@/types";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -63,8 +66,11 @@ const AppHeaderContent = ({
   setIsMenuOpen,
   handleSignout,
 }: AppHeaderContentProps) => {
-  const [showBack, setShowBack] = useState(false);
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+
+  const profileViewState: ProfileDisplayState =
+    getState().profileView || ProfileDisplayState.VIEW;
 
   if (!isMenuOpen) return null;
 
@@ -124,14 +130,31 @@ const AppHeaderContent = ({
   ];
 
   const onBack = () => {
-    setShowBack(false);
+    if (
+      profileViewState === ProfileDisplayState.CHOOSE_PASSWORD ||
+      profileViewState === ProfileDisplayState.INPUT_PASSWORD
+    ) {
+      actions.updateStateFromAction({
+        ...getState(),
+        profileView: ProfileDisplayState.VIEW,
+      });
+      return; //
+    }
+
+    if (profileViewState === ProfileDisplayState.EDIT) {
+      actions.updateStateFromAction({
+        ...getState(),
+        profileView: ProfileDisplayState.VIEW,
+      });
+    }
+
     setActiveMenuIndex(null);
   };
 
   const showBackButton = activeMenuIndex !== null;
 
   return (
-    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-[calc(100%-70px)] bg-black">
+    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-full bg-black">
       <div className="flex h-[60px]">
         {showBackButton && (
           <button
@@ -145,7 +168,14 @@ const AppHeaderContent = ({
         )}
         <button
           type="button"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={() => {
+            setIsMenuOpen(!isMenuOpen);
+            // reset profile view
+            actions.updateStateFromAction({
+              ...getState(),
+              profileView: ProfileDisplayState.VIEW,
+            });
+          }}
           className="flex gap-3 items-center ml-auto"
         >
           <span className="text-gray-11">Close</span>

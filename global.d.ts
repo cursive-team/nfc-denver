@@ -1,4 +1,5 @@
 import { LoginType } from "@/lib/schema/schema";
+import { ProfileDisplayState } from "@/types";
 import "little-state-machine";
 
 /*
@@ -10,5 +11,6 @@ declare module "little-state-machine" {
   interface GlobalState {
     login: LoginType;
     profile: ProfileType;
+    profileView: ProfileDisplayState;
   }
 }

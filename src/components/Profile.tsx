@@ -1,7 +1,7 @@
 import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { Button } from "./Button";
 import { Input } from "./Input";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import {
   Profile as ProfileType,
   createBackup,
@@ -16,13 +16,7 @@ import { ProfileForm, ProfileFormProps } from "./profileFormSteps";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
-
-enum ProfileDisplayState {
-  VIEW,
-  EDIT,
-  INPUT_PASSWORD,
-  CHOOSE_PASSWORD,
-}
+import { ProfileDisplayState } from "@/types";
 
 interface ProfileProps {
   handleSignout: () => void;
@@ -31,10 +25,12 @@ interface ProfileProps {
 const Profile = ({ handleSignout }: ProfileProps) => {
   const { actions, getState } = useStateMachine({ updateStateFromAction });
 
+  const displayState = getState().profileView ?? ProfileDisplayState.VIEW;
+
   const router = useRouter();
-  const [displayState, setDisplayState] = useState<ProfileDisplayState>(
+  /*const [displayState, setDisplayState] = useState<ProfileDisplayState>(
     ProfileDisplayState.VIEW
-  );
+  );*/
   const [previousProfile, setPreviousProfile] = useState<ProfileType>();
   const [inputPassword, setInputPassword] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -42,6 +38,13 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   const [cachedPasswordSalt, setCachedPasswordSalt] = useState<string>();
   const [cachedPasswordHash, setCachedPasswordHash] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
+
+  const updateProfileViewState = (newView: ProfileDisplayState) => {
+    actions.updateStateFromAction({
+      ...getState(),
+      profileView: newView,
+    });
+  };
 
   const clearFormValues = () => {
     setInputPassword("");
@@ -168,7 +171,8 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     setPreviousProfile(profile);
     setLoading(false);
     toast.success("Profile updated successfully!");
-    setDisplayState(ProfileDisplayState.VIEW);
+
+    updateProfileViewState(ProfileDisplayState.VIEW);
   };
 
   const handleSaveEdit = async (formValues: ProfileFormProps) => {
@@ -189,13 +193,13 @@ const Profile = ({ handleSignout }: ProfileProps) => {
 
     // User now wants self custody, need to set password
     if (!wantsServerCustody && previousProfile.wantsServerCustody) {
-      setDisplayState(ProfileDisplayState.CHOOSE_PASSWORD);
+      updateProfileViewState(ProfileDisplayState.CHOOSE_PASSWORD);
       return;
     }
 
     // User needs to input self custody password to save new backup
     if (!wantsServerCustody) {
-      setDisplayState(ProfileDisplayState.INPUT_PASSWORD);
+      updateProfileViewState(ProfileDisplayState.INPUT_PASSWORD);
       return;
     }
 
@@ -282,7 +286,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     event.preventDefault();
     setPassword(undefined);
     setConfirmPassword(undefined);
-    setDisplayState(ProfileDisplayState.EDIT);
+    updateProfileViewState(ProfileDisplayState.EDIT);
   };
 
   const handleInputPasswordChange = (
@@ -306,112 +310,108 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     mutationFn: (formValues: ProfileFormProps) => handleSaveEdit(formValues),
   });
 
-  switch (displayState) {
-    case ProfileDisplayState.VIEW:
-      return (
-        <ProfileForm
-          isReadOnly
-          previousProfile={previousProfile}
-          setPreviousProfile={setPreviousProfile}
-          onHandleEdit={() => {
-            setDisplayState(ProfileDisplayState.EDIT);
-          }}
-          onHandleSignout={() => {
-            handleSignout();
-          }}
-          onCancelEdit={() => {}}
-          onHandleSaveEdit={() => {}}
+  const ViewByState: Record<ProfileDisplayState, ReactNode> = {
+    [ProfileDisplayState.VIEW]: (
+      <ProfileForm
+        isReadOnly
+        previousProfile={previousProfile}
+        setPreviousProfile={setPreviousProfile}
+        onHandleEdit={() => {
+          updateProfileViewState(ProfileDisplayState.EDIT);
+        }}
+        onHandleSignout={() => {
+          handleSignout();
+        }}
+        onCancelEdit={() => {}}
+        onHandleSaveEdit={() => {}}
+      />
+    ),
+    [ProfileDisplayState.EDIT]: (
+      <ProfileForm
+        isReadOnly={false} // form is editable
+        previousProfile={previousProfile}
+        setPreviousProfile={setPreviousProfile}
+        onHandleEdit={() => {
+          // no implementation needed because the form is already editable
+        }}
+        onHandleSignout={() => {
+          // no implementation needed because the form is already editable
+        }}
+        onCancelEdit={() => {
+          updateProfileViewState(ProfileDisplayState.VIEW);
+        }}
+        onHandleSaveEdit={(formValues: ProfileFormProps) => {
+          handleSaveEditMutation.mutateAsync(formValues);
+        }}
+        loading={handleSaveEditMutation.isPending}
+      />
+    ),
+    [ProfileDisplayState.INPUT_PASSWORD]: (
+      <FormStepLayout
+        title={
+          <div className="flex flex-col gap-2 mb-2">
+            <span>Enter password</span>
+          </div>
+        }
+        description="Enter your master password to save your new profile"
+        onSubmit={handleSubmitInputPassword}
+      >
+        <Input
+          type="password"
+          label="Password"
+          value={inputPassword}
+          onChange={handleInputPasswordChange}
+          required
         />
-      );
-    case ProfileDisplayState.EDIT:
-      return (
-        <>
-          <ProfileForm
-            isReadOnly={false} // form is editable
-            previousProfile={previousProfile}
-            setPreviousProfile={setPreviousProfile}
-            onHandleEdit={() => {
-              // no implementation needed because the form is already editable
-            }}
-            onHandleSignout={() => {
-              // no implementation needed because the form is already editable
-            }}
-            onCancelEdit={() => {
-              setDisplayState(ProfileDisplayState.VIEW);
-            }}
-            onHandleSaveEdit={(formValues: ProfileFormProps) => {
-              handleSaveEditMutation.mutateAsync(formValues);
-            }}
-            loading={handleSaveEditMutation.isPending}
-          />
-        </>
-      );
-    case ProfileDisplayState.INPUT_PASSWORD:
-      return (
-        <FormStepLayout
-          title={
-            <div className="flex flex-col gap-2 mb-2">
-              <span>Enter password</span>
-            </div>
-          }
-          description="Enter your master password to save your new profile"
-          onSubmit={handleSubmitInputPassword}
-        >
-          <Input
-            type="password"
-            label="Password"
-            value={inputPassword}
-            onChange={handleInputPasswordChange}
-            required
-          />
-          <Button loading={loading} type="submit">
-            Confirm
-          </Button>
-        </FormStepLayout>
-      );
-    case ProfileDisplayState.CHOOSE_PASSWORD:
-      return (
-        <FormStepLayout
-          title={
-            <div className="flex flex-col gap-2 mb-2">
-              <span>Choose a master password</span>
-            </div>
-          }
-          actions={
-            <div className="flex flex-col gap-2">
-              <Button loading={loading} onClick={handleSubmitPassword}>
-                Update Profile
-              </Button>
-              <Button onClick={handleCancelPassword} disabled={loading}>
-                Back
-              </Button>
-            </div>
-          }
-        >
-          <Input
-            type="password"
-            name="password"
-            label="Master password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-          <Input
-            type="password"
-            name="confirmPassword"
-            label="Confirm master password"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            required
-          />
-          <span className="text-gray-11 text-sm">
-            This master password is used to encrypt a backup of your interaction
-            data on our server. You are responsible for saving this password
-            and/or manually backing up your data from the app.
-          </span>
-        </FormStepLayout>
-      );
-  }
+        <Button loading={loading} type="submit">
+          Confirm
+        </Button>
+      </FormStepLayout>
+    ),
+    [ProfileDisplayState.CHOOSE_PASSWORD]: (
+      <FormStepLayout
+        title={
+          <div className="flex flex-col gap-2 mb-2">
+            <span>Choose a master password</span>
+          </div>
+        }
+        actions={
+          <div className="flex flex-col gap-2">
+            <Button loading={loading} onClick={handleSubmitPassword}>
+              Update Profile
+            </Button>
+            <Button onClick={handleCancelPassword} disabled={loading}>
+              Back
+            </Button>
+          </div>
+        }
+      >
+        <Input
+          type="password"
+          name="password"
+          label="Master password"
+          value={password}
+          onChange={handlePasswordChange}
+          required
+        />
+        <Input
+          type="password"
+          name="confirmPassword"
+          label="Confirm master password"
+          value={confirmPassword}
+          onChange={handleConfirmPasswordChange}
+          required
+        />
+        <span className="text-gray-11 text-sm">
+          This master password is used to encrypt a backup of your interaction
+          data on our server. You are responsible for saving this password
+          and/or manually backing up your data from the app.
+        </span>
+      </FormStepLayout>
+    ),
+  };
+
+  return <>{ViewByState[displayState]}</>;
 };
 
 export default Profile;
