@@ -11,14 +11,30 @@ const Metadata = {
 export default function Document() {
   return (
     <Html lang="en">
-      <Link type="image/png" href="/favicon.png" rel="icon" />
-      <Link type="image/x-icon" href="/favicon.svg" rel="icon" />
       <Head>
         <title>{Metadata.website}</title>
         <meta name="description" content={Metadata.description} key="desc" />
         <meta property="og:title" content={Metadata.title} />
         <meta property="og:description" content={Metadata.description} />
         <meta property="og:image" content={Metadata.image} />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/favicon/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/favicon/site.webmanifest" />
       </Head>
       <body>
         <Main />
