@@ -39,19 +39,23 @@ const PlaceholderLine = classed.div(PlaceholderBase, "!bg-slate-200", {
   },
 });
 
-const PlaceholderCircle = classed.div(PlaceholderBase, "block rounded-full", {
-  variants: {
-    size: {
-      sm: "h-4 w-4",
-      md: "h-6 w-6",
-      lg: "h-8 w-8",
-      xl: "h-12 w-12",
+const PlaceholderCircle = classed.div(
+  PlaceholderBase,
+  "!bg-slate-200 block rounded-full",
+  {
+    variants: {
+      size: {
+        sm: "h-4 w-4",
+        md: "h-6 w-6",
+        lg: "h-8 w-8",
+        xl: "h-12 w-12",
+      },
     },
-  },
-  defaultVariants: {
-    size: "md",
-  },
-});
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
 
 const PlaceholderComponentMapping: Record<PlaceholderType, ReactNode> = {
   card: <PlaceholderCard />,

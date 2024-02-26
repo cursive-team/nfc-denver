@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { LoginFormStepProps } from ".";
 import { InferType } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
 
 const LoginCodeSchema = LoginSchema.pick(["password"]);
 
@@ -23,6 +24,7 @@ const LoginStepPassword = ({
   onBack,
   onSuccessfulLogin,
 }: LoginFormStepProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { getState } = useStateMachine({ updateStateFromAction });
   const { completeLogin } = useCompleteLogin({
     onSuccessfulLogin,
@@ -69,6 +71,7 @@ const LoginStepPassword = ({
   });
 
   const onSubmit = async (formValues: LoginFormProps) => {
+    setIsLoading(true); // start loading
     await handlePasswordMutation.mutateAsync(formValues, {
       onSuccess: async (data: any) => {
         await completeLogin({
@@ -79,6 +82,7 @@ const LoginStepPassword = ({
         toast.error(error.error || "Error logging in. Please try again.");
       },
     });
+    setIsLoading(false); // stop loading after Promise is resolved
   };
 
   return (
@@ -96,7 +100,7 @@ const LoginStepPassword = ({
           error={errors.password?.message}
           {...register("password")}
         />
-        <Button type="submit" loading={handlePasswordMutation.isPending}>
+        <Button type="submit" loading={isLoading}>
           Login
         </Button>
       </FormStepLayout>

@@ -274,7 +274,9 @@ export default function QuestById() {
           fallback={
             <>
               <QuestDetailPlaceholder />
-              <Placeholder.List items={3} />
+              <div className="mt-4 flex flex-col gap-5">
+                <Placeholder.List items={3} />
+              </div>
             </>
           }
         >

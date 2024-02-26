@@ -110,7 +110,7 @@ const LocationTapModal = ({
         <div className="flex flex-col items-center gap-[10px] pt-24 pb-28">
           <div className="flex bg-[#677363] justify-center items-center h-10 w-10 rounded-full ">
             <Image
-              src="/icons/home.png"
+              src="/icons/home.svg"
               height={16}
               width={16}
               alt="home image"

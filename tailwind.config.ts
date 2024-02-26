@@ -29,7 +29,7 @@ const config: Config = {
           200: "#580067",
         },
         black: {
-          default: "#111",
+          DEFAULT: "#111",
         },
         gray: {
           100: "#D7D7D7",

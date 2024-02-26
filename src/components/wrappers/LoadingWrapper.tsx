@@ -1,5 +1,5 @@
 import { classed } from "@tw-classed/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { Transition } from "@headlessui/react";
 
 interface LoadingWrapper {
@@ -13,6 +13,7 @@ interface LoadingWrapper {
 
 const NoItemLabel = classed.span("text-sm text-gray-12 py-4");
 
+const MIN_LOADING_TIME = 200;
 const LoadingWrapper = ({
   isLoading,
   children,
@@ -21,12 +22,23 @@ const LoadingWrapper = ({
   noResultsLabel = "No items",
 }: LoadingWrapper) => {
   const noItems = !isLoading && React.Children.count(children) === 0;
+  const [isPending, setIsPending] = React.useState(true);
+
+  // show loading for at least 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPending(false);
+    }, MIN_LOADING_TIME);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const loading = isPending || isLoading;
 
   return (
     <>
-      {isLoading && <div className={className}>{fallback}</div>}
+      {loading && <div className={className}>{fallback}</div>}
       <Transition
-        show={!isLoading}
+        show={!loading}
         enter="transition-opacity duration-200"
         enterFrom="opacity-0"
         enterTo="opacity-100"
