@@ -1,5 +1,6 @@
 import { object, string, date, InferType, boolean } from "yup";
 import {
+  displayNameRegex,
   farcasterUsernameRegex,
   telegramUsernameRegex,
   twitterUsernameRegex,
@@ -44,8 +45,8 @@ export const RegisterLocationSchema = object({
 
 export const ProfileSchema = object({
   displayName: string()
+    .matches(displayNameRegex)
     .required("This field is required.")
-    .max(20, "Display name must consist of letters and numbers only")
     .trim(),
   email: string()
     .email("Invalid email address.")
