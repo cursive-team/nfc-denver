@@ -8,6 +8,7 @@ interface StoreCardProps extends HTMLAttributes<HTMLDivElement> {
   itemId: number;
   pointsRequired: number;
   imageUrl: string;
+  isSoldOut: boolean;
 }
 
 const StoreCardPlaceholder = () => (
@@ -29,6 +30,7 @@ const StoreCard = ({
   itemId,
   pointsRequired,
   imageUrl,
+  isSoldOut,
   ...props
 }: StoreCardProps) => {
   return (
@@ -47,7 +49,11 @@ const StoreCard = ({
           </span>
           <h2 className="text-sm text-gray-12">{itemName}</h2>
         </div>
-        <PointCard className="self-start" point={pointsRequired} />
+        {isSoldOut ? (
+          <span className="text-xs font-light text-gray-900">Sold Out</span>
+        ) : pointsRequired > 0 ? (
+          <PointCard className="self-start" point={pointsRequired} />
+        ) : null}
       </div>
     </div>
   );

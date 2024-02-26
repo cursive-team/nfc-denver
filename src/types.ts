@@ -24,6 +24,7 @@ export type UserRequirementPreview = {
 };
 
 export type UserRequirement = {
+  id: number;
   name: string;
   numSigsRequired: number;
   sigNullifierRandomness: string;
@@ -38,6 +39,7 @@ export type LocationRequirementPreview = {
 };
 
 export type LocationRequirement = {
+  id: number;
   name: string;
   numSigsRequired: number;
   sigNullifierRandomness: string;
@@ -51,6 +53,7 @@ export type ItemPreview = {
   sponsor: string;
   description: string;
   buidlCost: number;
+  isSoldOut: boolean;
 };
 
 export type QuestWithRequirements = Quest & {
@@ -62,8 +65,8 @@ export type QuestWithCompletion = QuestWithRequirements & {
   isCompleted?: boolean;
 };
 
-export type QuestWithRequirementsAndItems = QuestWithRequirements & {
-  requiredForItems: ItemPreview[];
+export type QuestWithRequirementsAndItem = QuestWithRequirements & {
+  item: ItemPreview | null;
 };
 
 export type QuestProof = {
@@ -72,7 +75,7 @@ export type QuestProof = {
 };
 
 export type ItemWithRequirements = Item & {
-  questRequirements: QuestWithRequirements[];
+  quest: QuestWithRequirements | null;
 };
 
 export type ItemWithCompletion = ItemWithRequirements & {

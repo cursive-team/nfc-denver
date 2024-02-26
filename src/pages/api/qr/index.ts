@@ -4,13 +4,15 @@ import { ErrorResponse } from "@/types";
 
 export type QRCodeResponseType = {
   id: string;
-  item: {
-    id: number;
-    name: string;
-    sponsor: string;
-    description: string;
-    buidlCost: number;
-    imageUrl: string;
+  quest: {
+    item: {
+      id: number;
+      name: string;
+      sponsor: string;
+      description: string;
+      buidlCost: number;
+      imageUrl: string;
+    } | null;
   };
   user: {
     encryptionPublicKey: string;
@@ -27,17 +29,21 @@ export default async function handler(
       return res.status(400).json({ error: "ID must be a string" });
     }
 
-    const qrCode = await prisma.qrCode.findUnique({
+    const questProof = await prisma.questProof.findUnique({
       where: { id },
       include: {
-        item: {
+        quest: {
           select: {
-            id: true,
-            name: true,
-            sponsor: true,
-            description: true,
-            buidlCost: true,
-            imageUrl: true,
+            item: {
+              select: {
+                id: true,
+                name: true,
+                sponsor: true,
+                description: true,
+                buidlCost: true,
+                imageUrl: true,
+              },
+            },
           },
         },
         user: {
@@ -48,11 +54,11 @@ export default async function handler(
       },
     });
 
-    if (!qrCode) {
+    if (!questProof) {
       return res.status(404).json({ error: "QR code not found" });
     }
 
-    res.status(200).json(qrCode);
+    res.status(200).json(questProof);
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);

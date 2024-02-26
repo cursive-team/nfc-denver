@@ -1,33 +1,41 @@
 import { Filters } from "@/components/Filters";
 import { StoreCard } from "@/components/cards/StoreCard";
 import { StoreModalItem } from "@/components/modals/StoreItemModal";
-import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
+import { useFetchQuests } from "@/hooks/useFetchQuests";
 import { useFetchStore } from "@/hooks/useStore";
-import { filterArrayByValue } from "@/lib/shared/utils";
+import { getAllItemRedeemed } from "@/lib/client/localStorage";
 import { StoreSortMapping, StoreSortMappingType } from "@/shared/constants";
 import { ItemWithCompletion } from "@/types";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 export default function StorePage() {
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [storeItem, setStoreItem] = useState<ItemWithCompletion>();
   const [selectedOption, setSelectedOption] =
     useState<StoreSortMappingType>("ALL");
-
+  const { data: quests = [] } = useFetchQuests();
   const { isLoading, data: storeItems } = useFetchStore();
 
-  const KeyFilterMapping: Record<StoreSortMappingType, any> = {
-    UNLOCKED: "unlocked",
-    REDEEMED: "redeemed",
-    ALL: undefined,
-  };
-
-  const storeFilteredItems = filterArrayByValue(
-    storeItems ?? [],
-    KeyFilterMapping?.[selectedOption] as any,
-    true // only show unlocked or redeemed items
-  );
+  const displayItems: ItemWithCompletion[] = useMemo(() => {
+    const allItemRedeemed = getAllItemRedeemed();
+    const allItems = storeItems || [];
+    if (selectedOption === "ALL") {
+      return allItems;
+    } else if (selectedOption === "UNLOCKED") {
+      return allItems.filter((item) => {
+        return quests.some(
+          (quest) => quest.id === item.questId && quest.isCompleted
+        );
+      });
+    } else if (selectedOption === "REDEEMED") {
+      return allItems.filter((item) => {
+        return allItemRedeemed[item.id];
+      });
+    } else {
+      return allItems;
+    }
+  }, [storeItems, selectedOption, quests]);
 
   return (
     <>
@@ -61,7 +69,7 @@ export default function StorePage() {
             </>
           }
         >
-          {storeFilteredItems?.map((storeItem, index) => (
+          {displayItems.map((storeItem, index) => (
             <StoreCard
               key={`${storeItem.id}-${index}`}
               partnerName={storeItem.sponsor}
@@ -69,6 +77,7 @@ export default function StorePage() {
               itemId={storeItem.id}
               pointsRequired={storeItem.buidlCost}
               imageUrl={storeItem.imageUrl}
+              isSoldOut={storeItem.isSoldOut}
               onClick={() => {
                 setStoreItem(storeItem);
                 setItemModalOpen(true);

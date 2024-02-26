@@ -72,6 +72,7 @@ export default async function handler(
       include: {
         userRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,
@@ -86,6 +87,7 @@ export default async function handler(
         },
         locationRequirements: {
           select: {
+            id: true,
             name: true,
             numSigsRequired: true,
             sigNullifierRandomness: true,

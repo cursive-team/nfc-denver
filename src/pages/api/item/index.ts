@@ -12,7 +12,7 @@ export type ItemCreateRequest = {
   sponsor: string;
   description: string;
   buidlCost: number;
-  questReqIds: string[];
+  questReqId?: string;
   imageUrl: string;
 };
 
@@ -22,9 +22,7 @@ const itemCreateRequestSchema = object().shape({
   sponsor: string().required("Sponsor is required"),
   description: string().required("Description is required"),
   buidlCost: number().required("Buidl cost is required"),
-  questReqIds: array()
-    .of(string().required())
-    .required("Quest requirement ids are required"),
+  questReqId: string().optional().default(undefined),
   imageUrl: string().required("Image URL is required"),
 });
 
@@ -57,13 +55,28 @@ export default async function handler(
         sponsor,
         description,
         buidlCost,
-        questReqIds,
+        questReqId,
         imageUrl,
       } = await itemCreateRequestSchema.validate(req.body);
 
       const isAdmin = await isUserAdmin(token);
       if (!isAdmin) {
         return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      let questId = undefined;
+      if (questReqId) {
+        const quest = await prisma.quest.findUnique({
+          where: { id: parseInt(questReqId) },
+        });
+        if (!quest) {
+          return res.status(404).json({ error: "Quest not found" });
+        }
+
+        if (quest.itemId) {
+          return res.status(400).json({ error: "Quest already has an item" });
+        }
+        questId = quest.id;
       }
 
       const item = await prisma.item.create({
@@ -73,9 +86,7 @@ export default async function handler(
           description,
           buidlCost,
           imageUrl,
-          questRequirements: {
-            connect: questReqIds.map((id) => ({ id: parseInt(id) })),
-          },
+          questId,
         },
       });
 

@@ -29,7 +29,6 @@ model User {
   sentBenchmarkMessages     BenchmarkMessage[] @relation("BenchmarkMessageSender")
   receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
   questProofs               QuestProof[]       @relation("QuestProofUser")
-  qrCodes                   QrCode[]           @relation("QrCodeUser")
   admin                     Admin?
 }
 
@@ -111,35 +110,86 @@ model Quest {
   imageUrl             String?
   summonId             String?               @unique
   buidlReward          Int
+  itemId               Int?                  @unique
   createdAt            DateTime              @default(now())
   userRequirements     UserRequirement[]
   locationRequirements LocationRequirement[]
   proofs               QuestProof[]          @relation("QuestForProof")
-  requiredForItems     Item[]                @relation("ItemQuestRequirements")
+  item                 Item?                 @relation("ItemQuestRequirement")
 }
 
 model UserRequirement {
-  id                     Int      @id @default(autoincrement())
+  id                     Int                @id @default(autoincrement())
   name                   String
   questId                Int
   userIds                Int[]
   numSigsRequired        Int
   sigNullifierRandomness String // Used to prevent signatures from being used in multiple proofs
-  createdAt              DateTime @default(now())
-  quest                  Quest    @relation(fields: [questId], references: [id])
-  users                  User[]   @relation("UserQuestRequirements")
+  createdAt              DateTime           @default(now())
+  quest                  Quest              @relation(fields: [questId], references: [id])
+  users                  User[]             @relation("UserQuestRequirements")
+  sigNullifiers          UserSigNullifier[]
 }
 
 model LocationRequirement {
-  id                     Int        @id @default(autoincrement())
+  id                     Int                    @id @default(autoincrement())
   name                   String
   questId                Int
   locationIds            Int[]
   numSigsRequired        Int
   sigNullifierRandomness String // Used to prevent signatures from being used in multiple proofs
-  createdAt              DateTime   @default(now())
-  quest                  Quest      @relation(fields: [questId], references: [id])
-  locations              Location[] @relation("LocationQuestRequirements")
+  createdAt              DateTime               @default(now())
+  quest                  Quest                  @relation(fields: [questId], references: [id])
+  locations              Location[]             @relation("LocationQuestRequirements")
+  sigNullifiers          LocationSigNullifier[]
+}
+
+model Item {
+  id          Int      @id @default(autoincrement())
+  name        String
+  sponsor     String
+  description String
+  imageUrl    String
+  buidlCost   Int
+  questId     Int?     @unique
+  isSoldOut   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  quest       Quest?   @relation("ItemQuestRequirement", fields: [questId], references: [id])
+}
+
+model QuestProof {
+  id                    String                 @id @default(uuid())
+  questId               Int
+  userId                Int
+  serializedProof       String
+  redeemed              Boolean                @default(false)
+  createdAt             DateTime               @default(now())
+  quest                 Quest                  @relation(name: "QuestForProof", fields: [questId], references: [id])
+  user                  User                   @relation(name: "QuestProofUser", fields: [userId], references: [id])
+  userSigNullifiers     UserSigNullifier[]
+  locationSigNullifiers LocationSigNullifier[]
+
+  @@unique([questId, userId])
+}
+
+model UserSigNullifier {
+  id                String          @id @default(uuid())
+  questProofId      String
+  userRequirementId Int
+  sigNullifier      String
+  createdAt         DateTime        @default(now())
+  questProof        QuestProof      @relation(fields: [questProofId], references: [id])
+  userRequirement   UserRequirement @relation(fields: [userRequirementId], references: [id])
+}
+
+model LocationSigNullifier {
+  id                    String              @id @default(uuid())
+  questProofId          String
+  locationRequirementId Int
+  sigNullifier          String
+  createdAt             DateTime            @default(now())
+  questProof            QuestProof          @relation(fields: [questProofId], references: [id])
+  locationRequirement   LocationRequirement @relation(fields: [locationRequirementId], references: [id])
 }
 
 // Mirrors the Message model, but only used for benchmarking
@@ -152,43 +202,6 @@ model BenchmarkMessage {
   createdAt     DateTime @default(now())
   sender        User     @relation(name: "BenchmarkMessageSender", fields: [senderId], references: [id])
   recipient     User     @relation(name: "BenchmarkMessageRecipient", fields: [recipientId], references: [id])
-}
-
-model QuestProof {
-  id              String   @id @default(uuid())
-  questId         Int
-  userId          Int
-  serializedProof String
-  createdAt       DateTime @default(now())
-  quest           Quest    @relation(name: "QuestForProof", fields: [questId], references: [id])
-  user            User     @relation(name: "QuestProofUser", fields: [userId], references: [id])
-
-  @@unique([questId, userId])
-}
-
-model Item {
-  id                  Int      @id @default(autoincrement())
-  name                String
-  sponsor             String
-  description         String
-  imageUrl            String
-  buidlCost           Int
-  questRequirementIds Int[]
-  createdAt           DateTime @default(now())
-  questRequirements   Quest[]  @relation("ItemQuestRequirements")
-  qrCodes             QrCode[] @relation("QrCodeItem")
-}
-
-model QrCode {
-  id        String   @id @default(uuid())
-  itemId    Int
-  userId    Int
-  redeemed  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  item      Item     @relation(name: "QrCodeItem", fields: [itemId], references: [id])
-  user      User     @relation(name: "QrCodeUser", fields: [userId], references: [id])
-
-  @@unique([itemId, userId])
 }
 
 model EmailWalletMint {
