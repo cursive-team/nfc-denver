@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/Spinner";
 import { getHaLoArgs } from "@/lib/client/libhalo";
 import { sigCardTapResponseSchema } from "./api/tap/sig_card";
+import { verify } from "@/lib/shared/signature";
+import { fixBJJSig } from "@/lib/shared/libhalo";
 
 export default function Tap() {
   const router = useRouter();
@@ -202,8 +204,19 @@ export default function Tap() {
         router.push("/");
         return;
       }
-      const { signaturePublicKey, signatureMessage, signature } =
-        rawLocationSignature;
+      const {
+        signaturePublicKey,
+        signatureMessage,
+        signature: rawHaloSig,
+      } = rawLocationSignature;
+      let signature: string = rawHaloSig;
+      try {
+        signature = fixBJJSig(signature);
+      } catch (error) {
+        toast.error("Unable to process tap.");
+        router.push("/");
+        return;
+      }
 
       fetch(`/api/tap/sig_card?signaturePublicKey=${signaturePublicKey}`, {
         method: "GET",
