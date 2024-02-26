@@ -11,32 +11,45 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse
 ) {
-  const { iykRef, mockRef } = request.query;
+  const { iykRef, mockRef, sigPk } = request.query;
 
-  if (typeof iykRef !== "string") {
+  if (iykRef && typeof iykRef === "string") {
+    const enableMockRef = mockRef === "true";
+    const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
+    if (!chipId) {
+      return response.status(400).json({ error: "Invalid iykRef" });
+    }
+
+    const chipType = await getChipTypeFromChipId(chipId, enableMockRef);
+    if (chipType !== ChipType.LOCATION) {
+      return response
+        .status(400)
+        .json({ error: "iykRef does not correspond to location chip" });
+    }
+
+    const existingLocation = await prisma.location.findUnique({
+      where: {
+        chipId,
+      },
+    });
+    if (existingLocation) {
+      return response
+        .status(400)
+        .json({ error: "Location already registered" });
+    }
+  } else if (sigPk && typeof sigPk === "string") {
+    const existingLocation = await prisma.location.findUnique({
+      where: {
+        chipId: sigPk,
+      },
+    });
+    if (existingLocation) {
+      return response
+        .status(400)
+        .json({ error: "Location already registered" });
+    }
+  } else {
     return response.status(400).json({ error: "Invalid input parameters" });
-  }
-
-  const enableMockRef = mockRef === "true";
-  const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
-  if (!chipId) {
-    return response.status(400).json({ error: "Invalid iykRef" });
-  }
-
-  const chipType = await getChipTypeFromChipId(chipId, enableMockRef);
-  if (chipType !== ChipType.LOCATION) {
-    return response
-      .status(400)
-      .json({ error: "iykRef does not correspond to location chip" });
-  }
-
-  const existingLocation = await prisma.location.findUnique({
-    where: {
-      chipId,
-    },
-  });
-  if (existingLocation) {
-    return response.status(400).json({ error: "Location already registered" });
   }
 
   const body = request.body as HandleUploadBody;
@@ -49,7 +62,9 @@ export default async function handler(
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
           tokenPayload: JSON.stringify({
-            chipId,
+            iykRef,
+            mockRef,
+            sigPk,
           }),
         };
       },

@@ -119,6 +119,10 @@ export default function Tap() {
       );
     };
 
+    const handleSigCardLocationRegistration = (signaturePublicKey: string) => {
+      router.push(`/register_location?sigPk=${signaturePublicKey}`);
+    };
+
     const handlePersonTap = async (person: PersonTapResponse) => {
       const authToken = getAuthToken();
       if (!authToken || authToken.expiresAt < new Date()) {
@@ -216,17 +220,21 @@ export default function Tap() {
           const sigCardTapResponse =
             sigCardTapResponseSchema.validateSync(data);
           if (!sigCardTapResponse.registered) {
-            throw new Error("This location card is not registered!");
-          } else {
-            if (!sigCardTapResponse.locationInfo) {
-              throw new Error("Unable to retrieve location!");
-            }
+            handleSigCardLocationRegistration(signaturePublicKey);
+            return;
+          }
+
+          if (sigCardTapResponse.locationInfo) {
             const tapResponse: LocationTapResponse = {
               ...sigCardTapResponse.locationInfo,
               signatureMessage,
               signature,
             };
             handleLocationTap(tapResponse);
+          } else if (sigCardTapResponse.locationInfoWithSig) {
+            handleLocationTap(sigCardTapResponse.locationInfoWithSig);
+          } else {
+            throw new Error("Unable to retrieve location!");
           }
         })
         .catch((error) => {

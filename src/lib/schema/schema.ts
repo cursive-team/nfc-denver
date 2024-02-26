@@ -21,8 +21,9 @@ export const LoginSchema = object({
 });
 
 export const RegisterLocationSchema = object({
-  iykRef: string().min(1, "This field is required.").optional(),
+  iykRef: string().optional().default(undefined),
   mockRef: string().optional().default(undefined),
+  sigPk: string().optional().default(undefined),
   name: string()
     .max(64, "Location name must be less than 64 characters.")
     .required(),

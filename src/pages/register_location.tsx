@@ -21,8 +21,9 @@ export default function RegisterLocation() {
   const [image, setImage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const iykRef = router.query.iykRef as string;
+  const iykRef = router.query.iykRef as string | undefined;
   const mockRef = router.query.mockRef as string | undefined;
+  const sigPk = router.query.sigPk as string | undefined;
 
   const {
     register,
@@ -35,6 +36,7 @@ export default function RegisterLocation() {
     defaultValues: {
       iykRef,
       mockRef,
+      sigPk,
       name: "",
       description: "",
       sponsor: "",
@@ -67,15 +69,24 @@ export default function RegisterLocation() {
       imageFile,
       iykRef,
       mockRef,
+      sigPk,
     }: {
       imageFile: File;
-      iykRef: string;
-      mockRef: string | undefined;
+      iykRef?: string;
+      mockRef?: string;
+      sigPk?: string;
     }) => {
+      if (!iykRef && !sigPk) {
+        throw new Error("iykRef or sigPk must be provided");
+      }
+
       const mockRefString = mockRef ? `&mockRef=${mockRef}` : "";
+      const uploadUrlParams = iykRef
+        ? `?iykRef=${iykRef}${mockRefString}`
+        : `?sigPk=${sigPk}`;
       const newBlob = await upload(imageFile.name, imageFile, {
         access: "public",
-        handleUploadUrl: `/api/register/location/upload?iykRef=${iykRef}${mockRefString}`,
+        handleUploadUrl: `/api/register/location/upload${uploadUrlParams}`,
       });
       return newBlob.url;
     },
@@ -88,7 +99,7 @@ export default function RegisterLocation() {
     }
 
     await getImageUrlMutation.mutateAsync(
-      { imageFile, iykRef, mockRef },
+      { imageFile, iykRef, mockRef, sigPk },
       {
         onSuccess: async (imageUrl: string) => {
           const locationData: RegisterLocationType = {
