@@ -113,7 +113,6 @@ export const handleOverlapMessageRequests = async (
       continue;
     }
 
-    const user = users[userId];
     const userPsiState = await getUserPsiState(userId);
     if (!userPsiState) {
       continue;

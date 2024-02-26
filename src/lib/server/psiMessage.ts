@@ -7,15 +7,19 @@ import {
 export async function findAndDeleteMostRecentPsiMessage(
   recipientEncKey: string
 ): Promise<PsiMessageResponse | undefined> {
-  // Find the most recent message for the given userId
+  // Find the earliest message for the given userId
   const message = await prisma.psiMessage.findFirst({
     where: { recipientEncKey: recipientEncKey },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: "asc" },
   });
 
   // If a message is found, delete it
   if (message) {
-    await prisma.psiMessage.delete({ where: { id: message.id } });
+    try {
+      await prisma.psiMessage.delete({ where: { id: message.id } });
+    } catch (e) {
+      console.error("Error deleting most recent psi message", e);
+    }
   } else {
     return undefined;
   }

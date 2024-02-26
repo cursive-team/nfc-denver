@@ -163,12 +163,7 @@ export default async function handler(
       return;
     }
 
-    if (messageRequests.length === 0) {
-      res.status(400).json({ error: "No message requests" });
-      return;
-    }
-
-    let latestMessageDate: Date;
+    let latestMessageDate: Date = new Date();
     for (const { encryptedMessage, recipientPublicKey } of messageRequests) {
       const recipient = await prisma.user.findFirst({
         where: { encryptionPublicKey: recipientPublicKey },

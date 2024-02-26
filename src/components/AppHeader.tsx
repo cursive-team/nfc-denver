@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import Profile from "./Profile";
+import { clearIndexedDB } from "@/lib/client/indexedDB";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -184,7 +185,8 @@ const AppHeaderContent = ({
 const AppHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleSignout = () => {
+  const handleSignout = async () => {
+    await clearIndexedDB();
     deleteAccountFromLocalStorage();
     window.location.href = "/";
   };

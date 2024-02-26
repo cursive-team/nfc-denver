@@ -31,7 +31,6 @@ enum PSIDisplayState {
   NO_PSI,
   ONLY_ONE_SENT,
   WAITING,
-  OTHER_NO_OPT_IN,
   OVERLAP,
 }
 
@@ -84,9 +83,16 @@ const UserProfilePage = () => {
 
           const userPsiState = await getUserPsiState(id);
           if (userPsiState) {
-            setPsiState(PSIDisplayState.ONLY_ONE_SENT);
-            if (userPsiState.r1O && fetchedUser.inTs && !userPsiState.mr2) {
-              setPsiState(PSIDisplayState.OTHER_NO_OPT_IN);
+            if (userPsiState.mr2 && !userPsiState.r1O) {
+              setPsiState(PSIDisplayState.NO_PSI);
+            } else if (userPsiState.r1O && !fetchedUser.inTs) {
+              setPsiState(PSIDisplayState.ONLY_ONE_SENT);
+            } else if (
+              userPsiState.r1O &&
+              fetchedUser.inTs &&
+              !userPsiState.mr2
+            ) {
+              setPsiState(PSIDisplayState.NO_PSI);
               await saveUserPsiState(id, {
                 r1O: "",
               });

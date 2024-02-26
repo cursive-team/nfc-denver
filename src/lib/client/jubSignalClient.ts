@@ -83,6 +83,7 @@ export const loadMessages = async ({
     profile.pkId
   );
   psiMessageRequests = psiMessageRequests.concat(round2MessageRequests);
+  console.log("psiMessageRequests", psiMessageRequests);
 
   // Check if overlap can be computed and backed up
   const overlapMessageRequests = await handleOverlapMessageRequests(
@@ -146,6 +147,7 @@ export const loadMessages = async ({
     console.error("Invalid messages received from server");
     throw new Error("Invalid messages received from server");
   }
+  console.log("psiMessageResponse", psiMessageResponse);
   if (psiMessageResponse) {
     try {
       const { data, senderEncKey } = await psiMessageResponseSchema.validate(
@@ -154,9 +156,15 @@ export const loadMessages = async ({
       const senderUserId = await hashPublicKeyToUUID(senderEncKey);
       const parsedData = JSON.parse(data);
       if (parsedData.mr2) {
-        await saveUserRound2Message(senderUserId, parsedData.mr2);
+        await saveUserRound2Message(
+          senderUserId,
+          JSON.stringify(parsedData.mr2)
+        );
       } else if (parsedData.mr3) {
-        await saveUserRound3Message(senderUserId, parsedData.mr3);
+        await saveUserRound3Message(
+          senderUserId,
+          JSON.stringify(parsedData.mr3)
+        );
       }
     } catch (error) {
       console.error(
