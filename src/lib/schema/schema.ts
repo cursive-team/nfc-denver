@@ -43,7 +43,10 @@ export const RegisterLocationSchema = object({
 });
 
 export const ProfileSchema = object({
-  displayName: string().required("").trim(),
+  displayName: string()
+    .required("This field is required.")
+    .max(20, "Display name must consist of letters and numbers only")
+    .trim(),
   email: string()
     .email("Invalid email address.")
     .required("This field is required."),
