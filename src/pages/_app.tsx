@@ -1,6 +1,8 @@
 import { AppFooter } from "@/components/AppFooter";
 import { AppHeader } from "@/components/AppHeader";
+import { FullPageBanner } from "@/components/FullPageBanner";
 import { TransitionWrapper } from "@/components/Transition";
+import useSettings from "@/hooks/useSettings";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
 import "@/styles/globals.css";
 import {
@@ -20,6 +22,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  const { isIncognito } = useSettings();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageHeight, setPageHeight] = useState(0);
   const showFooter = pageProps?.showFooter ?? true;
@@ -31,6 +34,12 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   const footerVisible = showFooter && !fullPage;
+
+  if (isIncognito) {
+    return (
+      <FullPageBanner description="You're in an incognito tab. Please copy this link into a non-incognito tab in order to take part in the experience!" />
+    );
+  }
 
   return (
     <StateMachineProvider>
@@ -50,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 />
               )}
               <div
-                className={`flex flex-col grow container px-4 ${
+                className={`flex flex-col grow px-4 xs:px-4 ${
                   footerVisible ? "mb-20" : ""
                 }`}
               >

@@ -2,11 +2,12 @@ import type * as Classed from "@tw-classed/react";
 import { classed } from "@tw-classed/react";
 
 const PointCardComponent = classed.div(
-  "relative overflow-hidden px-[2px] flex items-center font-light",
+  "relative overflow-hidden px-[2px] flex items-center font-light h-[14px]",
   {
     variants: {
       variant: {
-        default: "bg-[#F1F1F1] text-[#202020] text-[10px] leading-4",
+        default:
+          "bg-[#F1F1F1] text-[#202020] text-[12px] leading-[12px] pt-[2px]",
       },
     },
     defaultVariants: {
@@ -52,7 +53,7 @@ const PointCard = ({
   ...props
 }: PointCardProps) => {
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-[5px]">
       {label && (
         <PointCardLabel color={color} size={size}>
           {label}

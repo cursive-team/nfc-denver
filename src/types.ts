@@ -10,6 +10,13 @@ export type LabelProps = {
   content: string;
 };
 
+export enum ProfileDisplayState {
+  VIEW,
+  EDIT,
+  INPUT_PASSWORD,
+  CHOOSE_PASSWORD,
+}
+
 export interface QuestItem extends Quest {}
 
 export enum QuestRequirementType {

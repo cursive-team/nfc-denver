@@ -14,6 +14,7 @@ const CircleIconCard = classed.div(
       size: {
         xs: "size-6",
         sm: "size-10",
+        md: "size-16",
       },
     },
     defaultVariants: {
@@ -40,6 +41,18 @@ interface CircleCardProps extends CardIconVariants {
   isMultiple?: boolean; // have multiple icons
 }
 
+const IconSizeMapping: Record<"xs" | "sm" | "md", number> = {
+  xs: 10,
+  sm: 18,
+  md: 24,
+};
+
+const IconSizeClass: Record<"xs" | "sm" | "md", string> = {
+  xs: "h-[10px]",
+  sm: "h-[18px]",
+  md: "h-[32px]",
+};
+
 const CircleCard = ({
   icon,
   isMultiple,
@@ -48,7 +61,8 @@ const CircleCard = ({
 }: CircleCardProps) => {
   const Component = isMultiple ? CircleCardQuest : CircleIconCard;
 
-  const iconSize = size === "xs" ? 10 : 18;
+  const iconSize = IconSizeMapping[size];
+  const iconSizeClass = IconSizeClass[size];
 
   return (
     <Component color={color} size={size}>
@@ -56,7 +70,7 @@ const CircleCard = ({
         src={CardIconMapping[icon]}
         height={iconSize}
         width={iconSize}
-        className={size === "xs" ? "h-[10px]" : "h-[18px]"}
+        className={iconSizeClass}
         alt={`${icon} icon`}
       />
     </Component>

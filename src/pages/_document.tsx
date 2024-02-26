@@ -3,8 +3,8 @@ import { Html, Head, Main, NextScript } from "next/document";
 export default function Document() {
   return (
     <Html lang="en">
+      <title>buidlquest.xyz</title>
       <Head>
-        <title>buidlquest.xyz</title>
         <meta
           name="description"
           content="Connect with ETHDenver attendees, engage with sponsors, and unlock unique experiences by tapping NFC chips."

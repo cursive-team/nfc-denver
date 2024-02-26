@@ -50,7 +50,7 @@ const FormStepLayout = ({
         </div>
       )}
       {actions && (
-        <div className="sticky bottom-0 right-0 left-0 bg-black-default mt-4">
+        <div className="sticky bottom-0 right-0 left-0 bg-black mt-4">
           <div className="pb-6 pt-2">{actions}</div>
         </div>
       )}

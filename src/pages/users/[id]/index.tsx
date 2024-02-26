@@ -62,7 +62,7 @@ const UserProfilePage = () => {
       )}
       <div className="flex flex-col gap-6">
         <div className="flex gap-6 items-center">
-          <div className="h-32 w-32 rounded bg-slate-200"></div>
+          <div className="size-32 rounded bg-slate-200"></div>
           <div className="flex flex-col gap-1">
             <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>
             <div className="flex items-center gap-1">

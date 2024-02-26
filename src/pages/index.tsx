@@ -415,6 +415,7 @@ export default function Social() {
         <div className="flex gap-6 mb-6">
           <ProfileImage
             onClick={() => {
+              return; // TODO: enable when generative art is ready
               setShowSnapshotModal(true);
             }}
           >
