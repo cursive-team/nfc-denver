@@ -21,7 +21,7 @@ export default function useSettings() {
   }, [router]);
 
   useEffect(() => {
-    setPageWidth(window?.innerWidth);
+    setPageWidth(window?.screen.height);
     setPageHeight(window?.innerHeight);
   }, []);
 

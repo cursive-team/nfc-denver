@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const fullPage = pageProps?.fullPage ?? false;
 
   useEffect(() => {
-    setPageHeight(window?.screen?.height);
+    setPageHeight(window?.innerHeight);
   }, []);
 
   const footerVisible = showFooter && !fullPage;
@@ -66,7 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 <Component {...pageProps} />
               </div>
               <TransitionWrapper.Fade show={!isMenuOpen}>
-                <>{showFooter && !fullPage && <AppFooter />}</>
+                <>{footerVisible && <AppFooter />}</>
               </TransitionWrapper.Fade>
             </div>
           </div>
