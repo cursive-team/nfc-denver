@@ -193,6 +193,45 @@ export default function Social() {
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
   const [isLoading, setLoading] = useState(false);
 
+  useEffect(() => {
+    window.params = {
+      fill: false,
+      stroke: true,
+      abstract: false,
+      upToPubKey: 50,
+    };
+
+    window.artworkHeight = 200;
+    window.artworkWidth = 200;
+    const generateHash = (random = Math.random) => {
+      let hash = "";
+      for (var i = 0; i < 130; i++)
+        hash += Math.floor(random() * 16).toString(16);
+
+      return hash;
+    };
+
+    window.myPubKey = generateHash();
+    window.signatures = Array.from({ length: 1000 }, (_) => ({
+      pubKey: generateHash(),
+      timestamp: Date.now(),
+    }));
+
+    window.onload = (_) => {
+      window.render();
+
+      // let stampPFP = window.stamp(myPubKey, 512, 512);
+      // // console.log(stampPFP.fillColor);
+      // // console.log(stampPFP.strokeColor);
+      // // console.log(stampPFP.background);
+      // console.log(`MyPubKey img\n`, stampPFP.getImage());
+
+      // let index = 49;
+      // let stamp = window.stampWithIndex(index, window.signatures[index - 1].pubKey);
+      // console.log(`Hash ${index - 1} img\n`, stamp.getImage());
+    };
+  }, []);
+
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
     profileData: Profile,
@@ -433,17 +472,20 @@ export default function Social() {
         <div className="flex gap-6 mb-3 xs:mb-6">
           <ProfileImage
             onClick={() => {
-              return; // TODO: enable when generative art is ready
               setShowSnapshotModal(true);
             }}
           >
-            <Image
+            <canvas
+              className="bg-black p-0 m-auto block absolute inset-0"
+              id="artwork-webgl"
+            ></canvas>
+            {/* <Image
               src="https://picsum.photos/600/600"
               width={200}
               height={200}
               alt="Profile image"
               className="bg-cover"
-            />
+            /> */}
             <button type="button" className="absolute right-1 top-1">
               <Icons.zoom />
             </button>

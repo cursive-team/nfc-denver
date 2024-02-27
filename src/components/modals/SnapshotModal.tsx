@@ -11,7 +11,7 @@ const Description = classed.span("text-center text-gray-12 text-sm font-light");
 interface SnapshotModalProps extends ModalProps {}
 
 const SnapshotModal = ({ isOpen, setIsOpen }: SnapshotModalProps) => {
-  const [pageWidth, setPageHeight] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
 
   const params = useParams();
   const userId = params?.id;
@@ -19,7 +19,37 @@ const SnapshotModal = ({ isOpen, setIsOpen }: SnapshotModalProps) => {
   const isLoggedUser = Number(userId) === 2;
 
   useEffect(() => {
-    setPageHeight(window?.innerWidth);
+    setPageWidth(window?.innerWidth);
+    window.artworkHeight = window?.innerWidth - 50;
+    window.artworkWidth = window?.innerWidth - 50;
+    const generateHash = (random = Math.random) => {
+      let hash = "";
+      for (var i = 0; i < 130; i++)
+        hash += Math.floor(random() * 16).toString(16);
+
+      return hash;
+    };
+
+    window.signatures = Array.from({ length: 1000 }, (_) => ({
+      pubKey: generateHash(),
+      timestamp: Date.now(),
+    }));
+
+    console.log(window);
+
+    window.onload = (_) => {
+      window.render();
+
+      // let stampPFP = window.stamp(myPubKey, 512, 512);
+      // // console.log(stampPFP.fillColor);
+      // // console.log(stampPFP.strokeColor);
+      // // console.log(stampPFP.background);
+      // console.log(`MyPubKey img\n`, stampPFP.getImage());
+
+      // let index = 49;
+      // let stamp = window.stampWithIndex(index, window.signatures[index - 1].pubKey);
+      // console.log(`Hash ${index - 1} img\n`, stamp.getImage());
+    };
   }, []);
 
   const cardSize = pageWidth - 50;
@@ -35,13 +65,10 @@ const SnapshotModal = ({ isOpen, setIsOpen }: SnapshotModalProps) => {
               height: `${cardSize}px`,
             }}
           >
-            <Image
-              width={cardSize ?? 300}
-              height={cardSize ?? 300}
-              src="https://picsum.photos/600/600"
-              alt="Profile image"
-              className="bg-cover object-cover"
-            />
+            <canvas
+              className="bg-black p-0 m-auto block absolute inset-0"
+              id="artwork-webgl"
+            ></canvas>
           </ProfileImage>
           <div className="flex flex-col">
             {!isLoggedUser && (
