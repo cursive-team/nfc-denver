@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   APP_NAME: "BUIDLQuest",
-  SUPPORT_EMAIL: "help@buidlquest.xyz",
+  SUPPORT_EMAIL: "hello@cursive.team",
 };
 
 export type StoreSortMappingType = "ALL" | "UNLOCKED" | "REDEEMED";
