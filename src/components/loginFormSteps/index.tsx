@@ -91,7 +91,7 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
         Send Code
       </Button>
       <Link
-        href="https://pse-team.notion.site/pse-team/BUIDLQuest-One-Pager-e9ea7aba9bae483c8bc54d7b825019c1#b4b47ee6171b4626893daf5ff23ef2a0"
+        href="https://cursive-team.notion.site/BUIDLQuest-One-Pager-fd5c747cfe2847e59db188345d41eba2"
         className="link text-center"
         target="_blank"
         rel="noreferrer noopener"
