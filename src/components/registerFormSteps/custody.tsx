@@ -1,0 +1,124 @@
+import { RegisterSchema } from "@/lib/schema/schema";
+import { InferType } from "yup";
+import { Button } from "../Button";
+import { AppBackHeader } from "../AppHeader";
+import { FormStepLayout } from "@/layouts/FormStepLayout";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { Checkbox } from "../Checkbox";
+import { Radio } from "../Radio";
+import { RegisterFormStepProps } from ".";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
+import { useEffect } from "react";
+
+const RegisterCustodySchema = RegisterSchema.pick([
+  "wantsServerCustody",
+  "allowsAnalytics",
+]);
+type RegisterCustodyProps = InferType<typeof RegisterCustodySchema>;
+
+const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
+
+  const { handleSubmit, setValue, watch } = useForm<RegisterCustodyProps>({
+    resolver: yupResolver(RegisterCustodySchema),
+    defaultValues: {
+      wantsServerCustody: getState()?.register?.wantsServerCustody ?? false,
+      allowsAnalytics: getState()?.register?.allowsAnalytics ?? false,
+    },
+  });
+
+  const wantsServerCustody = watch("wantsServerCustody", false);
+  const allowsAnalytics = watch("allowsAnalytics", false);
+
+  const handleCustodySubmit = () => {
+    onSuccess?.(); // proceed to next step
+  };
+
+  useEffect(() => {
+    // update state with form data on change
+    actions?.updateStateFromAction({
+      register: {
+        ...getState()?.register,
+        wantsServerCustody,
+        allowsAnalytics,
+      },
+    });
+  }, [wantsServerCustody, allowsAnalytics, actions, getState]);
+
+  return (
+    <div className="flex flex-col grow">
+      <AppBackHeader
+        label="Social settings"
+        onBackClick={() => {
+          onBack?.();
+        }}
+      />
+      <FormStepLayout
+        onSubmit={handleSubmit(handleCustodySubmit)}
+        description="2/2"
+        title="Ownership & analytics consent"
+        className="xs:pt-4"
+        header={
+          <fieldset className="flex flex-col gap-6">
+            <span className="text-gray-11 text-sm">
+              IYK has partnerned with Cursive to integrate ZK tech into this
+              experience to enable full data ownership and portability. Choose
+              if you want to enable it.
+            </span>
+            <Radio
+              id="selfCustody"
+              name="custody"
+              value="self"
+              label="Self custody"
+              description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
+              checked={!wantsServerCustody}
+              onChange={() => {
+                setValue("wantsServerCustody", false, {
+                  shouldValidate: true,
+                });
+              }}
+            />
+            <Radio
+              id="serverCustody"
+              type="radio"
+              name="custody"
+              value="server"
+              label="Server custody"
+              description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
+              checked={wantsServerCustody}
+              onChange={() => {
+                setValue("wantsServerCustody", true, {
+                  shouldValidate: true,
+                });
+              }}
+            />
+            <span className="text-gray-11 text-sm">
+              If we have your consent, Cursive will use client-side performance
+              analytics to determine how to improve the app. This will never
+              include any identifying information.
+            </span>
+            <Checkbox
+              id="allowAnalytics"
+              label="I consent to sharing analytics data"
+              checked={allowsAnalytics}
+              onChange={() => {
+                setValue("allowsAnalytics", !allowsAnalytics, {
+                  shouldValidate: true,
+                });
+              }}
+            />
+          </fieldset>
+        }
+      >
+        <Button type="submit">
+          {wantsServerCustody ? "Create Account" : "Next: Choose Password"}
+        </Button>
+      </FormStepLayout>
+    </div>
+  );
+};
+
+RegisterCustody.displayName = "RegisterCustody";
+export { RegisterCustody };

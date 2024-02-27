@@ -52,7 +52,7 @@ const Tabs = ({ items }: TabsProps) => {
         })}
         <div className="absolute bg-gray-400 bottom-0 h-[1px] w-full z-0"></div>
       </Tab.List>
-      <Tab.Panels className="pt-4">
+      <Tab.Panels className="pt-2 xs:pt-4">
         {items.map(({ children }, index) => {
           return <Tab.Panel key={index}>{children}</Tab.Panel>;
         })}
