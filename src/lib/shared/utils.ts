@@ -1,4 +1,6 @@
+import clsx, { ClassValue } from "clsx";
 import dayjs from "dayjs";
+import { twMerge } from "tailwind-merge";
 
 // This function check if nickname starts with @, if not, it adds it
 export const handleNickName = (nickname?: string): string => {
@@ -66,3 +68,7 @@ export const twitterUsernameRegex = /^@[a-zA-Z0-9_]{1,15}$/;
 export const telegramUsernameRegex = /^@[a-zA-Z0-9_]{5,32}$/;
 
 export const farcasterUsernameRegex = /^@[a-zA-Z0-9_.]{1,20}$/;
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}

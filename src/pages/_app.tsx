@@ -4,6 +4,7 @@ import { FullPageBanner } from "@/components/FullPageBanner";
 import { TransitionWrapper } from "@/components/Transition";
 import useSettings from "@/hooks/useSettings";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
+import { cn } from "@/lib/client/utils";
 import "@/styles/globals.css";
 import {
   QueryCache,
@@ -43,6 +44,8 @@ export default function App({ Component, pageProps }: AppProps) {
     );
   }
 
+  const isHeaderFixed = pageProps?.headerFixed ?? false;
+
   return (
     <StateMachineProvider>
       <QueryClientProvider client={queryClient}>
@@ -58,12 +61,14 @@ export default function App({ Component, pageProps }: AppProps) {
                 <AppHeader
                   isMenuOpen={isMenuOpen}
                   setIsMenuOpen={setIsMenuOpen}
+                  fixed={isHeaderFixed}
                 />
               )}
               <div
-                className={`flex flex-col grow px-4 xs:px-4 ${
-                  footerVisible ? "mb-20" : ""
-                }`}
+                className={cn("flex flex-col grow px-4 xs:px-4", {
+                  "mb-20": footerVisible,
+                  "pt-[55px] xs:pt-[65px]": isHeaderFixed,
+                })}
               >
                 <Component {...pageProps} />
               </div>

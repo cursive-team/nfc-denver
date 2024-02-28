@@ -478,3 +478,7 @@ export default function Social() {
     </>
   );
 }
+
+Social.getInitialProps = () => {
+  return { headerFixed: true };
+};

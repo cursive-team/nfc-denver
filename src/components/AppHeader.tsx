@@ -8,6 +8,7 @@ import Profile from "./Profile";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { ProfileDisplayState } from "@/types";
+import { cn } from "@/lib/client/utils";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -213,15 +214,20 @@ const AppHeaderContent = ({
 interface AppHeaderProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (value: boolean) => void;
+  fixed?: boolean; // if true, the header will be fixed
 }
-const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
+const AppHeader = ({ isMenuOpen, setIsMenuOpen, fixed }: AppHeaderProps) => {
   const handleSignout = () => {
     deleteAccountFromLocalStorage();
     window.location.href = "/";
   };
 
   return (
-    <div className="flex w-full items-center p-3 py-3 xs:p-4 bg-black z-50">
+    <div
+      className={cn("flex w-full items-center p-3 py-3 xs:p-4 bg-black z-50", {
+        fixed: fixed,
+      })}
+    >
       {!isMenuOpen && (
         <Link href="/">
           <button type="button" className="flex gap-2 items-center">
