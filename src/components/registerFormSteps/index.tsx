@@ -29,7 +29,6 @@ const RegisterStepForm = ({
   mockRef,
   onSuccess,
 }: RegisterFormStepProps) => {
-  const { eventDate } = useSettings();
   const { actions, getState } = useStateMachine({ updateStateFromAction });
 
   const {
