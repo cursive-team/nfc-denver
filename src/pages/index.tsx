@@ -25,6 +25,8 @@ import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Spinner } from "@/components/Spinner";
 import { CircleCard } from "@/components/cards/CircleCard";
+import { ArtworkCanvas } from "@/components/ArtworkCanvas";
+import useSettings from "@/hooks/useSettings";
 
 interface ContactCardProps {
   name: string;
@@ -186,53 +188,13 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
 
 export default function Social() {
   const router = useRouter();
+  const { pageWidth } = useSettings();
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   const [profile, setProfile] = useState<Profile>();
   const [buidlBalance, setBuidlBalance] = useState<number>(0);
   const [numConnections, setNumConnections] = useState<number>(0);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
   const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    window.params = {
-      fill: false,
-      stroke: true,
-      abstract: false,
-      upToPubKey: 50,
-    };
-
-    window.artworkHeight = 200;
-    window.artworkWidth = 200;
-    const generateHash = (random = Math.random) => {
-      let hash = "";
-      for (var i = 0; i < 130; i++)
-        hash += Math.floor(random() * 16).toString(16);
-
-      return hash;
-    };
-
-    window.myPubKey = generateHash();
-    window.signatures = Array.from({ length: 1000 }, (_) => ({
-      pubKey: generateHash(),
-      timestamp: Date.now(),
-    }));
-
-    window.render();
-
-    // window.onload = (_) => {
-
-    //   let stampPFP = window.stamp(generateHash, 512, 512);
-    //   window.
-    //   // // console.log(stampPFP.fillColor);
-    //   // // console.log(stampPFP.strokeColor);
-    //   // // console.log(stampPFP.background);
-    //   // console.log(`MyPubKey img\n`, stampPFP.getImage());
-
-    //   // let index = 49;
-    //   // let stamp = window.stampWithIndex(index, window.signatures[index - 1].pubKey);
-    //   // console.log(`Hash ${index - 1} img\n`, stamp.getImage());
-    // };
-  }, []);
 
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
@@ -469,29 +431,23 @@ export default function Social() {
       <SnapshotModal
         isOpen={showSnapshotModal}
         setIsOpen={setShowSnapshotModal}
+        size={pageWidth - 60}
       />
-      <div className="flex flex-col pt-2 xs:pt-4">
-        <div className="flex gap-6 mb-3 xs:mb-6">
-          <ProfileImage
-            onClick={() => {
-              setShowSnapshotModal(true);
-            }}
-          >
-            <canvas
-              className="artwork-webgl bg-black p-0 m-auto block absolute inset-0"
-              id="artwork-webgl"
-            ></canvas>
-            {/* <Image
-              src="https://picsum.photos/600/600"
-              width={200}
-              height={200}
-              alt="Profile image"
-              className="bg-cover"
-            /> */}
-            <button type="button" className="absolute right-1 top-1">
-              <Icons.zoom />
-            </button>
-          </ProfileImage>
+      <div className="flex flex-col pt-4">
+        <div className="flex gap-6 mb-6">
+          {!showSnapshotModal && (
+            <ArtworkCanvas
+              width={128}
+              height={128}
+              onClick={() => {
+                setShowSnapshotModal(true);
+              }}
+            >
+              <button type="button" className="absolute right-1 top-1">
+                <Icons.zoom />
+              </button>
+            </ArtworkCanvas>
+          )}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1 mt-2">
               <div className="flex gap-[6px] items-center">

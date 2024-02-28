@@ -26,6 +26,7 @@ const Modal = ({
     setIsOpen(false);
   };
 
+  if (!isOpen) return null;
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[100]" onClose={onCloseModal}>
