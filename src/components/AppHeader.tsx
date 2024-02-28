@@ -121,9 +121,6 @@ const AppHeaderContent = ({
               </Subtitle>
             </div>
           </ContentWrapper>
-          <ContentWrapper>
-            <Title>Account</Title>
-          </ContentWrapper>
         </>
       ),
     },
