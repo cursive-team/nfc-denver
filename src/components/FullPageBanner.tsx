@@ -1,6 +1,7 @@
 import { APP_CONFIG } from "@/shared/constants";
 import { Icons } from "./Icons";
 import { Card } from "./cards/Card";
+import useSettings from "@/hooks/useSettings";
 
 interface FullPageBannerProps {
   description: string;
@@ -11,8 +12,14 @@ const FullPageBanner = ({
   description,
   iconSize = 80,
 }: FullPageBannerProps) => {
+  const { pageHeight } = useSettings();
   return (
-    <div className="flex text-center h-full">
+    <div
+      style={{
+        minHeight: `${pageHeight}px`,
+      }}
+      className="flex text-center h-full"
+    >
       <div className="flex flex-col gap-8 my-auto mx-auto px-10">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 mx-auto">
