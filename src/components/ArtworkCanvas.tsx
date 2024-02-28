@@ -142,8 +142,6 @@ const ArtworkCanvas = ({
       timestamp: s.timestamp,
     }));
 
-    if (!isLoaded) return;
-
     window?.render(); // render the artwork
   }, [height, isLoaded, width, pubKey, signatures, slider, rangeValue]);
 
