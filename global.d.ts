@@ -25,5 +25,6 @@ declare global {
     params: any;
     myPubKey: string;
     stamp: any;
+    params: any;
   }
 }

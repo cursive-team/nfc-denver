@@ -5,7 +5,6 @@ import {
 } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
 
 const Label = classed.span("text-gray-10 text-xs font-light");
 const Description = classed.span("text-center text-gray-12 text-sm font-light");
@@ -62,6 +61,17 @@ const ArtworkCanvas = ({
   const [signatures, setSignatures] = useState<PubKeyArrayElement[]>([]);
 
   useEffect(() => {
+    // define global variables for the artwork
+    window.artworkWidth = width ?? 200;
+    window.artworkHeight = height ?? 200;
+  }, []);
+
+  const renderRangeStep = (newIndex: number) => {
+    // params changed so we need to re-render
+    window.params.upToPubKey = newIndex;
+    window?.render();
+  };
+  useEffect(() => {
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
       const users = getUsers();
@@ -115,33 +125,40 @@ const ArtworkCanvas = ({
   }, [pubKey]);
 
   useEffect(() => {
-    if (pubKey === "") {
-      return;
-    }
+    if (pubKey === "") return;
+    if (signatures?.length === 0) return;
 
-    if (!signatures) {
-      return;
-    }
+    if (!isLoaded) return;
 
-    window.artworkWidth = width ?? 200;
-    window.artworkHeight = height ?? 200;
     window.params = {
       fill: false,
       stroke: true,
       abstract: false,
       upToPubKey: slider ? rangeValue : signatures.length,
     };
+
     window.signatures = signatures.map((s) => ({
       pubKey: s.pubKey,
       timestamp: s.timestamp,
     }));
 
-    if (!isLoaded) {
-      return;
-    }
+    if (!isLoaded) return;
 
     window?.render(); // render the artwork
-  }, [height, isLoaded, width, pubKey, rangeValue]);
+  }, [height, isLoaded, width, pubKey, signatures, slider, rangeValue]);
+
+  const onRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value);
+
+    setRangeValue(newValue); // Update state on change
+
+    renderRangeStep(newValue);
+  };
+
+  const currentRangeIndex = rangeValue - 1;
+
+  // no signatures, canvas is empty
+  if (signatures?.length === 0) return;
 
   return pubKey === "" ? (
     <div
@@ -168,12 +185,7 @@ const ArtworkCanvas = ({
               min={1}
               max={signatures.length}
               value={rangeValue} // Bind the value to state
-              onChange={(e) => {
-                const newValue = parseInt(e.target.value);
-                if (newValue > rangeValue) {
-                  setRangeValue(newValue); // Update state on change
-                }
-              }}
+              onChange={onRangeChange}
               className="w-full h-0.5 bg-gray-700 accent-gray-12 appearance-none"
             />
           </label>
@@ -189,13 +201,13 @@ const ArtworkCanvas = ({
               <>
                 <Description>
                   Snapshot when{" "}
-                  {signatures[rangeValue - 1].person
-                    ? `you met ${signatures[rangeValue - 1].name}`
-                    : `you went to ${signatures[rangeValue - 1].name}`}
+                  {signatures[currentRangeIndex]?.person
+                    ? `you met ${signatures[currentRangeIndex].name}`
+                    : `you went to ${signatures[currentRangeIndex].name}`}
                 </Description>
                 <Label className="text-center ">
                   {new Date(
-                    signatures[rangeValue - 1].timestamp
+                    signatures[currentRangeIndex].timestamp
                   ).toLocaleString()}
                 </Label>
               </>

@@ -19,6 +19,7 @@ import {
 import { JUB_SIGNAL_MESSAGE_TYPE } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
 import { SnapshotModal } from "@/components/modals/SnapshotModal";
+import Image from "next/image";
 import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
@@ -441,7 +442,7 @@ export default function Social() {
               }}
               className="size-32 rounded-[4px] relative overflow-hidden"
             >
-              <ArtworkCanvas width={128} height={128}></ArtworkCanvas>
+              <ArtworkCanvas width={128} height={128} />
               <button type="button" className="absolute right-1 top-1 z-1">
                 <Icons.zoom />
               </button>
