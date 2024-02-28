@@ -19,7 +19,6 @@ import {
 import { JUB_SIGNAL_MESSAGE_TYPE } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
 import { SnapshotModal } from "@/components/modals/SnapshotModal";
-import Image from "next/image";
 import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
@@ -436,17 +435,17 @@ export default function Social() {
       <div className="flex flex-col pt-4">
         <div className="flex gap-6 mb-6">
           {!showSnapshotModal && (
-            <ArtworkCanvas
-              width={128}
-              height={128}
+            <div
               onClick={() => {
                 setShowSnapshotModal(true);
               }}
+              className="size-32 rounded-[4px] relative overflow-hidden"
             >
-              <button type="button" className="absolute right-1 top-1">
+              <ArtworkCanvas width={128} height={128}></ArtworkCanvas>
+              <button type="button" className="absolute right-1 top-1 z-1">
                 <Icons.zoom />
               </button>
-            </ArtworkCanvas>
+            </div>
           )}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1 mt-2">
