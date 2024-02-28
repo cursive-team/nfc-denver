@@ -135,16 +135,11 @@ const ArtworkCanvas = ({
     if (signatures?.length === 0) return;
     if (!isLoaded) return;
 
-    // prevent after first render to run again
-    if (firstRenderRef.current) return;
-
-    firstRenderRef.current = true;
-
     window.params = {
       fill: false,
       stroke: true,
       abstract: false,
-      upToPubKey: 1, // slider ? rangeValue : signatures.length,
+      upToPubKey: rangeValue,
     };
 
     window.signatures = signatures.map((s) => ({
@@ -153,7 +148,7 @@ const ArtworkCanvas = ({
     }));
 
     window?.render(); // render the artwork
-  }, [height, isLoaded, width, pubKey, signatures, slider]);
+  }, [height, isLoaded, width, pubKey, signatures, slider, rangeValue]);
 
   const onRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseInt(e.target.value);
