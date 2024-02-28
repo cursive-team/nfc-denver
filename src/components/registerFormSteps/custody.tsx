@@ -86,7 +86,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
               name="custody"
               value="server"
               label="Server custody"
-              description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
+              description="Your ETHDenver interaction data can be read by the app server, but login just requieres a magic link."
               checked={wantsServerCustody}
               onChange={() => {
                 setValue("wantsServerCustody", true, {
@@ -95,9 +95,10 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
               }}
             />
             <span className="text-gray-11 text-sm">
-              If we have your consent, Cursive will use client-side performance
+              With your consent, Cursive will use client-side performance
               analytics to determine how to improve the app. This will never
-              include any identifying information.
+              include any identifying information or be shared with third
+              parties.
             </span>
             <Checkbox
               id="allowAnalytics"
@@ -113,7 +114,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
         }
       >
         <Button type="submit">
-          {wantsServerCustody ? "Create Account" : "Next: Choose Password"}
+          {wantsServerCustody ? "Create account" : "Next: Choose Password"}
         </Button>
       </FormStepLayout>
     </div>

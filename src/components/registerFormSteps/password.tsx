@@ -70,8 +70,7 @@ const RegisterPassword = ({ onBack, onSuccess }: RegisterFormStepProps) => {
         />
         <span className="text-gray-11 text-sm">
           This master password is used to encrypt a backup of your interaction
-          data on our server. You are responsible for saving this password
-          and/or manually backing up your data from the app.
+          data on our server. You are responsible for saving this password.
         </span>
         <Button type="submit">Create Account</Button>
       </FormStepLayout>

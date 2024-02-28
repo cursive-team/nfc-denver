@@ -78,7 +78,7 @@ const RegisterSocial = ({ onBack, onSuccess }: RegisterFormStepProps) => {
             <Input
               type="text"
               label="X (Optional)"
-              placeholder="twitter.com/username"
+              placeholder="Twitter username"
               error={errors.twitterUsername?.message}
               {...register("twitterUsername", {
                 onChange: (e) => {

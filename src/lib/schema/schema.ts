@@ -82,16 +82,7 @@ export const ProfileSchema = object({
 export const RegisterSchema = ProfileSchema.shape({
   email: string()
     .email("Invalid email address.")
-    .required("This field is required.")
-    .test({
-      name: "signed-email",
-      message: "Email is not registered for Eth Denver.",
-      test: async function (value) {
-        if (!value) return true;
-        const isEmailRegistered = await Promise.resolve(true);
-        return !isEmailRegistered; // email is not registered show error
-      },
-    }),
+    .required("This field is required."),
   code: string()
     .min(6, "Code must be 6 characters.")
     .max(6, "Code must be 6 characters.")
