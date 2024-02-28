@@ -104,7 +104,7 @@ const StoreModalItem = ({
             />
           </div>
           <div className="flex flex-col gap-0.5">
-            <div className="flex flex-col text-center">
+            <div className="flex flex-col text-center items-center gap-1">
               <span className="text-xs font-light text-gray-900">
                 {storeItem.sponsor}
               </span>
@@ -114,7 +114,7 @@ const StoreModalItem = ({
                   Sold Out
                 </span>
               ) : storeItem.buidlCost > 0 ? (
-                <PointCard label="Cost" point={storeItem.buidlCost} />
+                <PointCard point={storeItem.buidlCost} />
               ) : null}
             </div>
           </div>
@@ -123,7 +123,7 @@ const StoreModalItem = ({
               <span className="text-xs font-light text-gray-900">
                 {isItemRedeemed
                   ? "You have already redeemed this item!"
-                  : "Display this QR Code at the BUIDL Store to redeem your item!"}
+                  : "Present this QR code at the BUIDL Store!"}
               </span>
               {!isItemRedeemed && (
                 <QRCodeWrapper>
@@ -142,7 +142,7 @@ const StoreModalItem = ({
           <ListLayout
             label={
               areQuestRequirementsSatisfied
-                ? "Click on the following quest to generate a proof and redeem your item"
+                ? "Generate a ZK proof to redeem your item!"
                 : "Complete the following quest to redeem"
             }
           >

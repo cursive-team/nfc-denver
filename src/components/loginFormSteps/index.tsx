@@ -51,7 +51,13 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
       });
 
       if (!response.ok) {
-        return Promise.reject("Error requesting code. Please try again.");
+        const err: any = await response
+          .json()
+          .then((text) => text?.error || text);
+
+        return Promise.reject(
+          err || "Error requesting code. Please try again."
+        );
       }
 
       return Promise.resolve();
@@ -65,8 +71,12 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
         onSuccess: () => {
           onSuccess?.();
         },
-        onError: () => {
-          toast.error("An unexpected error occurred. Please try again.");
+        onError: (err: any) => {
+          toast.error(
+            err ||
+              err?.message ||
+              "An unexpected error occurred. Please try again."
+          );
         },
       }
     );

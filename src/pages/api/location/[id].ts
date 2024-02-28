@@ -22,6 +22,7 @@ export default async function handler(
           questRequirements: {
             select: {
               id: true,
+              questId: true,
             },
           },
         },

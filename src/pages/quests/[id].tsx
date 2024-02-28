@@ -69,9 +69,11 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <div className="flex gap-3 items-center">
-          <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
-          <span className="text-xl font-light leading-6">{title}</span>
+        <div className="grid grid-cols-[40px_1fr] gap-2 xs:gap-3 items-center">
+          <div className="size-10 bg-slate-200 rounded-full"></div>
+          <span className="text-lg xs:text-xl font-light leading-6">
+            {title}
+          </span>
         </div>
         <button
           type="button"
