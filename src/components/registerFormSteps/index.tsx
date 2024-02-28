@@ -11,6 +11,7 @@ import { Input } from "../Input";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import useSettings from "@/hooks/useSettings";
+import { REGISTRATION_GET_CODE_STATE } from "@/pages/api/register/get_code";
 
 const RegisterEmailSchema = RegisterSchema.pick(["email"]);
 type LoginFormProps = InferType<typeof RegisterEmailSchema>;
@@ -53,28 +54,32 @@ const RegisterStepForm = ({
       register: { ...getState().register, email },
     });
 
-    await fetch("/api/register/get_code", {
+    const response = await fetch("/api/register/get_code", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, iykRef, mockRef }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          onSuccess?.();
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.error) {
-          throw new Error(data.error);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        toast.error(error.message);
-      });
+    });
+
+    if (response.ok) {
+      onSuccess?.();
+    } else {
+      const { error, state } = await response.json();
+      console.error("Error:", error);
+
+      if (state === REGISTRATION_GET_CODE_STATE.CODE_INVALID) {
+        toast.error("Invalid tap! Please try again.");
+      } else if (state === REGISTRATION_GET_CODE_STATE.EMAIL_INVALID) {
+        toast.error(
+          "Please make sure you register with the same email you used to sign up for ETHDenver."
+        );
+      } else if (state === REGISTRATION_GET_CODE_STATE.EMAIL_REGISTERED) {
+        toast.error("This email is already registered.");
+      } else {
+        toast.error("Error requesting email code. Please try again.");
+      }
+    }
   };
 
   const registerEmailMutation = useMutation({
