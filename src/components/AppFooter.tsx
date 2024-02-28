@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Icons } from "./Icons";
 import { cn } from "@/lib/client/utils";
 import { usePathname } from "next/navigation";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 interface RouterItem {
   label: string;
@@ -13,12 +15,21 @@ interface RouterItem {
 }
 
 const TabItem = ({ label, href, icon, isActive, iconSize }: RouterItem) => {
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
   const Icon: any = icon;
 
   const textColor = isActive ? "text-white" : "text-gray-10";
 
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      onClick={() => {
+        actions.updateStateFromAction({
+          ...getState(),
+          profileActiveTab: "activity-feed",
+        });
+      }}
+    >
       <div className="flex flex-col text-center items-center justify-center gap-1">
         <Icon size={iconSize || 24} className={cn("duration-200", textColor)} />
         <span

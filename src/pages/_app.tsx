@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { StateMachineProvider } from "little-state-machine";
 import type { AppProps } from "next/app";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 
@@ -23,6 +24,7 @@ const queryClient = new QueryClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   const { isIncognito } = useSettings();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageHeight, setPageHeight] = useState(0);
   const showFooter = pageProps?.showFooter ?? true;

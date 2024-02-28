@@ -25,6 +25,8 @@ import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Spinner } from "@/components/Spinner";
 import { CircleCard } from "@/components/cards/CircleCard";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 interface ContactCardProps {
   name: string;
@@ -179,6 +181,8 @@ export default function Social() {
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
   const [isLoading, setLoading] = useState(false);
 
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
+
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
     profileData: Profile,
@@ -244,6 +248,7 @@ export default function Social() {
 
     return [
       {
+        id: "activity-feed",
         label: "Activity Feed",
         children: (
           <div className="flex flex-col gap-4">
@@ -277,6 +282,7 @@ export default function Social() {
         ),
       },
       {
+        id: "contacts",
         label: "Contacts",
         children: (
           <div className="flex flex-col gap-5">
@@ -315,6 +321,7 @@ export default function Social() {
         ),
       },
       {
+        id: "pending",
         label: "Pending",
         badge: sortedPendingUserList.length > 0,
         children: (
@@ -409,6 +416,9 @@ export default function Social() {
   }
 
   if (!profile || !tabsItems) return null;
+
+  const currentActiveTab = getState().profileActiveTab ?? tabsItems[0].id;
+
   return (
     <>
       <SnapshotModal
@@ -454,7 +464,17 @@ export default function Social() {
           </div>
         </div>
       </div>
-      <Tabs items={tabsItems} />
+      <Tabs
+        items={tabsItems}
+        defaultTab={currentActiveTab}
+        onChange={(activeTabId) => {
+          actions.updateStateFromAction({
+            ...getState(),
+            // keep track of the active tab
+            profileActiveTab: activeTabId,
+          });
+        }}
+      />
     </>
   );
 }
