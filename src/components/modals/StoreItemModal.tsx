@@ -142,7 +142,7 @@ const StoreModalItem = ({
           <ListLayout
             label={
               areQuestRequirementsSatisfied
-                ? "Click on the following quest to generate a proof and redeem your item"
+                ? "Generate a ZK proof to redeem your item!"
                 : "Complete the following quest to redeem"
             }
           >
