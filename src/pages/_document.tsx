@@ -39,7 +39,6 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
-        <script async src="/bundle.js"></script>
       </body>
     </Html>
   );
