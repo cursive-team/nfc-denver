@@ -175,6 +175,8 @@ const AppHeaderContent = ({
               ...getState(),
               profileView: ProfileDisplayState.VIEW,
             });
+            // reset active menu
+            setActiveMenuIndex(null);
           }}
           className="flex gap-3 items-center ml-auto"
         >

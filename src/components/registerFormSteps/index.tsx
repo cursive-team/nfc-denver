@@ -20,6 +20,7 @@ export interface RegisterFormStepProps {
   mockRef?: string;
   onSuccess?: () => void;
   onBack?: () => void;
+  title?: string;
 }
 
 const RegisterStepForm = ({
@@ -89,8 +90,8 @@ const RegisterStepForm = ({
 
   return (
     <FormStepLayout
-      title="Welcome to ETHDenver"
-      description={eventDate}
+      title="Register"
+      description={`Welcome to ETHDenver`}
       className="pt-4"
       onSubmit={handleSubmit(onSubmit)}
     >
