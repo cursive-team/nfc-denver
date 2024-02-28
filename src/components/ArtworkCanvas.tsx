@@ -4,7 +4,7 @@ import {
   getUsers,
 } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Label = classed.span("text-gray-10 text-xs font-light");
 const Description = classed.span("text-center text-gray-12 text-sm font-light");
@@ -53,10 +53,11 @@ const ArtworkCanvas = ({
   width,
   height,
   pubKey,
-  slider = false,
+  slider,
   ...props
 }: ArtworkCanvasProps) => {
   const isLoaded = useScripts();
+  const firstRenderRef = useRef<boolean>(false);
   const [rangeValue, setRangeValue] = useState<number>(1);
   const [signatures, setSignatures] = useState<PubKeyArrayElement[]>([]);
 
@@ -67,10 +68,15 @@ const ArtworkCanvas = ({
   }, []);
 
   const renderRangeStep = (newIndex: number) => {
-    // params changed so we need to re-render
+    if (newIndex < rangeValue) return;
+    setRangeValue(newIndex);
+
+    // change the params for the artwork
     window.params.upToPubKey = newIndex;
+    // params changed so we need to re-render
     window?.render();
   };
+
   useEffect(() => {
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
@@ -127,14 +133,18 @@ const ArtworkCanvas = ({
   useEffect(() => {
     if (pubKey === "") return;
     if (signatures?.length === 0) return;
-
     if (!isLoaded) return;
+
+    // prevent after first render to run again
+    if (firstRenderRef.current) return;
+
+    firstRenderRef.current = true;
 
     window.params = {
       fill: false,
       stroke: true,
       abstract: false,
-      upToPubKey: slider ? rangeValue : signatures.length,
+      upToPubKey: 1, // slider ? rangeValue : signatures.length,
     };
 
     window.signatures = signatures.map((s) => ({
@@ -143,13 +153,10 @@ const ArtworkCanvas = ({
     }));
 
     window?.render(); // render the artwork
-  }, [height, isLoaded, width, pubKey, signatures, slider, rangeValue]);
+  }, [height, isLoaded, width, pubKey, signatures, slider]);
 
   const onRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseInt(e.target.value);
-
-    setRangeValue(newValue); // Update state on change
-
     renderRangeStep(newValue);
   };
 
