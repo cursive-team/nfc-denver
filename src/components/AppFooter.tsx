@@ -26,6 +26,7 @@ const TabItem = ({ label, href, icon, isActive, iconSize }: RouterItem) => {
       onClick={() => {
         actions.updateStateFromAction({
           ...getState(),
+          // on navigation, reset the active tab to the default
           profileActiveTab: "activity-feed",
         });
       }}
