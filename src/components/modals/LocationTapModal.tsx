@@ -38,7 +38,7 @@ const LocationTapModal = ({
   const { isPending: isLoadingQuests, data: quests = [] } = useFetchQuests();
   const { numRequirementsSatisfied } = useQuestRequirements(quests);
   const locationQuestRequirementIds = location.questRequirements.map(
-    (quest) => quest.id
+    (questReq) => questReq.questId
   );
   const [mintDisplayState, setMintDisplayState] = useState<MintDisplayState>(
     MintDisplayState.DISPLAY

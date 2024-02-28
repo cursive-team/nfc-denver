@@ -92,5 +92,6 @@ export type ItemWithCompletion = ItemWithRequirements & {
 export type LocationWithQuests = Location & {
   questRequirements: {
     id: number;
+    questId: number;
   }[];
 };

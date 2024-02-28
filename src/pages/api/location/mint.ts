@@ -70,7 +70,7 @@ export default async function handler(
     const sanitizedEmail = user.email.replace(/\+.+?(?=@)/, "");
 
     // Call email wallet minting service
-    const response = await fetch("http://api.emailwallet.org/mint", {
+    const response = await fetch("https://issuerapi.emailwallet.org/mint", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

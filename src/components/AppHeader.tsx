@@ -37,7 +37,7 @@ export const AppBackHeader = ({
   const router = useRouter();
 
   return (
-    <div className="flex justify-between items-center h-[60px]">
+    <div className="flex justify-between items-center h-[50px] xs:h-[60px]">
       <button
         type="button"
         className="flex items-center gap-1"
@@ -155,7 +155,7 @@ const AppHeaderContent = ({
 
   return (
     <div className="fixed inset-0 w-full overflow-auto px-3 xs:px-4 z-10 h-full bg-black">
-      <div className="flex h-[60px]">
+      <div className="flex h-[40px] xs:h-[60px]">
         {showBackButton && (
           <button
             onClick={onBack}

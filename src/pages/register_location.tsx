@@ -167,7 +167,7 @@ export default function RegisterLocation() {
         />
         <Checkbox
           id="emailWallet"
-          label="Enable experimental emailwallet.org minting"
+          label="Enable experimental emailwallet.org NFT minting"
           checked={emailWallet}
           onChange={(enabled) => {
             setValue("emailWallet", enabled);

@@ -100,6 +100,8 @@ const QuestCard = ({
         />
         {isCompleted ? (
           <Card.Description>{"Quest Complete"}</Card.Description>
+        ) : completedSigs === numSigsRequired ? (
+          <Card.Description>{`Prove completion to unlock rewards!`}</Card.Description>
         ) : (
           <Card.Description>{`${
             completedSigs || 0

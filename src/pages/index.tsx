@@ -285,7 +285,9 @@ export default function Social() {
           <div className="flex flex-col gap-5">
             {contactUsersList.length === 0 && (
               <div className="flex justify-center items-center h-40">
-                <span className="text-gray-10">No contacts yet</span>
+                <span className="text-gray-10">
+                  {"No people you've tapped"}
+                </span>
               </div>
             )}
             {contactUsersList.length !== 0 &&
@@ -322,7 +324,9 @@ export default function Social() {
           <div className="flex flex-col gap-5">
             {sortedPendingUserList.length === 0 && (
               <div className="flex justify-center items-center h-40">
-                <span className="text-gray-10">No pending taps</span>
+                <span className="text-gray-10">
+                  {"No people you haven't tapped back"}
+                </span>
               </div>
             )}
             {sortedPendingUserList.length !== 0 && (
@@ -439,7 +443,9 @@ export default function Social() {
                 <PointCard point={buidlBalance} />
               </div>
               <span className="text-sm font-light text-gray-10">
-                {numConnections === 1 ? `1 tap` : `${numConnections} taps`}
+                {numConnections === 1
+                  ? `1 tap given`
+                  : `${numConnections} taps given`}
               </span>
             </div>
             <Link href="/leaderboard">
