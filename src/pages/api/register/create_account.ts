@@ -66,15 +66,16 @@ export default async function handler(
     passwordHash,
   } = validatedData;
 
-  if (!displayNameRegex.test(displayName)) {
+  if (/^\s|\s$/.test(displayName) || displayName.length > 20) {
     return res.status(400).json({
       error:
-        "Invalid display name. Must be alphanumeric and less than 20 characters",
+        "Display name cannot have leading or trailing whitespace and must be less than or equal to 20 characters",
     });
   }
 
   // Validate iykRef corresponds to an unregistered person chip
-  const enableMockRef = mockRef === "true";
+  const enableMockRef =
+    process.env.ALLOW_MOCK_REF === "true" && mockRef === "true";
   const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
   if (chipId === undefined) {
     return res.status(400).json({ error: "Invalid iykRef" });
@@ -92,9 +93,11 @@ export default async function handler(
     return res.status(400).json({ error: "Card already registered" });
   }
 
-  const emailMatchesChipId = verifyEmailForChipId(chipId, email);
-  if (!emailMatchesChipId) {
-    return res.status(400).json({ error: "Email does not match iykRef" });
+  if (!mockRef) {
+    const emailMatchesChipId = verifyEmailForChipId(chipId, email);
+    if (!emailMatchesChipId) {
+      return res.status(400).json({ error: "Email does not match iykRef" });
+    }
   }
 
   // Verify the signin code is valid

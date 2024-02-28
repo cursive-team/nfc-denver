@@ -104,6 +104,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     if (!response.ok) {
       console.error(`Error updating profile: ${data.error}`);
       toast.error("Error updating profile! Please try again.");
+      setLoading(false); // reset login
       return;
     }
 
@@ -130,6 +131,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     if (!backupData) {
       console.error("Error creating backup!");
       toast.error("Error creating backup! Please try again.");
+      setLoading(false); // reset login
       return;
     }
 
@@ -140,6 +142,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     if (!wantsServerCustody && !masterPassword) {
       console.error("Master password required");
       toast.error("Master password required");
+      setLoading(false); // reset login
       return;
     }
 
@@ -163,6 +166,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
     if (!backupResponse.ok) {
       console.error("Error saving backup!");
       toast.error("Error saving backup! Please try again.");
+      setLoading(false); // reset login
       return;
     }
 

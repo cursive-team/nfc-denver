@@ -96,11 +96,48 @@ export const getMockChipTypeFromChipId = (
 /**
  * Given a chipId and email, check that the email is associated with the chipId
  * Returns boolean indicating match
- * TEMPORARY: ALWAYS RETURNS TRUE
+ * Checks Tokenproof API for email
  */
-export const verifyEmailForChipId = (
+export const verifyEmailForChipId = async (
   chipId: string,
   email: string
-): boolean => {
-  return true;
+): Promise<boolean> => {
+  try {
+    const chipIdInt = parseInt(chipId);
+    if (isNaN(chipIdInt)) {
+      return false;
+    }
+
+    const hexChipId = chipIdInt.toString(16).padStart(14, "0");
+    const response = await fetch(
+      `https://ethdenver-api-pro.onrender.com/external/applications/tag/${hexChipId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: process.env.TOKENPROOF_API_KEY!,
+        },
+      }
+    );
+    if (!response.ok) {
+      return false;
+    }
+
+    const { address } = await response.json();
+    if (!address) {
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmail = emailRegex.test(address);
+
+    // Accept eth address based registrations
+    if (!isEmail) {
+      return true;
+    }
+
+    return address.toLowerCase() === email.toLowerCase();
+  } catch (error) {
+    console.error("Error verifying email for chipId", error);
+    return false;
+  }
 };

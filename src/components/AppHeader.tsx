@@ -121,9 +121,6 @@ const AppHeaderContent = ({
               </Subtitle>
             </div>
           </ContentWrapper>
-          <ContentWrapper>
-            <Title>Account</Title>
-          </ContentWrapper>
         </>
       ),
     },
@@ -175,6 +172,8 @@ const AppHeaderContent = ({
               ...getState(),
               profileView: ProfileDisplayState.VIEW,
             });
+            // reset active menu
+            setActiveMenuIndex(null);
           }}
           className="flex gap-3 items-center ml-auto"
         >

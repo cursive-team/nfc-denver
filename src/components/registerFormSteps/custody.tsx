@@ -63,9 +63,16 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
         header={
           <fieldset className="flex flex-col gap-6">
             <span className="text-gray-11 text-sm">
-              IYK has partnerned with Cursive to integrate ZK tech into this
-              experience to enable full data ownership and portability. Choose
-              if you want to enable it.
+              IYK has partnerned with{" "}
+              <a
+                href="https://cursive.team"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <u>Cursive</u>
+              </a>{" "}
+              to integrate ZK tech into this experience to enable full data
+              ownership and portability. Choose if you want to enable it.
             </span>
             <Radio
               id="selfCustody"
@@ -86,26 +93,10 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
               name="custody"
               value="server"
               label="Server custody"
-              description="Your ETHDenver interaction data can be read by the app server, but login just requieres a magic link."
+              description="Your ETHDenver interaction data can be read by the app server, but login just requires an email code."
               checked={wantsServerCustody}
               onChange={() => {
                 setValue("wantsServerCustody", true, {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            <span className="text-gray-11 text-sm">
-              With your consent, Cursive will use client-side performance
-              analytics to determine how to improve the app. This will never
-              include any identifying information or be shared with third
-              parties.
-            </span>
-            <Checkbox
-              id="allowAnalytics"
-              label="I consent to sharing analytics data"
-              checked={allowsAnalytics}
-              onChange={() => {
-                setValue("allowsAnalytics", !allowsAnalytics, {
                   shouldValidate: true,
                 });
               }}
