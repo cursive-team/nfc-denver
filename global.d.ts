@@ -23,5 +23,6 @@ declare global {
     artworkWidth: number;
     params: any;
     myPubKey: string;
+    stamp: any;
   }
 }

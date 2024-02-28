@@ -203,19 +203,21 @@ export default function Social() {
       timestamp: Date.now(),
     }));
 
-    window.onload = (_) => {
-      window.render();
+    window.render();
 
-      // let stampPFP = window.stamp(myPubKey, 512, 512);
-      // // console.log(stampPFP.fillColor);
-      // // console.log(stampPFP.strokeColor);
-      // // console.log(stampPFP.background);
-      // console.log(`MyPubKey img\n`, stampPFP.getImage());
+    // window.onload = (_) => {
 
-      // let index = 49;
-      // let stamp = window.stampWithIndex(index, window.signatures[index - 1].pubKey);
-      // console.log(`Hash ${index - 1} img\n`, stamp.getImage());
-    };
+    //   let stampPFP = window.stamp(generateHash, 512, 512);
+    //   window.
+    //   // // console.log(stampPFP.fillColor);
+    //   // // console.log(stampPFP.strokeColor);
+    //   // // console.log(stampPFP.background);
+    //   // console.log(`MyPubKey img\n`, stampPFP.getImage());
+
+    //   // let index = 49;
+    //   // let stamp = window.stampWithIndex(index, window.signatures[index - 1].pubKey);
+    //   // console.log(`Hash ${index - 1} img\n`, stamp.getImage());
+    // };
   }, []);
 
   // Helper function to compute data needed to populate tabs
@@ -458,7 +460,7 @@ export default function Social() {
             }}
           >
             <canvas
-              className="bg-black p-0 m-auto block absolute inset-0"
+              className="artwork-webgl bg-black p-0 m-auto block absolute inset-0"
               id="artwork-webgl"
             ></canvas>
             {/* <Image

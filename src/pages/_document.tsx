@@ -39,7 +39,7 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
-        <Script defer src="/bundle.js"></Script>
+        <script async src="/bundle.js"></script>
       </body>
     </Html>
   );
