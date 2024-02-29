@@ -18,9 +18,9 @@ import { getClaveInviteLink } from "@/lib/server/clave";
 const createAccountSchema = object({
   iykRef: string().required(),
   mockRef: string().optional().default(undefined),
-  email: string().email().required(),
+  email: string().email().trim().lowercase().required(),
   code: string().required(),
-  displayName: string().required(),
+  displayName: string().trim().required(),
   wantsServerCustody: boolean().required(),
   allowsAnalytics: boolean().required(),
   wantsExperimentalFeatures: boolean().required(),
