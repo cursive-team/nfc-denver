@@ -212,35 +212,34 @@ const ArtworkSnapshot = ({
               />
             </label>
           )}
-          <div className="flex flex-col gap-4">
+          <div className="relative flex flex-col gap-4">
             {signatures?.map(({ person, name, timestamp }, index) => {
               const showCurrent = rangeValue === index + 1;
               const isFirstElement = rangeValue === 1;
 
               return (
-                <div className="relative" key={index}>
-                  <div
-                    className={cn(
-                      "absolute inset-0 flex flex-col gap-1 w-full duration-300 ease-in",
-                      {
-                        "opacity-0": !showCurrent,
-                        "opacity-100": showCurrent,
-                      }
-                    )}
-                  >
-                    <Description>
-                      {isFirstElement
-                        ? "Your personal stamp"
-                        : `Snapshot when ${
-                            person ? `you met ${name}` : `you went to ${name}`
-                          }`}
-                    </Description>
-                    <Label className="text-center">
-                      {isFirstElement && signatures.length > 1
-                        ? "Navigate to see your stamp collection develop!"
-                        : new Date(timestamp).toLocaleString()}
-                    </Label>
-                  </div>
+                <div
+                  key={index}
+                  className={cn(
+                    "absolute inset-0 flex flex-col gap-1 w-full duration-300 ease-in",
+                    {
+                      "opacity-0": !showCurrent,
+                      "opacity-100": showCurrent,
+                    }
+                  )}
+                >
+                  <Description>
+                    {isFirstElement
+                      ? "Your personal stamp"
+                      : `Snapshot when ${
+                          person ? `you met ${name}` : `you went to ${name}`
+                        }`}
+                  </Description>
+                  <Label className="text-center">
+                    {isFirstElement && signatures.length > 1
+                      ? "Navigate to see your stamp collection develop!"
+                      : new Date(timestamp).toLocaleString()}
+                  </Label>
                 </div>
               );
             })}
