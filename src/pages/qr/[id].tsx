@@ -34,6 +34,7 @@ export type QRCodeData = {
   userEncryptionPublicKey: string;
   claveWalletAddress?: string;
   localBuidlBalance: number;
+  claveBuidlBalance: number;
   totalBuidlBalance: number;
 };
 
@@ -78,16 +79,18 @@ const QRPage = () => {
         return;
       }
 
-      let totalBuidlBalance = buidlBalance;
+      let claveBuidlBalance = 0;
       if (questProof.user.claveWallet) {
         try {
-          totalBuidlBalance += await getClaveBuidlBalance(
+          claveBuidlBalance = await getClaveBuidlBalance(
             questProof.user.claveWallet
           );
         } catch (error) {
+          toast.error("Failed to get user's Clave buidl balance");
           console.error("Failed to get Clave buidl balance: ", error);
         }
       }
+      const totalBuidlBalance = buidlBalance + claveBuidlBalance;
 
       setQRCodeData({
         id: questProof.id,
@@ -102,6 +105,7 @@ const QRPage = () => {
           ? questProof.user.claveWallet
           : undefined,
         localBuidlBalance: buidlBalance,
+        claveBuidlBalance,
         totalBuidlBalance,
       });
     };
@@ -252,6 +256,9 @@ const QRPage = () => {
                 {qrCodeData.sponsor}
               </span>
               <h2 className="text-sm text-gray-12">{qrCodeData.itemName}</h2>
+              <span className="text-xs font-light text-gray-900">
+                {`BUIDL cost: ${qrCodeData.buidlCost}`}
+              </span>
             </div>
           </div>
           {displayState === QRPageDisplayState.SUCCESS && (
@@ -275,6 +282,20 @@ const QRPage = () => {
           >
             {QRPageDisplayStateText[displayState]}
           </Button>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col text-center">
+              <h2 className="text-sm text-gray-12">{"User Info"}</h2>
+              <span className="text-xs font-light text-gray-900">
+                {`Unminted BUIDL balance: ${qrCodeData.localBuidlBalance}`}
+              </span>
+              <span className="text-xs font-light text-gray-900">
+                {`Clave BUIDL balance: ${qrCodeData.claveBuidlBalance}`}
+              </span>
+              <span className="text-xs font-light text-gray-900">
+                {`Total BUIDL balance: ${qrCodeData.totalBuidlBalance}`}
+              </span>
+            </div>
+          </div>
           <Button loading={loading} disabled={loading} onClick={handleMint}>
             Mint BUIDL
           </Button>
