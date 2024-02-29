@@ -25,7 +25,6 @@ model User {
   signaturePublicKey  String
   psiRound1Message    String
 
-  wantsExperimentalFeatures Boolean @default(false)
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
   passwordSalt              String?

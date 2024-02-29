@@ -36,7 +36,7 @@ export const saveUserRound1Output = async (
   const userId = await hashPublicKeyToUUID(userEncPk);
   const userPsiState = await getUserPsiState(userId);
 
-  // console.log("Saving round 1 output for user", userId);
+  console.log("Saving round 1 output for user", userId);
 
   if (!userPsiState) {
     await saveUserPsiState(userId, {
@@ -56,7 +56,7 @@ export const saveUserRound2Message = async (
   userId: string,
   messageRound2: string
 ) => {
-  // console.log("Saving round 2 message for user", userId);
+  console.log("Saving round 2 message for user", userId);
 
   const userPsiState = await getUserPsiState(userId);
 
@@ -78,7 +78,7 @@ export const saveUserRound2Output = async (
   userId: string,
   round2Output: string
 ) => {
-  // console.log("Saving round 2 output for user", userId);
+  console.log("Saving round 2 output for user", userId);
 
   const userPsiState = await getUserPsiState(userId);
 
@@ -102,7 +102,7 @@ export const saveUserRound3Message = async (
   userId: string,
   messageRound3: string
 ) => {
-  // console.log("Saving round 3 message for user", userId);
+  console.log("Saving round 3 message for user", userId);
 
   const userPsiState = await getUserPsiState(userId);
 

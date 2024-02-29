@@ -4,10 +4,7 @@ import prisma from "@/lib/server/prisma";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<
-    | { psiRound1Message: string; wantsExperimentalFeatures: boolean }
-    | ErrorResponse
-  >
+  res: NextApiResponse<{ psiRound1Message: string } | ErrorResponse>
 ) {
   if (req.method === "GET") {
     const { id } = req.query;
@@ -22,7 +19,6 @@ export default async function handler(
         where: { id: parseInt(id) },
         select: {
           psiRound1Message: true,
-          wantsExperimentalFeatures: true,
         },
       });
       if (!user) {

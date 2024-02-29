@@ -7,6 +7,7 @@ import {
   generateAuthToken,
   verifySigninCode,
 } from "@/lib/server/auth";
+import { displayNameRegex } from "@/lib/shared/utils";
 import {
   ChipType,
   getChipIdFromIykRef,
@@ -23,7 +24,6 @@ const createAccountSchema = object({
   displayName: string().trim().required(),
   wantsServerCustody: boolean().required(),
   allowsAnalytics: boolean().required(),
-  wantsExperimentalFeatures: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
   psiRound1Message: string().required(),
@@ -67,7 +67,6 @@ export default async function handler(
     displayName,
     wantsServerCustody,
     allowsAnalytics,
-    wantsExperimentalFeatures,
     encryptionPublicKey,
     signaturePublicKey,
     psiRound1Message,
@@ -75,7 +74,7 @@ export default async function handler(
     passwordHash,
   } = validatedData;
 
-  if (!displayName || /^\s|\s$/.test(displayName) || displayName.length > 20) {
+  if (/^\s|\s$/.test(displayName) || displayName.length > 20) {
     return res.status(400).json({
       error:
         "Display name cannot have leading or trailing whitespace and must be less than or equal to 20 characters",
@@ -150,7 +149,6 @@ export default async function handler(
       displayName,
       wantsServerCustody,
       allowsAnalytics,
-      wantsExperimentalFeatures,
       encryptionPublicKey,
       signaturePublicKey,
       psiRound1Message,

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
-import { boolean, object, string } from "yup";
+import { object, string } from "yup";
 import { ErrorResponse } from "@/types";
 import { sign } from "@/lib/shared/signature";
 import { getCounterMessage } from "babyjubjub-ecdsa";
@@ -23,14 +23,12 @@ export type PersonTapResponse = {
   id: string;
   displayName: string;
   encryptionPublicKey: string;
-  wantsExperimentalFeatures: boolean;
 };
 
 export const personTapResponseSchema = object({
   id: string().required(),
   displayName: string().required(),
   encryptionPublicKey: string().required(),
-  wantsExperimentalFeatures: boolean().required(),
 });
 
 export type LocationTapResponse = {
@@ -147,7 +145,6 @@ export default async function handler(
       id: user.id.toString(),
       displayName: user.displayName,
       encryptionPublicKey: user.encryptionPublicKey,
-      wantsExperimentalFeatures: user.wantsExperimentalFeatures,
     };
     return res
       .status(200)

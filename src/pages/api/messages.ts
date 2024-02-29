@@ -116,12 +116,9 @@ export default async function handler(
       encryptedContents: message.encryptedData,
     }));
 
-    let psiMessageResponse: PsiMessageResponse | undefined;
-    if (user.wantsExperimentalFeatures) {
-      psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
-        user.encryptionPublicKey
-      );
-    }
+    const psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
+      user.encryptionPublicKey
+    );
 
     res
       .status(200)
@@ -254,12 +251,9 @@ export default async function handler(
       encryptedContents: message.encryptedData,
     }));
 
-    let psiMessageResponse: PsiMessageResponse | undefined;
-    if (sender.wantsExperimentalFeatures) {
-      psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
-        sender.encryptionPublicKey
-      );
-    }
+    const psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
+      sender.encryptionPublicKey
+    );
 
     res
       .status(200)
