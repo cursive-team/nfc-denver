@@ -2,20 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "../../lib/server/auth";
 import { EmptyResponse, ErrorResponse } from "../../types";
-import { EncryptedMessage, PsiMessageResponse } from "@/lib/client/jubSignal";
+import { EncryptedMessage } from "@/lib/client/jubSignal";
 import { array, boolean, object, string } from "yup";
-import { findAndDeleteMostRecentPsiMessage } from "@/lib/server/psiMessage";
-
-export type PsiMessageRequest = {
-  psiRoundMessage: string;
-  recipientPublicKey: string;
-};
-
-export const psiMessageRequestSchema = object({
-  psiRoundMessage: string().required(),
-  recipientPublicKey: string().required(),
-  senderPublicKey: string().optional(),
-});
 
 export type MessageRequest = {
   encryptedMessage: string;
@@ -30,10 +18,6 @@ export const messageRequestSchema = object({
 export const postMessagesSchema = object({
   token: string().required(),
   messageRequests: array().of(messageRequestSchema).required(),
-  psiMessageRequests: array()
-    .of(psiMessageRequestSchema)
-    .optional()
-    .default([]),
   shouldFetchMessages: boolean().required(),
   startDate: string().optional().default(undefined),
   endDate: string().optional().default(undefined),
@@ -41,7 +25,6 @@ export const postMessagesSchema = object({
 
 export type GetMessagesResponse = {
   messages: EncryptedMessage[];
-  psiMessageResponse?: PsiMessageResponse;
   mostRecentMessageTimestamp: string;
 };
 
@@ -116,13 +99,7 @@ export default async function handler(
       encryptedContents: message.encryptedData,
     }));
 
-    const psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
-      user.encryptionPublicKey
-    );
-
-    res
-      .status(200)
-      .json({ messages, psiMessageResponse, mostRecentMessageTimestamp });
+    res.status(200).json({ messages, mostRecentMessageTimestamp });
   } else if (req.method === "POST") {
     let validatedData;
     try {
@@ -138,14 +115,8 @@ export default async function handler(
       return res.status(500).json({ error: "Internal Server Error" });
     }
 
-    const {
-      token,
-      messageRequests,
-      psiMessageRequests,
-      shouldFetchMessages,
-      startDate,
-      endDate,
-    } = validatedData;
+    const { token, messageRequests, shouldFetchMessages, startDate, endDate } =
+      validatedData;
 
     const senderUserId = await verifyAuthToken(token);
     if (!senderUserId) {
@@ -161,7 +132,12 @@ export default async function handler(
       return;
     }
 
-    let latestMessageDate: Date = new Date();
+    if (messageRequests.length === 0) {
+      res.status(400).json({ error: "No message requests" });
+      return;
+    }
+
+    let latestMessageDate: Date;
     for (const { encryptedMessage, recipientPublicKey } of messageRequests) {
       const recipient = await prisma.user.findFirst({
         where: { encryptionPublicKey: recipientPublicKey },
@@ -179,24 +155,6 @@ export default async function handler(
         },
       });
       latestMessageDate = message.createdAt;
-    }
-
-    for (const { psiRoundMessage, recipientPublicKey } of psiMessageRequests) {
-      const recipient = await prisma.user.findFirst({
-        where: { encryptionPublicKey: recipientPublicKey },
-      });
-      if (!recipient) {
-        res.status(404).json({ error: "Recipient user not found" });
-        return;
-      }
-
-      await prisma.psiMessage.create({
-        data: {
-          senderEncKey: sender.encryptionPublicKey,
-          recipientEncKey: recipientPublicKey,
-          data: psiRoundMessage,
-        },
-      });
     }
 
     // If no need to fetch messages, return
@@ -251,25 +209,9 @@ export default async function handler(
       encryptedContents: message.encryptedData,
     }));
 
-    const psiMessageResponse = await findAndDeleteMostRecentPsiMessage(
-      sender.encryptionPublicKey
-    );
-
-    res
-      .status(200)
-      .json({ messages, psiMessageResponse, mostRecentMessageTimestamp });
+    res.status(200).json({ messages, mostRecentMessageTimestamp });
   } else {
     res.setHeader("Allow", ["GET", "POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "4.5mb",
-    },
-  },
-  // Specifies the maximum allowed duration for this function to execute (in seconds)
-  maxDuration: 5,
-};

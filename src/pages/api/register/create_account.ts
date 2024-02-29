@@ -26,19 +26,13 @@ const createAccountSchema = object({
   allowsAnalytics: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
-  psiRound1Message: string().required(),
   passwordSalt: string().optional(),
   passwordHash: string().optional(),
 });
 
-type RegisterResponse = {
-  authTokenResponse: AuthTokenResponse;
-  pkId: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<RegisterResponse | ErrorResponse>
+  res: NextApiResponse<AuthTokenResponse | ErrorResponse>
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -69,7 +63,6 @@ export default async function handler(
     allowsAnalytics,
     encryptionPublicKey,
     signaturePublicKey,
-    psiRound1Message,
     passwordSalt,
     passwordHash,
   } = validatedData;
@@ -151,7 +144,6 @@ export default async function handler(
       allowsAnalytics,
       encryptionPublicKey,
       signaturePublicKey,
-      psiRound1Message,
       passwordSalt,
       passwordHash,
       claveInviteCode,
@@ -161,7 +153,5 @@ export default async function handler(
 
   const authTokenResponse = await generateAuthToken(user.id);
 
-  return res
-    .status(200)
-    .json({ authTokenResponse: authTokenResponse, pkId: user.id.toString() });
+  return res.status(200).json(authTokenResponse);
 }

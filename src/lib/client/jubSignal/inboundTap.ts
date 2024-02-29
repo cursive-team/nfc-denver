@@ -7,7 +7,6 @@ export type InboundTapMessage = {
   fc?: string; // Farcaster handle
   bio?: string; // Bio
   pk: string; // Signature public key
-  pkId: string; // Public key ID
   msg: string; // Signature message
   sig: string; // Signature
 };
@@ -18,7 +17,6 @@ export const inboundTapMessageSchema = object({
   fc: string().optional(),
   bio: string().optional(),
   pk: string().required(),
-  pkId: string().required(),
   msg: string().required(),
   sig: string().required(),
 });
@@ -29,7 +27,6 @@ export type EncryptInboundTapMessageArgs = {
   farcasterUsername?: string;
   bio?: string;
   signaturePublicKey: string;
-  pkId: string;
   signatureMessage: string;
   signature: string;
   senderPrivateKey: string;
@@ -46,7 +43,6 @@ export async function encryptInboundTapMessage({
   signature,
   senderPrivateKey,
   recipientPublicKey,
-  pkId,
 }: EncryptInboundTapMessageArgs): Promise<string> {
   const messageData: InboundTapMessage = {
     x: twitterUsername,
@@ -56,7 +52,6 @@ export async function encryptInboundTapMessage({
     pk: signaturePublicKey,
     msg: signatureMessage,
     sig: signature,
-    pkId,
   };
 
   const encryptedMessage = await encryptMessage(

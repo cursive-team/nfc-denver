@@ -16,8 +16,6 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
-import { generatePSIKeys } from "@/lib/client/psi";
-import { AppBackHeader } from "@/components/AppHeader";
 import { RegisterStepForm } from "@/components/registerFormSteps";
 import { RegisterStepCode } from "@/components/registerFormSteps/code";
 import { RegisterSocial } from "@/components/registerFormSteps/social";
@@ -62,7 +60,6 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
-    const { psiPrivateKeys, psiPublicKeys } = await generatePSIKeys();
 
     // get the values from the state
     const {
@@ -99,7 +96,6 @@ export default function Register() {
         passwordHash,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
-        psiRound1Message: JSON.stringify(psiPublicKeys),
       }),
     });
 
@@ -111,15 +107,8 @@ export default function Register() {
     }
 
     const data = await response.json();
-    if (!data.authTokenResponse.value || !data.authTokenResponse.expiresAt) {
+    if (!data.value || !data.expiresAt) {
       console.error("Account created, but no auth token returned.");
-      toast.error("Account created, but error logging in! Please try again.");
-      setDisplayState(DisplayState.INPUT_EMAIL);
-      return;
-    }
-    const pkId = data.pkId;
-    if (!pkId) {
-      console.error("Account created, but no id returned.");
       toast.error("Account created, but error logging in! Please try again.");
       setDisplayState(DisplayState.INPUT_EMAIL);
       return;
@@ -130,12 +119,9 @@ export default function Register() {
     saveKeys({
       encryptionPrivateKey: privateKey,
       signaturePrivateKey: signingKey,
-      psiPrivateKeys: JSON.stringify(psiPrivateKeys),
-      psiPublicKeys: JSON.stringify(psiPublicKeys),
     });
 
     saveProfile({
-      pkId,
       encryptionPublicKey: publicKey,
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
@@ -148,8 +134,8 @@ export default function Register() {
       bio,
     });
     saveAuthToken({
-      value: data.authTokenResponse.value,
-      expiresAt: new Date(data.authTokenResponse.expiresAt),
+      value: data.value,
+      expiresAt: new Date(data.expiresAt),
     });
 
     let backupData = createBackup();
@@ -172,7 +158,7 @@ export default function Register() {
       body: JSON.stringify({
         backup,
         wantsServerCustody,
-        authToken: data.authTokenResponse.value,
+        authToken: data.value,
       }),
     });
 
