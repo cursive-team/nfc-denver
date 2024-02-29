@@ -9,7 +9,6 @@ import { Profile, getAuthToken, getProfile } from "@/lib/client/localStorage";
 import { handleNickName } from "@/lib/shared/utils";
 import router from "next/router";
 import { toast } from "sonner";
-import { Checkbox } from "../Checkbox";
 import { Radio } from "../Radio";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
@@ -133,7 +132,6 @@ const ProfileForm = ({
 
   const { errors } = formState;
   const wantsServerCustody = watch("wantsServerCustody", false);
-  const allowsAnalytics = watch("allowsAnalytics", false);
 
   // make sure the username is always prefixed with @
   const handleUsername = (
@@ -270,17 +268,6 @@ const ProfileForm = ({
                 shouldDirty: true,
               })
             }
-          />
-          <Checkbox
-            id="allowAnalytics"
-            label="I consent to sharing analytics data"
-            checked={allowsAnalytics}
-            onChange={(checkbox: boolean) =>
-              setValue("allowsAnalytics", checkbox, {
-                shouldDirty: true,
-              })
-            }
-            disabled={isReadOnly}
           />
         </div>
       </div>

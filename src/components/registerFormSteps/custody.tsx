@@ -11,6 +11,7 @@ import { RegisterFormStepProps } from ".";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { useEffect } from "react";
+import { sha256 } from "js-sha256";
 
 const RegisterCustodySchema = RegisterSchema.pick([
   "wantsServerCustody",
@@ -47,6 +48,18 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
     });
   }, [wantsServerCustody, allowsAnalytics, actions, getState]);
 
+  useEffect(() => {
+    const email = getState()?.register?.email;
+    const emailHash = sha256(email);
+    // Convert the hex string emailHash to a boolean by checking if the first character is even
+    const isEvenHash = parseInt(emailHash[0], 16) % 2 === 0;
+    if (isEvenHash) {
+      setValue("wantsServerCustody", true, {
+        shouldValidate: true,
+      });
+    }
+  }, [setValue, getState]);
+
   return (
     <div className="flex flex-col grow">
       <AppBackHeader
@@ -58,7 +71,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
       <FormStepLayout
         onSubmit={handleSubmit(handleCustodySubmit)}
         description="2/2"
-        title="Ownership & analytics consent"
+        title="Data custody"
         className="xs:pt-4"
         header={
           <fieldset className="flex flex-col gap-6">
@@ -72,7 +85,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
                 <u>Cursive</u>
               </a>{" "}
               to integrate ZK tech into this experience to enable full data
-              ownership and portability. Choose if you want to enable it.
+              ownership and authenticity. Choose if you want to enable it.
             </span>
             <Radio
               id="selfCustody"
