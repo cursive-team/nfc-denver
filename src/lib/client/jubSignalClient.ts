@@ -76,21 +76,24 @@ export const loadMessages = async ({
     messageRequests = [];
   }
 
-  // Check if there has been a mutual opt-in for the PSI
-  // If so, send a decryption shares message
-  const round2MessageRequests = await handleRound2MessageRequests(
-    keys,
-    profile.pkId
-  );
-  psiMessageRequests = psiMessageRequests.concat(round2MessageRequests);
-  console.log("psiMessageRequests", psiMessageRequests);
+  // Process PSI messages if the user has opted in for experimental features
+  if (profile.wantsExperimentalFeatures) {
+    // Check if there has been a mutual opt-in for the PSI
+    // If so, send a decryption shares message
+    const round2MessageRequests = await handleRound2MessageRequests(
+      keys,
+      profile.pkId
+    );
+    psiMessageRequests = psiMessageRequests.concat(round2MessageRequests);
+    // console.log("psiMessageRequests", psiMessageRequests);
 
-  // Check if overlap can be computed and backed up
-  const overlapMessageRequests = await handleOverlapMessageRequests(
-    keys,
-    profile.encryptionPublicKey
-  );
-  messageRequests = messageRequests.concat(overlapMessageRequests);
+    // Check if overlap can be computed and backed up
+    const overlapMessageRequests = await handleOverlapMessageRequests(
+      keys,
+      profile.encryptionPublicKey
+    );
+    messageRequests = messageRequests.concat(overlapMessageRequests);
+  }
 
   // Fetch jubSignal messages from server
   // Send a new message if requested
@@ -147,7 +150,8 @@ export const loadMessages = async ({
     console.error("Invalid messages received from server");
     throw new Error("Invalid messages received from server");
   }
-  console.log("psiMessageResponse", psiMessageResponse);
+
+  // console.log("psiMessageResponse", psiMessageResponse);
   if (psiMessageResponse) {
     try {
       const { data, senderEncKey } = await psiMessageResponseSchema.validate(

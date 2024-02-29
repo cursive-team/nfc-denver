@@ -41,6 +41,8 @@ export default function Register() {
 
   const wantsServerCustody = getState()?.register?.wantsServerCustody ?? false;
   const allowsAnalytics = getState()?.register?.allowsAnalytics ?? false;
+  const wantsExperimentalFeatures =
+    getState()?.register?.wantsExperimentalFeatures ?? false;
 
   const [displayState, setDisplayState] = useState<DisplayState>(
     DisplayState.INPUT_EMAIL
@@ -95,6 +97,7 @@ export default function Register() {
         displayName,
         wantsServerCustody,
         allowsAnalytics,
+        wantsExperimentalFeatures,
         passwordSalt,
         passwordHash,
         encryptionPublicKey: publicKey,
@@ -140,6 +143,7 @@ export default function Register() {
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
       allowsAnalytics,
+      wantsExperimentalFeatures,
       displayName,
       email,
       twitterUsername,

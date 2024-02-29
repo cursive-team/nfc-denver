@@ -23,6 +23,7 @@ export type User = {
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
   oI?: string; // User's PSI overlap indices
+  wantsEf?: boolean; // User's experimental features preference
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -52,6 +53,7 @@ export const updateUserFromTap = async (
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
       pkId: userUpdate.id,
+      wantsEf: userUpdate.wantsExperimentalFeatures,
     };
     users[userId] = updatedUser;
   } else {
@@ -59,6 +61,7 @@ export const updateUserFromTap = async (
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
       pkId: userUpdate.id,
+      wantsEf: userUpdate.wantsExperimentalFeatures,
     };
     users[userId] = newUser;
   }
