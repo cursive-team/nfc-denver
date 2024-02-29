@@ -215,9 +215,20 @@ interface AppHeaderProps {
   setIsMenuOpen: (value: boolean) => void;
 }
 const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
   const handleSignout = () => {
     deleteAccountFromLocalStorage();
     window.location.href = "/";
+  };
+
+  const toggleMenu = () => {
+    const newState = !isMenuOpen;
+    // update state for menu
+    actions.updateStateFromAction({
+      ...getState(),
+      isMenuOpen: newState,
+    });
+    setIsMenuOpen(newState);
   };
 
   return (
@@ -234,7 +245,7 @@ const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
 
       <div className="flex gap-4 items-center ml-auto">
         <span className="text-gray-11">{isMenuOpen && "Close"}</span>
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button onClick={toggleMenu}>
           {isMenuOpen ? <Icons.close /> : <Icons.burgher />}
         </button>
       </div>
