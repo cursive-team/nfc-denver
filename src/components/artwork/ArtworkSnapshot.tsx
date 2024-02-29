@@ -5,7 +5,7 @@ import {
   getUsers,
 } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Card } from "../cards/Card";
 import { cn } from "@/lib/client/utils";
 
@@ -74,6 +74,7 @@ const ArtworkSnapshot = ({
   const [rangeValue, setRangeValue] = useState<number>(1);
   const [signatures, setSignatures] = useState<PubKeyArrayElement[]>([]);
   const [dataURL, setDataURL] = useState<string>("");
+  const firstRender = useRef(true);
 
   const HAS_PROFILE_PUB_KEY = !!pubKey;
 
@@ -156,6 +157,8 @@ const ArtworkSnapshot = ({
 
   useEffect(() => {
     if (pubKey === "" || !isLoaded || signatures.length === 0) return;
+    // prevent after first render
+    if (!firstRender.current) return;
 
     window.params = {
       fill: false,
@@ -168,6 +171,8 @@ const ArtworkSnapshot = ({
       pubKey: s.pubKey,
       timestamp: s.timestamp,
     }));
+
+    firstRender.current = false;
 
     if (HAS_PROFILE_PUB_KEY && !dataURL) {
       const dataURL = window.stamp(pubKey, width, height).getImage();
