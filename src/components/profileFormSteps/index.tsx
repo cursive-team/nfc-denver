@@ -223,10 +223,10 @@ const ProfileForm = ({
           ) : (
             <Button
               type="button"
-              onClick={() => window.open(claveInfo.claveInviteCode, "_blank")}
+              onClick={() => window.open(claveInfo.claveInviteLink, "_blank")}
               className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
             >
-              Open Clave Invite
+              Join Clave
             </Button>
           )}
         </div>

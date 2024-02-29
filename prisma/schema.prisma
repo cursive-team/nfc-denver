@@ -16,6 +16,8 @@ model User {
   chipId      String  @unique
   email       String  @unique
   displayName String
+  
+  claveInviteCode String
   claveWallet String?
 
   encryptionPublicKey String

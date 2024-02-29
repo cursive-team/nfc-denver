@@ -35,7 +35,10 @@ export default async function handler(
 
     const buidlBalance = await getUserBuidlBalance(user.id.toString());
     const claveWalletAddress = user.claveWallet ? user.claveWallet : undefined;
-    const claveInviteLink = await getClaveInviteLink(user.email, user.clave);
+    const claveInviteLink = await getClaveInviteLink(
+      user.email,
+      user.claveInviteCode
+    );
 
     return res.status(200).json({
       buidlBalance,
