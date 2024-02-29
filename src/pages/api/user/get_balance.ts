@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
-import { getUserLocalBuidlBalance } from "@/lib/server/clave";
+import {
+  getClaveInviteLink,
+  getUserLocalBuidlBalance,
+} from "@/lib/server/clave";
 import { ClaveInfo } from "@/lib/client/clave";
 import { ErrorResponse } from "@/types";
 

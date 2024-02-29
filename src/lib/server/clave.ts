@@ -1,17 +1,29 @@
 import jwt from "jsonwebtoken";
 import dayjs from "dayjs";
 import prisma from "@/lib/server/prisma";
+import { getClaveBuidlBalance } from "../shared/clave";
 
 export const getUserBuidlBalance = async (userId: number): Promise<number> => {
-  const claveBalance = await getClaveBuidlBalance(userId);
+  const claveBalance = await serverGetClaveBuidlBalance(userId);
   const localBalance = await getUserLocalBuidlBalance(userId);
 
   return claveBalance + localBalance;
 };
 
-// TODO: Implement this function
-export const getClaveBuidlBalance = async (userId: number): Promise<number> => {
-  return 0;
+export const serverGetClaveBuidlBalance = async (
+  userId: number
+): Promise<number> => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    return 0;
+  }
+  if (!user.claveWallet) {
+    return 0;
+  }
+
+  return await getClaveBuidlBalance(user.claveWallet);
 };
 
 export const getUserLocalBuidlBalance = async (
