@@ -26,6 +26,8 @@ export default function App({ Component, pageProps }: AppProps) {
   const { isIncognito } = useSettings();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageHeight, setPageHeight] = useState(0);
+
+  const [isMaintenance, setIsMaintenance] = useState(false);
   const showFooter = pageProps?.showFooter ?? true;
   const showHeader = pageProps?.showHeader ?? true;
   const fullPage = pageProps?.fullPage ?? false;
@@ -35,6 +37,16 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   const footerVisible = showFooter && !fullPage;
+
+  if (isMaintenance) {
+    return (
+      <FullPageBanner
+        iconSize={40}
+        title="Maintenance Mode"
+        description="We are repairing things behind the scene, be back soon!"
+      />
+    );
+  }
 
   if (isIncognito) {
     return (

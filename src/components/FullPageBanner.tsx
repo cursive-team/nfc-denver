@@ -5,11 +5,13 @@ import useSettings from "@/hooks/useSettings";
 
 interface FullPageBannerProps {
   description: string;
+  title?: string;
   iconSize?: number;
 }
 
 const FullPageBanner = ({
   description,
+  title,
   iconSize = 80,
 }: FullPageBannerProps) => {
   const { pageHeight } = useSettings();
@@ -31,12 +33,14 @@ const FullPageBanner = ({
             {APP_CONFIG.APP_NAME}
           </span>
         </div>
-
-        <Card.Base className="p-2">
-          <Card.Description>
-            <span className=" text-sm">{description}</span>
-          </Card.Description>
-        </Card.Base>
+        <div className="flex flex-col gap-2">
+          {title && <Card.Title className="!text-lg">{title}</Card.Title>}
+          <Card.Base className="p-2">
+            <Card.Description>
+              <span className=" text-sm">{description}</span>
+            </Card.Description>
+          </Card.Base>
+        </div>
       </div>
     </div>
   );
