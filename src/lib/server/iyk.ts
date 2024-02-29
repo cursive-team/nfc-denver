@@ -97,11 +97,14 @@ export const getMockChipTypeFromChipId = (
  * Given a chipId and email, check that the email is associated with the chipId
  * Returns boolean indicating match
  * Checks Tokenproof API for email
+ * NOTE: Email validation is removed since not all emails are registered
  */
 export const verifyEmailForChipId = async (
   chipId: string,
   email: string
 ): Promise<boolean> => {
+  return true;
+
   try {
     const chipIdInt = parseInt(chipId);
     if (isNaN(chipIdInt)) {
