@@ -189,8 +189,8 @@ export const Icons: Record<string, any> = {
   arrowRight: (props: any) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      width={props.size || "16"}
+      height={props.size || "16"}
       viewBox="0 0 16 16"
       fill="none"
       {...props}

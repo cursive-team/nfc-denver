@@ -4,7 +4,6 @@ import { verifyAuthToken } from "@/lib/server/auth"; // hypothetical function fo
 import { ErrorResponse } from "@/types";
 import { getQuestById } from "@/lib/server/database";
 import { verifyProofForQuest } from "@/lib/server/proving";
-import { addBuidlBalance } from "@/lib/server/dev";
 
 type SubmitQuestProofRequest = {
   questId: string;
@@ -46,6 +45,34 @@ export default async function submitProofHandler(
     const quest = await getQuestById(parseInt(questId));
     if (!quest) {
       return res.status(404).json({ error: "Quest not found" });
+    }
+
+    // if there's a tap requiement, make sure it's done
+    if (quest.userTapReq !== null) {
+      const outbound = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          sentMessages: {
+            select: {
+              senderId: true,
+              recipientId: true,
+            },
+            distinct: ["recipientId"],
+          },
+        },
+      });
+      if (outbound) {
+        const outboundTotal = outbound.sentMessages.filter(
+          (message) => message.senderId !== message.recipientId
+        ).length;
+        if (outboundTotal < quest.userTapReq) {
+          return res.status(400).json({ error: "Have tapped enough people" });
+        }
+      } else {
+        return res.status(400).json({ error: "No outbound taps" });
+      }
     }
 
     const { verified, consumedSigNullifiers } = await verifyProofForQuest(
@@ -140,14 +167,6 @@ export default async function submitProofHandler(
           })),
         });
       }
-    }
-
-    // Add buidl to the user's balance
-    const success = await addBuidlBalance(userId, quest.buidlReward);
-    if (!success) {
-      console.error(
-        `Failed to add buidl balance for quest ${quest.id} to user ${userId}`
-      );
     }
 
     res.status(200).json({ verified: true, proofId: proof.id });

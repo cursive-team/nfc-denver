@@ -3,14 +3,18 @@ import { LocationRequirement, UserRequirement } from "@/types";
 export const computeNumRequirementsSatisfied = (args: {
   userPublicKeys: string[]; // List of signature public keys for users who have sent signatures
   locationPublicKeys: string[]; // List of signature public keys for visited locations
+  userOutboundTaps: number; // count of outbound taps for any
   userRequirements: UserRequirement[];
   locationRequirements: LocationRequirement[];
+  questUserTapReq: number | null;
 }): number => {
   const {
     userPublicKeys,
     locationPublicKeys,
+    userOutboundTaps,
     userRequirements,
     locationRequirements,
+    questUserTapReq,
   } = args;
 
   const numUserRequirementsSatisfied = userRequirements.filter(
@@ -29,7 +33,16 @@ export const computeNumRequirementsSatisfied = (args: {
       }) >= requirement.numSigsRequired
   ).length;
 
-  return numUserRequirementsSatisfied + numLocationRequirementsSatisfied;
+  let userTapReqSatisfied = 0;
+  if (questUserTapReq && userOutboundTaps >= questUserTapReq) {
+    userTapReqSatisfied = 1;
+  }
+
+  return (
+    numUserRequirementsSatisfied +
+    numLocationRequirementsSatisfied +
+    userTapReqSatisfied
+  );
 };
 
 // Given a list of public keys corresponding to signatures and a user or location requirement,

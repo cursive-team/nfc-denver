@@ -111,20 +111,15 @@ const SharePage = () => {
     const response = await fetch(`/api/psiRound1Message/${user.pkId}`);
     if (!response.ok) {
       console.error("Error fetching user psi round 1 message: ", response);
-      toast.error(
-        "This user does not have overlap set up. Please try sharing without the overlap."
-      );
+      toast.error("An error has occurred. Please try again.");
       setLoading(false);
       return;
     }
-    const { psiRound1Message: userMessageRound1 } = await response.json();
+    const { psiRound1Message: userMessageRound1, wantsExperimentalFeatures } =
+      await response.json();
 
     let psiMessageRequests: PsiMessageRequest[] = [];
-    if (shareOverlap && !userMessageRound1) {
-      toast.error("User does not have their PSI parameters set up");
-      setLoading(false);
-      return;
-    } else if (shareOverlap && userMessageRound1) {
+    if (shareOverlap && wantsExperimentalFeatures && userMessageRound1) {
       const selfBitVector = generateSelfBitVector();
 
       await init();
@@ -185,13 +180,17 @@ const SharePage = () => {
     };
 
     // Send both messages and update activity feed
+    const successMessage =
+      shareOverlap && !wantsExperimentalFeatures
+        ? `Shared information with ${user.name}, but unable to compute private overlap. They must have experimental features enabled to do so.`
+        : `Successfully shared information with ${user.name}!`;
     try {
       await loadMessages({
         forceRefresh: false,
         messageRequests: [otherUserMessageRequest, selfMessageRequest],
         psiMessageRequests,
       });
-      toast.success(`Successfully shared information with ${user.name}!`);
+      toast.success(successMessage);
       setLoading(false);
     } catch (error) {
       console.error("Error sending encrypted tap to server: ", error);
@@ -279,36 +278,38 @@ const SharePage = () => {
             </div>
           </div>
         )}
-        <div className="flex flex-col gap-4">
-          <InputWrapper
-            size="sm"
-            label={`Private overlap icebreaker`}
-            description={
-              <span>
-                {`If both you and ${user.name} opt in, use `}
-                <a
-                  href="https://github.com/gaussian-dev/MP-PSI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <u>FHE</u>
-                </a>
-                {` to discover a snapshot of shared contacts & locations without revealing
+        {profile.wantsExperimentalFeatures && (
+          <div className="flex flex-col gap-4">
+            <InputWrapper
+              size="sm"
+              label={`Private overlap icebreaker`}
+              description={
+                <span>
+                  {`If both you and ${user.name} opt in, use `}
+                  <a
+                    href="https://github.com/gaussian-dev/MP-PSI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <u>FHE</u>
+                  </a>
+                  {` to discover a snapshot of shared contacts & locations without revealing
                 anything else!`}
-              </span>
-            }
-            className="grid grid-cols-1"
-            spacing
-          >
-            <Checkbox
-              id="overlap"
-              label="Opt-in"
-              checked={shareOverlap}
-              type="button"
-              onChange={setShareOverlap}
-            />
-          </InputWrapper>
-        </div>
+                </span>
+              }
+              className="grid grid-cols-1"
+              spacing
+            >
+              <Checkbox
+                id="overlap"
+                label="Opt-in"
+                checked={shareOverlap}
+                type="button"
+                onChange={setShareOverlap}
+              />
+            </InputWrapper>
+          </div>
+        )}
         <Button loading={loading} type="submit">
           Share
         </Button>

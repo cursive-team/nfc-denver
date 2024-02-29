@@ -13,6 +13,8 @@ import { Checkbox } from "../Checkbox";
 import { Radio } from "../Radio";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
+import { ClaveInfo, getUserClaveInfo } from "@/lib/client/clave";
+import { useEffect, useState } from "react";
 
 export type ProfileFormProps = InferType<typeof ProfileSchema>;
 
@@ -40,6 +42,7 @@ export const DEFAULT_PROFILE_VALUES: ProfileFormProps = {
   farcasterUsername: "",
   wantsServerCustody: false,
   allowsAnalytics: false,
+  wantsExperimentalFeatures: false,
 };
 
 const ProfileForm = ({
@@ -53,6 +56,16 @@ const ProfileForm = ({
   loading = false,
 }: ProfileProps) => {
   const { actions, getState } = useStateMachine({ updateStateFromAction });
+  const [claveInfo, setClaveInfo] = useState<ClaveInfo>();
+
+  useEffect(() => {
+    const fetchClaveInfo = async () => {
+      const claveInfo = await getUserClaveInfo();
+      setClaveInfo(claveInfo);
+    };
+
+    fetchClaveInfo();
+  }, []);
 
   const updateProfileState = (values: ProfileFormProps) => {
     actions.updateStateFromAction({
@@ -91,6 +104,9 @@ const ProfileForm = ({
           profile?.wantsServerCustody ?? previousProfile?.wantsServerCustody,
         allowsAnalytics:
           profile?.allowsAnalytics ?? previousProfile?.allowsAnalytics,
+        wantsExperimentalFeatures:
+          profile?.wantsExperimentalFeatures ??
+          previousProfile?.wantsExperimentalFeatures,
         twitterUsername:
           handleNickName(profile?.twitterUsername) ??
           handleNickName(previousProfile?.twitterUsername),
@@ -116,7 +132,7 @@ const ProfileForm = ({
 
   const { errors } = formState;
   const wantsServerCustody = watch("wantsServerCustody", false);
-  const allowsAnalytics = watch("allowsAnalytics", false);
+  const wantsExperimentalFeatures = watch("wantsExperimentalFeatures", false);
 
   // make sure the username is always prefixed with @
   const handleUsername = (
@@ -203,6 +219,23 @@ const ProfileForm = ({
           {...register("email")}
         />
       </div>
+      {claveInfo && (
+        <div className="flex flex-col gap-7">
+          <span className="text-gray-12 text-sm font-light">Clave</span>
+          {claveInfo.claveWalletAddress ? (
+            <span className="text-gray-12 text-sm font-light">{`Wallet Address: ${claveInfo.claveWalletAddress}`}</span>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => window.open(claveInfo.claveInviteLink, "_blank")}
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              Join Clave
+            </Button>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <span className="text-gray-12 text-sm font-light">
@@ -238,11 +271,14 @@ const ProfileForm = ({
             }
           />
           <Checkbox
-            id="allowAnalytics"
-            label="I consent to sharing analytics data"
-            checked={allowsAnalytics}
+            id="wantsExperimentalFeatures"
+            label="Enable experimental cryptographic features"
+            description="Opt into experimental cryptographic features using MPC and
+            FHE to privately compute shared taps with another user. You choose to enable 
+            it each time you tap, but it will incur a computation/bandwidth overhead."
+            checked={wantsExperimentalFeatures}
             onChange={(checkbox: boolean) =>
-              setValue("allowsAnalytics", checkbox, {
+              setValue("wantsExperimentalFeatures", checkbox, {
                 shouldDirty: true,
               })
             }

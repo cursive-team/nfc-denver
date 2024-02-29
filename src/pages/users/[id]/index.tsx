@@ -6,6 +6,7 @@ import {
   getLocationSignatures,
   getProfile,
   getUsers,
+  Profile,
   User,
 } from "@/lib/client/localStorage";
 import { AppBackHeader } from "@/components/AppHeader";
@@ -21,6 +22,7 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { encryptOutboundTapMessage } from "@/lib/client/jubSignal";
 import { toast } from "sonner";
 import { MessageRequest } from "@/pages/api/messages";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { getUserPsiState, saveUserPsiState } from "@/lib/client/indexedDB/psi";
@@ -58,12 +60,14 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [user, setUser] = useState<User>();
+  const [myProfile, setMyProfile] = useState<Profile>();
   const [privateNote, setPrivateNote] = useState<string>("");
   const [viewNote, setViewNote] = useState(false);
   const [loading, setLoading] = useState(false);
   const [psiState, setPsiState] = useState<PSIDisplayState>(
     PSIDisplayState.NO_PSI
   );
+  const [justSharedNote, setJustSharedNote] = useState(false);
   const [userOverlap, setUserOverlap] = useState<
     { userId: string; name: string }[]
   >([]);
@@ -72,6 +76,13 @@ const UserProfilePage = () => {
   >([]);
 
   const alreadyConnected = router?.query?.alreadyConnected === "true";
+
+  useEffect(() => {
+    const profile = getProfile();
+    if (profile) {
+      setMyProfile(profile);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -115,12 +126,15 @@ const UserProfilePage = () => {
                 } else {
                   for (const userId in users) {
                     if (parseInt(users[userId].pkId) === overlap[i]) {
-                      userOverlapIds.push({ userId, name: users[userId].name });
+                      userOverlapIds.push({
+                        userId,
+                        name: users[userId].name,
+                      });
                     }
                   }
                 }
               }
-              console.log(userOverlapIds);
+              // console.log(userOverlapIds);
               setUserOverlap(userOverlapIds);
               setLocationOverlap(locationOverlapIds);
             } else {
@@ -181,16 +195,17 @@ const UserProfilePage = () => {
           messageRequests: [selfMessageRequest],
         });
         toast.success(`Successfully saved private note!`);
+        setViewNote(false);
         setLoading(false);
+        setJustSharedNote(true);
+        return;
       } catch (error) {
         console.error("Error sending encrypted tap to server: ", error);
         toast.error("An error occurred while saving note. Please try again.");
+        setViewNote(false);
         setLoading(false);
         return;
       }
-
-      setViewNote(false);
-      setLoading(false);
     };
 
     return (
@@ -235,34 +250,55 @@ const UserProfilePage = () => {
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <div className="flex gap-6 items-center">
-          <div className="h-32 w-32 rounded bg-slate-200"></div>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1 mt-2">
-              <h2 className="text-xl font-gray-12 font-light">{user.name}</h2>
-              <div className="flex items-center gap-1">
-                <Icons.checkedCircle />
-                <span className="text-sm font-light text-gray-10">
-                  {user.outTs ? (
-                    <Label>{`Shared on ${new Date(user.outTs).toLocaleString(
-                      undefined,
-                      {
-                        dateStyle: "medium",
-                      }
-                    )}`}</Label>
-                  ) : (
-                    <Label>{`Not yet connected.`}</Label>
-                  )}
-                </span>
-              </div>
+        <div className="flex gap-4 xs:gap-5 items-center">
+          {user ? (
+            <ArtworkSnapshot
+              width={128}
+              height={128}
+              pubKey={user.sigPk ?? ""}
+            />
+          ) : (
+            <ArtworkSnapshot width={128} height={128} pubKey={""} />
+          )}
+          <div className="flex flex-col gap-1">
+            <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>
+            <div className="flex items-center gap-1">
+              <Icons.checkedCircle />
+              <span className="text-sm font-light text-white">
+                {user.outTs ? (
+                  <Label>{`Shared on ${new Date(user.outTs).toLocaleString(
+                    undefined,
+                    {
+                      dateStyle: "medium",
+                    }
+                  )}`}</Label>
+                ) : (
+                  <Label>{`Not yet connected.`}</Label>
+                )}
+              </span>
             </div>
 
             <Button size="sm" onClick={() => setViewNote(true)}>
-              {user && user.note ? "View private note" : "Set private note"}
+              {(user && user.note) || justSharedNote
+                ? "View private note"
+                : "Set private note"}
             </Button>
           </div>
         </div>
-        {!user.inTs && (
+        {myProfile && !myProfile.wantsExperimentalFeatures && !user.inTs && (
+          <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
+            <InputWrapper
+              className="flex flex-col gap-2"
+              label={"Details pending"}
+            >
+              <span className="text-gray-11 text-[14px] left-5 mt-1">
+                {`If ${user.name} taps you back and shares their socials, they will
+              appear here.`}
+              </span>
+            </InputWrapper>
+          </div>
+        )}
+        {myProfile && myProfile.wantsExperimentalFeatures && !user.inTs && (
           <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
             <InputWrapper
               className="flex flex-col gap-2"
@@ -318,63 +354,67 @@ const UserProfilePage = () => {
             </span>
           </InputWrapper>
         )}
-        {psiState === PSIDisplayState.WAITING && (
-          <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
-            <InputWrapper
-              className="flex flex-col gap-2"
-              label="Private overlap pending"
-            >
-              <span className="text-gray-11 text-[14px] left-5 mt-1">
-                Both of you have opted into overlap computation! Waiting on data
-                from {user.name}.
-              </span>
-            </InputWrapper>
-          </div>
-        )}
-        {psiState === PSIDisplayState.OVERLAP && (
-          <>
-            <InputWrapper
-              label="Private overlap"
-              description="Your common taps, snapshotted at when you met!"
-            >
-              <div className="flex flex-col mt-2 gap-1">
-                {userOverlap.map(({ userId, name }, index) => {
-                  return (
-                    <div
-                      onClick={() => {
-                        window.location.href = `/users/${userId}`;
-                      }}
-                      key={index}
-                    >
-                      <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
-                        <div className="flex items-center gap-2">
-                          <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                            <Icons.person size={12} />
+        {myProfile &&
+          myProfile.wantsExperimentalFeatures &&
+          psiState === PSIDisplayState.WAITING && (
+            <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
+              <InputWrapper
+                className="flex flex-col gap-2"
+                label="Private overlap pending"
+              >
+                <span className="text-gray-11 text-[14px] left-5 mt-1">
+                  Both of you have opted into overlap computation! Waiting on
+                  data from {user.name}.
+                </span>
+              </InputWrapper>
+            </div>
+          )}
+        {myProfile &&
+          myProfile.wantsExperimentalFeatures &&
+          psiState === PSIDisplayState.OVERLAP && (
+            <>
+              <InputWrapper
+                label="Private overlap"
+                description="Your common taps, snapshotted at when you met!"
+              >
+                <div className="flex flex-col mt-2 gap-1">
+                  {userOverlap.map(({ userId, name }, index) => {
+                    return (
+                      <div
+                        onClick={() => {
+                          window.location.href = `/users/${userId}`;
+                        }}
+                        key={index}
+                      >
+                        <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                          <div className="flex items-center gap-2">
+                            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                              <Icons.person size={12} />
+                            </div>
+                            <Card.Title>{name}</Card.Title>
                           </div>
-                          <Card.Title>{name}</Card.Title>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-                {locationOverlap.map(({ locationId, name }, index) => {
-                  return (
-                    <Link href={`/locations/${locationId}`} key={index}>
-                      <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
-                        <div className="flex items-center gap-2">
-                          <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
-                            <Icons.location className="h-3" />
+                    );
+                  })}
+                  {locationOverlap.map(({ locationId, name }, index) => {
+                    return (
+                      <Link href={`/locations/${locationId}`} key={index}>
+                        <div className="flex justify-between border-b w-full border-gray-300  last-of-type:border-none first-of-type:pt-0 py-1">
+                          <div className="flex items-center gap-2">
+                            <div className="flex justify-center items-center bg-[#677363] h-6 w-6 rounded-full">
+                              <Icons.location className="h-3" />
+                            </div>
+                            <Card.Title>{name}</Card.Title>
                           </div>
-                          <Card.Title>{name}</Card.Title>
                         </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </InputWrapper>
-          </>
-        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </InputWrapper>
+            </>
+          )}
       </div>
     </div>
   );

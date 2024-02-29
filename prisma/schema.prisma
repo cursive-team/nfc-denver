@@ -12,15 +12,20 @@ datasource db {
 }
 
 model User {
-  id          Int    @id @default(autoincrement())
-  chipId      String @unique
-  email       String @unique
+  id          Int     @id @default(autoincrement())
+  chipId      String  @unique
+  email       String  @unique
   displayName String
+  
+  claveInviteCode String
+  claveInviteLink String
+  claveWallet String?
 
   encryptionPublicKey String
   signaturePublicKey  String
   psiRound1Message    String
 
+  wantsExperimentalFeatures Boolean @default(false)
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
   passwordSalt              String?
@@ -127,6 +132,7 @@ model Quest {
   locationRequirements LocationRequirement[]
   proofs               QuestProof[]          @relation("QuestForProof")
   item                 Item?                 @relation("ItemQuestRequirement")
+  userTapReq           Int?
 }
 
 model UserRequirement {

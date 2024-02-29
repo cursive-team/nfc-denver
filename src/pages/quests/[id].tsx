@@ -41,6 +41,9 @@ import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
 import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
 import { PointCard } from "@/components/cards/PointCard";
+import { Card } from "@/components/cards/Card";
+import { CircleCard } from "@/components/cards/CircleCard";
+import { cn } from "@/lib/client/utils";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -144,6 +147,7 @@ const QuestCompleted = ({ quest }: { quest: QuestWithRequirements }) => {
                 userRequirements,
                 locationRequirements,
                 isCompleted = false,
+                userTapReq,
               },
               index
             ) => {
@@ -152,7 +156,8 @@ const QuestCompleted = ({ quest }: { quest: QuestWithRequirements }) => {
                   <QuestCard
                     title={name}
                     description={description}
-                    completedSigs={numRequirementsSatisfied[index]}
+                    userTapReqCount={userTapReq ? 1 : 0}
+                    completedReqs={numRequirementsSatisfied[index]}
                     userRequirements={userRequirements}
                     locationRequirements={locationRequirements}
                     isCompleted={isCompleted}
@@ -177,9 +182,14 @@ export default function QuestById() {
   const { isLoading, data: quest = null } = useFetchQuestById(
     questId as string
   );
+  const [userOutboundTaps, setUserOutboundTaps] = useState<number>(0);
 
   useEffect(() => {
     const users = getUsers();
+    setUserOutboundTaps(
+      Object.values(users).filter((user: User) => user.outTs).length
+    );
+
     const locationSignatures = getLocationSignatures();
 
     const validUserPublicKeys = Object.values(users)
@@ -202,12 +212,18 @@ export default function QuestById() {
       const numRequirementsSatisfied = computeNumRequirementsSatisfied({
         userPublicKeys,
         locationPublicKeys,
+        userOutboundTaps,
         userRequirements: quest.userRequirements,
         locationRequirements: quest.locationRequirements,
+        questUserTapReq: quest.userTapReq,
       });
+      let userTapRequirement = quest.userTapReq ? 1 : 0;
+
       if (
         numRequirementsSatisfied ===
-        quest.userRequirements.length + quest.locationRequirements.length
+        quest.userRequirements.length +
+          quest.locationRequirements.length +
+          userTapRequirement
       ) {
         setCompleteQuestModal(true);
         // Check if the user has already submitted a proof for this quest
@@ -218,7 +234,7 @@ export default function QuestById() {
         }
       }
     }
-  }, [quest, userPublicKeys, locationPublicKeys]);
+  }, [quest, userPublicKeys, locationPublicKeys, userOutboundTaps]);
 
   const numRequirementsSatisfied: number = useMemo(() => {
     if (!quest) return 0;
@@ -226,10 +242,12 @@ export default function QuestById() {
     return computeNumRequirementsSatisfied({
       userPublicKeys,
       locationPublicKeys,
+      userOutboundTaps,
       userRequirements: quest.userRequirements,
       locationRequirements: quest.locationRequirements,
+      questUserTapReq: quest.userTapReq,
     });
-  }, [quest, userPublicKeys, locationPublicKeys]);
+  }, [quest, userPublicKeys, locationPublicKeys, userOutboundTaps]);
 
   const numUserRequirementSignatures: number[] = useMemo(() => {
     if (!quest) return [];
@@ -257,7 +275,8 @@ export default function QuestById() {
 
   const numRequirementsTotal =
     (quest?.userRequirements?.length ?? 0) +
-    (quest?.locationRequirements?.length ?? 0);
+    (quest?.locationRequirements?.length ?? 0) +
+    (quest?.userTapReq ? 1 : 0);
 
   const isQuestComplete = existingProofId !== undefined && !isLoading;
 
@@ -293,10 +312,14 @@ export default function QuestById() {
                 label={
                   <div className="flex gap-2 items-center">
                     {isQuestComplete && (
-                      <>
-                        <Label>{"Quest Complete"}</Label>
-                        <Icons.checkedCircle />
-                      </>
+                      <Button
+                        onClick={() => {
+                          setCompleteQuestModal(true);
+                        }}
+                        size="tiny"
+                      >
+                        View completion
+                      </Button>
                     )}
                     {!isQuestComplete && (
                       <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
@@ -317,6 +340,26 @@ export default function QuestById() {
                 }
               >
                 <>
+                  {quest && quest.userTapReq !== null && (
+                    <Card.Base className="text-center flex justify-center py-4">
+                      <div className="flex flex-col gap-2 items-center">
+                        <div className={cn("flex items-center justify-center")}>
+                          <CircleCard size="sm" color="white" icon="proof" />
+                        </div>
+                        <div className="flex flex-col">
+                          <Card.Title>{`Tap ${quest.userTapReq} people!`}</Card.Title>
+                          <Card.Description>
+                            {userOutboundTaps >= quest.userTapReq
+                              ? "Complete"
+                              : `${userOutboundTaps}/${quest.userTapReq}`}
+                          </Card.Description>
+                        </div>
+                      </div>
+                      {userOutboundTaps >= quest.userTapReq && (
+                        <Icons.checkedCircle className="absolute right-[6px] top-[6px]" />
+                      )}
+                    </Card.Base>
+                  )}
                   {quest &&
                     quest.userRequirements.map(
                       (
