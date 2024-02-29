@@ -22,7 +22,7 @@ const FullPageBanner = ({
       }}
       className="flex text-center h-full"
     >
-      <div className="flex flex-col gap-8 my-auto mx-auto px-10">
+      <div className="flex flex-col gap-2 my-auto mx-auto px-10">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 mx-auto">
             <Icons.iyk size={iconSize} />
