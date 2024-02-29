@@ -44,7 +44,7 @@ export default function App({ Component, pageProps }: AppProps) {
     );
   }
 
-  const isHeaderFixed = pageProps?.headerFixed ?? false;
+  const isHeaderFixed = pageProps?.headerFixed ?? true;
 
   return (
     <StateMachineProvider>
