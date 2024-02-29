@@ -15,3 +15,16 @@ declare module "little-state-machine" {
     profileView: ProfileDisplayState;
   }
 }
+
+declare global {
+  interface Window {
+    render: () => void;
+    signatures: Array<{ pubKey: string; timestamp: number }>;
+    artworkHeight: number;
+    artworkWidth: number;
+    params: any;
+    myPubKey: string;
+    stamp: any;
+    params: any;
+  }
+}

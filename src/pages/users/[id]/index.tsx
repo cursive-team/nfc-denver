@@ -22,6 +22,7 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { encryptOutboundTapMessage } from "@/lib/client/jubSignal";
 import { toast } from "sonner";
 import { MessageRequest } from "@/pages/api/messages";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { getUserPsiState, saveUserPsiState } from "@/lib/client/indexedDB/psi";
@@ -249,26 +250,32 @@ const UserProfilePage = () => {
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <div className="flex gap-6 items-center">
-          <div className="h-32 w-32 rounded bg-slate-200"></div>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1 mt-2">
-              <h2 className="text-xl font-gray-12 font-light">{user.name}</h2>
-              <div className="flex items-center gap-1">
-                <Icons.checkedCircle />
-                <span className="text-sm font-light text-gray-10">
-                  {user.outTs ? (
-                    <Label>{`Shared on ${new Date(user.outTs).toLocaleString(
-                      undefined,
-                      {
-                        dateStyle: "medium",
-                      }
-                    )}`}</Label>
-                  ) : (
-                    <Label>{`Not yet connected.`}</Label>
-                  )}
-                </span>
-              </div>
+        <div className="flex gap-4 xs:gap-5 items-center">
+          {user ? (
+            <ArtworkSnapshot
+              width={128}
+              height={128}
+              pubKey={user.sigPk ?? ""}
+            />
+          ) : (
+            <ArtworkSnapshot width={128} height={128} pubKey={""} />
+          )}
+          <div className="flex flex-col gap-1">
+            <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>
+            <div className="flex items-center gap-1">
+              <Icons.checkedCircle />
+              <span className="text-sm font-light text-white">
+                {user.outTs ? (
+                  <Label>{`Shared on ${new Date(user.outTs).toLocaleString(
+                    undefined,
+                    {
+                      dateStyle: "medium",
+                    }
+                  )}`}</Label>
+                ) : (
+                  <Label>{`Not yet connected.`}</Label>
+                )}
+              </span>
             </div>
 
             <Button size="sm" onClick={() => setViewNote(true)}>
