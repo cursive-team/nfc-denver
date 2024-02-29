@@ -131,6 +131,7 @@ model Quest {
   locationRequirements LocationRequirement[]
   proofs               QuestProof[]          @relation("QuestForProof")
   item                 Item?                 @relation("ItemQuestRequirement")
+  userTapReq           Int?
 }
 
 model UserRequirement {

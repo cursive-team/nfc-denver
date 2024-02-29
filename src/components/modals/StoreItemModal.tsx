@@ -59,15 +59,22 @@ const StoreModalItem = ({
     const numRequirementsSatisfied = computeNumRequirementsSatisfied({
       userPublicKeys,
       locationPublicKeys,
+      userOutboundTaps: Object.values(users).filter((user: User) => user.outTs)
+        .length,
       userRequirements: quest.userRequirements,
       locationRequirements: quest.locationRequirements,
+      questUserTapReq: quest.userTapReq,
     });
     setNumRequirementsSatisfied(numRequirementsSatisfied);
+
+    let userTapRequirement = quest.userTapReq !== null ? 1 : 0;
 
     // Check if user has met all quest requirements
     if (
       numRequirementsSatisfied ===
-      quest.userRequirements.length + quest.locationRequirements.length
+      quest.userRequirements.length +
+        quest.locationRequirements.length +
+        userTapRequirement
     ) {
       setAreQuestRequirementsSatisfied(true);
       // Check if the user has already submitted a proof for this quest
@@ -152,7 +159,8 @@ const StoreModalItem = ({
                   <QuestCard
                     title={quest.name}
                     description={quest.description}
-                    completedSigs={numRequirementsSatisfied}
+                    userTapReqCount={quest.userTapReq ? 1 : 0}
+                    completedReqs={numRequirementsSatisfied}
                     userRequirements={quest.userRequirements}
                     locationRequirements={quest.locationRequirements}
                     isCompleted={completedQuestIds.includes(

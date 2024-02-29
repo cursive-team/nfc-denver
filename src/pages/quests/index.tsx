@@ -66,6 +66,7 @@ export default function QuestsPage() {
               userRequirements,
               locationRequirements,
               isCompleted = false,
+              userTapReq,
             }: QuestWithCompletion,
             index
           ) => {
@@ -76,7 +77,8 @@ export default function QuestsPage() {
                 <QuestCard
                   title={name}
                   description={description}
-                  completedSigs={numRequirementsSatisfied[index]}
+                  userTapReqCount={userTapReq ? 1 : 0}
+                  completedReqs={numRequirementsSatisfied[index]}
                   userRequirements={userRequirements}
                   locationRequirements={locationRequirements}
                   isCompleted={isCompleted}

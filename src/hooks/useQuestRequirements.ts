@@ -13,8 +13,14 @@ export function useQuestRequirements(quests: QuestWithCompletion[]) {
   const [userPublicKeys, setUserPublicKeys] = useState<string[]>([]);
   const [locationPublicKeys, setLocationPublicKeys] = useState<string[]>([]);
 
+  // compute outbound taps
+  const [userOutboundTaps, setUserOutboundTaps] = useState<number>(0);
+
   useEffect(() => {
     const users = getUsers();
+    setUserOutboundTaps(
+      Object.values(users).filter((user: User) => user.outTs).length
+    );
     const locationSignatures = getLocationSignatures();
 
     const validUserPublicKeys = Object.values(users)
@@ -30,16 +36,22 @@ export function useQuestRequirements(quests: QuestWithCompletion[]) {
 
   const numRequirementsSatisfied: number[] = useMemo(() => {
     return (quests ?? [])?.map(
-      ({ userRequirements, locationRequirements }: QuestWithRequirements) => {
+      ({
+        userTapReq,
+        userRequirements,
+        locationRequirements,
+      }: QuestWithRequirements) => {
         return computeNumRequirementsSatisfied({
           userPublicKeys,
           locationPublicKeys,
+          userOutboundTaps,
           userRequirements,
           locationRequirements,
+          questUserTapReq: userTapReq,
         });
       }
     );
-  }, [quests, userPublicKeys, locationPublicKeys]);
+  }, [quests, userPublicKeys, locationPublicKeys, userOutboundTaps]);
 
   return {
     numRequirementsSatisfied,
