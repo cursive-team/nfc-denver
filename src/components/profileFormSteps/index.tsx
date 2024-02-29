@@ -219,7 +219,7 @@ const ProfileForm = ({
         />
       </div>
       {claveInfo && (
-        <div className="flex flex-col gap-7">
+        <div className="flex flex-col gap-2">
           <span className="text-gray-12 text-sm font-light">Clave</span>
           {claveInfo.claveWalletAddress ? (
             <span className="text-gray-12 text-sm font-light">{`Wallet Address: ${claveInfo.claveWalletAddress}`}</span>

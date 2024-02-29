@@ -86,21 +86,31 @@ const AppHeaderContent = ({
           <ContentWrapper>
             <Title>Information</Title>
             <Description>
-              This is a project in collaboration with IYK, Jubmoji and Art
-              Blocks lorem ipsum dolor sit amet.
+              BUIDLQuest is a way for ETHDenver attendees to connect with each
+              other, engage with sponsors, and unlock unique experiences by
+              tapping NFC chips. You collect unique digital signatures from
+              tapping people’s chipped badges to prove you met them, or from
+              tapping chips around the venue to prove you’ve been to in-person
+              events. If you satisfy the tap requirements of a quest, you can
+              generate a ZK proof of completion to earn play $BUIDL and buy
+              items at the BUIDL Store at the front of the ETHDenver venue.
             </Description>
           </ContentWrapper>
           <ContentWrapper>
             <Title>FAQ</Title>
             <div className="flex flex-col gap-2">
-              <Subtitle>
-                Lorem ipsum dolor sit amet, consectetur adipiscing?
-              </Subtitle>
+              <Subtitle>Who is behind BUIDLQuest?</Subtitle>
               <Description>
-                Curabitur ultrices faucibus urna, a gravida mi dictum sed.
-                Nullam dictum quam id odio scelerisque ultrices. Nulla rhoncus
-                tortor nunc, a mollis justo varius sed. Vestibulum turpis
-                ligula, suscipit vel rhoncus ut.
+                BUIDLQuest is a collaboration between IYK, Cursive, ZKSync,
+                Clave, Summon, and ETHDenver.
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>What do I get from participating?</Subtitle>
+              <Description>
+                IYK has set up an expansive merch store at the front of the main
+                venue, filled with chipped goods that you can claim for $BUIDL
+                you win from completing quests!
               </Description>
             </div>
           </ContentWrapper>
