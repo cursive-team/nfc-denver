@@ -18,6 +18,7 @@ model User {
   displayName String
   
   claveInviteCode String
+  claveInviteLink String
   claveWallet String?
 
   encryptionPublicKey String

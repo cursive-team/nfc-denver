@@ -14,6 +14,7 @@ import {
   getChipTypeFromChipId,
   verifyEmailForChipId,
 } from "@/lib/server/iyk";
+import { getClaveInviteLink } from "@/lib/server/clave";
 
 const createAccountSchema = object({
   iykRef: string().required(),
@@ -132,6 +133,14 @@ export default async function handler(
     return res.status(500).json({ error: "Clave invite code not received" });
   }
 
+  let claveInviteLink: string;
+  try {
+    claveInviteLink = await getClaveInviteLink(email, claveInviteCode);
+  } catch (error) {
+    console.error("Error generating Clave invite link:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+
   // Create user
   const user = await prisma.user.create({
     data: {
@@ -146,6 +155,7 @@ export default async function handler(
       passwordSalt,
       passwordHash,
       claveInviteCode,
+      claveInviteLink,
     },
   });
 
