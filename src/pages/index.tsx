@@ -26,7 +26,6 @@ import { Spinner } from "@/components/Spinner";
 import { CircleCard } from "@/components/cards/CircleCard";
 import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import useSettings from "@/hooks/useSettings";
-import { ArtworkProfile } from "@/components/artwork/ArtworkProfile";
 
 interface ContactCardProps {
   name: string;
