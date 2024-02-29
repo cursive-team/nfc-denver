@@ -74,7 +74,7 @@ const LocationTapModal = ({
 
     if (response.ok) {
       toast.success(
-        "Mint successful! Check your email in a few seconds for a special NFT."
+        "Success! Check your mail in a few minutes, and make sure to check spam."
       );
       setMintDisplayState(MintDisplayState.SUCCESS);
     } else {
@@ -99,7 +99,9 @@ const LocationTapModal = ({
     } else {
       return (
         <div className="text-md text-center text-gray-11">
-          Check your email for a special NFT!
+          {
+            "Success! Check your mail in a few minutes, and make sure to check spam."
+          }
         </div>
       );
     }
