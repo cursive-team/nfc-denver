@@ -2,7 +2,7 @@ import type * as Classed from "@tw-classed/react";
 import { classed } from "@tw-classed/react";
 
 const PointCardComponent = classed.div(
-  "relative overflow-hidden px-[2px] flex items-center font-light h-[14px]",
+  "relative overflow-hidden px-[2px] flex items-center font-light min-h-[14px] py-[0.5px]",
   {
     variants: {
       variant: {
