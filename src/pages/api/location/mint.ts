@@ -81,6 +81,7 @@ export default async function handler(
         locationName: location.name,
         imageUrl: location.imageUrl,
         nonce,
+        password: process.env.EMAIL_WALLET_SECRET,
       }),
     });
     if (!response.ok) {
