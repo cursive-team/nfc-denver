@@ -46,10 +46,10 @@ export default async function handler(
     passwordHash,
   } = validatedData;
 
-  if (displayName && !displayNameRegex.test(displayName)) {
+  if (!displayName || /^\s|\s$/.test(displayName) || displayName.length > 20) {
     return res.status(400).json({
       error:
-        "Invalid display name. Must be alphanumeric and less than 20 characters",
+        "Display name cannot have leading or trailing whitespace and must be less than or equal to 20 characters",
     });
   }
 
