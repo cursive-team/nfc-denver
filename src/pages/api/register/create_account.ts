@@ -14,6 +14,7 @@ import {
   getChipTypeFromChipId,
   verifyEmailForChipId,
 } from "@/lib/server/iyk";
+import { getClaveInviteLink } from "@/lib/server/clave";
 
 const createAccountSchema = object({
   iykRef: string().required(),
@@ -113,6 +114,33 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid email code" });
   }
 
+  // Fetch a clave invite code
+  const claveInviteCodeResponse = await fetch(
+    "https://api.getclave.io/api/v1/waitlist/codes/single",
+    {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.CLAVE_API_KEY!,
+      },
+    }
+  );
+  if (!claveInviteCodeResponse.ok) {
+    return res.status(400).json({ error: "Failed to fetch Clave invite code" });
+  }
+
+  const { code: claveInviteCode } = await claveInviteCodeResponse.json();
+  if (!claveInviteCode) {
+    return res.status(500).json({ error: "Clave invite code not received" });
+  }
+
+  let claveInviteLink: string;
+  try {
+    claveInviteLink = await getClaveInviteLink(email, claveInviteCode);
+  } catch (error) {
+    console.error("Error generating Clave invite link:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+
   // Create user
   const user = await prisma.user.create({
     data: {
@@ -126,6 +154,8 @@ export default async function handler(
       psiRound1Message,
       passwordSalt,
       passwordHash,
+      claveInviteCode,
+      claveInviteLink,
     },
   });
 
