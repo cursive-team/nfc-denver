@@ -50,8 +50,12 @@ const PositionCard = classed.div(
 
 export default function LeaderBoard() {
   const authToken = useMemo(getAuthToken, []);
-  const { isLoading, data: leaderboard = [] } = useGetLeaderboard(authToken);
   const { isLoading: isLoadingStoreItems, data: storeItems } = useFetchStore();
+  const {
+    isLoading,
+    data: leaderboard = [],
+    isRefetching,
+  } = useGetLeaderboard(authToken);
 
   const [currentUserRank, setCurrentUserRank] = useState<number | undefined>();
 
@@ -78,7 +82,7 @@ export default function LeaderBoard() {
         }
       }
     }
-  }, [leaderboard]);
+  }, [leaderboard, isRefetching]);
 
   const getLeaderboardData = () => {
     let rank = 0;

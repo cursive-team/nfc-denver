@@ -44,5 +44,7 @@ export const useGetLeaderboard = (authToken: AuthToken | undefined) => {
         return [];
       }
     },
+    // refetch every 5 minutes
+    refetchInterval: 5 * 60 * 1000,
   });
 };
