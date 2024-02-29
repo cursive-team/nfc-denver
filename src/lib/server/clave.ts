@@ -17,7 +17,7 @@ export const getClaveInviteLink = async (
 export function signJwt(email: string) {
   const now = dayjs();
   return jwt.sign(
-    { iat: now.unix(), exp: now.add(1, "day").unix(), ethDenver: { email } },
+    { iat: now.unix(), exp: now.add(5, "day").unix(), ethDenver: { email } },
     process.env.CLAVE_JWT_SECRET!,
     { algorithm: "HS256" }
   );
