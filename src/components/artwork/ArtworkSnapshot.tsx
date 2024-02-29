@@ -119,6 +119,7 @@ const ArtworkSnapshot = ({
       const users = getUsers();
       for (const userKey in users) {
         const user = users[userKey];
+        if (user.pkId === "0") continue;
         const ts = user.inTs;
         const pk = user.sigPk;
         if (ts && pk) {
@@ -146,8 +147,7 @@ const ArtworkSnapshot = ({
         }
       }
 
-      combined.sort((a, b) => b.timestamp - a.timestamp);
-
+      combined.sort((a, b) => a.timestamp - b.timestamp);
       const profile = getProfile();
       const signaturePublicKey = profile?.signaturePublicKey ?? "0";
       window.myPubKey = signaturePublicKey;
@@ -195,8 +195,6 @@ const ArtworkSnapshot = ({
     HAS_PROFILE_PUB_KEY,
   ]);
 
-  const currentRangeIndex = rangeValue - 1;
-
   // no signatures, canvas is empty
   if (signatures?.length === 0) return;
 
@@ -224,44 +222,40 @@ const ArtworkSnapshot = ({
             <input
               type="range"
               min={1}
-              max={signatures.length}
+              max={signatures.length + 1}
               value={rangeValue} // Bind the value to state
               onChange={onRangeChange}
               className="w-full h-0.5 bg-gray-700 accent-gray-12 appearance-none"
             />
           </label>
           <div className="flex flex-col">
-            {signatures?.map(({ person, name, timestamp }, index) => {
-              const showCurrent = currentRangeIndex === index;
-              const isFirstElement = rangeValue === 1;
-
-              return (
-                <div className="relative" key={index}>
-                  <div
-                    className={cn(
-                      "absolute inset-0 flex flex-col gap-1 w-full duration-300 ease-in",
-                      {
-                        "opacity-0": !showCurrent,
-                        "opacity-100": showCurrent,
-                      }
-                    )}
-                  >
-                    <Description>
-                      {isFirstElement
-                        ? "Your personal stamp"
-                        : `Snapshot when ${
-                            person ? `you met ${name}` : `you went to ${name}`
-                          }`}
-                    </Description>
-                    <Label className="text-center ">
-                      {isFirstElement
-                        ? "Navigate to see your stamp collection develop!"
-                        : new Date(timestamp).toLocaleString()}
-                    </Label>
-                  </div>
+            {rangeValue === 1 ? (
+              <div className="relative">
+                <div className="absolute inset-0 flex flex-col gap-1 w-full">
+                  <Description>Your personal stamp</Description>
+                  <Label className="text-center ">
+                    Navigate to see your stamp collection develop!
+                  </Label>
                 </div>
-              );
-            })}
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="absolute inset-0 flex flex-col gap-1 w-full">
+                  <Description>
+                    {`Snapshot when ${
+                      signatures[rangeValue - 2].person
+                        ? `you met ${signatures[rangeValue - 2].name}`
+                        : `you went to ${signatures[rangeValue - 2].name}`
+                    }`}
+                  </Description>
+                  <Label className="text-center ">
+                    {new Date(
+                      signatures[rangeValue - 2].timestamp
+                    ).toLocaleString()}
+                  </Label>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
