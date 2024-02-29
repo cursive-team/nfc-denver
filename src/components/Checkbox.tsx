@@ -1,6 +1,5 @@
 import { classed } from "@tw-classed/react";
 import { Icons } from "./Icons";
-import { useState } from "react";
 
 type CheckboxType = "checkbox" | "button";
 interface CheckboxProps
@@ -15,7 +14,7 @@ interface CheckboxProps
 }
 
 const CheckboxBase = classed.label(
-  "duration-300 bg-transparent peer-checked:bg-gray-200 w-full flex border border-gray-400 text-sm justify-center items-center rounded-[4px] cursor-pointer py-[18px] overflow-hidden"
+  "duration-300 bg-transparent peer-checked:bg-gray-200 w-full flex border border-gray-400 text-sm justify-center items-center rounded-[4px] cursor-pointer py-[12px] xs:py-[18px] overflow-hidden"
 );
 
 const CheckboxComponent = classed.label(
