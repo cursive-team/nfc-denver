@@ -26,6 +26,8 @@ import { Spinner } from "@/components/Spinner";
 import { CircleCard } from "@/components/cards/CircleCard";
 import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import useSettings from "@/hooks/useSettings";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
 
 interface ContactCardProps {
   name: string;
@@ -173,6 +175,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
 
 export default function Social() {
   const router = useRouter();
+  const { getState } = useStateMachine({ updateStateFromAction });
   const { pageWidth } = useSettings();
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   const [profile, setProfile] = useState<Profile>();
@@ -180,6 +183,8 @@ export default function Social() {
   const [numConnections, setNumConnections] = useState<number>(0);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
   const [isLoading, setLoading] = useState(false);
+
+  const isMenuOpen = getState().isMenuOpen ?? false;
 
   // Helper function to compute data needed to populate tabs
   const computeTabsItems = (
@@ -429,7 +434,7 @@ export default function Social() {
             <ArtworkSnapshot
               width={128}
               height={128}
-              isVisible={!showSnapshotModal}
+              isVisible={!showSnapshotModal && !isMenuOpen}
               pubKey={profile.signaturePublicKey}
             />
             <button type="button" className="absolute right-1 top-1 z-1">
