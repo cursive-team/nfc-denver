@@ -51,13 +51,31 @@ const ArtworkSnapshotArrow = ({
   return (
     <button onClick={onHandleClick} {...props}>
       <Icons.arrowRight
-        className={cn({
+        className={cn("duration-200", {
           "rotate-180": direction === "left",
           "opacity-30": disabled,
         })}
         size={30}
       />
     </button>
+  );
+};
+
+interface ProfileCardArtworkProps {
+  size?: number;
+  image?: string;
+}
+
+const ProfileCardArtwork = ({ size, image }: ProfileCardArtworkProps) => {
+  return (
+    <Card.Artwork
+      className={cn({ "bg-skeleton": !image })}
+      style={{
+        backgroundImage: `url(${image})`,
+        height: `${size}px`,
+        width: `${size}px`,
+      }}
+    />
   );
 };
 
@@ -123,11 +141,8 @@ const ArtworkSnapshot = ({
       combined.sort((a, b) => b.timestamp - a.timestamp);
 
       const profile = getProfile();
-      if (profile?.signaturePublicKey) {
-        window.myPubKey = profile.signaturePublicKey;
-      } else {
-        window.myPubKey = "0";
-      }
+      const signaturePublicKey = profile?.signaturePublicKey ?? "0";
+      window.myPubKey = signaturePublicKey;
     } else {
       window.myPubKey = pubKey;
       combined.push({
@@ -141,9 +156,7 @@ const ArtworkSnapshot = ({
   }, [pubKey]);
 
   useEffect(() => {
-    if (pubKey === "") return;
-    if (signatures?.length === 0) return;
-    if (!isLoaded) return;
+    if (pubKey === "" || !isLoaded || signatures.length === 0) return;
 
     window.params = {
       fill: false,
@@ -189,27 +202,11 @@ const ArtworkSnapshot = ({
   if (signatures?.length === 0) return;
 
   // if profile public key is available, use the dataURL
-  if (HAS_PROFILE_PUB_KEY) {
-    return (
-      <Card.Artwork
-        style={{
-          backgroundImage: `url(${dataURL})`,
-          height: `${height}px`,
-          width: `${width}px`,
-        }}
-      />
-    );
+  if (HAS_PROFILE_PUB_KEY || pubKey === "") {
+    return <ProfileCardArtwork size={width ?? 200} image={dataURL} />;
   }
 
-  return pubKey === "" ? (
-    <Card.Artwork
-      className="bg-skeleton "
-      style={{
-        height: `${height}px`,
-        width: `${width}px`,
-      }}
-    />
-  ) : (
+  return (
     <>
       {isVisible && (
         <canvas
