@@ -25,6 +25,7 @@ import {
   InputDescription as Description,
 } from "@/components/input/InputWrapper";
 import { v4 as uuidv4 } from "uuid";
+import { Spinner } from "@/components/Spinner";
 import { MessageRequest } from "@/pages/api/messages";
 
 const SharePage = () => {
@@ -38,6 +39,7 @@ const SharePage = () => {
   const [shareBio, setShareBio] = useState(false);
   const [privateNote, setPrivateNote] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(false);
 
   useEffect(() => {
     if (typeof id === "string") {
@@ -49,10 +51,10 @@ const SharePage = () => {
       }
       setProfile(profile);
 
+      setLoadingUser(true);
       const fetchedUser = fetchUserByUUID(id);
       if (fetchedUser) {
         if (fetchedUser.encPk === profile.encryptionPublicKey) {
-          toast.error("You cannot connect with yourself");
           router.push("/");
           return;
         }
@@ -63,7 +65,7 @@ const SharePage = () => {
         }
 
         setUser(fetchedUser);
-        setPrivateNote(fetchedUser.note);
+        setLoadingUser(false);
       }
     }
   }, [id, router]);
@@ -159,8 +161,8 @@ const SharePage = () => {
     router.push(`/users/${id}`);
   };
 
-  if (!profile) {
-    return <div>Loading...</div>;
+  if (!profile || loadingUser) {
+    return <Spinner />;
   }
 
   if (!user) {

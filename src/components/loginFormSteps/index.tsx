@@ -2,7 +2,6 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { useMutation } from "@tanstack/react-query";
 import { useStateMachine } from "little-state-machine";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "../Button";
@@ -18,9 +17,10 @@ export interface LoginFormStepProps {
   onSuccessfulLogin?: () => void;
   onSuccess?: () => void;
   onBack?: () => void;
+  subtitle?: string;
 }
 
-const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
+const LoginFormStepIndex = ({ onSuccess, subtitle }: LoginFormStepProps) => {
   const { actions, getState } = useStateMachine({ updateStateFromAction });
 
   const {
@@ -86,6 +86,7 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
     <FormStepLayout
       title="Login"
       description="Welcome to ETHDenver"
+      subtitle={subtitle}
       onSubmit={handleSubmit(onSubmit)}
       className="pt-4"
     >
@@ -100,14 +101,6 @@ const LoginFormStepIndex = ({ onSuccess }: LoginFormStepProps) => {
       <Button type="submit" loading={loginMutation.isPending}>
         Send Code
       </Button>
-      <Link
-        href="https://cursive-team.notion.site/BUIDLQuest-One-Pager-fd5c747cfe2847e59db188345d41eba2"
-        className="link text-center"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        I have not registered
-      </Link>
     </FormStepLayout>
   );
 };

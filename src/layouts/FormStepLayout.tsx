@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 type FormStepLayoutProps = {
   title?: ReactNode;
   description?: string;
+  subtitle?: ReactNode;
   children: React.ReactNode;
   header?: React.ReactNode;
   onSubmit?: (event: React.FormEvent) => void;
@@ -21,6 +22,7 @@ const FormStepLayout = ({
   className = "",
   actions,
   onChange,
+  subtitle,
   ...props
 }: FormStepLayoutProps) => {
   return (
@@ -36,17 +38,24 @@ const FormStepLayout = ({
               {description}
             </span>
           )}
-          {title && (
-            <>
-              {typeof title === "string" ? (
-                <h3 className="font-normal leading-8 text-gray-12 text-light text-[20px]">
-                  {title}
-                </h3>
-              ) : (
-                title
-              )}
-            </>
-          )}
+          <div className="flex flex-col gap-3">
+            {title && (
+              <>
+                {typeof title === "string" ? (
+                  <h3 className="font-normal leading-8 text-gray-12 text-light text-[20px]">
+                    {title}
+                  </h3>
+                ) : (
+                  title
+                )}
+              </>
+            )}
+            {subtitle && (
+              <span className="font-normal text-md text-gray-12 text-light">
+                {subtitle}
+              </span>
+            )}
+          </div>
         </div>
         {header}
       </div>

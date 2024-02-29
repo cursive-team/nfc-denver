@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/Spinner";
 import { getHaLoArgs } from "@/lib/client/libhalo";
 import { sigCardTapResponseSchema } from "./api/tap/sig_card";
-import { verify } from "@/lib/shared/signature";
 import { fixBJJSig } from "@/lib/shared/libhalo";
 
 export default function Tap() {
@@ -109,6 +108,11 @@ export default function Tap() {
       iykRef: string,
       mockRef: string | undefined
     ) => {
+      const authToken = getAuthToken();
+      if (authToken) {
+        router.push(`/not-registered-friend`);
+        return;
+      }
       router.push(`/register?iykRef=${iykRef}${getMockRefUrlParam(mockRef)}`);
     };
 
@@ -258,8 +262,15 @@ export default function Tap() {
   }, [router, processPersonTap, processLocationTap]);
 
   if (pendingPersonTapResponse) {
+    const authToken = getAuthToken();
+
+    const description = !authToken
+      ? "If you haven't registered tap your badge to take part in the experience"
+      : "";
+
     return (
       <LoginForm
+        description={description}
         onSuccessfulLogin={() => processPersonTap(pendingPersonTapResponse)}
       />
     );

@@ -16,9 +16,13 @@ enum DisplayState {
 
 interface LoginFormProps {
   onSuccessfulLogin: () => void;
+  description?: string;
 }
 
-export default function LoginForm({ onSuccessfulLogin }: LoginFormProps) {
+export default function LoginForm({
+  onSuccessfulLogin,
+  description,
+}: LoginFormProps) {
   const { pageHeight } = useSettings();
   const [displayState, setDisplayState] = useState(DisplayState.INPUT_EMAIL);
 
@@ -32,6 +36,7 @@ export default function LoginForm({ onSuccessfulLogin }: LoginFormProps) {
   > = {
     INPUT_EMAIL: (
       <LoginFormStepIndex
+        subtitle={description}
         onSuccess={() => {
           setDisplayState(DisplayState.INPUT_CODE);
         }}
