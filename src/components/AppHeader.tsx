@@ -13,7 +13,7 @@ const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
 const Description = classed.span("text-sm text-gray-11 leading-5");
 
-const ContentWrapper = classed.div("flex flex-col gap-4 mt-8");
+const ContentWrapper = classed.div("flex flex-col gap-3 mt-3 xs:gap-4 xs:mt-6");
 
 interface AppHeaderContentProps {
   isMenuOpen: boolean;
@@ -86,25 +86,148 @@ const AppHeaderContent = ({
           <ContentWrapper>
             <Title>Information</Title>
             <Description>
-              This is a project in collaboration with IYK, Jubmoji and Art
-              Blocks lorem ipsum dolor sit amet.
+              BUIDLQuest is a way for ETHDenver attendees to connect with each
+              other and unlock unique experiences and merch by tapping NFC
+              chips. You collect unique stamps and signatures from tapping
+              people’s chipped badges to prove you met them, or from tapping
+              chips around the venue to prove you’ve been to in-person events.
+            </Description>
+            <Description>
+              If you satisfy the tap requirements of a quest, you can generate a
+              ZK proof of completion to earn $BUIDL to buy items at the BUIDL
+              Store! The store is at the front of the ETHDenver venue, full of
+              some of the best IYK chipped goods, claimed
+              first-come-first-serve!
             </Description>
           </ContentWrapper>
           <ContentWrapper>
             <Title>FAQ</Title>
             <div className="flex flex-col gap-2">
-              <Subtitle>
-                Lorem ipsum dolor sit amet, consectetur adipiscing?
-              </Subtitle>
+              <Subtitle>Who is behind BUIDLQuest?</Subtitle>
               <Description>
-                Curabitur ultrices faucibus urna, a gravida mi dictum sed.
-                Nullam dictum quam id odio scelerisque ultrices. Nulla rhoncus
-                tortor nunc, a mollis justo varius sed. Vestibulum turpis
-                ligula, suscipit vel rhoncus ut.
+                BUIDLQuest is a joint collaboration between{" "}
+                <u>
+                  <a
+                    href="https://zksync.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ZKSync
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://iyk.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    IYK
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://cursive.team"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Cursive
+                  </a>
+                </u>
+                , ,{" "}
+                <u>
+                  <a
+                    href="https://getclave.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Clave
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://summon.xyz/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Summon
+                  </a>
+                </u>
+                , and{" "}
+                <u>
+                  <a
+                    href="https://ethdenver.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ETHDenver
+                  </a>
+                </u>
+                .
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>What do I get from participating?</Subtitle>
+              <Description>
+                IYK has set up an expansive merch store at the front of the main
+                venue, filled with chipped goods that you can claim for $BUIDL
+                earned from completing quests!
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>{"Where do I get support?"}</Subtitle>
+              <Description>
+                Join this Cursive ETHDenver{" "}
+                <a
+                  href="https://t.me/+pggQrl-a0W1mZGQ5"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <u>Telegram group</u>
+                </a>{" "}
+                for technical support and questions!
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>{"Who is behind the generative art?"}</Subtitle>
+              <Description>
+                The generative art experience is a collaboration between{" "}
+                <u>
+                  <a
+                    href="https://iyk.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    IYK
+                  </a>
+                </u>{" "}
+                and{" "}
+                <u>
+                  <a
+                    href="https://www.artblocks.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Art Blocks
+                  </a>
+                </u>
+                , with art from{" "}
+                <u>
+                  <a
+                    href="https://stefanocontiero.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Stefano Conteiro
+                  </a>
+                </u>
+                !
               </Description>
             </div>
           </ContentWrapper>
-          <ContentWrapper>
+          <ContentWrapper className="pb-20">
             <Title>Project Links</Title>
             <div className="flex flex-col gap-2">
               <Subtitle>
