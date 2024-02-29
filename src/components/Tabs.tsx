@@ -1,14 +1,18 @@
 import { Tab } from "@headlessui/react";
 import { classed } from "@tw-classed/react";
+import { useStateMachine } from "little-state-machine";
 
 interface TabProps {
   label: string;
+  id: string;
   badge?: boolean;
   children: React.ReactNode;
 }
 
 export interface TabsProps {
+  onChange?: (currentActive: string) => void;
   items: TabProps[];
+  defaultTab?: string;
 }
 
 const TabButton = classed.div("pb-4", {
@@ -27,16 +31,23 @@ const TabBadge = classed.div(
   "absolute -top-0.5 -right-2 bg-[#D40018] rounded-full text-white w-[6px] h-[6px] text-[8px]"
 );
 
-const Tabs = ({ items }: TabsProps) => {
+const Tabs = ({ items, defaultTab, onChange }: TabsProps) => {
+  const defaultTabIndex = items.findIndex((item) => item.id === defaultTab);
+
   return (
-    <Tab.Group>
+    <Tab.Group defaultIndex={defaultTabIndex}>
       <Tab.List className="flex gap-8 relative">
-        {items.map(({ label, badge }, index) => {
+        {items.map(({ label, badge, id }, index) => {
           return (
             <Tab className="outline-none" key={index}>
               {({ selected }) => (
                 <div className="relative">
-                  <TabButton selected={selected}>
+                  <TabButton
+                    selected={selected}
+                    onClick={() => {
+                      onChange?.(id);
+                    }}
+                  >
                     <span className="relative">
                       {label}
                       {badge && <TabBadge />}

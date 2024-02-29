@@ -13,6 +13,7 @@ declare module "little-state-machine" {
     register: RegisterType;
     profile: ProfileType;
     profileView: ProfileDisplayState;
+    profileActiveTab: string;
   }
 }
 

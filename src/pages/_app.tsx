@@ -4,6 +4,7 @@ import { FullPageBanner } from "@/components/FullPageBanner";
 import { TransitionWrapper } from "@/components/Transition";
 import useSettings from "@/hooks/useSettings";
 import OnlyMobileLayout from "@/layouts/OnlyMobileLayout";
+import { cn } from "@/lib/client/utils";
 import "@/styles/globals.css";
 import {
   QueryCache,
@@ -12,6 +13,7 @@ import {
 } from "@tanstack/react-query";
 import { StateMachineProvider } from "little-state-machine";
 import type { AppProps } from "next/app";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 
@@ -23,6 +25,7 @@ const queryClient = new QueryClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   const { isIncognito } = useSettings();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageHeight, setPageHeight] = useState(0);
   const showFooter = pageProps?.showFooter ?? true;
@@ -41,6 +44,8 @@ export default function App({ Component, pageProps }: AppProps) {
     );
   }
 
+  const isHeaderFixed = pageProps?.headerFixed ?? true;
+
   return (
     <StateMachineProvider>
       <QueryClientProvider client={queryClient}>
@@ -56,12 +61,14 @@ export default function App({ Component, pageProps }: AppProps) {
                 <AppHeader
                   isMenuOpen={isMenuOpen}
                   setIsMenuOpen={setIsMenuOpen}
+                  fixed={isHeaderFixed}
                 />
               )}
               <div
-                className={`flex flex-col grow px-4 xs:px-4 ${
-                  footerVisible ? "mb-20" : ""
-                }`}
+                className={cn("flex flex-col grow px-4 xs:px-4", {
+                  "mb-20": footerVisible,
+                  "pt-[55px] xs:pt-[65px]": isHeaderFixed,
+                })}
               >
                 <Component {...pageProps} />
               </div>
