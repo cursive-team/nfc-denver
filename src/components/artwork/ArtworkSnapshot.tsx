@@ -5,7 +5,7 @@ import {
   getUsers,
 } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Card } from "../cards/Card";
 import { Icons } from "../Icons";
 import { cn } from "@/lib/client/utils";
@@ -105,6 +105,14 @@ const ArtworkSnapshot = ({
     window.params.upToPubKey = newIndex;
   };
 
+  const onRangeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value);
+
+    setRangeValue(newValue); // Update state on change
+
+    renderRangeStep(newValue);
+  };
+
   useEffect(() => {
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
@@ -187,15 +195,6 @@ const ArtworkSnapshot = ({
     HAS_PROFILE_PUB_KEY,
   ]);
 
-  const onNavigate = (direction: Direction) => {
-    const newValue = direction === "left" ? rangeValue - 1 : rangeValue + 1;
-
-    // prevent out of range
-    if (newValue < 1 || newValue > signatures.length) return;
-
-    renderRangeStep(newValue);
-  };
-
   const currentRangeIndex = rangeValue - 1;
 
   // no signatures, canvas is empty
@@ -218,21 +217,18 @@ const ArtworkSnapshot = ({
       {slider && (
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-4 w-full mt-4">
-            <div className="flex items-center gap-4 mx-auto">
-              <ArtworkSnapshotArrow
-                disabled={currentRangeIndex === 0}
-                direction="left"
-                onClick={() => onNavigate("left")}
-              />
-              <Label>
-                {rangeValue}/{signatures.length}
-              </Label>
-              <ArtworkSnapshotArrow
-                disabled={currentRangeIndex === signatures.length - 1}
-                direction="right"
-                onClick={() => onNavigate("right")}
-              />
+            <div className="label p-0">
+              <Label className="label-text">Start</Label>
+              <Label className="label-text-alt">Present</Label>
             </div>
+            <input
+              type="range"
+              min={1}
+              max={signatures.length}
+              value={rangeValue} // Bind the value to state
+              onChange={onRangeChange}
+              className="w-full h-0.5 bg-gray-700 accent-gray-12 appearance-none"
+            />
           </label>
           <div className="flex flex-col">
             {signatures?.map(({ person, name, timestamp }, index) => {
