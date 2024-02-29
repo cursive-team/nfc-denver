@@ -29,7 +29,22 @@ export default async function handler(
 
     const questProof = await prisma.questProof.findUnique({
       where: { id },
+      select: {
+        id: true,
+        userId: true,
+        redeemed: true,
+        quest: {
+          select: {
+            item: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
     });
+
     if (!questProof) {
       return res.status(404).json({ error: "QR code not found" });
     }
@@ -43,6 +58,15 @@ export default async function handler(
       where: { id },
       data: { redeemed: true },
     });
+
+    if (questProof.quest.item) {
+      await prisma.itemRedeemed.create({
+        data: {
+          userId: questProof.userId,
+          itemId: questProof.quest.item.id,
+        },
+      });
+    }
 
     res.status(200).json({ success: true });
   } else {

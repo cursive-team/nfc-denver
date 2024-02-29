@@ -12,14 +12,14 @@ datasource db {
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  chipId      String  @unique
-  email       String  @unique
+  id          Int    @id @default(autoincrement())
+  chipId      String @unique
+  email       String @unique
   displayName String
-  
+
   claveInviteCode String
   claveInviteLink String
-  claveWallet String?
+  claveWallet     String?
 
   encryptionPublicKey String
   signaturePublicKey  String
@@ -36,6 +36,8 @@ model User {
   receivedBenchmarkMessages BenchmarkMessage[] @relation("BenchmarkMessageRecipient")
   questProofs               QuestProof[]       @relation("QuestProofUser")
   admin                     Admin?
+  buidlMint                 BuidlMint[]
+  itemRedeemed              ItemRedeemed[]
 }
 
 model Admin {
@@ -152,16 +154,17 @@ model LocationRequirement {
 }
 
 model Item {
-  id          Int      @id @default(autoincrement())
-  name        String
-  sponsor     String
-  description String
-  imageUrl    String
-  buidlCost   Int
-  questId     Int?     @unique
-  isSoldOut   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  quest       Quest?   @relation("ItemQuestRequirement", fields: [questId], references: [id])
+  id           Int            @id @default(autoincrement())
+  name         String
+  sponsor      String
+  description  String
+  imageUrl     String
+  buidlCost    Int
+  questId      Int?           @unique
+  isSoldOut    Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  quest        Quest?         @relation("ItemQuestRequirement", fields: [questId], references: [id])
+  itemRedeemed ItemRedeemed[]
 }
 
 model QuestProof {
@@ -170,6 +173,7 @@ model QuestProof {
   userId                Int
   serializedProof       String
   redeemed              Boolean                @default(false)
+  minted                Boolean                @default(false)
   createdAt             DateTime               @default(now())
   quest                 Quest                  @relation(name: "QuestForProof", fields: [questId], references: [id])
   user                  User                   @relation(name: "QuestProofUser", fields: [userId], references: [id])
@@ -224,4 +228,21 @@ model CmacChipRegistration {
   chipId         String
   isLocationChip Boolean
   createdAt      DateTime @default(now())
+}
+
+model BuidlMint {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ItemRedeemed {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  itemId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  item      Item     @relation(fields: [itemId], references: [id])
 }

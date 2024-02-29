@@ -59,8 +59,13 @@ const ProfileForm = ({
 
   useEffect(() => {
     const fetchClaveInfo = async () => {
-      const claveInfo = await getUserClaveInfo();
-      setClaveInfo(claveInfo);
+      try {
+        const claveInfo = await getUserClaveInfo();
+        setClaveInfo(claveInfo);
+      } catch (error) {
+        toast.error("Failed to fetch wallet info");
+        console.error("Error fetching clave info", error);
+      }
     };
 
     fetchClaveInfo();
