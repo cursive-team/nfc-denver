@@ -114,12 +114,13 @@ const ArtworkSnapshot = ({
   };
 
   useEffect(() => {
+    const profile = getProfile();
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
       const users = getUsers();
       for (const userKey in users) {
         const user = users[userKey];
-        if (user.pkId === "0") continue;
+        if (profile && user.sigPk === profile?.signaturePublicKey) continue;
         const ts = user.inTs;
         const pk = user.sigPk;
         if (ts && pk) {
@@ -148,7 +149,6 @@ const ArtworkSnapshot = ({
       }
 
       combined.sort((a, b) => a.timestamp - b.timestamp);
-      const profile = getProfile();
       const signaturePublicKey = profile?.signaturePublicKey ?? "0";
       window.myPubKey = signaturePublicKey;
     } else {
