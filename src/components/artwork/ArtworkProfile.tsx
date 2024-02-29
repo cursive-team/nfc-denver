@@ -30,7 +30,6 @@ const ArtworkProfile = ({ height, width }: ArtworkProfileProps) => {
     ];
 
     const dataURL = window.stamp(pubKey, width, height).getImage();
-    console.log("dataURL", dataURL);
   }, []);
 
   if (!profile) return null;
