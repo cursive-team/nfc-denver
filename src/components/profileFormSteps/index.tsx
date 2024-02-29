@@ -120,7 +120,6 @@ const ProfileForm = ({
 
   const { errors } = formState;
   const wantsServerCustody = watch("wantsServerCustody", false);
-  const allowsAnalytics = watch("allowsAnalytics", false);
   const wantsExperimentalFeatures = watch("wantsExperimentalFeatures", false);
 
   // make sure the username is always prefixed with @
@@ -245,9 +244,8 @@ const ProfileForm = ({
           <Checkbox
             id="wantsExperimentalFeatures"
             label="Enable experimental cryptographic features"
-            description="Opt into experimental cryptographic features, such as using Fully
-            Homomorphic Encryption (FHE) to privately compute shared taps with
-            another user. NOTE: Experimental features will take longer to run."
+            description="Opt into trying experimental cryptographic features using MPC and FHE to privately compute shared taps with
+            another user. This will add computation + bandwidth overhead."
             checked={wantsExperimentalFeatures}
             onChange={(checkbox: boolean) =>
               setValue("wantsExperimentalFeatures", checkbox, {
