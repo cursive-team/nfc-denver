@@ -30,10 +30,11 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { email, code } = req.body;
-  if (!email || !code) {
+  const { email: unprocessedEmail, code } = req.body;
+  if (!unprocessedEmail || typeof unprocessedEmail !== "string" || !code) {
     return res.status(400).json({ error: "Email and code are required" });
   }
+  const email = unprocessedEmail.toLowerCase().trim();
 
   const verifyResponse = await verifySigninCode(email, code, true);
   if (!verifyResponse.success) {

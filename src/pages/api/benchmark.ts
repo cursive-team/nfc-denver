@@ -1,11 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 
+const DISABLE_BENCHMARKS = true;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method === "GET") {
+    if (DISABLE_BENCHMARKS) {
+      res.status(400).json({ error: "Benchmarks are disabled" });
+      return;
+    }
     // Extract the token and queryDate from the query parameters
     const { token, queryTime } = req.query;
 
@@ -58,6 +64,10 @@ export default async function handler(
 
     res.status(200).json({ benchmarkMessages: messages });
   } else if (req.method === "POST") {
+    if (DISABLE_BENCHMARKS) {
+      res.status(400).json({ error: "Benchmarks are disabled" });
+      return;
+    }
     const { token, messages } = req.body;
 
     if (!token || typeof token !== "string") {

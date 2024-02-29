@@ -11,10 +11,11 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { email } = req.body;
-  if (!email) {
+  const { email: unprocessedEmail } = req.body;
+  if (!unprocessedEmail || typeof unprocessedEmail !== "string") {
     return res.status(400).json({ error: "Email is required" });
   }
+  const email = unprocessedEmail.toLowerCase().trim();
 
   const user = await prisma.user.findUnique({
     where: {
