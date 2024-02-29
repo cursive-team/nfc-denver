@@ -87,13 +87,17 @@ const AppHeaderContent = ({
             <Title>Information</Title>
             <Description>
               BUIDLQuest is a way for ETHDenver attendees to connect with each
-              other, engage with sponsors, and unlock unique experiences by
-              tapping NFC chips. You collect unique digital signatures from
-              tapping people’s chipped badges to prove you met them, or from
-              tapping chips around the venue to prove you’ve been to in-person
-              events. If you satisfy the tap requirements of a quest, you can
-              generate a ZK proof of completion to earn play $BUIDL and buy
-              items at the BUIDL Store at the front of the ETHDenver venue.
+              other and unlock unique experiences and merch by tapping NFC
+              chips. You collect unique stamps and signatures from tapping
+              people’s chipped badges to prove you met them, or from tapping
+              chips around the venue to prove you’ve been to in-person events.
+            </Description>
+            <Description>
+              If you satisfy the tap requirements of a quest, you can generate a
+              ZK proof of completion to earn $BUIDL to buy items at the BUIDL
+              Store! The store is at the front of the ETHDenver venue, full of
+              some of the best IYK chipped goods, claimed
+              first-come-first-serve!
             </Description>
           </ContentWrapper>
           <ContentWrapper>
@@ -101,47 +105,67 @@ const AppHeaderContent = ({
             <div className="flex flex-col gap-2">
               <Subtitle>Who is behind BUIDLQuest?</Subtitle>
               <Description>
-                BUIDLQuest is a collaboration between{" "}
-                <a
-                  href="https://iyk.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  IYK
-                </a>
-                ,
-                <a
-                  href="https://cursive.team"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Cursive
-                </a>
-                ,
-                <a
-                  href="https://zksync.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ZKSync
-                </a>
-                ,
-                <a
-                  href="https://getclave.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Clave
-                </a>
-                ,
-                <a
-                  href="https://summon.xyz/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Summon
-                </a>
-                , and ETHDenver.
+                BUIDLQuest is a joint collaboration between{" "}
+                <u>
+                  <a
+                    href="https://zksync.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ZKSync
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://iyk.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    IYK
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://cursive.team"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Cursive
+                  </a>
+                </u>
+                , ,{" "}
+                <u>
+                  <a
+                    href="https://getclave.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Clave
+                  </a>
+                </u>
+                ,{" "}
+                <u>
+                  <a
+                    href="https://summon.xyz/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Summon
+                  </a>
+                </u>
+                , and{" "}
+                <u>
+                  <a
+                    href="https://ethdenver.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ETHDenver
+                  </a>
+                </u>
+                .
               </Description>
             </div>
             <div className="flex flex-col gap-2">
@@ -149,11 +173,61 @@ const AppHeaderContent = ({
               <Description>
                 IYK has set up an expansive merch store at the front of the main
                 venue, filled with chipped goods that you can claim for $BUIDL
-                you win from completing quests!
+                earned from completing quests!
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>{"Where do I get support?"}</Subtitle>
+              <Description>
+                Join this Cursive ETHDenver{" "}
+                <a
+                  href="https://t.me/+pggQrl-a0W1mZGQ5"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <u>Telegram group</u>
+                </a>{" "}
+                for technical support and questions!
+              </Description>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Subtitle>{"Who is behind the generative art?"}</Subtitle>
+              <Description>
+                The generative art experience is a collaboration between{" "}
+                <u>
+                  <a
+                    href="https://iyk.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    IYK
+                  </a>
+                </u>{" "}
+                and{" "}
+                <u>
+                  <a
+                    href="https://www.artblocks.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Art Blocks
+                  </a>
+                </u>
+                , with art from{" "}
+                <u>
+                  <a
+                    href="https://stefanocontiero.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Stefano Conteiro
+                  </a>
+                </u>
+                !
               </Description>
             </div>
           </ContentWrapper>
-          <ContentWrapper>
+          <ContentWrapper className="pb-20">
             <Title>Project Links</Title>
             <div className="flex flex-col gap-2">
               <Subtitle>
