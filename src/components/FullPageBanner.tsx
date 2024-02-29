@@ -5,11 +5,13 @@ import useSettings from "@/hooks/useSettings";
 
 interface FullPageBannerProps {
   description: string;
+  title?: string;
   iconSize?: number;
 }
 
 const FullPageBanner = ({
   description,
+  title,
   iconSize = 80,
 }: FullPageBannerProps) => {
   const { pageHeight } = useSettings();
@@ -20,7 +22,7 @@ const FullPageBanner = ({
       }}
       className="flex text-center h-full"
     >
-      <div className="flex flex-col gap-8 my-auto mx-auto px-10">
+      <div className="flex flex-col gap-2 my-auto mx-auto px-10">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 mx-auto">
             <Icons.iyk size={iconSize} />
@@ -31,12 +33,14 @@ const FullPageBanner = ({
             {APP_CONFIG.APP_NAME}
           </span>
         </div>
-
-        <Card.Base className="p-2">
-          <Card.Description>
-            <span className=" text-sm">{description}</span>
-          </Card.Description>
-        </Card.Base>
+        <div className="flex flex-col gap-2">
+          {title && <Card.Title className="!text-lg">{title}</Card.Title>}
+          <Card.Base className="p-2">
+            <Card.Description>
+              <span className=" text-sm">{description}</span>
+            </Card.Description>
+          </Card.Base>
+        </div>
       </div>
     </div>
   );
