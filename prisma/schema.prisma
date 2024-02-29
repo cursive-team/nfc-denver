@@ -23,7 +23,6 @@ model User {
 
   encryptionPublicKey String
   signaturePublicKey  String
-  psiRound1Message    String? @default("")
 
   wantsServerCustody        Boolean
   allowsAnalytics           Boolean
