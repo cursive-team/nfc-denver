@@ -1,5 +1,6 @@
 import { number, object, string } from "yup";
 import { getAuthToken } from "./localStorage";
+import { getClaveBuidlBalance } from "../shared/clave";
 
 export type ClaveInfo = {
   buidlBalance: number;
@@ -28,7 +29,24 @@ export const getUserClaveInfo = async (): Promise<ClaveInfo> => {
 
   const data = await response.json();
   try {
-    return claveInfoSchema.validateSync(data);
+    const serverClaveInfo = claveInfoSchema.validateSync(data);
+
+    let claveBuidlBalance = 0;
+    if (serverClaveInfo.claveWalletAddress) {
+      try {
+        claveBuidlBalance = await getClaveBuidlBalance(
+          serverClaveInfo.claveWalletAddress
+        );
+      } catch (error) {
+        claveBuidlBalance = 0;
+      }
+    }
+
+    return {
+      buidlBalance: serverClaveInfo.buidlBalance + claveBuidlBalance,
+      claveWalletAddress: serverClaveInfo.claveWalletAddress,
+      claveInviteLink: serverClaveInfo.claveInviteLink,
+    };
   } catch (error) {
     throw new Error(`Error validating user balance response from server`);
   }

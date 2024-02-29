@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { verifyAuthToken } from "@/lib/server/auth";
-import { getClaveInviteLink, getUserBuidlBalance } from "@/lib/server/clave";
+import { getUserLocalBuidlBalance } from "@/lib/server/clave";
 import { ClaveInfo } from "@/lib/client/clave";
 import { ErrorResponse } from "@/types";
 
@@ -33,7 +33,7 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid user id" });
     }
 
-    const buidlBalance = await getUserBuidlBalance(user.id.toString());
+    const buidlBalance = await getUserLocalBuidlBalance(user.id);
     const claveWalletAddress = user.claveWallet ? user.claveWallet : undefined;
     const claveInviteLink = await getClaveInviteLink(
       user.email,
