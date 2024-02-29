@@ -28,14 +28,6 @@ type PubKeyArrayElement = {
   person: boolean;
 };
 
-type Direction = "left" | "right";
-interface ArtworkSnapshotArrowProps
-  extends React.HTMLAttributes<Omit<HTMLButtonElement, "onClick">> {
-  onClick: () => void;
-  direction: Direction;
-  disabled?: boolean;
-}
-
 interface ProfileCardArtworkProps {
   size?: number;
   image?: string;
