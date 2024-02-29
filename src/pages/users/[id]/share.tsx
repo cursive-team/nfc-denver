@@ -27,6 +27,8 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Spinner } from "@/components/Spinner";
 import { MessageRequest } from "@/pages/api/messages";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
+import useSettings from "@/hooks/useSettings";
 
 const SharePage = () => {
   const router = useRouter();
@@ -40,6 +42,8 @@ const SharePage = () => {
   const [privateNote, setPrivateNote] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
+
+  const { pageWidth } = useSettings();
 
   useEffect(() => {
     if (typeof id === "string") {
@@ -169,6 +173,13 @@ const SharePage = () => {
     return <div>User not found</div>;
   }
 
+  const hasSocialLinks =
+    profile.twitterUsername ||
+    profile.telegramUsername ||
+    profile.farcasterUsername;
+
+  const artworkSize = pageWidth - 32;
+
   return (
     <div>
       <AppBackHeader redirectTo="/" />
@@ -183,10 +194,16 @@ const SharePage = () => {
           {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
         This is done by sharing a private stamp that can be used to ZK prove they met you. `}
         </Description>
-        {(profile.twitterUsername ||
-          profile.telegramUsername ||
-          profile.farcasterUsername ||
-          profile.bio) && (
+
+        <ArtworkSnapshot
+          width={artworkSize}
+          height={artworkSize}
+          pubKey={profile.signaturePublicKey}
+          title="" // TODO: label for label
+          isVisible
+        />
+
+        {(hasSocialLinks || profile.bio) && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
               <InputWrapper
