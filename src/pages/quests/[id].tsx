@@ -92,7 +92,7 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-col gap-2">
           {buidlReward ? (
             <PointCard
               label="Reward(s)"
