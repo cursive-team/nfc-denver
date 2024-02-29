@@ -74,7 +74,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
         header={
           <fieldset className="flex flex-col gap-6">
             <span className="text-gray-11 text-sm">
-              IYK has partnerned with{" "}
+              IYK has partnered with{" "}
               <a
                 href="https://cursive.team"
                 target="_blank"
