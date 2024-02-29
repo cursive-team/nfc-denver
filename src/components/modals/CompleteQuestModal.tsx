@@ -297,7 +297,7 @@ const CompleteQuestModal = ({
             <div className="self-center w-full">
               <Link
                 href={`http://twitter.com/share?text=${encodeURIComponent(
-                  `I proved completion of *${quest.name}* with ZK as part of @cursive_team @iyk_app @zksync's BUIDLQuest! Tap your ETHDenver badge to join!`
+                  `I proved completion of Quest: ${quest.name} with ZK as part of @cursive_team @iyk_app @zksync's ETHDenver app experience! Tap your badge to join!`
                 )}&url=${encodeURIComponent(
                   `${window.location.origin}/quests/${quest.id}`
                 )}`}
