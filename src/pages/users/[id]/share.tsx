@@ -178,7 +178,7 @@ const SharePage = () => {
     profile.telegramUsername ||
     profile.farcasterUsername;
 
-  const artworkSize = pageWidth - 32;
+  const artworkSize = (pageWidth - 32) / 2;
 
   return (
     <div>
@@ -195,13 +195,15 @@ const SharePage = () => {
         This is done by sharing a private stamp that can be used to ZK prove they met you. `}
         </Description>
 
-        <ArtworkSnapshot
-          width={artworkSize}
-          height={artworkSize}
-          pubKey={profile.signaturePublicKey}
-          title="" // TODO: label for label
-          isVisible
-        />
+        <div className="mx-auto">
+          <ArtworkSnapshot
+            width={artworkSize}
+            height={artworkSize}
+            pubKey={profile.signaturePublicKey}
+            title="" // TODO: label for label
+            isVisible
+          />
+        </div>
 
         {(hasSocialLinks || profile.bio) && (
           <div className="flex flex-col gap-4">
