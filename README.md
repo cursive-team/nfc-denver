@@ -1,22 +1,31 @@
-# nfc-denver
+# Technical Overview
 
-Repo hosting the code for the ETHDenver 2024 NFC activation.
+## Digital Signatures
 
-## Setup
+There are two types of NFC chips, **attendee chips** and **location chips**. Each chip is associated with a **digital signature keypair** - the **signing key** (private key) is held in secret and used to create digital signatures, whereas the **verifying key** (public key) is recorded in a public registry run on the server. A location chip’s signing key is custodied by the server, while an attendee chip’s signing key is custodied/encrypted by the attendee account’s master password.
 
-This repo uses Next.js for client and server code. It uses npm to manage dependencies. You will also need to set up a Postgres database, using the `.env.example` as reference.
+When you tap another attendee’s chip with your phone, you generate a digital signature with your signing key and send it to the other person’s account. You do not get a digital signature in return unless they choose to tap you (either by tapping your chip with their phone or clicking “Tap Back” on buidlquest.xyz). The reason for this one-way interaction is privacy - someone famous can have many people tap their badge, and not be forced to share any information in return unless they want to. When you tap a location chip with your phone, the server generates a digital signature using that location chip’s signing key, and sends it to your account.
 
-To run a local version of the repo, run the following commands:
+## Zero Knowledge Proofs and Nullifiers
 
-```
-npm i
-npm run dev
-```
+Each quest consists of a set of **requirements**. Each requirement is either an **attendee requirement** or a **location requirement**. Attendee requirements consists of a **list of verifying keys**, along with a parameter **numSigsRequired**. To meet this requirement, a user must collect at least numSigsRequired signatures from attendees whose verifying keys are in the specified list. As an example, if Vitalik has verifying key 0xABCD, Barry WhiteHat has 0x1234, and Shafi Goldwasser has 0xBEEF, and the list of verifying keys is [0xABCD, 0x1234, 0xBEEF] and numSigsRequired = 2, that means you must get two if Vitalik, Barry, and Shafi to tap your badge. To meet this requirement, your client will generate a zero knowledge proof that says “I have 2 ECDSA signatures corresponding to distinct verifying keys in the list [0xABCD, 0x1234, 0xBEEF]”. Note that it is never revealed which exact verifying keys you have collected signatures for, and the signatures themselves are always hidden. The same type of proof is generated for location requirements, except with location verifying keys instead.
 
-## Notes
+To go a bit deeper, the actual proof being generated is a combination of a ECDSA signature proof + a Merkle membership proof. We use the [Baby Jubjub](https://eips.ethereum.org/EIPS/eip-2494) elliptic curve for ECDSA - having a representation in Twisted Edwards form allows complete addition formulae which reduce the number of constraints in our circuit - the circuits and proving code can be found [here](https://github.com/jubmoji/babyjubjub-ecdsa/tree/main). To avoid wrong field arithmetic and greatly save constraints, we use the [efficient ECDSA representation](https://personaelabs.org/posts/efficient-ecdsa-1/) from Personae.
 
-- Right now, registration needs to include a mock `cmac`
-  - Can mock from the `/explore` route
-  - cmac must be between 0 and 49 inclusive to be a PERSON
-  - cmac must be between 50 and 99 inclusive to be a LOCATION
-  - Direct link looks like `/register?cmac=2`
+To prevent signatures from being reused, we make use of [nullifiers](https://xn--2-umb.com/22/nullifiers/). Each attendee and location requirement is associated with a random value. When a signature is fed into the circuit, it is hashed with this random value, and the resulting output is known as the nullifier. We store these nullifiers, and if someone tries to use the same signature for a given requirement, they will deterministically produce the same nullifier, and we can invalidate their proof.
+
+## E2E Encrypted Messaging with JubSignal
+
+When you tap another attendee’s card, you share with them a short bio along with your socials (Twitter/Telegram/Farcaster). We wanted all of this message passing to be **end-to-end encrypted**, so that the server does not see any of your private information. The solution we came up with is [JubSignal](https://www.notion.so/jubsignal-b7af2183c52a420e9601d9a2e65bfa31?pvs=21). When a user registers for Buidl Quest, they generate an **encryption keypair** consisting of a public key and a private key (this keypair is distinct from the keypair used for digital signatures). Their private key is stored in secret, while their public key acts as their “mailing address”. Whenever anyone wants to share contact information with this user, they encrypt it to the user’s public key and send it to the server. The server simply acts as a forward service, and will pass on any encrypted messages to the recipient. The recipient can then decrypt the message using their private key to see the contents.
+
+It turns out that JubSignal allows us to do one thing very efficiently - encrypted backups! Over the course of ETHDenver, a Buidl Quest user will collect a lot of data - signatures from other attendees, signatures from location taps, contact information from other people. As this data is stored in local storage while the user is using the app, we wanted to ensure that the data would be backed up, but done so in a privacy-preserving manner. The solution here lies in the fact that this data is already stored in JubSignal messages! Since another user must send a JubSignal message if they want to share contact information or a signature, we can just use the server’s JubSignal message store as a backup. In addition, if a user wants to store additional information such as a zero knowledge proof that they generated to complete a quest, all they have to do is encrypt the proof **to their own public key**, and send it to themselves as a JubSignal message! Next time the user logs in, they can fetch all their JubSignal messages and decrypt this data with their JubSignal private key.
+
+## Server Custody vs Self Custody
+
+There is one final step to ensure that a user’s data is properly backed up - how do we back up the JubSignal encryption private key itself? We need to know the private key to decrypt JubSignal messages, so we can’t store this within a message. We wanted a solution that allowed the user to choose the tradeoff they want between greater ownership of their data and simpler UX. The two options we give users are **server custody** and **self custody**.
+
+Server custody means that the server stores your encryption private key for you. When you login to the app, you authenticate using your email, and upon doing so the server will send you your encryption private key. These keys are still encrypted at rest by the server, but the server could hypothetically read your key and decrypt your messages. The other option is self custody. Here, you choose a password, and using a [password-based key derivation function](https://en.wikipedia.org/wiki/PBKDF2) a **backup encryption key** is generated deterministically using your password and a random salt. This backup encryption key is used to encrypt your JubSignal encryption private key, which is stored on the server. Your encrypted JubSignal encryption private key is fetched from the server and decrypted client-side upon entering your password during login.
+
+## Interested in more projects like this?
+
+The Buidl Quest web app was built by [Cursive](http://cursive.team), a cryptography and design lab building human-first applications of signed data. The code for the web app is all [open-source](https://github.com/nfc-denver/nfc-denver). If you’re interested in practical applications of digital signatures or advanced cryptography and would like to chat and/or collaborate, please reach out!
