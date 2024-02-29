@@ -53,9 +53,7 @@ const ArtworkWrapper = ({ children, title }: ArtworkWrapperProps) => {
     <div className="flex flex-col gap-2">
       {children}
       {title && (
-        <span className="text-xs text-gray-900 font-light mx-auto">
-          {title}
-        </span>
+        <span className="text-xs text-gray-12 font-light mx-auto">{title}</span>
       )}
     </div>
   );
