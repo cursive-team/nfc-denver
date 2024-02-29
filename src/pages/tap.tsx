@@ -265,7 +265,7 @@ export default function Tap() {
     const authToken = getAuthToken();
 
     const description = !authToken
-      ? "If you haven't registered tap your badge to take part in the experience"
+      ? "If you haven't registered, tap your badge to take part in the experience!"
       : "";
 
     return (
@@ -277,8 +277,14 @@ export default function Tap() {
   }
 
   if (pendingLocationTapResponse) {
+    const authToken = getAuthToken();
+
+    const description = !authToken
+      ? "If you haven't registered, tap your badge to take part in the experience!"
+      : "";
     return (
       <LoginForm
+        description={description}
         onSuccessfulLogin={() => processLocationTap(pendingLocationTapResponse)}
       />
     );
