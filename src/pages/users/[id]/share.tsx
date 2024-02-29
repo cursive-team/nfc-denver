@@ -27,6 +27,7 @@ import { MessageRequest, PsiMessageRequest } from "@/pages/api/messages";
 import { generateSelfBitVector } from "@/lib/client/psi";
 import init, { round1_js } from "@/lib/mp_psi/mp_psi";
 import { saveUserRound1Output } from "@/lib/client/indexedDB/psi";
+import { Spinner } from "@/components/Spinner";
 
 const SharePage = () => {
   const router = useRouter();
@@ -39,6 +40,7 @@ const SharePage = () => {
   const [shareBio, setShareBio] = useState(false);
   const [shareOverlap, setShareOverlap] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(false);
 
   useEffect(() => {
     if (typeof id === "string") {
@@ -50,10 +52,10 @@ const SharePage = () => {
       }
       setProfile(profile);
 
+      setLoadingUser(true);
       const fetchedUser = fetchUserByUUID(id);
       if (fetchedUser) {
         if (fetchedUser.encPk === profile.encryptionPublicKey) {
-          toast.error("You cannot connect with yourself");
           router.push("/");
           return;
         }
@@ -64,6 +66,7 @@ const SharePage = () => {
         }
 
         setUser(fetchedUser);
+        setLoadingUser(false);
       }
     }
   }, [id, router]);
@@ -204,8 +207,8 @@ const SharePage = () => {
     router.push(`/users/${id}`);
   };
 
-  if (!profile) {
-    return <div>Loading...</div>;
+  if (!profile || loadingUser) {
+    return <Spinner />;
   }
 
   if (!user) {
