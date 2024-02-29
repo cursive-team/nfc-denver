@@ -55,16 +55,16 @@ export function verifyJwt(token: string) {
 
 export const mintUserUnmintedBuidl = async (
   userId: number
-): Promise<boolean> => {
+): Promise<{ success: boolean; amount?: number }> => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
   if (!user) {
-    return false;
+    return { success: false };
   }
 
   if (!user.claveWallet) {
-    return false;
+    return { success: false };
   }
 
   const unmintedQuestProofs = await prisma.questProof.findMany({
@@ -77,6 +77,10 @@ export const mintUserUnmintedBuidl = async (
     (sum, proof) => sum + proof.quest.buidlReward,
     0
   );
+
+  if (unmintedBuidl === 0) {
+    return { success: true, amount: 0 };
+  }
 
   const response = await fetch(
     `https://api.achievo.xyz/v1/contracts/FREE_BUIDL/execute`,
@@ -101,7 +105,7 @@ export const mintUserUnmintedBuidl = async (
 
   if (!response.ok) {
     console.error("Error minting buidl for user: ", userId);
-    return false;
+    return { success: false };
   }
 
   await prisma.questProof.updateMany({
@@ -113,5 +117,5 @@ export const mintUserUnmintedBuidl = async (
     data: { userId, amount: unmintedBuidl },
   });
 
-  return true;
+  return { success: true, amount: unmintedBuidl };
 };

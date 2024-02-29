@@ -2,24 +2,29 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/server/prisma";
 import { ErrorResponse } from "@/types";
 import { isUserAdmin } from "@/lib/server/admin";
+import { getUserLocalBuidlBalance } from "@/lib/server/clave";
 
 export type QRCodeResponseType = {
-  id: string;
-  quest: {
-    item: {
+  questProof: {
+    id: string;
+    quest: {
+      item: {
+        id: number;
+        name: string;
+        sponsor: string;
+        description: string;
+        buidlCost: number;
+        imageUrl: string;
+      } | null;
+    };
+    user: {
       id: number;
-      name: string;
-      sponsor: string;
-      description: string;
-      buidlCost: number;
-      imageUrl: string;
-    } | null;
+      displayName: string;
+      encryptionPublicKey: string;
+      claveWallet: string | null;
+    };
   };
-  user: {
-    id: number;
-    displayName: string;
-    encryptionPublicKey: string;
-  };
+  buidlBalance: number;
 };
 
 export default async function handler(
@@ -63,6 +68,7 @@ export default async function handler(
             id: true,
             displayName: true,
             encryptionPublicKey: true,
+            claveWallet: true,
           },
         },
       },
@@ -71,7 +77,9 @@ export default async function handler(
       return res.status(404).json({ error: "QR code not found" });
     }
 
-    res.status(200).json(questProof);
+    const buidlBalance = await getUserLocalBuidlBalance(questProof.user.id);
+
+    res.status(200).json({ questProof, buidlBalance });
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);

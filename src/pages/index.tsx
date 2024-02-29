@@ -28,6 +28,7 @@ import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import useSettings from "@/hooks/useSettings";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
+import { getUserClaveInfo } from "@/lib/client/clave";
 
 interface ContactCardProps {
   name: string;
@@ -359,7 +360,6 @@ export default function Social() {
   useEffect(() => {
     const updateSocialInfo = async () => {
       setLoading(true);
-      const EXAMPLE_BUIDL_BALANCE = 199;
 
       const profileData = getProfile();
       const keyData = getKeys();
@@ -377,9 +377,14 @@ export default function Social() {
 
       // User is logged in, set profile and buidl balance
       setProfile(profileData);
-      setBuidlBalance(EXAMPLE_BUIDL_BALANCE);
+      try {
+        const userClaveInfo = await getUserClaveInfo();
+        setBuidlBalance(userClaveInfo.buidlBalance);
+      } catch (error) {
+        console.error("Failed to get user clave info:", error);
+      }
 
-      // If page is reloaded, load messages
+      // If page is reloaded, load messages and refresh clave info
       const navigationEntries = window.performance.getEntriesByType(
         "navigation"
       ) as PerformanceNavigationTiming[];
