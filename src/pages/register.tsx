@@ -23,6 +23,10 @@ import { RegisterCustody } from "@/components/registerFormSteps/custody";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { RegisterPassword } from "@/components/registerFormSteps/password";
+import useSettings from "@/hooks/useSettings";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
+import { InputDescription } from "@/components/input/InputWrapper";
+import { Icons } from "@/components/Icons";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -36,6 +40,7 @@ enum DisplayState {
 export default function Register() {
   const router = useRouter();
   const { getState } = useStateMachine({ updateStateFromAction });
+  const { pageWidth } = useSettings();
 
   const wantsServerCustody = getState()?.register?.wantsServerCustody ?? false;
   const allowsAnalytics = getState()?.register?.allowsAnalytics ?? false;
@@ -45,6 +50,7 @@ export default function Register() {
   );
   const [iykRef, setIykRef] = useState<string>("");
   const [mockRef, setMockRef] = useState<string>();
+  const [signatureKeyArt, setSignatureKeyArt] = useState<string>();
 
   useEffect(() => {
     if (router.query.iykRef) {
@@ -60,6 +66,7 @@ export default function Register() {
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
+    setSignatureKeyArt(verifyingKey);
 
     // get the values from the state
     const {
@@ -199,6 +206,8 @@ export default function Register() {
     router.push("/");
   };
 
+  const artworkSize = pageWidth - 64;
+
   return (
     <>
       {displayState === DisplayState.INPUT_EMAIL && (
@@ -265,8 +274,43 @@ export default function Register() {
         />
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
-        <div className="my-auto mx-auto">
-          <Spinner label="Your account is being created." />
+        <div className="flex flex-col justify-center my-auto mx-auto text-center">
+          {signatureKeyArt && (
+            <>
+              <div className="mx-auto">
+                <ArtworkSnapshot
+                  width={artworkSize}
+                  height={artworkSize}
+                  pubKey={signatureKeyArt}
+                  isVisible
+                />
+              </div>
+              <div className={`flex flex-col gap-2 mt-4 px-10`}>
+                <InputDescription>
+                  This is your unique stamp that you will share with other
+                  ETHDenver attendees upon tap.
+                </InputDescription>
+                <InputDescription>
+                  Each stamp is attached with a signature for others to
+                  verifiably prove they met you.
+                </InputDescription>
+                <InputDescription>
+                  Your stamp collection can be minted as an NFT at the end of
+                  the event!
+                </InputDescription>
+              </div>
+            </>
+          )}
+          <div className="mt-8">
+            <div className="flex flex-col gap-4 text-center">
+              <div className="mx-auto">
+                <Icons.loading size={28} className="animate-spin" />
+              </div>
+              <span className="text-sm text-gray-11 leading-5 font-light">
+                Your account is being created.
+              </span>
+            </div>
+          </div>
         </div>
       )}
     </>

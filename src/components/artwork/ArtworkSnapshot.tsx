@@ -19,6 +19,7 @@ export interface ArtworkSnapshotProps
   pubKey?: string;
   slider?: boolean;
   isVisible?: boolean;
+  title?: string;
 }
 
 type PubKeyArrayElement = {
@@ -46,12 +47,27 @@ const ProfileCardArtwork = ({ size, image }: ProfileCardArtworkProps) => {
   );
 };
 
+type ArtworkWrapperProps = Pick<ArtworkSnapshotProps, "children" | "title">;
+const ArtworkWrapper = ({ children, title }: ArtworkWrapperProps) => {
+  return (
+    <div className="flex flex-col gap-2">
+      {children}
+      {title && (
+        <span className="text-xs text-gray-900 font-light mx-auto">
+          {title}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const ArtworkSnapshot = ({
   width,
   height,
   pubKey,
   slider,
   isVisible = true,
+  title,
   ...props
 }: ArtworkSnapshotProps) => {
   const isLoaded = useScripts();
@@ -172,7 +188,11 @@ const ArtworkSnapshot = ({
 
   // if profile public key is available, use the dataURL
   if (HAS_PROFILE_PUB_KEY || pubKey === "") {
-    return <ProfileCardArtwork size={width ?? 200} image={dataURL} />;
+    return (
+      <ArtworkWrapper title={title}>
+        <ProfileCardArtwork size={width ?? 200} image={dataURL} />
+      </ArtworkWrapper>
+    );
   }
 
   if (signatures?.length === 0) return;
@@ -180,14 +200,16 @@ const ArtworkSnapshot = ({
   return (
     <div className="flex flex-col gap-4">
       {isVisible && (
-        <canvas
-          className="artwork-webgl flex p-0 m-0 border border-white rounded-[8px]"
-          id="artwork-webgl"
-          {...props}
-        ></canvas>
+        <ArtworkWrapper title={title}>
+          <canvas
+            className="artwork-webgl flex p-0 m-0 border border-white rounded-[8px]"
+            id="artwork-webgl"
+            {...props}
+          ></canvas>
+        </ArtworkWrapper>
       )}
       {slider && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 h-full">
           {signatures?.length > 1 && (
             <label className="flex flex-col gap-4 w-full">
               <div className="label p-0">
@@ -222,15 +244,33 @@ const ArtworkSnapshot = ({
                 >
                   <Description>
                     {isFirstElement
-                      ? "Your personal stamp"
-                      : `Snapshot when ${
+                      ? "ETHDenver stamp collection NFT"
+                      : `Collection when ${
                           person ? `you met ${name}` : `you went to ${name}`
                         }`}
                   </Description>
                   <Label className="text-center">
                     {isFirstElement && signatures.length > 1
-                      ? "Navigate to see your stamp collection develop!"
+                      ? "Starts with your personal stamp"
                       : new Date(timestamp).toLocaleString()}
+                  </Label>
+                  <Label className="text-center">
+                    Art by{" "}
+                    <a
+                      href="https://twitter.com/stefan_contiero"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <u>Stefano Contiero</u>
+                    </a>{" "}
+                    +{" "}
+                    <a
+                      href="https://www.artblocks.io/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <u>ArtBlocks</u>
+                    </a>
                   </Label>
                 </div>
               );
