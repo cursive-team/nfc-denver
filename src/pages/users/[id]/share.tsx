@@ -255,24 +255,26 @@ const SharePage = () => {
             </div>
           </div>
         )}
-        <Input
-          type="longtext"
-          label="Private note"
-          placeholder="e.g Met on Saturday"
-          textSize="sm"
-          description={
-            <>
-              <span className="block">
-                {`Use to help remember your interaction with ${user.name}.`}
-              </span>
-              <span className="block">Only you will see this.</span>
-            </>
-          }
-          value={privateNote}
-          onChange={(event) => {
-            setPrivateNote(event.target.value);
-          }}
-        />
+        {false && (
+          <Input
+            type="longtext"
+            label="Private note"
+            placeholder="e.g Met on Saturday"
+            textSize="sm"
+            description={
+              <>
+                <span className="block">
+                  {`Use to help remember your interaction with ${user.name}.`}
+                </span>
+                <span className="block">Only you will see this.</span>
+              </>
+            }
+            value={privateNote}
+            onChange={(event) => {
+              setPrivateNote(event.target.value);
+            }}
+          />
+        )}
         <Button loading={loading} type="submit">
           Share
         </Button>

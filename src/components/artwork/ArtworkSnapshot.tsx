@@ -169,7 +169,7 @@ const ArtworkSnapshot = ({
       timestamp: s.timestamp,
     }));
 
-    if (HAS_PROFILE_PUB_KEY) {
+    if (HAS_PROFILE_PUB_KEY && !dataURL) {
       const dataURL = window.stamp(pubKey, width, height).getImage();
       setDataURL(dataURL);
     } else {
@@ -184,6 +184,7 @@ const ArtworkSnapshot = ({
     slider,
     rangeValue,
     HAS_PROFILE_PUB_KEY,
+    dataURL,
   ]);
 
   // if profile public key is available, use the dataURL
