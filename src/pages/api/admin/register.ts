@@ -7,6 +7,8 @@ export default async function handler(
   res: NextApiResponse<{ chipId: string } | ErrorResponse>
 ) {
   if (req.method === "GET") {
+    return res.status(400).json({ error: "Disabled" });
+
     while (true) {
       const randomId = Math.floor(Math.random() * 10000).toString();
       const existingUser = await prisma.user.findUnique({

@@ -42,7 +42,7 @@ export default async function handler(
     }
 
     const otherUser = await prisma.user.findUnique({
-      where: { id: otherUserId },
+      where: { id: parseInt(otherUserId) },
     });
     if (!otherUser) {
       res.status(404).json({ error: "User not found" });
