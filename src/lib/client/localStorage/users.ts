@@ -11,7 +11,6 @@ export const USERS_STORAGE_KEY = "users";
 export type User = {
   name: string; // User's display name
   encPk: string; // User's encryption public key
-  pkId: string; // User's public key index for FHE
   x?: string; // User's Twitter username
   tg?: string; // User's Telegram username
   fc?: string; // User's Farcaster username
@@ -22,8 +21,6 @@ export type User = {
   sig?: string; // User's signature
   outTs?: string; // Time of last outbound tap as ISO string
   inTs?: string; // Time of last inbound tap as ISO string
-  oI?: string; // User's PSI overlap indices
-  wantsEf?: boolean; // User's experimental features preference
 };
 
 export const saveUsers = (users: Record<string, User>): void => {
@@ -45,27 +42,27 @@ export const updateUserFromTap = async (
 ): Promise<string> => {
   const users = getUsers();
   const userId = await hashPublicKeyToUUID(userUpdate.encryptionPublicKey);
-
   const user = users[userId];
+
   if (user) {
     const updatedUser = {
       ...user,
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
-      pkId: userUpdate.id,
-      wantsEf: userUpdate.wantsExperimentalFeatures,
     };
+
     users[userId] = updatedUser;
   } else {
     const newUser = {
       name: userUpdate.displayName,
       encPk: userUpdate.encryptionPublicKey,
-      pkId: userUpdate.id,
-      wantsEf: userUpdate.wantsExperimentalFeatures,
     };
+
     users[userId] = newUser;
   }
+
   saveUsers(users);
+
   return userId;
 };
 
