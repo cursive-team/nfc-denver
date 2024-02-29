@@ -278,6 +278,19 @@ const UserProfilePage = () => {
             </Button>
           </div>
         </div>
+        {myProfile && !myProfile.wantsExperimentalFeatures && !user.inTs && (
+          <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
+            <InputWrapper
+              className="flex flex-col gap-2"
+              label={"Details pending"}
+            >
+              <span className="text-gray-11 text-[14px] left-5 mt-1">
+                {`If ${user.name} taps you back and shares their socials, they will
+              appear here.`}
+              </span>
+            </InputWrapper>
+          </div>
+        )}
         {myProfile && myProfile.wantsExperimentalFeatures && !user.inTs && (
           <div className="p-3 bg-zinc-900 rounded flex-col justify-center items-start gap-1 inline-flex">
             <InputWrapper

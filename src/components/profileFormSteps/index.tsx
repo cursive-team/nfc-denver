@@ -244,8 +244,9 @@ const ProfileForm = ({
           <Checkbox
             id="wantsExperimentalFeatures"
             label="Enable experimental cryptographic features"
-            description="Opt into trying experimental cryptographic features using MPC and FHE to privately compute shared taps with
-            another user. This will add computation + bandwidth overhead."
+            description="Opt into experimental cryptographic features using MPC and
+            FHE to privately compute shared taps with another user. You can choose to enable 
+            it each time you tap, but it will incur a computation/bandwidth overhead."
             checked={wantsExperimentalFeatures}
             onChange={(checkbox: boolean) =>
               setValue("wantsExperimentalFeatures", checkbox, {

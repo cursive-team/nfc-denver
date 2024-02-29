@@ -83,7 +83,7 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
                 <u>Cursive</u>
               </a>{" "}
               to integrate ZK tech into this experience to enable full data
-              ownership and portability. Choose if you want to enable it.
+              ownership and authenticity. Choose if you want to enable it.
             </span>
             <Radio
               id="selfCustody"
@@ -114,9 +114,10 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
             />
             <span>-----</span>
             <span className="text-gray-11 text-sm">
-              Opt into experimental cryptographic features, such as using Fully
-              Homomorphic Encryption (FHE) to privately compute shared taps with
-              another user. NOTE: Experimental features will take longer to run.
+              Opt into experimental cryptographic features using MPC and FHE to
+              privately compute shared taps with another user. You choose to
+              enable it each time you tap, but it will incur a
+              computation/bandwidth overhead.
             </span>
             <Checkbox
               id="wantsExperimentalFeatures"
