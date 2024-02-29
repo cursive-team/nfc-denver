@@ -21,10 +21,11 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { email, iykRef, mockRef } = req.body;
-  if (!email || !iykRef) {
+  const { email: unprocessedEmail, iykRef, mockRef } = req.body;
+  if (!unprocessedEmail || typeof unprocessedEmail !== "string" || !iykRef) {
     return res.status(400).json({ error: "Email and iykRef are required" });
   }
+  const email = unprocessedEmail.toLowerCase().trim();
 
   const enableMockRef =
     process.env.ALLOW_MOCK_REF === "true" && mockRef === "true";
