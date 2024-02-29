@@ -11,7 +11,7 @@ export default async function handler(
   }
 
   const { email: unprocessedEmail, code } = req.body;
-  if (!unprocessedEmail || !code) {
+  if (!unprocessedEmail || typeof unprocessedEmail !== "string" || !code) {
     return res.status(400).json({ error: "Email and code are required" });
   }
   const email = unprocessedEmail.toLowerCase().trim();
