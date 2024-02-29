@@ -29,6 +29,7 @@ import useSettings from "@/hooks/useSettings";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { getUserClaveInfo } from "@/lib/client/clave";
+import { toast } from "sonner";
 
 interface ContactCardProps {
   name: string;
@@ -381,6 +382,7 @@ export default function Social() {
         const userClaveInfo = await getUserClaveInfo();
         setBuidlBalance(userClaveInfo.buidlBalance);
       } catch (error) {
+        toast.error("Failed to fetch BUIDL balance");
         console.error("Failed to get user clave info:", error);
       }
 

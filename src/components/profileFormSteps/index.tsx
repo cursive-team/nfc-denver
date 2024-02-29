@@ -63,6 +63,7 @@ const ProfileForm = ({
         const claveInfo = await getUserClaveInfo();
         setClaveInfo(claveInfo);
       } catch (error) {
+        toast.error("Failed to fetch wallet info");
         console.error("Error fetching clave info", error);
       }
     };

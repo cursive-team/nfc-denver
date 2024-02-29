@@ -34,7 +34,10 @@ export const getClaveBuidlBalance = async (
     const response = await fetch(rpcUrl, config);
     const json = await response.json();
     const balanceBigInt = BigInt(json.result) / BigInt(1e18);
-    const balanceInBuidl = parseInt(balanceBigInt.toString());
+    const balanceInBuidl = Number(balanceBigInt);
+    if (isNaN(balanceInBuidl)) {
+      throw new Error("Invalid balance");
+    }
     return balanceInBuidl;
   } catch (error) {
     console.error("Error fetching BUIDL balance:", error);
