@@ -19,14 +19,14 @@ import {
 import { JUB_SIGNAL_MESSAGE_TYPE } from "@/lib/client/jubSignal";
 import { PointCard } from "@/components/cards/PointCard";
 import { SnapshotModal } from "@/components/modals/SnapshotModal";
-import Image from "next/image";
 import { Button } from "@/components/Button";
 import { formatDate } from "@/lib/shared/utils";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { Spinner } from "@/components/Spinner";
 import { CircleCard } from "@/components/cards/CircleCard";
-import { ArtworkCanvas } from "@/components/ArtworkCanvas";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import useSettings from "@/hooks/useSettings";
+import { ArtworkProfile } from "@/components/artwork/ArtworkProfile";
 
 interface ContactCardProps {
   name: string;
@@ -435,19 +435,23 @@ export default function Social() {
       />
       <div className="flex flex-col pt-4">
         <div className="flex gap-6 mb-6">
-          {!showSnapshotModal && (
-            <div
-              onClick={() => {
-                setShowSnapshotModal(true);
-              }}
-              className="size-32 rounded-[4px] relative overflow-hidden"
-            >
-              <ArtworkCanvas width={128} height={128} />
-              <button type="button" className="absolute right-1 top-1 z-1">
-                <Icons.zoom />
-              </button>
-            </div>
-          )}
+          <div
+            onClick={() => {
+              setShowSnapshotModal(true);
+            }}
+            className="size-32 rounded-[4px] relative overflow-hidden"
+          >
+            <ArtworkSnapshot
+              width={128}
+              height={128}
+              isVisible={!showSnapshotModal}
+              pubKey={profile.signaturePublicKey}
+            />
+            <button type="button" className="absolute right-1 top-1 z-1">
+              <Icons.zoom />
+            </button>
+          </div>
+
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1 mt-2">
               <div className="flex gap-[6px] items-center">

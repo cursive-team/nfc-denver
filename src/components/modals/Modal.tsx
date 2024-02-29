@@ -71,7 +71,20 @@ const Modal = ({
                     >
                       {withBackButton ? (
                         <div className="flex items-center gap-1">
-                          <Icons.arrowLeft />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M5.29297 7.99991L9.00009 4.29294L9.70718 5.00006L6.70718 7.99994L9.70718 11.0001L9.00006 11.7072L5.29297 7.99991Z"
+                              fill="#B1B1B1"
+                            />
+                          </svg>
                           <span className="text-gray-11 text-sm">Back</span>
                         </div>
                       ) : (

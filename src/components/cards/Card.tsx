@@ -16,6 +16,7 @@ const CardTitle = classed.h1("text-sm leading-5 text-gray-12");
 const CardDescription = classed.span(
   "text-xs leading-4 text-gray-11 text-light"
 );
+const Artwork = classed.div("border border-white rounded-[8px] p-0 m-0");
 
 const CardProgressLine = classed.div("absolute bottom-0 left-0 right-0 h-1", {
   variants: {
@@ -60,6 +61,7 @@ const Card = {
   Title: CardTitle,
   Description: CardDescription,
   Progress: CardProgress,
+  Artwork: Artwork,
 };
 
 export { Card };

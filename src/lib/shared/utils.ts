@@ -59,6 +59,18 @@ export const filterArrayByValue = <T>(
   });
 };
 
+export function loadScript(url: string) {
+  return new Promise((resolve: any, reject: any) => {
+    let script: any = document.createElement("script");
+    script.type = "text/javascript";
+    script.onload = function () {
+      resolve();
+    };
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  });
+}
+
 export const displayNameRegex = /^[a-zA-Z0-9]{1,20}$/;
 
 export const twitterUsernameRegex = /^@[a-zA-Z0-9_]{1,15}$/;

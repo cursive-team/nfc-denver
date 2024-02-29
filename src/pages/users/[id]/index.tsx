@@ -22,10 +22,10 @@ import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { encryptOutboundTapMessage } from "@/lib/client/jubSignal";
 import { toast } from "sonner";
 import { MessageRequest } from "@/pages/api/messages";
+import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { getUserPsiState, saveUserPsiState } from "@/lib/client/indexedDB/psi";
-import { ArtworkCanvas } from "@/components/ArtworkCanvas";
 
 const Label = classed.span("text-sm text-gray-12");
 
@@ -250,11 +250,15 @@ const UserProfilePage = () => {
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <div className="flex gap-6 items-center">
+        <div className="flex gap-4 xs:gap-5 items-center">
           {user ? (
-            <ArtworkCanvas width={128} height={128} pubKey={user.sigPk ?? ""} />
+            <ArtworkSnapshot
+              width={128}
+              height={128}
+              pubKey={user.sigPk ?? ""}
+            />
           ) : (
-            <ArtworkCanvas width={128} height={128} pubKey={""} />
+            <ArtworkSnapshot width={128} height={128} pubKey={""} />
           )}
           <div className="flex flex-col gap-1">
             <h2 className=" text-xl font-gray-12 font-light">{user.name}</h2>

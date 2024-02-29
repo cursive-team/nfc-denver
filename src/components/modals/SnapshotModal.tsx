@@ -1,5 +1,5 @@
 import { ModalProps, Modal } from "./Modal";
-import { ArtworkCanvas } from "../ArtworkCanvas";
+import { ArtworkSnapshot } from "../artwork/ArtworkSnapshot";
 
 interface SnapshotModalProps extends ModalProps {
   size?: number;
@@ -15,7 +15,7 @@ const SnapshotModal = ({
       <div className="flex flex-col gap-10 mt-10">
         <div className="flex flex-col gap-4">
           <div className="mx-auto">
-            <ArtworkCanvas
+            <ArtworkSnapshot
               width={size ?? 320}
               height={size ?? 320}
               slider={true}
