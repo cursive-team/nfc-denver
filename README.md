@@ -28,4 +28,4 @@ Server custody means that the server stores your encryption private key for you.
 
 ## Interested in more projects like this?
 
-The Buidl Quest web app was built by [Cursive](http://cursive.team), a cryptography and design lab building human-first applications of signed data. The code for the web app is all [open-source](https://github.com/nfc-denver/nfc-denver). If you’re interested in practical applications of digital signatures or advanced cryptography and would like to chat and/or collaborate, please reach out!
+The Buidl Quest web app was built by [Cursive](http://cursive.team), a cryptography and design lab building human-first applications of signed data. The code for the web app is all [open-source](https://github.com/cursive-team/nfc-denver). If you’re interested in practical applications of digital signatures or advanced cryptography and would like to chat and/or collaborate, please reach out!

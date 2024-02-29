@@ -234,11 +234,11 @@ const AppHeaderContent = ({
                 GitHub:{" "}
                 <u>
                   <a
-                    href="https://github.com/nfc-denver/nfc-denver"
+                    href="https://github.com/cursive-team/nfc-denver"
                     target="_blank"
                     rel="noreferrer noopener"
                   >
-                    github.com/nfc-denver/nfc-denver
+                    https://github.com/cursive-team/nfc-denver
                   </a>
                 </u>
               </Subtitle>
