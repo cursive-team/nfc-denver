@@ -228,7 +228,7 @@ const ProfileForm = ({
             name="custody"
             value="server"
             label="Server custody"
-            description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
+            description="Your ETHDenver interaction data can be read by the app server, but login just requires an email code."
             checked={wantsServerCustody}
             disabled={isReadOnly}
             onChange={() =>

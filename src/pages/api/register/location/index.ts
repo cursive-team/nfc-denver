@@ -40,7 +40,8 @@ export default async function handler(
 
     // Register a cmac location chip
     if (iykRef && typeof iykRef === "string") {
-      const enableMockRef = mockRef === "true";
+      const enableMockRef =
+        process.env.ALLOW_MOCK_REF === "true" && mockRef === "true";
       const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
       if (!chipId) {
         return res.status(400).json({ error: "Invalid iykRef" });

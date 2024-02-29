@@ -1,4 +1,5 @@
-import { LoginType } from "@/lib/schema/schema";
+import { LoginType, RegisterType, ProfileType } from "@/lib/schema/schema";
+import { ProfileDisplayState } from "@/types";
 import "little-state-machine";
 
 /*
@@ -9,6 +10,8 @@ In this way, we can also have single file for the different steps of the login/r
 declare module "little-state-machine" {
   interface GlobalState {
     login: LoginType;
+    register: RegisterType;
     profile: ProfileType;
+    profileView: ProfileDisplayState;
   }
 }

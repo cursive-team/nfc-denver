@@ -55,7 +55,7 @@ const Modal = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="bg-black fixed top-0 bottom-0 left-0 right-0 bg-shark-970 w-full max-h-screen transform py-6 px-4 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="bg-black fixed top-0 bottom-0 left-0 right-0 bg-shark-970 w-full max-h-screen transform py-6 px-3 xs:px-4 text-left align-middle shadow-xl transition-all">
                 {closable && (
                   <div
                     className={cn(

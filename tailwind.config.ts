@@ -10,10 +10,7 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       screens: {
-        xs: "374px",
-      },
-      container: {
-        center: true,
+        xs: "376px",
       },
       fontSize: {
         xs: "12px",

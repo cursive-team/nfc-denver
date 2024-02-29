@@ -69,9 +69,11 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <div className="flex gap-3 items-center">
-          <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
-          <span className="text-xl font-light leading-6">{title}</span>
+        <div className="grid grid-cols-[40px_1fr] gap-2 xs:gap-3 items-center">
+          <div className="size-10 bg-slate-200 rounded-full"></div>
+          <span className="text-lg xs:text-xl font-light leading-6">
+            {title}
+          </span>
         </div>
         <button
           type="button"
@@ -88,9 +90,12 @@ const QuestDetail = ({ quest, loading = false }: QuestDetailProps) => {
       <div className="flex flex-col gap-4">
         <span className=" text-gray-11 text-xs font-light">{description}</span>
         <div className="flex flex-row items-center gap-4">
-          <Label>Reward(s)</Label>
           {buidlReward ? (
-            <PointCard className="center" point={buidlReward} />
+            <PointCard
+              label="Reward(s)"
+              className="center"
+              point={buidlReward}
+            />
           ) : null}
           {item && (
             <PartnerItemCard

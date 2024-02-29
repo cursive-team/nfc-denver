@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { encryptQuestCompletedMessage } from "@/lib/client/jubSignal";
 import { loadMessages } from "@/lib/client/jubSignalClient";
+import { Spinner } from "../Spinner";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
@@ -326,13 +327,12 @@ const CompleteQuestModal = ({
                   {"Redeemable: " + name}
                 </h2>
                 {isSoldOut ? (
-                  <span className="text-xs font-light text-gray-900">
+                  <span className="text-xs font-light text-gray-900 mt-2">
                     Sold Out
                   </span>
                 ) : (
-                  <span className="text-xs font-light text-gray-900">
-                    Completing this quest allows you to redeem the above item.
-                    Present this QR code at the BUIDL Store to claim your item.
+                  <span className="text-xs font-light text-gray-900 mt-2">
+                    Present this QR code at the BUIDL Store!
                   </span>
                 )}
               </div>
@@ -347,6 +347,11 @@ const CompleteQuestModal = ({
                 />
               </QRCodeWrapper>
             )}
+            {quest.buidlReward > 0 && (
+              <span className="text-xs text-gray-10 mt-2">
+                {`You've also received ${quest.buidlReward} BUIDL!`}
+              </span>
+            )}
           </div>
         </div>
       );
@@ -355,7 +360,7 @@ const CompleteQuestModal = ({
     switch (displayState) {
       case CompleteQuestDisplayState.INITIAL:
         return (
-          <div className="flex flex-col w-full justify-center text-center gap-5">
+          <div className="flex flex-col w-full justify-center items-center text-center gap-5">
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col gap-2">
@@ -375,16 +380,10 @@ const CompleteQuestModal = ({
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col">
-                <span className="text-xl text-gray-12">{quest.name}</span>
-                <span className="text-xs text-gray-10">
-                  {"Generating zero knowledge proof"}
-                </span>
-                <span className="text-xs text-gray-10">
-                  {`Proving requirement ${provingState.numRequirementsProven} of ${provingState.numRequirementsTotal}`}
-                </span>
-                <span className="text-xs text-gray-10">
-                  {`Proving signature ${provingState.currentRequirementNumSigsProven} of ${provingState.currentRequirementNumSigsTotal}`}
-                </span>
+                <span className="text-xl text-gray-12 mb-2">{quest.name}</span>
+                <Spinner
+                  label={`Generating ZK proof (${provingState.numRequirementsProven}/${provingState.numRequirementsTotal} reqs)`}
+                />
               </div>
             </div>
             <div className="self-center w-full">
@@ -398,9 +397,8 @@ const CompleteQuestModal = ({
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col">
-                <span className="text-xl text-gray-12">
-                  {"Completed: " + quest.name}
-                </span>
+                <span className="text-xl text-gray-12">{"Completed!"}</span>
+                <span className="text-xl text-gray-12">{quest.name}</span>
                 {quest.buidlReward > 0 && (
                   <span className="text-xs text-gray-10 mt-4">
                     {`You've received ${quest.buidlReward} BUIDL!`}

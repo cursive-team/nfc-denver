@@ -1,6 +1,5 @@
 import { object, string, date, InferType, boolean } from "yup";
 import {
-  displayNameRegex,
   farcasterUsernameRegex,
   telegramUsernameRegex,
   twitterUsernameRegex,
@@ -45,10 +44,7 @@ export const RegisterLocationSchema = object({
 
 export const ProfileSchema = object({
   displayName: string()
-    .matches(displayNameRegex, {
-      message:
-        "Display name must consist of letters and numbers only, < 20 chars.",
-    })
+    .max(20, "Display name must be less than 20 characters.")
     .trim()
     .required("This field is required."),
   email: string()
@@ -80,6 +76,29 @@ export const ProfileSchema = object({
   bio: string().max(200, "Bio must be less than 200 characters.").optional(),
 });
 
+export const RegisterSchema = ProfileSchema.shape({
+  email: string()
+    .email("Invalid email address.")
+    .required("This field is required."),
+  code: string()
+    .min(6, "Code must be 6 characters.")
+    .max(6, "Code must be 6 characters.")
+    .required("This field is required."),
+  password: string()
+    .required("Password is required.")
+    .min(6, "Password must be at least 6 characters."),
+  confirmPassword: string()
+    .required("This field is required.")
+    .test({
+      name: "passwords-match",
+      message: "Passwords must match.",
+      test: function (value) {
+        return this.parent.password === value;
+      },
+    }),
+});
+
 export type RegisterLocationType = InferType<typeof RegisterLocationSchema>;
 export type LoginType = InferType<typeof LoginSchema>;
 export type ProfileType = InferType<typeof ProfileSchema>;
+export type RegisterType = InferType<typeof RegisterSchema>;

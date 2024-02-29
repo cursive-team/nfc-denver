@@ -14,7 +14,8 @@ export default async function handler(
   const { iykRef, mockRef, sigPk } = request.query;
 
   if (iykRef && typeof iykRef === "string") {
-    const enableMockRef = mockRef === "true";
+    const enableMockRef =
+      process.env.ALLOW_MOCK_REF === "true" && mockRef === "true";
     const { chipId } = await getChipIdFromIykRef(iykRef, enableMockRef);
     if (!chipId) {
       return response.status(400).json({ error: "Invalid iykRef" });

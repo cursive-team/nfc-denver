@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Linkify from "react-linkify";
+import { CircleCard } from "../cards/CircleCard";
 
 enum MintDisplayState {
   DISPLAY,
@@ -37,7 +38,7 @@ const LocationTapModal = ({
   const { isPending: isLoadingQuests, data: quests = [] } = useFetchQuests();
   const { numRequirementsSatisfied } = useQuestRequirements(quests);
   const locationQuestRequirementIds = location.questRequirements.map(
-    (quest) => quest.id
+    (questReq) => questReq.questId
   );
   const [mintDisplayState, setMintDisplayState] = useState<MintDisplayState>(
     MintDisplayState.DISPLAY
@@ -108,14 +109,7 @@ const LocationTapModal = ({
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} withBackButton>
       <div className="flex flex-col min-h-[60vh]">
         <div className="flex flex-col items-center gap-[10px] pt-24 pb-28">
-          <div className="flex bg-[#677363] justify-center items-center h-10 w-10 rounded-full ">
-            <Image
-              src="/icons/home.svg"
-              height={16}
-              width={16}
-              alt="home image"
-            />
-          </div>
+          <CircleCard icon="location" size="md" />
           <div className="flex flex-col gap-2 items-center mx-6">
             <span className="text-xl tracking-[-0.2px] font-light text-gray-12">
               Success!

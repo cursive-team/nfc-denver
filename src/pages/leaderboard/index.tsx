@@ -101,11 +101,16 @@ export default function LeaderBoard() {
       />
       <div className="flex flex-col gap-6 pb-6">
         <div className="flex flex-col gap-4">
+          <span className="text-gray-900 text-xs font-light">
+            {"The leaderboard is based on the number of taps you've "}{" "}
+            <i>given.</i> {"To complete quests however, you must "}{" "}
+            <i>receive</i> {" a tap."}
+          </span>
           <TableWrapper>
             <TableHeaderLabel className="text-center">#</TableHeaderLabel>
             <TableHeaderLabel>Display name</TableHeaderLabel>
             <TableHeaderLabel className="text-right">
-              Connections
+              Taps given
             </TableHeaderLabel>
           </TableWrapper>
           <LoadingWrapper

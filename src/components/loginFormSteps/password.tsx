@@ -80,6 +80,7 @@ const LoginStepPassword = ({
       },
       onError: (error: any) => {
         toast.error(error.error || "Error logging in. Please try again.");
+        setIsLoading(false); // stop loading after Promise is resolved
       },
     });
     setIsLoading(false); // stop loading after Promise is resolved

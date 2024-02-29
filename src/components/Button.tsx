@@ -10,7 +10,7 @@ const ButtonComponent = classed.button(
       size: {
         tiny: "text-sm py-1 px-3 gap-1",
         sm: "text-[13px] leading-none gap-1 py-[6px] px-[7px]",
-        md: "text-[14px] py-[14px] leading-none gap-2 px-4",
+        md: "text-[14px] py-[10px] xs:py-[14px] leading-none gap-2 px-4",
         lg: "text-[16px] py-3 leading-none gap-2 px-4",
       },
       variant: {

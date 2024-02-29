@@ -8,6 +8,7 @@ type FormStepLayoutProps = {
   children: React.ReactNode;
   header?: React.ReactNode;
   onSubmit?: (event: React.FormEvent) => void;
+  onChange?: (formValues: any) => void;
   className?: string;
   actions?: React.ReactNode; // actions are the buttons at the bottom of the form
 };
@@ -19,12 +20,17 @@ const FormStepLayout = ({
   header,
   className = "",
   actions,
+  onChange,
   ...props
 }: FormStepLayoutProps) => {
   return (
-    <form {...props} className={`flex flex-col w-full grow focus ${className}`}>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-1 mb-4">
+    <form
+      {...props}
+      className={`flex flex-col w-full grow focus ${className}`}
+      onChange={onChange}
+    >
+      <div className="flex flex-col gap-3 xs:gap-8">
+        <div className="flex flex-col gap-1 xs:mb-4">
           {description && (
             <span className="text-light text-xs text-gray-11 font-normal leading-4">
               {description}
@@ -50,7 +56,7 @@ const FormStepLayout = ({
         </div>
       )}
       {actions && (
-        <div className="sticky bottom-0 right-0 left-0 bg-black-default mt-4">
+        <div className="sticky bottom-0 right-0 left-0 bg-black mt-4">
           <div className="pb-6 pt-2">{actions}</div>
         </div>
       )}

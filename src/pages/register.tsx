@@ -11,27 +11,20 @@ import {
   saveKeys,
   saveProfile,
 } from "@/lib/client/localStorage";
-import { verifySigninCodeResponseSchema } from "../lib/server/auth";
 import { encryptBackupString } from "@/lib/shared/backup";
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
-import Link from "next/link";
-import { FormStepLayout } from "@/layouts/FormStepLayout";
 import { toast } from "sonner";
-import {
-  displayNameRegex,
-  farcasterUsernameRegex,
-  handleNicknameChange,
-  telegramUsernameRegex,
-  twitterUsernameRegex,
-} from "@/lib/shared/utils";
 import { Spinner } from "@/components/Spinner";
-import { Radio } from "@/components/Radio";
-import { Checkbox } from "@/components/Checkbox";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 import { generatePSIKeys } from "@/lib/client/psi";
 import { AppBackHeader } from "@/components/AppHeader";
+import { RegisterStepForm } from "@/components/registerFormSteps";
+import { RegisterStepCode } from "@/components/registerFormSteps/code";
+import { RegisterSocial } from "@/components/registerFormSteps/social";
+import { RegisterCustody } from "@/components/registerFormSteps/custody";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
+import { RegisterPassword } from "@/components/registerFormSteps/password";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -44,24 +37,16 @@ enum DisplayState {
 
 export default function Register() {
   const router = useRouter();
+  const { getState } = useStateMachine({ updateStateFromAction });
+
+  const wantsServerCustody = getState()?.register?.wantsServerCustody ?? false;
+  const allowsAnalytics = getState()?.register?.allowsAnalytics ?? false;
 
   const [displayState, setDisplayState] = useState<DisplayState>(
     DisplayState.INPUT_EMAIL
   );
   const [iykRef, setIykRef] = useState<string>("");
   const [mockRef, setMockRef] = useState<string>();
-  const [email, setEmail] = useState<string>("");
-  const [code, setCode] = useState<string>("");
-  const [displayName, setDisplayName] = useState<string>("");
-  const [twitterUsername, setTwitterUsername] = useState<string>("@");
-  const [telegramUsername, setTelegramUsername] = useState<string>("@");
-  const [farcasterUsername, setFarcasterUsername] = useState<string>("@");
-  const [bio, setBio] = useState<string>();
-  const [wantsServerCustody, setWantsServerCustody] = useState<boolean>(false);
-  const [allowsAnalytics, setAllowAnalytics] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (router.query.iykRef) {
@@ -72,183 +57,24 @@ export default function Register() {
     }
   }, [router.query.iykRef, router.query.mockRef]);
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // let's trim and lowercase email, with iPhone sometime it start with a capital letter or add a space at the end
-    const emailCleaned = event.target.value.trim().toLowerCase();
-    setEmail(emailCleaned);
-  };
-
-  const handleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCode(event.target.value);
-  };
-
-  const handleDisplayNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const displayNameCleaned = event.target.value.trim(); // remove trailing spaces
-    setDisplayName(displayNameCleaned);
-  };
-
-  const handleTwitterUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTwitterUsername(handleNicknameChange(event));
-  };
-
-  const handleTelegramUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTelegramUsername(handleNicknameChange(event));
-  };
-
-  const handleFarcasterUsernameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFarcasterUsername(handleNicknameChange(event));
-  };
-
-  const handleBioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setBio(event.target.value);
-  };
-
-  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
-
-  const handleConfirmPasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setConfirmPassword(event.target.value);
-  };
-
-  const handleEmailSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!iykRef) {
-      toast.error("Please tap your card to link it to your account.");
-      return;
-    }
-
-    setLoading(true);
-    fetch("/api/register/get_code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, iykRef, mockRef }),
-    })
-      .then((response) => {
-        if (response.ok) {
-          setDisplayState(DisplayState.INPUT_CODE);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        toast.error(error.message);
-        setLoading(false);
-      });
-  };
-
-  const handleCodeSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
-    fetch("/api/register/verify_code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, code }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        const verifyCodeResponse =
-          verifySigninCodeResponseSchema.validateSync(data);
-        if (verifyCodeResponse.success) {
-          setDisplayState(DisplayState.INPUT_SOCIAL);
-        } else {
-          const errorReason = verifyCodeResponse.reason;
-          if (errorReason) {
-            throw new Error(errorReason);
-          }
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error: ", error);
-        toast.error("Invalid email code");
-        setLoading(false);
-      });
-  };
-
-  const handleSocialSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!displayNameRegex.test(displayName)) {
-      toast.error(
-        "Display name must consist of letters and numbers only, < 20 chars."
-      );
-      return;
-    }
-
-    if (
-      twitterUsername !== "@" &&
-      !twitterUsernameRegex.test(twitterUsername)
-    ) {
-      toast.error("Invalid Twitter username.");
-      return;
-    }
-
-    if (
-      telegramUsername !== "@" &&
-      !telegramUsernameRegex.test(telegramUsername)
-    ) {
-      toast.error("Invalid Telegram username.");
-      return;
-    }
-
-    if (
-      farcasterUsername !== "@" &&
-      !farcasterUsernameRegex.test(farcasterUsername)
-    ) {
-      toast.error("Invalid Farcaster username.");
-      return;
-    }
-
-    if (bio && bio.length > 200) {
-      toast.error("Bio must be less than 200 characters.");
-      return;
-    }
-
-    setDisplayState(DisplayState.CHOOSE_CUSTODY);
-  };
-
-  const handleCustodySubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (wantsServerCustody) {
-      await handleCreateAccount();
-    } else {
-      setDisplayState(DisplayState.INPUT_PASSWORD);
-    }
-  };
-
   const handleCreateAccount = async () => {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
 
     const { privateKey, publicKey } = await generateEncryptionKeyPair();
     const { signingKey, verifyingKey } = generateSignatureKeyPair();
     const { psiPrivateKeys, psiPublicKeys } = await generatePSIKeys();
+
+    // get the values from the state
+    const {
+      email,
+      displayName,
+      telegramUsername,
+      twitterUsername,
+      farcasterUsername,
+      bio,
+      code,
+      password,
+    } = getState().register;
 
     let passwordSalt, passwordHash;
     if (!wantsServerCustody) {
@@ -269,11 +95,11 @@ export default function Register() {
         displayName,
         wantsServerCustody,
         allowsAnalytics,
+        passwordSalt,
+        passwordHash,
         encryptionPublicKey: publicKey,
         signaturePublicKey: verifyingKey,
         psiRound1Message: JSON.stringify(psiPublicKeys),
-        passwordSalt,
-        passwordHash,
       }),
     });
 
@@ -307,21 +133,19 @@ export default function Register() {
       psiPrivateKeys: JSON.stringify(psiPrivateKeys),
       psiPublicKeys: JSON.stringify(psiPublicKeys),
     });
+
     saveProfile({
       pkId,
-      displayName,
-      email,
       encryptionPublicKey: publicKey,
       signaturePublicKey: verifyingKey,
       wantsServerCustody,
       allowsAnalytics,
-      twitterUsername:
-        twitterUsername === "@" ? undefined : twitterUsername.slice(1),
-      telegramUsername:
-        telegramUsername === "@" ? undefined : telegramUsername.slice(1),
-      farcasterUsername:
-        farcasterUsername === "@" ? undefined : farcasterUsername.slice(1),
-      bio: bio === "" ? undefined : bio,
+      displayName,
+      email,
+      twitterUsername,
+      telegramUsername,
+      farcasterUsername,
+      bio,
     });
     saveAuthToken({
       value: data.authTokenResponse.value,
@@ -389,233 +213,70 @@ export default function Register() {
     router.push("/");
   };
 
-  const handleCreateSelfCustodyAccount = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!password || password !== confirmPassword) {
-      toast.error("Passwords do not match!");
-      return;
-    }
-
-    await handleCreateAccount();
-  };
-
   return (
     <>
       {displayState === DisplayState.INPUT_EMAIL && (
-        <FormStepLayout
-          title="Welcome to ETHDenver"
-          description={new Date().toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-          })}
-          className="pt-4"
-          onSubmit={handleEmailSubmit}
-        >
-          <Input
-            label="Email"
-            placeholder="Your email"
-            type="email"
-            name="email"
-            value={email}
-            onChange={handleEmailChange}
-            required
-          />
-          <Button loading={loading} type="submit">
-            Continue
-          </Button>
-          <Link href="/login" className="link text-center">
-            I already have an account
-          </Link>
-        </FormStepLayout>
+        <RegisterStepForm
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onSuccess={() => {
+            setDisplayState(DisplayState.INPUT_CODE);
+          }}
+        />
       )}
       {displayState === DisplayState.INPUT_CODE && (
-        <div className="flex flex-col grow">
-          <AppBackHeader
-            label="Email"
-            onBackClick={() => setDisplayState(DisplayState.INPUT_EMAIL)}
-          />
-          <FormStepLayout
-            title={`We've just sent you a six digit code to ${email}`}
-            description={new Date().toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-            })}
-            className="pt-4 grow"
-            onSubmit={handleCodeSubmit}
-          >
-            <Input
-              type="text"
-              name="code"
-              value={code}
-              label="6-digit code"
-              placeholder="Confirm your 6-digit code"
-              onChange={handleCodeChange}
-              required
-            />
-            <Button loading={loading} type="submit">
-              Continue
-            </Button>
-          </FormStepLayout>
-        </div>
+        <RegisterStepCode
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            setDisplayState(DisplayState.INPUT_EMAIL);
+          }}
+          onSuccess={() => {
+            setDisplayState(DisplayState.INPUT_SOCIAL);
+          }}
+        />
       )}
       {displayState === DisplayState.INPUT_SOCIAL && (
-        <div className="flex flex-col grow">
-          <AppBackHeader
-            label="Email"
-            // no need to get back to code, redirect to email input
-            onBackClick={() => setDisplayState(DisplayState.INPUT_EMAIL)}
-          />
-          <FormStepLayout
-            title="Social settings"
-            description="1/2"
-            onSubmit={handleSocialSubmit}
-            className="pt-4"
-            header={
-              <div className="flex flex-col gap-4">
-                <span className="text-sm text-gray-11 font-light">
-                  You can choose which social channels to share each time you
-                  tap someone else. You can change these at any time in the app.
-                </span>
-                <Input
-                  type="text"
-                  label="Display name"
-                  placeholder="Choose a display name"
-                  value={displayName}
-                  onChange={handleDisplayNameChange}
-                  required
-                />
-                <Input
-                  type="text"
-                  name="twitterUsername"
-                  label="X (Optional)"
-                  placeholder="twitter.com/username"
-                  value={twitterUsername}
-                  onChange={handleTwitterUsernameChange}
-                />
-                <Input
-                  type="text"
-                  name="telegramUsername"
-                  label="Telegram (Optional)"
-                  placeholder="Telegram username"
-                  value={telegramUsername}
-                  onChange={handleTelegramUsernameChange}
-                />
-                <Input
-                  type="text"
-                  name="farcasterUsername"
-                  label="Farcaster (Optional)"
-                  placeholder="Farcaster username"
-                  value={farcasterUsername}
-                  onChange={handleFarcasterUsernameChange}
-                />
-                <Input
-                  type="text"
-                  name="bio"
-                  label="Bio (Optional)"
-                  placeholder="Notes about yourself"
-                  value={bio}
-                  onChange={handleBioChange}
-                />
-              </div>
-            }
-          >
-            <Button type="submit">Next: Data Custody</Button>
-          </FormStepLayout>
-        </div>
+        <RegisterSocial
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            //no need to get back to code, redirect to email input
+            setDisplayState(DisplayState.INPUT_EMAIL);
+          }}
+          onSuccess={() => {
+            setDisplayState(DisplayState.CHOOSE_CUSTODY);
+          }}
+        />
       )}
       {displayState === DisplayState.CHOOSE_CUSTODY && (
-        <div className="flex flex-col grow">
-          <AppBackHeader
-            label="Social settings"
-            onBackClick={() => setDisplayState(DisplayState.INPUT_SOCIAL)}
-          />
-          <FormStepLayout
-            onSubmit={handleCustodySubmit}
-            description="2/2"
-            title="Ownership & analytics consent"
-            className="pt-4"
-            header={
-              <fieldset className="flex flex-col gap-6">
-                <span className="text-gray-11 text-sm">
-                  IYK has partnerned with Cursive to integrate ZK tech into this
-                  experience to enable full data ownership and portability.
-                  Choose if you want to enable it.
-                </span>
-                <Radio
-                  id="selfCustody"
-                  name="custody"
-                  value="self"
-                  label="Self custody"
-                  description="Your ETHDenver interaction data is private to you, encrypted by a master password set on the next page. ZK proofs are used to prove quest completion."
-                  checked={!wantsServerCustody}
-                  onChange={() => setWantsServerCustody(false)}
-                />
-                <Radio
-                  id="serverCustody"
-                  type="radio"
-                  name="custody"
-                  value="server"
-                  label="Server custody"
-                  description="Your ETHDenver interaction data is stored in plaintext, and may be shared with third parties."
-                  checked={wantsServerCustody}
-                  onChange={() => setWantsServerCustody(true)}
-                />
-                <span className="text-gray-11 text-sm">
-                  If we have your consent, Cursive will use client-side
-                  performance analytics to determine how to improve the app.
-                  This will never include any identifying information.
-                </span>
-                <Checkbox
-                  id="allowAnalytics"
-                  label="I consent to sharing analytics data"
-                  checked={allowsAnalytics}
-                  onChange={setAllowAnalytics}
-                  disabled={false}
-                />
-              </fieldset>
+        <RegisterCustody
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            //no need to get back to code, redirect to email input
+            setDisplayState(DisplayState.INPUT_SOCIAL);
+          }}
+          onSuccess={async () => {
+            if (wantsServerCustody) {
+              await handleCreateAccount();
+            } else {
+              setDisplayState(DisplayState.INPUT_PASSWORD);
             }
-          >
-            <Button type="submit">
-              {wantsServerCustody ? "Create Account" : "Next: Choose Password"}
-            </Button>
-          </FormStepLayout>
-        </div>
+          }}
+        />
       )}
       {displayState === DisplayState.INPUT_PASSWORD && (
-        <div className="flex flex-col grow">
-          <AppBackHeader
-            label="Choose custody"
-            onBackClick={() => setDisplayState(DisplayState.CHOOSE_CUSTODY)}
-          />
-          <FormStepLayout
-            className="pt-4"
-            title={<span>Master password</span>}
-            onSubmit={handleCreateSelfCustodyAccount}
-          >
-            <Input
-              type="password"
-              name="password"
-              label="Master password"
-              value={password}
-              onChange={handlePasswordChange}
-              required
-            />
-            <Input
-              type="password"
-              name="confirmPassword"
-              label="Confirm master password"
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              required
-            />
-            <span className="text-gray-11 text-sm">
-              This master password is used to encrypt a backup of your
-              interaction data on our server. You are responsible for saving
-              this password and/or manually backing up your data from the app.
-            </span>
-            <Button type="submit">Create Account</Button>
-          </FormStepLayout>
-        </div>
+        <RegisterPassword
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            setDisplayState(DisplayState.CHOOSE_CUSTODY);
+          }}
+          onSuccess={async () => {
+            await handleCreateAccount();
+          }}
+        />
       )}
       {displayState === DisplayState.CREATING_ACCOUNT && (
         <div className="my-auto mx-auto">

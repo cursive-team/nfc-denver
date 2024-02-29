@@ -121,7 +121,8 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid code provided" });
   }
 
-  const mockRef: boolean = req.query.mockRef === "true";
+  const mockRef: boolean =
+    process.env.ALLOW_MOCK_REF === "true" && req.query.mockRef === "true";
 
   const { chipId, isValid } = await getChipIdFromIykRef(iykRef, mockRef);
   // ref must exist in iyk's lookup

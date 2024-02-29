@@ -6,6 +6,9 @@ import { ReactNode, useState } from "react";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import Profile from "./Profile";
 import { clearIndexedDB } from "@/lib/client/indexedDB";
+import { useStateMachine } from "little-state-machine";
+import updateStateFromAction from "@/lib/shared/updateAction";
+import { ProfileDisplayState } from "@/types";
 
 const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
@@ -35,7 +38,7 @@ export const AppBackHeader = ({
   const router = useRouter();
 
   return (
-    <div className="flex justify-between items-center h-[60px]">
+    <div className="flex justify-between items-center h-[50px] xs:h-[60px]">
       <button
         type="button"
         className="flex items-center gap-1"
@@ -64,8 +67,11 @@ const AppHeaderContent = ({
   setIsMenuOpen,
   handleSignout,
 }: AppHeaderContentProps) => {
-  const [showBack, setShowBack] = useState(false);
+  const { actions, getState } = useStateMachine({ updateStateFromAction });
   const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+
+  const profileViewState: ProfileDisplayState =
+    getState().profileView || ProfileDisplayState.VIEW;
 
   if (!isMenuOpen) return null;
 
@@ -116,24 +122,38 @@ const AppHeaderContent = ({
               </Subtitle>
             </div>
           </ContentWrapper>
-          <ContentWrapper>
-            <Title>Account</Title>
-          </ContentWrapper>
         </>
       ),
     },
   ];
 
   const onBack = () => {
-    setShowBack(false);
+    if (
+      profileViewState === ProfileDisplayState.CHOOSE_PASSWORD ||
+      profileViewState === ProfileDisplayState.INPUT_PASSWORD
+    ) {
+      actions.updateStateFromAction({
+        ...getState(),
+        profileView: ProfileDisplayState.VIEW,
+      });
+      return; //
+    }
+
+    if (profileViewState === ProfileDisplayState.EDIT) {
+      actions.updateStateFromAction({
+        ...getState(),
+        profileView: ProfileDisplayState.VIEW,
+      });
+    }
+
     setActiveMenuIndex(null);
   };
 
   const showBackButton = activeMenuIndex !== null;
 
   return (
-    <div className="fixed inset-0 w-full overflow-auto px-4 z-10 h-[calc(100%-70px)] bg-black">
-      <div className="flex h-[60px]">
+    <div className="fixed inset-0 w-full overflow-auto px-3 xs:px-4 z-10 h-full bg-black">
+      <div className="flex h-[40px] xs:h-[60px]">
         {showBackButton && (
           <button
             onClick={onBack}
@@ -146,7 +166,16 @@ const AppHeaderContent = ({
         )}
         <button
           type="button"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={() => {
+            setIsMenuOpen(!isMenuOpen);
+            // reset profile view
+            actions.updateStateFromAction({
+              ...getState(),
+              profileView: ProfileDisplayState.VIEW,
+            });
+            // reset active menu
+            setActiveMenuIndex(null);
+          }}
           className="flex gap-3 items-center ml-auto"
         >
           <span className="text-gray-11">Close</span>
@@ -195,7 +224,7 @@ const AppHeader = ({ isMenuOpen, setIsMenuOpen }: AppHeaderProps) => {
   };
 
   return (
-    <div className="flex w-full items-center p-4 bg-black-default z-50">
+    <div className="flex w-full items-center p-3 py-3 xs:p-4 bg-black z-50">
       {!isMenuOpen && (
         <Link href="/">
           <button type="button" className="flex gap-2 items-center">
