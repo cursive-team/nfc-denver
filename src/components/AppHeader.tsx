@@ -13,7 +13,7 @@ const Title = classed.h3("block text-base text-gray-12 font-light leading-5");
 const Subtitle = classed.h4("text-sm text-gray-12 leading-5");
 const Description = classed.span("text-sm text-gray-11 leading-5");
 
-const ContentWrapper = classed.div("flex flex-col gap-4 mt-8");
+const ContentWrapper = classed.div("flex flex-col gap-3 mt-3 xs:gap-4 xs:mt-6");
 
 interface AppHeaderContentProps {
   isMenuOpen: boolean;
