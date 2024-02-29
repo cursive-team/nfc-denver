@@ -27,7 +27,6 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Spinner } from "@/components/Spinner";
 import { MessageRequest } from "@/pages/api/messages";
-import { Spinner } from "@/components/Spinner";
 
 const SharePage = () => {
   const router = useRouter();
