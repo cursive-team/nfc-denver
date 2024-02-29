@@ -17,6 +17,10 @@ model User {
   email       String @unique
   displayName String
 
+  claveInviteCode String
+  claveInviteLink String
+  claveWallet     String?
+
   encryptionPublicKey String
   signaturePublicKey  String
 
