@@ -191,8 +191,10 @@ const SharePage = () => {
         onSubmit={handleConnect}
       >
         <Description>
-          {`By sharing, you will allow ${user.name} to complete any quests that require meeting you. 
-        This is done by sharing a private stamp that can be used to ZK prove they met you. `}
+          You will send {user.name} a{" "}
+          <i>unique, signed version of your stamp</i>. It will be added to their
+          ETHDenver commemorative NFT, and they can use the signature to ZK
+          prove they met you for quests.
         </Description>
 
         <div className="mx-auto">
@@ -200,7 +202,6 @@ const SharePage = () => {
             width={artworkSize}
             height={artworkSize}
             pubKey={profile.signaturePublicKey}
-            title="" // TODO: label for label
             isVisible
           />
         </div>
