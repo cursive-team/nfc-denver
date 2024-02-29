@@ -25,120 +25,6 @@ import { Spinner } from "../Spinner";
 
 const QRCodeWrapper = classed.div("bg-white max-w-[254px]");
 
-const RedeemPoint = ({ questName }: { questName: string }) => {
-  const [redeemPoint, setRedeemPoint] = useState(false);
-
-  return (
-    <div className="flex flex-col w-full justify-center text-center gap-5">
-      <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
-      <div className="flex flex-col gap-1 self-center">
-        <div className="flex flex-col">
-          <span className="text-xs text-gray-10">{questName}</span>
-          <span className="text-xl text-gray-12">Quest completed</span>
-        </div>
-      </div>
-      <div className="flex self-center w-full justify-center">
-        {!redeemPoint ? (
-          <Button
-            onClick={() => {
-              setRedeemPoint(true);
-            }}
-            className="w-full"
-          >
-            Collected X BUIDL
-          </Button>
-        ) : (
-          <PointCard label="Your balance" point={99} />
-        )}
-      </div>
-      <div className="flex items-center gap-1 self-center">
-        <span className="text-sm text-gray-11">Share on</span>
-        <Icons.twitter />
-      </div>
-    </div>
-  );
-};
-
-const RedeemItem = ({ questName }: { questName: string }) => {
-  const [redeemItem, setRedeemItem] = useState(false);
-  const [itemPurchased, setItemPurchased] = useState(false);
-  const qrCodeUrl = "https://www.google.com";
-
-  if (redeemItem && !itemPurchased)
-    return (
-      <div className="flex flex-col justify-center items-center text-center w-full gap-6">
-        <div className="flex flex-col justify-center items-center">
-          <span className="text-xs text-gray-10">Partner name</span>
-          <span className="text-xl text-gray-12">Item name</span>
-        </div>
-        <span className="text-sm text-gray-12">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus,
-          delectus?
-        </span>
-        <PointCard className="!gap-3" label="Balance" point={33} />
-        <Button
-          onClick={() => {
-            setItemPurchased(true);
-          }}
-        >
-          <PointCard label="Pay" size="sm" point={99} />
-        </Button>
-      </div>
-    );
-
-  if (itemPurchased) {
-    return (
-      <div className="flex flex-col justify-center items-center text-center w-full gap-6 mt-24">
-        <div className="flex flex-col justify-center items-center">
-          <span className="text-xl text-gray-12">Redeemed</span>
-        </div>
-        <QRCodeWrapper>
-          <QRCode
-            size={254}
-            className="ml-auto p-4 h-auto w-full max-w-full"
-            value={qrCodeUrl}
-            viewBox={`0 0 254 254`}
-          />
-        </QRCodeWrapper>
-        <span className="text-sm text-gray-12 font-light">
-          Show the QR code to claim the physical item
-        </span>
-        <Link className="w-full" href="/quests">
-          <Button>Back to quests</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col w-full justify-center text-center gap-5">
-      <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
-      <div className="flex flex-col gap-1 self-center">
-        <div className="flex flex-col">
-          <span className="text-xs text-gray-10">{questName}</span>
-          <span className="text-xl text-gray-12">Quest completed</span>
-        </div>
-      </div>
-      <div className="self-center w-full">
-        {!redeemItem && (
-          <Button
-            onClick={() => {
-              setRedeemItem(true);
-            }}
-            className="w-full"
-          >
-            Redeem item name
-          </Button>
-        )}
-      </div>
-      <div className="flex items-center gap-1 self-center">
-        <span className="text-sm text-gray-11">Share on</span>
-        <Icons.twitter />
-      </div>
-    </div>
-  );
-};
-
 interface CompleteQuestModalProps extends ModalProps {
   quest: QuestWithRequirementsAndItem;
   existingProofId?: string;
@@ -242,7 +128,7 @@ const CompleteQuestModal = ({
     });
 
     if (!response.ok) {
-      toast.error("Failed to submit proof!");
+      toast.error("Failed to complete quest!");
       setDisplayState(CompleteQuestDisplayState.INITIAL);
       return;
     }
@@ -397,21 +283,38 @@ const CompleteQuestModal = ({
             <div className="h-10 w-10 bg-slate-200 rounded-full self-center"></div>
             <div className="flex flex-col gap-1 self-center">
               <div className="flex flex-col">
-                <span className="text-xl text-gray-12">{"Completed!"}</span>
+                <span className="text-xl text-gray-12 font-bold">
+                  {"Completed"}
+                </span>
                 <span className="text-xl text-gray-12">{quest.name}</span>
                 {quest.buidlReward > 0 && (
-                  <span className="text-xs text-gray-10 mt-4">
-                    {`You've received ${quest.buidlReward} BUIDL!`}
+                  <span className="text-sm text-gray-10 mt-4">
+                    {`You'll receive ${quest.buidlReward} BUIDL upon mint!`}
                   </span>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-1 self-center">
-              <span className="text-sm text-gray-11">Share on</span>
-              <Icons.twitter />
-            </div>
             <div className="self-center w-full">
-              <Button onClick={handleBackToQuests}>Back to Quests</Button>
+              <Link
+                href={`http://twitter.com/share?text=${encodeURIComponent(
+                  `I proved completion of *${quest.name}* with ZK as part of @cursive_team @iyk_app @the_matter_labs's ETHDenver BUIDLQuest! Tap your ETHDenver badge to join!`
+                )}&url=${encodeURIComponent(
+                  `${window.location.origin}/quests/${quest.id}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button>
+                  <span className="text-sm text-gray-11">Share on</span>
+                  <Icons.twitter />
+                </Button>
+              </Link>
+            </div>
+            <div
+              onClick={handleBackToQuests}
+              className="flex items-center gap-1 self-center"
+            >
+              <span className="text-sm text-gray-11">Back to quests</span>
             </div>
           </div>
         );

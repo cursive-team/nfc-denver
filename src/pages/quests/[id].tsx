@@ -41,6 +41,9 @@ import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 import Link from "next/link";
 import { PartnerItemCard } from "@/components/cards/PartnerItemCard";
 import { PointCard } from "@/components/cards/PointCard";
+import { Card } from "@/components/cards/Card";
+import { CircleCard } from "@/components/cards/CircleCard";
+import { cn } from "@/lib/client/utils";
 
 interface QuestDetailProps {
   loading?: boolean;
@@ -309,10 +312,14 @@ export default function QuestById() {
                 label={
                   <div className="flex gap-2 items-center">
                     {isQuestComplete && (
-                      <>
-                        <Label>{"Quest Complete"}</Label>
-                        <Icons.checkedCircle />
-                      </>
+                      <Button
+                        onClick={() => {
+                          setCompleteQuestModal(true);
+                        }}
+                        size="tiny"
+                      >
+                        View completion
+                      </Button>
                     )}
                     {!isQuestComplete && (
                       <Label>{`${numRequirementsSatisfied}/${numRequirementsTotal}`}</Label>
@@ -333,6 +340,26 @@ export default function QuestById() {
                 }
               >
                 <>
+                  {quest && quest.userTapReq !== null && (
+                    <Card.Base className="text-center flex justify-center py-4">
+                      <div className="flex flex-col gap-2 items-center">
+                        <div className={cn("flex items-center justify-center")}>
+                          <CircleCard size="sm" color="white" icon="proof" />
+                        </div>
+                        <div className="flex flex-col">
+                          <Card.Title>{`Tap ${quest.userTapReq} people!`}</Card.Title>
+                          <Card.Description>
+                            {userOutboundTaps >= quest.userTapReq
+                              ? "Complete"
+                              : `${userOutboundTaps}/${quest.userTapReq}`}
+                          </Card.Description>
+                        </div>
+                      </div>
+                      {userOutboundTaps >= quest.userTapReq && (
+                        <Icons.checkedCircle className="absolute right-[6px] top-[6px]" />
+                      )}
+                    </Card.Base>
+                  )}
                   {quest &&
                     quest.userRequirements.map(
                       (

@@ -67,7 +67,7 @@ const StoreModalItem = ({
     });
     setNumRequirementsSatisfied(numRequirementsSatisfied);
 
-    let userTapRequirement = quest.userTapReq ? 1 : 0;
+    let userTapRequirement = quest.userTapReq !== null ? 1 : 0;
 
     // Check if user has met all quest requirements
     if (
