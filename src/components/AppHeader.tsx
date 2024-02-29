@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import { deleteAccountFromLocalStorage } from "@/lib/client/localStorage";
 import Profile from "./Profile";
+import { clearIndexedDB } from "@/lib/client/indexedDB";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { ProfileDisplayState } from "@/types";
@@ -216,8 +217,10 @@ interface AppHeaderProps {
   setIsMenuOpen: (value: boolean) => void;
   fixed?: boolean; // if true, the header will be fixed
 }
+
 const AppHeader = ({ isMenuOpen, setIsMenuOpen, fixed }: AppHeaderProps) => {
-  const handleSignout = () => {
+  const handleSignout = async () => {
+    await clearIndexedDB();
     deleteAccountFromLocalStorage();
     window.location.href = "/";
   };

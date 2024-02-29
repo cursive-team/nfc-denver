@@ -8,6 +8,7 @@ import {
 export const PROFILE_STORAGE_KEY = "profile";
 
 export type Profile = {
+  pkId: string;
   displayName: string;
   email: string;
   encryptionPublicKey: string;
@@ -21,6 +22,7 @@ export type Profile = {
 };
 
 export const profileSchema = object({
+  pkId: string().required(),
   displayName: string().required(),
   email: string().email().required(),
   encryptionPublicKey: string().required(),

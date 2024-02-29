@@ -20,11 +20,13 @@ export enum TapResponseCode {
 }
 
 export type PersonTapResponse = {
+  id: string;
   displayName: string;
   encryptionPublicKey: string;
 };
 
 export const personTapResponseSchema = object({
+  id: string().required(),
   displayName: string().required(),
   encryptionPublicKey: string().required(),
 });
@@ -140,6 +142,7 @@ export default async function handler(
   });
   if (user) {
     const personTapResponse: PersonTapResponse = {
+      id: user.id.toString(),
       displayName: user.displayName,
       encryptionPublicKey: user.encryptionPublicKey,
     };
