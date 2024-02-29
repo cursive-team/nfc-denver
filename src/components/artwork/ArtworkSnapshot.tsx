@@ -92,14 +92,6 @@ const ArtworkSnapshot = ({
     const profile = getProfile();
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
-      // add personal signature to the beginning of the array
-      combined.push({
-        pubKey: profile?.signaturePublicKey ?? "0",
-        timestamp: new Date().getTime(),
-        name: "You",
-        person: true,
-      });
-
       const users = getUsers();
       for (const userKey in users) {
         const user = users[userKey];
@@ -132,6 +124,14 @@ const ArtworkSnapshot = ({
       }
 
       combined.sort((a, b) => a.timestamp - b.timestamp);
+      // add personal signature to the beginning of the array
+      combined.unshift({
+        pubKey: profile?.signaturePublicKey ?? "0",
+        timestamp: new Date().getTime(),
+        name: "You",
+        person: true,
+      });
+
       const signaturePublicKey = profile?.signaturePublicKey ?? "0";
       window.myPubKey = signaturePublicKey;
     } else {
@@ -215,13 +215,13 @@ const ArtworkSnapshot = ({
           <div className="relative flex flex-col gap-4">
             {signatures?.map(({ person, name, timestamp }, index) => {
               const showCurrent = rangeValue === index + 1;
-              const isFirstElement = rangeValue === 1;
+              const isFirstElement = index === 0;
 
               return (
                 <div
                   key={index}
                   className={cn(
-                    "absolute inset-0 flex flex-col gap-1 w-full duration-300 ease-in",
+                    "absolute inset-0 flex flex-col gap-1 w-full duration-200 ease-in",
                     {
                       "opacity-0": !showCurrent,
                       "opacity-100": showCurrent,
