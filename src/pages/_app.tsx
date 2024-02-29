@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <FullPageBanner
         iconSize={40}
         title="Maintenance Mode"
-        description="We are repairing things behind the scene, be back soon!"
+        description="We are repairing things behind the scenes, be back soon!"
       />
     );
   }
