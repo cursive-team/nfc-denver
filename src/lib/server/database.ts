@@ -74,6 +74,7 @@ export const itemWithRequirementsSelector = {
         summonId: true,
         buidlReward: true,
         itemId: true,
+        isHidden: true,
         createdAt: true,
         userTapReq: true,
         userRequirements: {

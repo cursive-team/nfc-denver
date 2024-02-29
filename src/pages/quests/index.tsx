@@ -14,11 +14,12 @@ import { useQuestRequirements } from "@/hooks/useQuestRequirements";
 
 export default function QuestsPage() {
   const pinnedQuests = useRef<Set<number>>(getPinnedQuest());
-  const { isLoading, data: quests = [] } = useFetchQuests();
+  const { isLoading, data: allQuests = [] } = useFetchQuests();
   const [selectedOption, setSelectedOption] =
     useState<QuestTagMappingType>("ALL");
 
   const displayQuests: QuestWithCompletion[] = useMemo(() => {
+    const quests = allQuests.filter((quest) => !quest.isHidden);
     const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
     const completedQuests = quests.filter((quest) => quest.isCompleted);
     const questFilteredItems =
@@ -36,7 +37,7 @@ export default function QuestsPage() {
     );
 
     return [...pinnedQuest, ...notPinnedQuest];
-  }, [quests, selectedOption, pinnedQuests]);
+  }, [allQuests, selectedOption, pinnedQuests]);
 
   const { numRequirementsSatisfied } = useQuestRequirements(displayQuests);
 
