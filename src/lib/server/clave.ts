@@ -11,7 +11,7 @@ export const getClaveInviteLink = async (
 ) => {
   const jwt = signJwt(userEmail);
 
-  return `getclave.io/link/summon?signature=${jwt}&waitlist=${userClaveInviteCode}`;
+  return `https://getclave.io/link/summon?signature=${jwt}&waitlist=${userClaveInviteCode}`;
 };
 
 export function signJwt(email: string) {
