@@ -119,6 +119,7 @@ model Quest {
   summonId             String?               @unique
   buidlReward          Int
   itemId               Int?                  @unique
+  isHidden             Boolean               @default(false)
   createdAt            DateTime              @default(now())
   userRequirements     UserRequirement[]
   locationRequirements LocationRequirement[]
