@@ -12,11 +12,12 @@ datasource db {
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  chipId      String  @unique
-  email       String  @unique
-  displayName String
-  claveWallet String?
+  id              Int     @id @default(autoincrement())
+  chipId          String  @unique
+  email           String  @unique
+  displayName     String
+  claveWallet     String?
+  claveAccessCode String?
 
   encryptionPublicKey String
   signaturePublicKey  String

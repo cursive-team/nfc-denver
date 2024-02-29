@@ -14,6 +14,7 @@ import {
   getChipTypeFromChipId,
   verifyEmailForChipId,
 } from "@/lib/server/iyk";
+import { createClaveAccessCode } from "@/lib/server/clave-api";
 
 const createAccountSchema = object({
   iykRef: string().required(),
@@ -113,6 +114,9 @@ export default async function handler(
     return res.status(400).json({ error: "Invalid email code" });
   }
 
+  // Create Clave access code
+  const { code: claveAccessCode } = await createClaveAccessCode();
+
   // Create user
   const user = await prisma.user.create({
     data: {
@@ -126,6 +130,7 @@ export default async function handler(
       psiRound1Message,
       passwordSalt,
       passwordHash,
+      claveAccessCode,
     },
   });
 
