@@ -100,6 +100,7 @@ export const generateProofForQuest = async (
     };
   }
 
+  // don't include user tap requirements in the proving screen
   const numRequirementsTotal =
     quest.userRequirements.length + quest.locationRequirements.length;
   if (onUpdateProvingState) {

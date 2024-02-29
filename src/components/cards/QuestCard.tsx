@@ -7,9 +7,10 @@ import { CircleCard } from "./CircleCard";
 type QuestCardProps = {
   title: string;
   description: string;
+  userTapReqCount: number; // 1 or 0
   userRequirements?: UserRequirement[];
   locationRequirements?: LocationRequirement[];
-  completedSigs?: number; // number of completed signatures
+  completedReqs?: number; // number of completed signatures
   isCompleted: boolean; // whether the quest is completed
   isPinned?: boolean;
 };
@@ -17,27 +18,28 @@ type QuestCardProps = {
 const QuestRequirementIcons = ({
   userRequirements = [],
   locationRequirements = [],
-  isCompleted = false,
+  userTapReqCount = 0,
 }: Pick<
   QuestCardProps,
-  "userRequirements" | "locationRequirements" | "isCompleted"
+  "userRequirements" | "locationRequirements" | "userTapReqCount"
 >) => {
   const requirementIconsLimit = 4;
+  const totalRequirements =
+    userRequirements.length + locationRequirements.length + userTapReqCount;
+  const overcomeRequirementLimit = totalRequirements > requirementIconsLimit;
+  const remainingRequirements = totalRequirements - requirementIconsLimit;
 
-  const overcomeRequirementLimit =
-    userRequirements.length + locationRequirements.length >
-    requirementIconsLimit;
-
-  const remainingRequirements =
-    userRequirements.length +
-    locationRequirements.length -
-    requirementIconsLimit;
+  // user tap requirements use the "magic" icon
+  // user requirements use the "person" icon
+  // location requirements use the "location" icon
+  // no icon for proving
 
   return (
     <div className="flex relative items-center gap-1">
       <div className="flex">
+        {userTapReqCount === 1 && <CircleCard isMultiple={true} icon="proof" />}
         {[...userRequirements, ...locationRequirements]
-          .splice(0, requirementIconsLimit)
+          .splice(0, requirementIconsLimit - userTapReqCount)
           .map((item: UserRequirement | LocationRequirement, index) => {
             const isPersonRequirement = "users" in item;
 
@@ -49,7 +51,6 @@ const QuestRequirementIcons = ({
               />
             );
           })}
-        {isCompleted && <CircleCard isMultiple={true} icon="proof" />}
       </div>
       {overcomeRequirementLimit && (
         <span className="text-[11px] text-gray-11 font-light tracking-[0.8px]">
@@ -65,15 +66,16 @@ const QuestCard = ({
   description,
   locationRequirements = [],
   userRequirements = [],
-  completedSigs,
+  completedReqs,
   isCompleted,
   isPinned,
+  userTapReqCount,
 }: QuestCardProps) => {
-  const numSigsRequired =
-    userRequirements?.length + locationRequirements?.length;
+  const numRequirements =
+    userRequirements?.length + locationRequirements?.length + userTapReqCount;
 
-  const percentageComplete = completedSigs
-    ? (completedSigs / numSigsRequired) * 100
+  const percentageComplete = completedReqs
+    ? (completedReqs / numRequirements) * 100
     : 0;
 
   return (
@@ -96,16 +98,16 @@ const QuestCard = ({
         <QuestRequirementIcons
           userRequirements={userRequirements}
           locationRequirements={locationRequirements}
-          isCompleted={isCompleted}
+          userTapReqCount={userTapReqCount}
         />
         {isCompleted ? (
           <Card.Description>{"Quest Complete"}</Card.Description>
-        ) : completedSigs === numSigsRequired ? (
+        ) : completedReqs === numRequirements ? (
           <Card.Description>{`Prove completion to unlock rewards!`}</Card.Description>
         ) : (
           <Card.Description>{`${
-            completedSigs || 0
-          }/${numSigsRequired} completed`}</Card.Description>
+            completedReqs || 0
+          }/${numRequirements} completed`}</Card.Description>
         )}
       </div>
       <Card.Progress

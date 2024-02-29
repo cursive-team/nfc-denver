@@ -144,6 +144,7 @@ const QuestCompleted = ({ quest }: { quest: QuestWithRequirements }) => {
                 userRequirements,
                 locationRequirements,
                 isCompleted = false,
+                userTapReq,
               },
               index
             ) => {
@@ -152,7 +153,8 @@ const QuestCompleted = ({ quest }: { quest: QuestWithRequirements }) => {
                   <QuestCard
                     title={name}
                     description={description}
-                    completedSigs={numRequirementsSatisfied[index]}
+                    userTapReqCount={userTapReq ? 1 : 0}
+                    completedReqs={numRequirementsSatisfied[index]}
                     userRequirements={userRequirements}
                     locationRequirements={locationRequirements}
                     isCompleted={isCompleted}
@@ -177,9 +179,14 @@ export default function QuestById() {
   const { isLoading, data: quest = null } = useFetchQuestById(
     questId as string
   );
+  const [userOutboundTaps, setUserOutboundTaps] = useState<number>(0);
 
   useEffect(() => {
     const users = getUsers();
+    setUserOutboundTaps(
+      Object.values(users).filter((user: User) => user.outTs).length
+    );
+
     const locationSignatures = getLocationSignatures();
 
     const validUserPublicKeys = Object.values(users)
@@ -202,12 +209,18 @@ export default function QuestById() {
       const numRequirementsSatisfied = computeNumRequirementsSatisfied({
         userPublicKeys,
         locationPublicKeys,
+        userOutboundTaps,
         userRequirements: quest.userRequirements,
         locationRequirements: quest.locationRequirements,
+        questUserTapReq: quest.userTapReq,
       });
+      let userTapRequirement = quest.userTapReq ? 1 : 0;
+
       if (
         numRequirementsSatisfied ===
-        quest.userRequirements.length + quest.locationRequirements.length
+        quest.userRequirements.length +
+          quest.locationRequirements.length +
+          userTapRequirement
       ) {
         setCompleteQuestModal(true);
         // Check if the user has already submitted a proof for this quest
@@ -218,7 +231,7 @@ export default function QuestById() {
         }
       }
     }
-  }, [quest, userPublicKeys, locationPublicKeys]);
+  }, [quest, userPublicKeys, locationPublicKeys, userOutboundTaps]);
 
   const numRequirementsSatisfied: number = useMemo(() => {
     if (!quest) return 0;
@@ -226,10 +239,12 @@ export default function QuestById() {
     return computeNumRequirementsSatisfied({
       userPublicKeys,
       locationPublicKeys,
+      userOutboundTaps,
       userRequirements: quest.userRequirements,
       locationRequirements: quest.locationRequirements,
+      questUserTapReq: quest.userTapReq,
     });
-  }, [quest, userPublicKeys, locationPublicKeys]);
+  }, [quest, userPublicKeys, locationPublicKeys, userOutboundTaps]);
 
   const numUserRequirementSignatures: number[] = useMemo(() => {
     if (!quest) return [];
@@ -257,7 +272,8 @@ export default function QuestById() {
 
   const numRequirementsTotal =
     (quest?.userRequirements?.length ?? 0) +
-    (quest?.locationRequirements?.length ?? 0);
+    (quest?.locationRequirements?.length ?? 0) +
+    (quest?.userTapReq ? 1 : 0);
 
   const isQuestComplete = existingProofId !== undefined && !isLoading;
 

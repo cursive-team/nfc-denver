@@ -174,6 +174,7 @@ const LocationTapModal = ({
                   userRequirements,
                   locationRequirements,
                   isCompleted = false,
+                  userTapReq,
                 } = quest;
                 return (
                   <Link href={`/quests/${id}`} key={id}>
@@ -181,7 +182,8 @@ const LocationTapModal = ({
                       key={id}
                       title={name}
                       description={description}
-                      completedSigs={questNumRequirementsSatisfied}
+                      userTapReqCount={userTapReq ? 1 : 0}
+                      completedReqs={questNumRequirementsSatisfied}
                       userRequirements={userRequirements}
                       locationRequirements={locationRequirements}
                       isCompleted={isCompleted}
