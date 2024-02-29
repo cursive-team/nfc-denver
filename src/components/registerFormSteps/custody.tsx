@@ -112,16 +112,12 @@ const RegisterCustody = ({ onBack, onSuccess }: RegisterFormStepProps) => {
                 });
               }}
             />
-            <span>-----</span>
-            <span className="text-gray-11 text-sm">
-              Opt into experimental cryptographic features using MPC and FHE to
-              privately compute shared taps with another user. You choose to
-              enable it each time you tap, but it will incur a
-              computation/bandwidth overhead.
-            </span>
             <Checkbox
               id="wantsExperimentalFeatures"
               label="Enable experimental cryptographic features"
+              description="Test cutting-edge MPC+FHE to
+              privately compute shared taps with another user. 
+              It incurs a computation overhead when you choose to use it."
               checked={wantsExperimentalFeatures}
               onChange={() => {
                 setValue(
