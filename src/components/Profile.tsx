@@ -110,6 +110,7 @@ const Profile = ({ handleSignout }: ProfileProps) => {
 
     const profile = {
       displayName,
+      pkId: previousProfile.pkId,
       email: previousProfile.email,
       encryptionPublicKey: previousProfile.encryptionPublicKey,
       signaturePublicKey: previousProfile.signaturePublicKey,
