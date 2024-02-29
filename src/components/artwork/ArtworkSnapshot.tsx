@@ -7,7 +7,6 @@ import {
 import { classed } from "@tw-classed/react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Card } from "../cards/Card";
-import { Icons } from "../Icons";
 import { cn } from "@/lib/client/utils";
 
 const Label = classed.span("text-gray-10 text-xs font-light");
@@ -36,30 +35,6 @@ interface ArtworkSnapshotArrowProps
   direction: Direction;
   disabled?: boolean;
 }
-
-const ArtworkSnapshotArrow = ({
-  onClick,
-  direction,
-  disabled,
-  ...props
-}: ArtworkSnapshotArrowProps) => {
-  const onHandleClick = () => {
-    if (disabled) return;
-    onClick?.();
-  };
-
-  return (
-    <button onClick={onHandleClick} {...props}>
-      <Icons.arrowRight
-        className={cn("duration-200", {
-          "rotate-180": direction === "left",
-          "opacity-30": disabled,
-        })}
-        size={30}
-      />
-    </button>
-  );
-};
 
 interface ProfileCardArtworkProps {
   size?: number;
@@ -117,10 +92,18 @@ const ArtworkSnapshot = ({
     const profile = getProfile();
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
+      // add personal signature to the beginning of the array
+      combined.push({
+        pubKey: profile?.signaturePublicKey ?? "0",
+        timestamp: new Date().getTime(),
+        name: "You",
+        person: true,
+      });
+
       const users = getUsers();
       for (const userKey in users) {
         const user = users[userKey];
-        if (profile && user.sigPk === profile?.signaturePublicKey) continue;
+        if (user.sigPk === profile?.signaturePublicKey) continue;
         const ts = user.inTs;
         const pk = user.sigPk;
         if (ts && pk) {
@@ -195,16 +178,15 @@ const ArtworkSnapshot = ({
     HAS_PROFILE_PUB_KEY,
   ]);
 
-  // no signatures, canvas is empty
-  if (signatures?.length === 0) return;
-
   // if profile public key is available, use the dataURL
   if (HAS_PROFILE_PUB_KEY || pubKey === "") {
     return <ProfileCardArtwork size={width ?? 200} image={dataURL} />;
   }
 
+  if (signatures?.length === 0) return;
+
   return (
-    <>
+    <div className="flex flex-col gap-4">
       {isVisible && (
         <canvas
           className="artwork-webgl flex p-0 m-0 border border-white rounded-[8px]"
@@ -214,52 +196,58 @@ const ArtworkSnapshot = ({
       )}
       {slider && (
         <div className="flex flex-col gap-4">
-          <label className="flex flex-col gap-4 w-full mt-4">
-            <div className="label p-0">
-              <Label className="label-text">Start</Label>
-              <Label className="label-text-alt">Present</Label>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={signatures.length + 1}
-              value={rangeValue} // Bind the value to state
-              onChange={onRangeChange}
-              className="w-full h-0.5 bg-gray-700 accent-gray-12 appearance-none"
-            />
-          </label>
-          <div className="flex flex-col">
-            {rangeValue === 1 ? (
-              <div className="relative">
-                <div className="absolute inset-0 flex flex-col gap-1 w-full">
-                  <Description>Your personal stamp</Description>
-                  <Label className="text-center ">
-                    Navigate to see your stamp collection develop!
-                  </Label>
-                </div>
+          {signatures?.length > 1 && (
+            <label className="flex flex-col gap-4 w-full">
+              <div className="label p-0">
+                <Label className="label-text">Start</Label>
+                <Label className="label-text-alt">Present</Label>
               </div>
-            ) : (
-              <div className="relative">
-                <div className="absolute inset-0 flex flex-col gap-1 w-full">
-                  <Description>
-                    {`Snapshot when ${
-                      signatures[rangeValue - 2].person
-                        ? `you met ${signatures[rangeValue - 2].name}`
-                        : `you went to ${signatures[rangeValue - 2].name}`
-                    }`}
-                  </Description>
-                  <Label className="text-center ">
-                    {new Date(
-                      signatures[rangeValue - 2].timestamp
-                    ).toLocaleString()}
-                  </Label>
+              <input
+                type="range"
+                min={1}
+                max={signatures.length}
+                value={rangeValue} // Bind the value to state
+                onChange={onRangeChange}
+                className="w-full h-0.5 bg-gray-700 accent-gray-12 appearance-none"
+              />
+            </label>
+          )}
+          <div className="flex flex-col gap-4">
+            {signatures?.map(({ person, name, timestamp }, index) => {
+              const showCurrent = rangeValue === index + 1;
+              const isFirstElement = rangeValue === 1;
+
+              return (
+                <div className="relative" key={index}>
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex flex-col gap-1 w-full duration-300 ease-in",
+                      {
+                        "opacity-0": !showCurrent,
+                        "opacity-100": showCurrent,
+                      }
+                    )}
+                  >
+                    <Description>
+                      {isFirstElement
+                        ? "Your personal stamp"
+                        : `Snapshot when ${
+                            person ? `you met ${name}` : `you went to ${name}`
+                          }`}
+                    </Description>
+                    <Label className="text-center">
+                      {isFirstElement && signatures.length > 1
+                        ? "Navigate to see your stamp collection develop!"
+                        : new Date(timestamp).toLocaleString()}
+                    </Label>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
