@@ -101,8 +101,47 @@ const AppHeaderContent = ({
             <div className="flex flex-col gap-2">
               <Subtitle>Who is behind BUIDLQuest?</Subtitle>
               <Description>
-                BUIDLQuest is a collaboration between IYK, Cursive, ZKSync,
-                Clave, Summon, and ETHDenver.
+                BUIDLQuest is a collaboration between{" "}
+                <a
+                  href="https://iyk.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  IYK
+                </a>
+                ,
+                <a
+                  href="https://cursive.team"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Cursive
+                </a>
+                ,
+                <a
+                  href="https://zksync.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  ZKSync
+                </a>
+                ,
+                <a
+                  href="https://getclave.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Clave
+                </a>
+                ,
+                <a
+                  href="https://summon.xyz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Summon
+                </a>
+                , and ETHDenver.
               </Description>
             </div>
             <div className="flex flex-col gap-2">
