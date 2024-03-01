@@ -97,7 +97,7 @@ const QuestCard = ({
         </div>
         <div className="flex flex-col gap-2">
           <Card.Description>{description}</Card.Description>
-          {reward && <PointCard label="Reward" point={reward} />}
+          {reward !== undefined && <PointCard label="Reward" point={reward} />}
         </div>
       </div>
       <div className="flex gap-4 items-center justify-between">
