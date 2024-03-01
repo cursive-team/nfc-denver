@@ -13,7 +13,6 @@ import {
 } from "@/lib/client/localStorage";
 import { encryptBackupString } from "@/lib/shared/backup";
 import { toast } from "sonner";
-import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 import { RegisterStepForm } from "@/components/registerFormSteps";
@@ -32,6 +31,7 @@ enum DisplayState {
   INPUT_EMAIL,
   INPUT_CODE,
   INPUT_SOCIAL,
+  QUICK_START,
   CHOOSE_CUSTODY,
   INPUT_PASSWORD,
   CREATING_ACCOUNT,
@@ -46,7 +46,7 @@ export default function Register() {
   const allowsAnalytics = getState()?.register?.allowsAnalytics ?? false;
 
   const [displayState, setDisplayState] = useState<DisplayState>(
-    DisplayState.INPUT_EMAIL
+    DisplayState.QUICK_START
   );
   const [iykRef, setIykRef] = useState<string>("");
   const [mockRef, setMockRef] = useState<string>();
@@ -60,6 +60,20 @@ export default function Register() {
       setMockRef(router.query.mockRef as string);
     }
   }, [router.query.iykRef, router.query.mockRef]);
+
+  const quickStartHandleAccount = async () => {
+    const { privateKey, publicKey } = await generateEncryptionKeyPair();
+    const { signingKey, verifyingKey } = generateSignatureKeyPair();
+    setSignatureKeyArt(verifyingKey);
+
+    const { displayName, password } = getState().register;
+
+    let passwordSalt, passwordHash;
+    if (!wantsServerCustody) {
+      passwordSalt = generateSalt();
+      passwordHash = await hashPassword(password, passwordSalt);
+    }
+  };
 
   const handleCreateAccount = async () => {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
