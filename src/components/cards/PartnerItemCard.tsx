@@ -51,7 +51,7 @@ const PartnerItemCard = ({
   size,
   color,
   image,
-  partner = "Partner",
+  partner = "",
   item = "Item",
   ...props
 }: PointCardProps) => {
@@ -70,8 +70,8 @@ const PartnerItemCard = ({
         {...props}
       >
         <img src={image} alt={item} className="w-5 h-5 rounded-[2px]" />
-        <span className="text-xs text-gray-10">{partner}</span>
-        <span className="text-xs text-gray-100">{item}</span>
+        {partner && <span className="text-xs text-gray-10">{partner}</span>}
+        {item && <span className="text-xs text-gray-100">{item}</span>}
       </div>
     </div>
   );
