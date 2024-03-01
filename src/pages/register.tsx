@@ -69,7 +69,6 @@ export default function Register() {
 
   const artworkSize = pageWidth - 64;
 
-  // keeping old code here for easy port
   const handleCreateAccount = async () => {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
 
@@ -304,6 +303,7 @@ export default function Register() {
     </>
   );
 
+  // keeping old code here for easy port
   return (
     <>
       {displayState === DisplayState.INPUT_EMAIL && (
