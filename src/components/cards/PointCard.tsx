@@ -38,7 +38,7 @@ type PointLabelVariants = Classed.VariantProps<typeof PointCardLabel>;
 
 interface PointCardProps extends PointCardVariants, PointLabelVariants {
   label?: string;
-  point: number;
+  point: number | string;
   onClick?: () => void;
   className?: string;
 }

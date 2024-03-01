@@ -68,6 +68,7 @@ export default function QuestsPage() {
               locationRequirements,
               isCompleted = false,
               userTapReq,
+              buidlReward,
             }: QuestWithCompletion,
             index
           ) => {
@@ -77,6 +78,7 @@ export default function QuestsPage() {
               <Link href={`/quests/${id}`} key={key}>
                 <QuestCard
                   title={name}
+                  reward={buidlReward}
                   description={description}
                   userTapReqCount={userTapReq ? 1 : 0}
                   completedReqs={numRequirementsSatisfied[index]}
