@@ -141,7 +141,7 @@ const RegisterQuickStart = ({
             name="custody"
             value="server"
             label="Server custody"
-            description="Your socials and contacts can be read by app server, but login just requires verifying an email code."
+            description="Your socials and contacts can be read by app server, but login by just verifying an email code."
             checked={wantsServerCustody}
             onChange={() => {
               setValue("wantsServerCustody", true, {
@@ -154,7 +154,7 @@ const RegisterQuickStart = ({
             name="custody"
             value="self"
             label="Self custody"
-            description="Your socials and contacts are private to you, but you must save a master password for encrypted backups. ZK is used to prove quest completion."
+            description="Your socials and contacts are private to you, but you must save a master password for encrypted backups. ZK is used to verifiably unlock prizes."
             checked={!wantsServerCustody}
             onChange={() => {
               setValue("wantsServerCustody", false, {
