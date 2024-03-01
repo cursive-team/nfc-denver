@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { detectIncognito } from "detectincognitojs";
 
+export const MAX_LEADERBOARD_LENGTH = 100;
+
 export default function useSettings() {
   const router = useRouter();
   const [pageWidth, setPageWidth] = useState(0);

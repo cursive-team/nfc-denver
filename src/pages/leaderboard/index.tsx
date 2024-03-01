@@ -4,6 +4,7 @@ import { Placeholder } from "@/components/placeholders/Placeholder";
 import { LoadingWrapper } from "@/components/wrappers/LoadingWrapper";
 import { useGetLeaderboard } from "@/hooks/useLeaderboard";
 import { useFetchStore } from "@/hooks/useStore";
+import { MAX_LEADERBOARD_LENGTH } from "@/hooks/useSettings";
 import { getAuthToken } from "@/lib/client/localStorage";
 import { classed } from "@tw-classed/react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -46,10 +47,15 @@ const PositionCard = classed.div(
     },
   }
 );
+
 export default function LeaderBoard() {
   const authToken = useMemo(getAuthToken, []);
-  const { isLoading, data: leaderboard = [] } = useGetLeaderboard(authToken);
   const { isLoading: isLoadingStoreItems, data: storeItems } = useFetchStore();
+  const {
+    isLoading,
+    data: leaderboard = [],
+    isRefetching,
+  } = useGetLeaderboard(authToken);
 
   const [currentUserRank, setCurrentUserRank] = useState<number | undefined>();
 
@@ -76,51 +82,60 @@ export default function LeaderBoard() {
         }
       }
     }
-  }, [leaderboard]);
+  }, [leaderboard, isRefetching]);
 
   const getLeaderboardData = () => {
     let rank = 0;
     let prevConnections: Number | undefined;
     let skip = 1;
 
-    return leaderboard?.map(({ name, connections, isCurrentUser }, index) => {
-      if (index === 0 || connections !== prevConnections) {
-        prevConnections = connections;
-        rank += skip;
-        skip = 1;
-      } else {
-        skip++;
-      }
+    return leaderboard
+      .slice(0, MAX_LEADERBOARD_LENGTH)
+      ?.map(({ name, connections, isCurrentUser }, index) => {
+        if (index === 0 || connections !== prevConnections) {
+          prevConnections = connections;
+          rank += skip;
+          skip = 1;
+        } else {
+          skip++;
+        }
 
-      const storeItem = storeItems?.find(
-        (item) => item.id === LeaderboardPositionItem[rank]
-      );
+        const storeItem = storeItems?.find(
+          (item) => item.id === LeaderboardPositionItem[rank]
+        );
 
-      return (
-        <TableWrapper className="!grid-cols-[25px_1fr_35px]" key={index}>
-          <PositionCard active={isCurrentUser}>{rank}</PositionCard>
-          <DisplayName>
-            <div className="flex items-center gap-2">
-              <span>
-                {name}{" "}
-                {isCurrentUser && <span className="text-gray-10">(you)</span>}
-              </span>
-              {storeItem && (
-                <PartnerItemCard
-                  item={storeItem.name}
-                  image={storeItem?.imageUrl}
-                />
-              )}
-            </div>
-          </DisplayName>
+        return (
+          <TableWrapper className="!grid-cols-[25px_1fr_35px]" key={index}>
+            <PositionCard active={isCurrentUser}>{rank}</PositionCard>
+            <DisplayName>
+              <div className="flex items-center gap-2">
+                <span>
+                  {name}{" "}
+                  {isCurrentUser && <span className="text-gray-10">(you)</span>}
+                </span>
+                {storeItem && (
+                  <PartnerItemCard
+                    item={storeItem.name}
+                    image={storeItem?.imageUrl}
+                  />
+                )}
+              </div>
+            </DisplayName>
 
-          <Point className="text-right">{connections}</Point>
-        </TableWrapper>
-      );
-    });
+            <Point className="text-right">{connections}</Point>
+          </TableWrapper>
+        );
+      });
   };
 
+  const profileRank = `${currentUserRank} of ${leaderboard.length}`;
+  const userLeaderboardItem = leaderboard.find((user) => user.isCurrentUser);
+  const userInMainRank =
+    currentUserRank && userLeaderboardItem
+      ? currentUserRank <= MAX_LEADERBOARD_LENGTH
+      : false;
   const loading = isLoadingStoreItems || isLoading;
+
   return (
     <div>
       <AppBackHeader
@@ -129,7 +144,7 @@ export default function LeaderBoard() {
           currentUserRank && (
             <div className="flex gap-0.5 text-sm">
               <span className="text-gray-900">Your rank:</span>
-              <span className="text-gray-12">{currentUserRank}</span>
+              <span className="text-gray-12">{profileRank}</span>
             </div>
           )
         }
@@ -155,6 +170,20 @@ export default function LeaderBoard() {
             fallback={<Placeholder.List type="line" items={20} />}
           >
             {getLeaderboardData()}
+            {!userInMainRank && (
+              <div className="flex flex-col">
+                <TableWrapper>
+                  <PositionCard active>{currentUserRank}</PositionCard>
+                  <DisplayName>
+                    {userLeaderboardItem?.name}{" "}
+                    <span className="text-gray-10">(you)</span>
+                  </DisplayName>
+                  <Point className="text-right">
+                    {userLeaderboardItem?.connections ?? 0}
+                  </Point>
+                </TableWrapper>
+              </div>
+            )}
           </LoadingWrapper>
         </div>
       </div>
