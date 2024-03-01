@@ -30,6 +30,8 @@ import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { getUserClaveInfo } from "@/lib/client/clave";
 import { toast } from "sonner";
+import { Modal } from "@/components/modals/Modal";
+import QRCode from "react-qr-code";
 
 interface ContactCardProps {
   name: string;
@@ -180,6 +182,7 @@ export default function Social() {
   const { getState } = useStateMachine({ updateStateFromAction });
   const { pageWidth } = useSettings();
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
   const [profile, setProfile] = useState<Profile>();
   const [buidlBalance, setBuidlBalance] = useState<number>(0);
   const [numConnections, setNumConnections] = useState<number>(0);
@@ -425,6 +428,17 @@ export default function Social() {
   if (!profile || !tabsItems) return null;
   return (
     <>
+      <Modal isOpen={cashOutOpen} setIsOpen={setCashOutOpen} withBackButton>
+        <h2 className="text-center text-sm text-gray-12">
+          Go to Clave booth to cash out!
+        </h2>
+        <QRCode
+          size={156}
+          className="ml-auto p-4 h-auto w-full max-w-full"
+          value={`${window.location.origin}/mint/${profile.encryptionPublicKey}`}
+          viewBox={`0 0 156 156`}
+        />
+      </Modal>
       <SnapshotModal
         isOpen={showSnapshotModal}
         setIsOpen={setShowSnapshotModal}
@@ -449,7 +463,7 @@ export default function Social() {
             </button>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-1 mt-2">
               <div className="flex gap-[6px] items-center">
                 <h2 className="text-xl font-gray-12 font-light">
@@ -466,6 +480,9 @@ export default function Social() {
             <Link href="/leaderboard">
               <Button size="sm">View leaderboard</Button>
             </Link>
+            <Button onClick={() => setCashOutOpen(true)} size="sm">
+              Cash out
+            </Button>
           </div>
         </div>
       </div>
