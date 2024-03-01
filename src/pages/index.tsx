@@ -435,7 +435,7 @@ export default function Social() {
         <QRCode
           size={156}
           className="ml-auto p-4 h-auto w-full max-w-full"
-          value={`${window.location.origin}/mint/${profile.encryptionPublicKey}`}
+          value={`${window.location.origin}/mint/${profile.signaturePublicKey}`}
           viewBox={`0 0 156 156`}
         />
       </Modal>
