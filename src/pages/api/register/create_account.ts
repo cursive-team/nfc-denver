@@ -20,7 +20,6 @@ const createAccountSchema = object({
   iykRef: string().required(),
   mockRef: string().optional().default(undefined),
   email: string().email().trim().lowercase().required(),
-  code: string().required(),
   displayName: string().trim().required(),
   wantsServerCustody: boolean().required(),
   allowsAnalytics: boolean().required(),
@@ -57,7 +56,6 @@ export default async function handler(
     iykRef,
     mockRef,
     email,
-    code,
     displayName,
     wantsServerCustody,
     allowsAnalytics,
@@ -99,12 +97,6 @@ export default async function handler(
     if (!emailMatchesChipId) {
       return res.status(400).json({ error: "Email does not match iykRef" });
     }
-  }
-
-  // Verify the signin code is valid
-  const verifySigninCodeResult = await verifySigninCode(email, code, true);
-  if (!verifySigninCodeResult.success) {
-    return res.status(400).json({ error: "Invalid email code" });
   }
 
   // Fetch a clave invite code

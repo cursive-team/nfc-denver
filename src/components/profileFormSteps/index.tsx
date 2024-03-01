@@ -218,6 +218,57 @@ const ProfileForm = ({
           {...register("email")}
         />
       </div>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col">
+          <span className="text-gray-12 text-sm font-light">
+            Shareable socials
+          </span>
+          <span className="text-gray-11 text-xs font-light">
+            {`Taps are one way: you choose which socials to share when you tap someone and they see nothing when they tap you.`}
+          </span>
+        </div>
+        <div className="flex flex-col gap-6">
+          <Input
+            label="Twitter"
+            disabled={isReadOnly}
+            error={errors.twitterUsername?.message}
+            {...register("twitterUsername", {
+              onChange: (e) => {
+                const value = e.target.value;
+                handleUsername("twitterUsername", value);
+              },
+            })}
+          />
+          <Input
+            label="Telegram"
+            disabled={isReadOnly}
+            error={errors.telegramUsername?.message}
+            {...register("telegramUsername", {
+              onChange: (e) => {
+                const value = e.target.value;
+                handleUsername("telegramUsername", value);
+              },
+            })}
+          />
+          <Input
+            label="Farcaster"
+            error={errors.farcasterUsername?.message}
+            disabled={isReadOnly}
+            {...register("farcasterUsername", {
+              onChange: (e) => {
+                const value = e.target.value;
+                handleUsername("farcasterUsername", value);
+              },
+            })}
+          />
+          <Input
+            label="Bio"
+            error={errors.bio?.message}
+            disabled={isReadOnly}
+            {...register("bio")}
+          />
+        </div>
+      </div>
       {claveInfo && (
         <div className="flex flex-col gap-2">
           <span className="text-gray-12 text-sm font-light">Clave</span>
@@ -234,7 +285,6 @@ const ProfileForm = ({
           )}
         </div>
       )}
-
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <span className="text-gray-12 text-sm font-light">
@@ -270,47 +320,6 @@ const ProfileForm = ({
             }
           />
         </div>
-      </div>
-      <div className="flex flex-col gap-6">
-        <Input
-          label="Twitter (Optional)"
-          disabled={isReadOnly}
-          error={errors.twitterUsername?.message}
-          {...register("twitterUsername", {
-            onChange: (e) => {
-              const value = e.target.value;
-              handleUsername("twitterUsername", value);
-            },
-          })}
-        />
-        <Input
-          label="Telegram (Optional)"
-          disabled={isReadOnly}
-          error={errors.telegramUsername?.message}
-          {...register("telegramUsername", {
-            onChange: (e) => {
-              const value = e.target.value;
-              handleUsername("telegramUsername", value);
-            },
-          })}
-        />
-        <Input
-          label="Farcaster (Optional)"
-          error={errors.farcasterUsername?.message}
-          disabled={isReadOnly}
-          {...register("farcasterUsername", {
-            onChange: (e) => {
-              const value = e.target.value;
-              handleUsername("farcasterUsername", value);
-            },
-          })}
-        />
-        <Input
-          label="Bio (Optional)"
-          error={errors.bio?.message}
-          disabled={isReadOnly}
-          {...register("bio")}
-        />
       </div>
     </FormStepLayout>
   );

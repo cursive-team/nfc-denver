@@ -87,7 +87,7 @@ const FeedContent = ({ title, description, icon }: FeedContentProps) => {
         <div className="flex justify-center items-center h-6 w-6 rounded-full bg-[#323232]">
           {icon}
         </div>
-        <Card.Title className="break-all">{title}</Card.Title>
+        <Card.Title>{title}</Card.Title>
       </div>
       <Card.Description>{description}</Card.Description>
     </div>
@@ -97,11 +97,26 @@ const FeedContent = ({ title, description, icon }: FeedContentProps) => {
 const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
   switch (type) {
     case JUB_SIGNAL_MESSAGE_TYPE.REGISTERED:
+      const profile = getProfile();
+      if (
+        profile?.bio ||
+        profile?.telegramUsername ||
+        profile?.twitterUsername ||
+        profile?.farcasterUsername
+      ) {
+        return (
+          <FeedContent
+            title="Registered and set up socials!"
+            description={date}
+            icon={<CircleCard icon="proof" />}
+          />
+        );
+      }
       return (
         <FeedContent
-          title="Registered for BUIDLQuest!"
+          title="Registered! Set up your socials in upper-right menu."
           description={date}
-          icon={<CircleCard icon="person" />}
+          icon={<CircleCard icon="proof" />}
         />
       );
     case JUB_SIGNAL_MESSAGE_TYPE.OUTBOUND_TAP:

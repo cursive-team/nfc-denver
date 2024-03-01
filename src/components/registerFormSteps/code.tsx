@@ -83,7 +83,7 @@ const RegisterStepCode = ({ onBack, onSuccess }: RegisterFormStepProps) => {
 
   return (
     <div className="flex flex-col grow">
-      <AppBackHeader label="Email" onBackClick={() => onBack?.()} />
+      <AppBackHeader label={"Back"} onBackClick={() => onBack?.()} />
       <FormStepLayout
         title={`We've just sent you a six digit code to ${email}`}
         description={eventDate}

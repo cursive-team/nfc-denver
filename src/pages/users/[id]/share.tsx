@@ -205,7 +205,11 @@ const SharePage = () => {
             isVisible
           />
         </div>
-
+        {!hasSocialLinks && !profile.bio && (
+          <Description>
+            {`No socials set up. Add your socials in the upper-right menu from the home page to selectively share upon tap!`}
+          </Description>
+        )}
         {(hasSocialLinks || profile.bio) && (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
@@ -274,7 +278,7 @@ const SharePage = () => {
           }}
         />
         <Button loading={loading} type="submit">
-          Share
+          Submit
         </Button>
       </FormStepLayout>
     </div>

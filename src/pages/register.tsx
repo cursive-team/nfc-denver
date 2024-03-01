@@ -13,7 +13,6 @@ import {
 } from "@/lib/client/localStorage";
 import { encryptBackupString } from "@/lib/shared/backup";
 import { toast } from "sonner";
-import { Spinner } from "@/components/Spinner";
 import { loadMessages } from "@/lib/client/jubSignalClient";
 import { encryptRegisteredMessage } from "@/lib/client/jubSignal/registered";
 import { RegisterStepForm } from "@/components/registerFormSteps";
@@ -27,11 +26,14 @@ import useSettings from "@/hooks/useSettings";
 import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import { InputDescription } from "@/components/input/InputWrapper";
 import { Icons } from "@/components/Icons";
+import { RegisterQuickStart } from "@/components/registerFormSteps/quickStart";
+import { Button } from "@/components/Button";
 
 enum DisplayState {
   INPUT_EMAIL,
   INPUT_CODE,
   INPUT_SOCIAL,
+  QUICK_START,
   CHOOSE_CUSTODY,
   INPUT_PASSWORD,
   CREATING_ACCOUNT,
@@ -46,20 +48,26 @@ export default function Register() {
   const allowsAnalytics = getState()?.register?.allowsAnalytics ?? false;
 
   const [displayState, setDisplayState] = useState<DisplayState>(
-    DisplayState.INPUT_EMAIL
+    DisplayState.QUICK_START
   );
   const [iykRef, setIykRef] = useState<string>("");
   const [mockRef, setMockRef] = useState<string>();
   const [signatureKeyArt, setSignatureKeyArt] = useState<string>();
+  const [accountCreated, setAccountCreated] = useState(false);
 
   useEffect(() => {
     if (router.query.iykRef) {
       setIykRef(router.query.iykRef as string);
+    } else {
+      toast.error("Please tap your card to link it to your account.");
     }
+
     if (router.query.mockRef) {
       setMockRef(router.query.mockRef as string);
     }
-  }, [router.query.iykRef, router.query.mockRef]);
+  }, [router.query]);
+
+  const artworkSize = pageWidth - 64;
 
   const handleCreateAccount = async () => {
     setDisplayState(DisplayState.CREATING_ACCOUNT);
@@ -76,7 +84,6 @@ export default function Register() {
       twitterUsername,
       farcasterUsername,
       bio,
-      code,
       password,
     } = getState().register;
 
@@ -95,7 +102,6 @@ export default function Register() {
         iykRef,
         mockRef,
         email,
-        code,
         displayName,
         wantsServerCustody,
         allowsAnalytics,
@@ -202,12 +208,102 @@ export default function Register() {
       return;
     }
 
-    toast.success("Account created and backed up!");
-    router.push("/");
+    setAccountCreated(true);
   };
 
-  const artworkSize = pageWidth - 64;
+  return (
+    <>
+      {displayState === DisplayState.QUICK_START && (
+        <RegisterQuickStart
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onSuccess={(wantsServerCustody: boolean) => {
+            console.log("wantsServerCustody", wantsServerCustody);
+            wantsServerCustody
+              ? setDisplayState(DisplayState.INPUT_CODE)
+              : setDisplayState(DisplayState.INPUT_PASSWORD);
+          }}
+        />
+      )}
+      {displayState === DisplayState.INPUT_CODE && (
+        <RegisterStepCode
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            setDisplayState(DisplayState.QUICK_START);
+          }}
+          onSuccess={async () => {
+            await handleCreateAccount();
+          }}
+        />
+      )}
+      {displayState === DisplayState.INPUT_PASSWORD && (
+        <RegisterPassword
+          iykRef={iykRef}
+          mockRef={mockRef}
+          onBack={() => {
+            setDisplayState(DisplayState.QUICK_START);
+          }}
+          onSuccess={async () => {
+            await handleCreateAccount();
+          }}
+        />
+      )}
+      {displayState === DisplayState.CREATING_ACCOUNT && (
+        <div className="flex flex-col justify-center my-auto mx-auto text-center">
+          {signatureKeyArt && (
+            <>
+              <div className="mx-auto">
+                <ArtworkSnapshot
+                  width={artworkSize}
+                  height={artworkSize}
+                  pubKey={signatureKeyArt}
+                  isVisible
+                />
+              </div>
+              <div className={`flex flex-col gap-2 mt-8 px-10`}>
+                <InputDescription>
+                  This is your unique stamp that you will share with other
+                  ETHDenver attendees upon tap.
+                </InputDescription>
+                <InputDescription>
+                  Each stamp is attached with a signature for others to
+                  verifiably prove they met you.
+                </InputDescription>
+                <InputDescription>
+                  Your final stamp collection can be minted as an NFT! Browse
+                  its history from your profile.
+                </InputDescription>
+              </div>
+            </>
+          )}
+          <div className="mt-8">
+            {accountCreated ? (
+              <Button
+                onClick={() => {
+                  toast.success("Account created and backed up!");
+                  router.push("/");
+                }}
+              >
+                Enter BUIDLQuest!
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-4 text-center">
+                <div className="mx-auto">
+                  <Icons.loading size={28} className="animate-spin" />
+                </div>
+                <span className="text-sm text-gray-11 leading-5 font-light">
+                  Your account is being created.
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
 
+  // keeping old code here for easy port
   return (
     <>
       {displayState === DisplayState.INPUT_EMAIL && (
