@@ -19,7 +19,8 @@ export default function QuestsPage() {
     useState<QuestTagMappingType>("ALL");
 
   const displayQuests: QuestWithCompletion[] = useMemo(() => {
-    const quests = allQuests.filter((quest) => !quest.isHidden);
+    const unorderedQuests = allQuests.filter((quest) => !quest.isHidden);
+    const quests = unorderedQuests.sort((a, b) => b.priority - a.priority);
     const inProgressQuests = quests.filter((quest) => !quest.isCompleted);
     const completedQuests = quests.filter((quest) => quest.isCompleted);
     const questFilteredItems =
