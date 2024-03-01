@@ -184,7 +184,7 @@ const SharePage = () => {
     <div>
       <AppBackHeader redirectTo="/" />
       <FormStepLayout
-        className="!pt-0"
+        className="!pt-0 !pb-14"
         title={
           <span className="text-base text-gray-12 !pb-1">{`Share with ${user.name}`}</span>
         }
@@ -273,9 +273,11 @@ const SharePage = () => {
             setPrivateNote(event.target.value);
           }}
         />
-        <Button loading={loading} type="submit">
-          Share
-        </Button>
+        <div className="fixed bottom-0 bg-[#111] right-0 left-0 p-3">
+          <Button loading={loading} type="submit">
+            Share
+          </Button>
+        </div>
       </FormStepLayout>
     </div>
   );
