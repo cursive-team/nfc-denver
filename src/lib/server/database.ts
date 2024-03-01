@@ -75,6 +75,7 @@ export const itemWithRequirementsSelector = {
         buidlReward: true,
         itemId: true,
         isHidden: true,
+        priority: true,
         createdAt: true,
         userTapReq: true,
         userRequirements: {
