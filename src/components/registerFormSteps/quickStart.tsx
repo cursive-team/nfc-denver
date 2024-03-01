@@ -106,21 +106,21 @@ const RegisterQuickStart = ({
     <div className="flex flex-col grow">
       <FormStepLayout
         onSubmit={handleSubmit(handleQuickStartSubmit)}
-        description="Tap people's badges to connect and win prizes!"
+        description="Tap people's badges to share socials and win prizes!"
         title="Join BUIDLQuest"
         className="pt-4"
         header={<></>}
       >
         <Input
           label="Email"
-          placeholder="Your email"
+          placeholder="Login email address"
           error={errors.email?.message}
           {...register("email")}
         />
         <Input
           type="text"
           label="Display name"
-          placeholder="Choose name, can change anytime"
+          placeholder="In-app name, can change anytime"
           error={errors.displayName?.message}
           {...register("displayName")}
         />
