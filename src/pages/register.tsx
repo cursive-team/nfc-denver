@@ -27,6 +27,7 @@ import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import { InputDescription } from "@/components/input/InputWrapper";
 import { Icons } from "@/components/Icons";
 import { RegisterQuickStart } from "@/components/registerFormSteps/quickStart";
+import { Button } from "@/components/Button";
 
 enum DisplayState {
   INPUT_EMAIL,
@@ -52,6 +53,7 @@ export default function Register() {
   const [iykRef, setIykRef] = useState<string>("");
   const [mockRef, setMockRef] = useState<string>();
   const [signatureKeyArt, setSignatureKeyArt] = useState<string>();
+  const [accountCreated, setAccountCreated] = useState(false);
 
   useEffect(() => {
     if (router.query.iykRef) {
@@ -207,8 +209,7 @@ export default function Register() {
       return;
     }
 
-    toast.success("Account created and backed up!");
-    router.push("/");
+    setAccountCreated(true);
   };
 
   return (
@@ -261,7 +262,7 @@ export default function Register() {
                   isVisible
                 />
               </div>
-              <div className={`flex flex-col gap-2 mt-4 px-10`}>
+              <div className={`flex flex-col gap-2 mt-8 px-10`}>
                 <InputDescription>
                   This is your unique stamp that you will share with other
                   ETHDenver attendees upon tap.
@@ -271,21 +272,32 @@ export default function Register() {
                   verifiably prove they met you.
                 </InputDescription>
                 <InputDescription>
-                  Your stamp collection can be minted as an NFT at the end of
-                  the event!
+                  Your final stamp collection can be minted as an NFT! Browse
+                  its history from your profile.
                 </InputDescription>
               </div>
             </>
           )}
           <div className="mt-8">
-            <div className="flex flex-col gap-4 text-center">
-              <div className="mx-auto">
-                <Icons.loading size={28} className="animate-spin" />
+            {accountCreated ? (
+              <Button
+                onClick={() => {
+                  toast.success("Account created and backed up!");
+                  router.push("/");
+                }}
+              >
+                Enter BUIDLQuest!
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-4 text-center">
+                <div className="mx-auto">
+                  <Icons.loading size={28} className="animate-spin" />
+                </div>
+                <span className="text-sm text-gray-11 leading-5 font-light">
+                  Your account is being created.
+                </span>
               </div>
-              <span className="text-sm text-gray-11 leading-5 font-light">
-                Your account is being created.
-              </span>
-            </div>
+            )}
           </div>
         </div>
       )}
