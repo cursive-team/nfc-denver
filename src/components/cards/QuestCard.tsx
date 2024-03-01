@@ -3,6 +3,7 @@ import { Card } from "./Card";
 import { LocationRequirement, UserRequirement } from "@/types";
 import { Icons } from "../Icons";
 import { CircleCard } from "./CircleCard";
+import { PointCard } from "./PointCard";
 
 type QuestCardProps = {
   title: string;
@@ -13,6 +14,7 @@ type QuestCardProps = {
   completedReqs?: number; // number of completed signatures
   isCompleted: boolean; // whether the quest is completed
   isPinned?: boolean;
+  reward?: string | number;
 };
 
 const QuestRequirementIcons = ({
@@ -70,6 +72,7 @@ const QuestCard = ({
   isCompleted,
   isPinned,
   userTapReqCount,
+  reward,
 }: QuestCardProps) => {
   const numRequirements =
     userRequirements?.length + locationRequirements?.length + userTapReqCount;
@@ -92,7 +95,10 @@ const QuestCard = ({
             (isCompleted && <Icons.checkedCircle />) || null
           )}
         </div>
-        <Card.Description>{description}</Card.Description>
+        <div className="flex flex-col gap-2">
+          <Card.Description>{description}</Card.Description>
+          {reward && <PointCard label="Reward" point={reward} />}
+        </div>
       </div>
       <div className="flex gap-4 items-center justify-between">
         <QuestRequirementIcons
