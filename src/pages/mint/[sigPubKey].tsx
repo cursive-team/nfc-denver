@@ -9,13 +9,13 @@ import useRequireAdmin from "@/hooks/useRequireAdmin";
 
 const MintQRPage = () => {
   const router = useRouter();
-  const { userEncKey } = router.query;
+  const { sigPubKey } = router.query;
   const [loading, setLoading] = useState<boolean>(false);
 
   useRequireAdmin();
 
   useEffect(() => {
-    if (typeof userEncKey !== "string") {
+    if (typeof sigPubKey !== "string") {
       toast.error("Invalid QR code");
       router.push("/");
     }
@@ -26,7 +26,7 @@ const MintQRPage = () => {
       router.push("/login");
       return;
     }
-  }, [router, userEncKey]);
+  }, [router, sigPubKey]);
 
   const handleMint = async () => {
     setLoading(true);
@@ -44,7 +44,7 @@ const MintQRPage = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ token: authToken.value, userEncKey }),
+      body: JSON.stringify({ token: authToken.value, sigPubKey }),
     });
     if (!response.ok) {
       const { error } = await response.json();

@@ -14,7 +14,7 @@ export default async function handler(
   res: NextApiResponse<BuidlMintResponseType | ErrorResponse>
 ) {
   if (req.method === "POST") {
-    const { token, userEncKey } = req.body;
+    const { token, sigPubKey } = req.body;
 
     // Validate the token
     if (typeof token !== "string") {
@@ -22,7 +22,7 @@ export default async function handler(
     }
 
     // Validate the id
-    if (typeof userEncKey !== "string") {
+    if (typeof sigPubKey !== "string") {
       return res.status(400).json({ error: "ID must be a string" });
     }
 
@@ -34,7 +34,7 @@ export default async function handler(
 
     // Retrieve the quest proof to ensure it exists and has not been minted
     const user = await prisma.user.findFirst({
-      where: { encryptionPublicKey: userEncKey },
+      where: { signaturePublicKey: sigPubKey },
     });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
