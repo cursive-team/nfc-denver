@@ -218,22 +218,6 @@ const ProfileForm = ({
           {...register("email")}
         />
       </div>
-      {claveInfo && (
-        <div className="flex flex-col gap-2">
-          <span className="text-gray-12 text-sm font-light">Clave</span>
-          {claveInfo.claveWalletAddress ? (
-            <span className="text-gray-12 text-sm font-light">{`Wallet Address: ${claveInfo.claveWalletAddress}`}</span>
-          ) : (
-            <Button
-              type="button"
-              onClick={() => window.open(claveInfo.claveInviteLink, "_blank")}
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-            >
-              Join Clave
-            </Button>
-          )}
-        </div>
-      )}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col">
           <span className="text-gray-12 text-sm font-light">
@@ -285,6 +269,22 @@ const ProfileForm = ({
           />
         </div>
       </div>
+      {claveInfo && (
+        <div className="flex flex-col gap-2">
+          <span className="text-gray-12 text-sm font-light">Clave</span>
+          {claveInfo.claveWalletAddress ? (
+            <span className="text-gray-12 text-sm font-light">{`Wallet Address: ${claveInfo.claveWalletAddress}`}</span>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => window.open(claveInfo.claveInviteLink, "_blank")}
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              Join Clave
+            </Button>
+          )}
+        </div>
+      )}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3">
           <span className="text-gray-12 text-sm font-light">
