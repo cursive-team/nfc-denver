@@ -106,7 +106,7 @@ const RegisterQuickStart = ({
     <div className="flex flex-col grow">
       <FormStepLayout
         onSubmit={handleSubmit(handleQuickStartSubmit)}
-        description="Share your socials with a tap and win prizes!"
+        description="Tap people's badges to connect and win prizes!"
         title="Join BUIDLQuest"
         className="pt-4"
         header={<></>}

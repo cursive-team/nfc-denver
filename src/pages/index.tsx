@@ -106,7 +106,7 @@ const ActivityFeed = ({ type, name, id, date }: ActivityFeedProps) => {
       ) {
         return (
           <FeedContent
-            title="Registered and set up profile!"
+            title="Registered and set up socials!"
             description={date}
             icon={<CircleCard icon="person" />}
           />
