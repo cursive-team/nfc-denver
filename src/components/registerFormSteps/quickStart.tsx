@@ -51,9 +51,10 @@ const RegisterQuickStart = ({
     },
   });
 
-  const wantsServerCustody = watch("wantsServerCustody", false);
+  const wantsServerCustody = watch("wantsServerCustody");
 
   const handleQuickStartSubmit = async (data: RegisterQuickStartProps) => {
+    // update state with current form data
     actions.updateStateFromAction({
       register: {
         ...getState()?.register,
@@ -63,11 +64,6 @@ const RegisterQuickStart = ({
 
     if (wantsServerCustody) {
       setLoading(true);
-      // update state with email
-      actions.updateStateFromAction({
-        register: { ...getState().register, email: data.email },
-      });
-
       const response = await fetch("/api/register/get_code", {
         method: "POST",
         headers: {
@@ -109,7 +105,7 @@ const RegisterQuickStart = ({
         description="Tap people's badges to share socials and win prizes!"
         title="Join BUIDLQuest"
         className="pt-4"
-        header={<></>}
+        header={null}
       >
         <Input
           label="Email"

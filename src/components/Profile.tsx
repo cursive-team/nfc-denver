@@ -45,7 +45,10 @@ const Profile = ({ handleSignout }: ProfileProps) => {
   };
 
   const clearFormValues = () => {
+    // clear input password
     setInputPassword("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   const updateProfile = async () => {
