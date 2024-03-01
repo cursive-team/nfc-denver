@@ -4,8 +4,8 @@ import { getClaveBuidlBalance } from "../shared/clave";
 
 export type ClaveInfo = {
   buidlBalance: number;
-  serverBalance: number;
-  claveBalance: number;
+  serverBalance?: number;
+  claveBalance?: number;
   claveWalletAddress?: string;
   claveInviteLink: string;
 };
