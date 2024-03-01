@@ -28,7 +28,7 @@ import { ArtworkSnapshot } from "@/components/artwork/ArtworkSnapshot";
 import useSettings from "@/hooks/useSettings";
 import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
-import { getUserClaveInfo } from "@/lib/client/clave";
+import { ClaveInfo, getUserClaveInfo } from "@/lib/client/clave";
 import { toast } from "sonner";
 import { Modal } from "@/components/modals/Modal";
 import QRCode from "react-qr-code";
@@ -199,10 +199,10 @@ export default function Social() {
   const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
   const [profile, setProfile] = useState<Profile>();
-  const [buidlBalance, setBuidlBalance] = useState<number>(0);
   const [numConnections, setNumConnections] = useState<number>(0);
   const [tabsItems, setTabsItems] = useState<TabsProps["items"]>();
   const [isLoading, setLoading] = useState(false);
+  const [claveInfo, setClaveInfo] = useState<ClaveInfo>();
 
   const isMenuOpen = getState().isMenuOpen ?? false;
 
@@ -398,9 +398,8 @@ export default function Social() {
       setProfile(profileData);
       try {
         const userClaveInfo = await getUserClaveInfo();
-        setBuidlBalance(userClaveInfo.buidlBalance);
+        setClaveInfo(userClaveInfo);
       } catch (error) {
-        toast.error("Failed to fetch BUIDL balance");
         console.error("Failed to get user clave info:", error);
       }
 
@@ -445,14 +444,26 @@ export default function Social() {
     <>
       <Modal isOpen={cashOutOpen} setIsOpen={setCashOutOpen} withBackButton>
         <h2 className="text-center text-sm text-gray-12">
-          Go to Clave booth to cash out!
+          Scan this at BUIDL Store or the Clave booth to mint your quest BUIDL
+          to your Clave wallet.
         </h2>
         <QRCode
-          size={156}
+          size={100}
           className="ml-auto p-4 h-auto w-full max-w-full"
           value={`${window.location.origin}/mint/${profile.signaturePublicKey}`}
-          viewBox={`0 0 156 156`}
+          viewBox={`0 0 100 100`}
         />
+        {claveInfo?.buidlBalance !== undefined &&
+          claveInfo?.claveBalance !== undefined && (
+            <>
+              <h2 className="text-center text-sm text-gray-12">
+                Quest BUIDL: {claveInfo?.serverBalance}
+              </h2>
+              <h2 className="text-center text-sm text-gray-12">
+                Clave BUIDL: {claveInfo?.claveBalance}
+              </h2>
+            </>
+          )}
       </Modal>
       <SnapshotModal
         isOpen={showSnapshotModal}
@@ -484,7 +495,11 @@ export default function Social() {
                 <h2 className="text-xl font-gray-12 font-light">
                   {profile?.displayName}
                 </h2>
-                <PointCard point={buidlBalance} />
+                {claveInfo?.buidlBalance ? (
+                  <PointCard point={claveInfo.buidlBalance} />
+                ) : (
+                  <PointCard point={0} />
+                )}
               </div>
               <span className="text-sm font-light text-gray-10">
                 {numConnections === 1
@@ -495,9 +510,22 @@ export default function Social() {
             <Link href="/leaderboard">
               <Button size="sm">View leaderboard</Button>
             </Link>
-            <Button onClick={() => setCashOutOpen(true)} size="sm">
-              Cash out
-            </Button>
+            {claveInfo?.claveWalletAddress ? (
+              <Button onClick={() => setCashOutOpen(true)} size="sm">
+                Sync with Clave
+              </Button>
+            ) : claveInfo?.claveInviteLink ? (
+              <Button
+                onClick={() =>
+                  window.open(claveInfo?.claveInviteLink, "_blank")
+                }
+                size="sm"
+              >
+                Get Clave invite
+              </Button>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>
