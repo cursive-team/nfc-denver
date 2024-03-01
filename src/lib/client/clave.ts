@@ -4,6 +4,8 @@ import { getClaveBuidlBalance } from "../shared/clave";
 
 export type ClaveInfo = {
   buidlBalance: number;
+  serverBalance: number;
+  claveBalance: number;
   claveWalletAddress?: string;
   claveInviteLink: string;
 };
@@ -43,6 +45,8 @@ export const getUserClaveInfo = async (): Promise<ClaveInfo> => {
     }
 
     return {
+      serverBalance: serverClaveInfo.buidlBalance,
+      claveBalance: claveBuidlBalance,
       buidlBalance: serverClaveInfo.buidlBalance + claveBuidlBalance,
       claveWalletAddress: serverClaveInfo.claveWalletAddress,
       claveInviteLink: serverClaveInfo.claveInviteLink,
