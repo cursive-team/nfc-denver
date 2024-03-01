@@ -442,7 +442,7 @@ export default function Social() {
           claveInfo?.claveBalance !== undefined && (
             <>
               <h2 className="text-center text-sm text-gray-12">
-                Quest BUIDL: {claveInfo?.buidlBalance}
+                Quest BUIDL: {claveInfo?.serverBalance}
               </h2>
               <h2 className="text-center text-sm text-gray-12">
                 Clave BUIDL: {claveInfo?.claveBalance}
