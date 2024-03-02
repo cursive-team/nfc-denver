@@ -157,6 +157,9 @@ export default function LeaderBoard() {
             {"When someone is a quest requirement however, you must "}{" "}
             <i>receive</i> {" a tap from them."}
           </span>
+          <h3 className="font-normal leading-8 text-gray-12 text-light text-[20px]">
+            Leaderboard are determined on 02 March at 5:00 PM
+          </h3>
           <TableWrapper>
             <TableHeaderLabel className="text-center">#</TableHeaderLabel>
             <TableHeaderLabel>Display name</TableHeaderLabel>
