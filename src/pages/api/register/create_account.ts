@@ -25,7 +25,7 @@ const createAccountSchema = object({
   wantsExperimentalFeatures: boolean().required(),
   encryptionPublicKey: string().required(),
   signaturePublicKey: string().required(),
-  psiRound1Message: string().required(),
+  psiRound1Message: string().optional(),
   passwordSalt: string().optional(),
   passwordHash: string().optional(),
 });

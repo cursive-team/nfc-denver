@@ -5,7 +5,7 @@ import prisma from "@/lib/server/prisma";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    | { psiRound1Message: string; wantsExperimentalFeatures: boolean }
+    | { psiRound1Message: string | null; wantsExperimentalFeatures: boolean }
     | ErrorResponse
   >
 ) {
@@ -30,6 +30,7 @@ export default async function handler(
         return;
       }
 
+      user.wantsExperimentalFeatures = true;
       res.status(200).json(user);
     } catch (error) {
       console.error(error);
