@@ -14,6 +14,7 @@ import { useStateMachine } from "little-state-machine";
 import updateStateFromAction from "@/lib/shared/updateAction";
 import { ClaveInfo, getUserClaveInfo } from "@/lib/client/clave";
 import { useEffect, useState } from "react";
+import { Checkbox } from "../Checkbox";
 
 export type ProfileFormProps = InferType<typeof ProfileSchema>;
 
@@ -41,6 +42,7 @@ export const DEFAULT_PROFILE_VALUES: ProfileFormProps = {
   farcasterUsername: "",
   wantsServerCustody: false,
   allowsAnalytics: false,
+  wantsExperimentalFeatures: false,
 };
 
 const ProfileForm = ({
@@ -107,6 +109,9 @@ const ProfileForm = ({
           profile?.wantsServerCustody ?? previousProfile?.wantsServerCustody,
         allowsAnalytics:
           profile?.allowsAnalytics ?? previousProfile?.allowsAnalytics,
+        wantsExperimentalFeatures:
+          profile?.wantsExperimentalFeatures ??
+          previousProfile?.wantsExperimentalFeatures,
         twitterUsername:
           handleNickName(profile?.twitterUsername) ??
           handleNickName(previousProfile?.twitterUsername),
@@ -132,6 +137,7 @@ const ProfileForm = ({
 
   const { errors } = formState;
   const wantsServerCustody = watch("wantsServerCustody", false);
+  const wantsExperimentalFeatures = watch("wantsExperimentalFeatures", false);
 
   // make sure the username is always prefixed with @
   const handleUsername = (
@@ -331,6 +337,20 @@ const ProfileForm = ({
                 shouldDirty: true,
               })
             }
+          />
+          <Checkbox
+            id="wantsExperimentalFeatures"
+            label="Enable experimental cryptographic features"
+            description="Opt into experimental cryptographic features using MPC and
+            FHE to privately compute shared taps with another user. You choose to enable 
+            it each time you tap, but it will incur a computation/bandwidth overhead."
+            checked={wantsExperimentalFeatures}
+            onChange={(checkbox: boolean) =>
+              setValue("wantsExperimentalFeatures", checkbox, {
+                shouldDirty: true,
+              })
+            }
+            disabled={isReadOnly}
           />
         </div>
       </div>

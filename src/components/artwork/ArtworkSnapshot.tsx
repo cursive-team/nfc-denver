@@ -98,10 +98,10 @@ const ArtworkSnapshot = ({
   };
 
   useEffect(() => {
-    const profile = getProfile();
     const combined: PubKeyArrayElement[] = [];
     if (!pubKey) {
       const users = getUsers();
+      const profile = getProfile();
       for (const userKey in users) {
         const user = users[userKey];
         if (user.sigPk === profile?.signaturePublicKey) continue;
