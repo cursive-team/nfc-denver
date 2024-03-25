@@ -510,7 +510,10 @@ export default function Social() {
             <Link href="/leaderboard">
               <Button size="sm">View leaderboard</Button>
             </Link>
-            {claveInfo?.claveWalletAddress ? (
+            <Link href="/mint">
+              <Button size="sm">Mint Generative Art NFT</Button>
+            </Link>
+            {/* {claveInfo?.claveWalletAddress ? (
               <Button onClick={() => setCashOutOpen(true)} size="sm">
                 Sync with Clave
               </Button>
@@ -525,7 +528,7 @@ export default function Social() {
               </Button>
             ) : (
               <></>
-            )}
+            )} */}
           </div>
         </div>
       </div>
