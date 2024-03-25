@@ -38,6 +38,7 @@ model User {
   admin                     Admin?
   buidlMint                 BuidlMint[]
   itemRedeemed              ItemRedeemed[]
+  MintRequest               MintRequest[]
 }
 
 model Admin {
@@ -119,7 +120,7 @@ model Quest {
   summonId             String?               @unique
   buidlReward          Int
   itemId               Int?                  @unique
-  priority             Int                   @default(0)  
+  priority             Int                   @default(0)
   isHidden             Boolean               @default(false)
   createdAt            DateTime              @default(now())
   userRequirements     UserRequirement[]
@@ -247,4 +248,13 @@ model ItemRedeemed {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   item      Item     @relation(fields: [itemId], references: [id])
+}
+
+model MintRequest {
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  walletAddress         String
+  stringifiedPublicKeys String
+  createdAt             DateTime @default(now())
+  user                  User     @relation(fields: [userId], references: [id])
 }
